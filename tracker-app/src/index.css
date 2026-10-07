@@ -5,88 +5,102 @@
     box-sizing: border-box;
   }
   body {
-    background-color: #f4f4f0;
-    color: #121212;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-/* Brutalism Utility Classes */
-.brutal-card {
-  background-color: #ffffff;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
-  transition: all 0.15s ease-in-out;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
-.brutal-card-dark {
-  background-color: #1e1e1e;
-  color: #ffffff;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
+/* Modern Card & Utility Classes */
+.brutal-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .brutal-card-hover:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000000;
+  transform: translateY(-2px);
+  border-color: #475569;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
 .brutal-card-sm {
-  background-color: #ffffff;
-  border: 2px solid #000000;
-  box-shadow: 3px 3px 0px #000000;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
 .brutal-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.6rem 1.2rem;
-  border: 3px solid #000000;
-  box-shadow: 4px 4px 0px #000000;
-  transition: all 0.1s ease-in-out;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.025em;
+  padding: 0.55rem 1.15rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.15s ease-in-out;
   cursor: pointer;
 }
 
 .brutal-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px #000000;
+  transform: translateY(-1px);
+  filter: brightness(1.1);
 }
 
 .brutal-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px #000000;
+  transform: translateY(1px);
 }
 
 .brutal-badge {
   display: inline-flex;
   align-items: center;
-  font-weight: 800;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  padding: 0.25rem 0.5rem;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0px #000000;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.025em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .brutal-input {
   width: 100%;
-  border: 3px solid #000000;
-  padding: 0.5rem 0.75rem;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
   font-weight: 600;
-  background-color: #ffffff;
+  font-size: 0.875rem;
+  background-color: #0f172a;
+  color: #f8fafc;
   outline: none;
-  box-shadow: 3px 3px 0px #000000;
-  transition: box-shadow 0.15s ease-in-out;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .brutal-input:focus {
-  background-color: #fef08a;
-  box-shadow: 5px 5px 0px #000000;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
 }
 
