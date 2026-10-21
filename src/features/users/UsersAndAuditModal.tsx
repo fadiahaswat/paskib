@@ -13,6 +13,7 @@ import {
 import { Badge, Button, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import type { UserRole } from "../../domain/selection"
+import logoUrl from "../../assets/BACAPASMUIN.webp"
 
 export function UsersAndAuditModal({
   open,
@@ -326,7 +327,7 @@ export function LoginScreen() {
       <Card className="w-full max-w-lg border-white/10 bg-slate-900 p-6 text-white sm:p-8">
         <div className="flex items-center gap-3">
           <img
-            src="/BACAPASMUIN.webp"
+            src={logoUrl}
             alt="BACAPASMUIN!"
             className="h-12 w-auto object-contain drop-shadow"
           />

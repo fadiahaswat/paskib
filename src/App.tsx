@@ -64,6 +64,7 @@ import {
 } from "./features/users/UsersAndAuditModal"
 import { GoogleSheetSyncModal } from "./components/GoogleSheetSyncModal"
 import { formatLastSync } from "./lib/googleSheetSync"
+import logoUrl from "./assets/BACAPASMUIN.webp"
 import {
   downloadCandidateTemplateCsv,
   exportCandidatesCsv,
@@ -156,7 +157,7 @@ function Brand() {
   return (
     <div className="flex items-center gap-2.5">
       <img
-        src="/BACAPASMUIN.webp"
+        src={logoUrl}
         alt="BACAPASMUIN!"
         className="h-8 w-auto object-contain drop-shadow"
       />
