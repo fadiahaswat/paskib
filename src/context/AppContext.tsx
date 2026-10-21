@@ -166,6 +166,8 @@ type AppContextValue = {
   setAutoSyncGoogleSheet: (enabled: boolean) => void
   cloudSyncStatus: "idle" | "syncing" | "pulling" | "synced" | "error"
   lastCloudSync: string | null
+  hasUnsavedChanges: boolean
+  refreshAndSync: (reason?: "initial" | "manual" | "idle") => Promise<void>
   syncToGoogleSheet: (
     customUrl?: string,
     silent?: boolean,
@@ -1374,103 +1376,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
     stageChecklists,
   ])
 
-  const syncToGoogleSheet = useCallback(
-    async (customUrl?: string, silent: boolean = false) => {
-      const targetUrl = customUrl?.trim() || googleSheetUrl
-      if (!targetUrl) {
-        if (!silent) showToast("URL Google Apps Script belum diisi.", "warning")
-        return { ok: false, message: "URL belum diatur" }
-      }
-
-      const currentHash = computeDataHash()
-      if (silent && lastSyncedHash.current === currentHash) {
-        setCloudSyncStatus("synced")
-        return { ok: true, message: "Sudah tersimpan di Google Sheet" }
-      }
-
-      if (isSyncingRef.current) {
-        return { ok: false, message: "Sedang dalam proses sinkronisasi" }
-      }
-
-      isSyncingRef.current = true
-      setCloudSyncStatus("syncing")
-      try {
-        const state: AppDatabaseState = {
-          candidates: allCandidates,
-          cycles,
-          activeCycleId,
-          sessions,
-          records,
-          schedules,
-          questions,
-          supportingDocs,
-          standardRules,
-          stageChecklists,
-          users,
-          auditLogs,
-          rankingPublished,
-        }
-        const res = await pushStateToGoogleSheet(state, targetUrl)
-        if (res.ok) {
-          lastSyncedHash.current = currentHash
-          setCloudSyncStatus("synced")
-          const now = new Date().toISOString()
-          setLastCloudSync(now)
-          if (!silent) {
-            showToast(
-              res.message || "Data berhasil disinkronkan ke Google Sheet!",
-              "success",
-            )
-            logAudit(
-              "SYNC_GOOGLE_SHEET",
-              "Google Sheet",
-              `Sinkronisasi ${allCandidates.length} kandidat & ${sessions.length} sesi ke Google Sheet`,
-            )
-          }
-        } else {
-          setCloudSyncStatus("error")
-          if (!silent) showToast(res.message, "danger")
-        }
-        isSyncingRef.current = false
-        return res
-      } catch (err) {
-        isSyncingRef.current = false
-        setCloudSyncStatus("error")
-        const msg = err instanceof Error ? err.message : String(err)
-        if (!silent) showToast(`Gagal sinkron: ${msg}`, "danger")
-        return { ok: false, message: msg }
-      }
-    },
-    [
-      allCandidates,
-      cycles,
-      activeCycleId,
-      sessions,
-      records,
-      schedules,
-      questions,
-      supportingDocs,
-      standardRules,
-      stageChecklists,
-      users,
-      auditLogs,
-      rankingPublished,
-      googleSheetUrl,
-      showToast,
-      logAudit,
-      computeDataHash,
-    ],
+  const hasUnsavedChanges = Boolean(
+    googleSheetUrl &&
+      lastSyncedHash.current &&
+      computeDataHash() !== lastSyncedHash.current,
   )
 
-  const pullFromGoogleSheet = useCallback(
-    async (customUrl?: string, silent: boolean = false) => {
-      const targetUrl = customUrl?.trim() || googleSheetUrl
+  // Fungsi sinkronisasi cloud utama:
+  // 1. Membuka pertama kali ("initial")
+  // 2. Tombol refresh ("manual")
+  // 3. Ditinggal lama ("idle")
+  const refreshAndSync = useCallback(
+    async (reason: "initial" | "manual" | "idle" = "manual") => {
+      const targetUrl = googleSheetUrl.trim()
       if (!targetUrl) {
-        if (!silent) showToast("URL Google Apps Script belum diisi.", "warning")
-        return { ok: false, message: "URL belum diatur" }
+        if (reason === "manual") {
+          showToast("URL Google Apps Script belum diatur.", "warning")
+        }
+        return
       }
-      setCloudSyncStatus("pulling")
+
+      if (isSyncingRef.current) return
+      isSyncingRef.current = true
+      setCloudSyncStatus(reason === "initial" ? "pulling" : "syncing")
+
       try {
+        const currentHash = computeDataHash()
+        const hasLocalChanges =
+          Boolean(lastSyncedHash.current) &&
+          currentHash !== lastSyncedHash.current
+
+        // Jika ada perubahan data lokal dan bukan saat pertama buka, simpan perubahan ke Google Sheet
+        if (hasLocalChanges && reason !== "initial") {
+          const state: AppDatabaseState = {
+            candidates: allCandidates,
+            cycles,
+            activeCycleId,
+            sessions,
+            records,
+            schedules,
+            questions,
+            supportingDocs,
+            standardRules,
+            stageChecklists,
+            users,
+            auditLogs,
+            rankingPublished,
+          }
+          await pushStateToGoogleSheet(state, targetUrl)
+        }
+
+        // Ambil data terbaru dari Google Sheet
         const res = await pullStateFromGoogleSheet(targetUrl)
         if (res.ok && res.data) {
           const d = res.data
@@ -1520,32 +1476,83 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setCloudSyncStatus("synced")
           const now = new Date().toISOString()
           setLastCloudSync(now)
-          if (!silent) showToast("Data dari Google Sheet berhasil dimuat!", "success")
-          logAudit(
-            "PULL_GOOGLE_SHEET",
-            "Google Sheet",
-            "Memuat salinan database terbaru dari Google Sheet",
-          )
-        } else if (res.ok && !res.data) {
-          // Google Sheet masih kosong, jika kita punya data lokal (kandidat / sesi), upload otomatis
-          if (allCandidates.length > 0 || sessions.length > 0) {
-            syncToGoogleSheet(targetUrl, false)
-          } else {
-            setCloudSyncStatus("synced")
+          if (reason === "manual") {
+            showToast("Sinkronisasi Google Sheet berhasil!", "success")
+            logAudit(
+              "SYNC_GOOGLE_SHEET",
+              "Google Sheet",
+              `Sinkronisasi ${sanitizedCandidates.length} kandidat berhasil`,
+            )
           }
+        } else if (res.ok && !res.data) {
+          // Google Sheet kosong tapi lokal ada data
+          if (allCandidates.length > 0 || sessions.length > 0) {
+            const state: AppDatabaseState = {
+              candidates: allCandidates,
+              cycles,
+              activeCycleId,
+              sessions,
+              records,
+              schedules,
+              questions,
+              supportingDocs,
+              standardRules,
+              stageChecklists,
+              users,
+              auditLogs,
+              rankingPublished,
+            }
+            await pushStateToGoogleSheet(state, targetUrl)
+            lastSyncedHash.current = currentHash
+          }
+          setCloudSyncStatus("synced")
         } else {
           setCloudSyncStatus("error")
-          if (!silent) showToast(res.message, "danger")
+          if (reason === "manual") showToast(res.message, "danger")
         }
-        return { ok: res.ok, message: res.message }
       } catch (err) {
         setCloudSyncStatus("error")
         const msg = err instanceof Error ? err.message : String(err)
-        if (!silent) showToast(`Gagal membaca cloud: ${msg}`, "danger")
-        return { ok: false, message: msg }
+        if (reason === "manual") showToast(`Gagal sinkron: ${msg}`, "danger")
+      } finally {
+        isSyncingRef.current = false
       }
     },
-    [googleSheetUrl, showToast, logAudit, allCandidates, sessions, syncToGoogleSheet],
+    [
+      googleSheetUrl,
+      computeDataHash,
+      allCandidates,
+      cycles,
+      activeCycleId,
+      sessions,
+      records,
+      schedules,
+      questions,
+      supportingDocs,
+      standardRules,
+      stageChecklists,
+      users,
+      auditLogs,
+      rankingPublished,
+      showToast,
+      logAudit,
+    ],
+  )
+
+  const syncToGoogleSheet = useCallback(
+    async (customUrl?: string, silent: boolean = false) => {
+      await refreshAndSync(silent ? "idle" : "manual")
+      return { ok: true, message: "Sinkronisasi selesai" }
+    },
+    [refreshAndSync],
+  )
+
+  const pullFromGoogleSheet = useCallback(
+    async (customUrl?: string, silent: boolean = false) => {
+      await refreshAndSync(silent ? "initial" : "manual")
+      return { ok: true, message: "Sinkronisasi selesai" }
+    },
+    [refreshAndSync],
   )
 
   const testGoogleSheet = useCallback(
@@ -1561,36 +1568,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [googleSheetUrl, showToast],
   )
 
-  const isInitialMount = useRef(true)
-
-  // 1. Auto-pull saat aplikasi pertama kali dibuka jika URL Google Sheet sudah diatur
+  // 1. Kondisi 1: Membuka pertama kali -> otomatis sinkron data terbaru dari Google Sheet
   useEffect(() => {
     if (googleSheetUrl) {
-      pullFromGoogleSheet(undefined, true)
+      refreshAndSync("initial")
     }
-  }, [googleSheetUrl])
+  }, [googleSheetUrl, refreshAndSync])
 
-  // 2. Auto-save otomatis di latar belakang HANYA jika data benar-benar berubah
+  // 3. Kondisi 3: Ditinggal lama -> otomatis sinkron saat ditinggal > 3 menit atau idle > 5 menit
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      return
+    if (!googleSheetUrl) return
+
+    let lastActive = Date.now()
+    const handleActivity = () => {
+      lastActive = Date.now()
     }
-    if (!autoSyncGoogleSheet || !googleSheetUrl) return
-    const currentHash = computeDataHash()
-    if (currentHash === lastSyncedHash.current) {
-      return
+
+    window.addEventListener("pointerdown", handleActivity, { passive: true })
+    window.addEventListener("keydown", handleActivity, { passive: true })
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        const timeAwayMs = Date.now() - lastActive
+        if (timeAwayMs > 180000) {
+          // Tab ditinggal > 3 menit
+          refreshAndSync("idle")
+        }
+        lastActive = Date.now()
+      }
     }
-    const timer = setTimeout(() => {
-      syncToGoogleSheet(undefined, true)
-    }, 2000)
-    return () => clearTimeout(timer)
-  }, [
-    computeDataHash,
-    autoSyncGoogleSheet,
-    googleSheetUrl,
-    syncToGoogleSheet,
-  ])
+    document.addEventListener("visibilitychange", handleVisibility)
+
+    const idleTimer = setInterval(() => {
+      const timeAwayMs = Date.now() - lastActive
+      if (timeAwayMs > 300000) {
+        // Tidak ada interaksi > 5 menit
+        refreshAndSync("idle")
+        lastActive = Date.now()
+      }
+    }, 60000)
+
+    return () => {
+      window.removeEventListener("pointerdown", handleActivity)
+      window.removeEventListener("keydown", handleActivity)
+      document.removeEventListener("visibilitychange", handleVisibility)
+      clearInterval(idleTimer)
+    }
+  }, [googleSheetUrl, refreshAndSync])
 
   const value = useMemo<AppContextValue>(
     () => ({
@@ -1658,6 +1682,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncToGoogleSheet,
       pullFromGoogleSheet,
       testGoogleSheet,
+      refreshAndSync,
+      hasUnsavedChanges,
     }),
     [
       cycles,
@@ -1721,6 +1747,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncToGoogleSheet,
       pullFromGoogleSheet,
       testGoogleSheet,
+      refreshAndSync,
+      hasUnsavedChanges,
     ],
   )
 

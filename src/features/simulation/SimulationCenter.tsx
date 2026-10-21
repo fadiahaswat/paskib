@@ -1399,42 +1399,44 @@ export default function SimulationCenter() {
                 {/* 2. Hasil Sesi (Hanya jika Hadir) */}
                 {(record.attendance ?? "hadir") === "hadir" ? (
                   <>
-                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Hasil sesi
-                      </p>
-                      {session.type === "fitness" ? (
-                        <div className="flex items-center gap-1.5 text-xs">
-                          <span className="text-slate-400">Filter tes:</span>
-                          {[
-                            ["all", "Semua"],
-                            ["run_only", "Hanya Lari"],
-                            ["run_shuttle", "Lari & Shuttle"],
-                            ["samapta_b", "Samapta B"],
-                          ].map(([id, label]) => {
-                            const isSelected =
-                              session.fitnessPreset === id ||
-                              (!session.fitnessPreset && id === "all")
-                            return (
-                              <button
-                                key={id}
-                                type="button"
-                                onClick={() =>
-                                  setSessionFitnessPreset(id as any)
-                                }
-                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                                  isSelected
-                                    ? "bg-slate-900 text-white"
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                }`}
-                              >
-                                {label}
-                              </button>
-                            )
-                          })}
-                        </div>
-                      ) : null}
-                    </div>
+                    {session.type !== "pbb" ? (
+                      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Hasil sesi
+                        </p>
+                        {session.type === "fitness" ? (
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <span className="text-slate-400">Filter tes:</span>
+                            {[
+                              ["all", "Semua"],
+                              ["run_only", "Hanya Lari"],
+                              ["run_shuttle", "Lari & Shuttle"],
+                              ["samapta_b", "Samapta B"],
+                            ].map(([id, label]) => {
+                              const isSelected =
+                                session.fitnessPreset === id ||
+                                (!session.fitnessPreset && id === "all")
+                              return (
+                                <button
+                                  key={id}
+                                  type="button"
+                                  onClick={() =>
+                                    setSessionFitnessPreset(id as any)
+                                  }
+                                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                                    isSelected
+                                      ? "bg-slate-900 text-white"
+                                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
 
                     {session.type === "fitness" ? (
                       <div className="mt-3 space-y-4">
@@ -1627,12 +1629,14 @@ export default function SimulationCenter() {
                         ) : null}
                       </div>
                     ) : session.type === "pbb" ? (
-                      <PbbEvaluationSection
-                        metrics={record.metrics}
-                        onUpdateMetrics={(updatedMetrics) =>
-                          patchRecord({ metrics: updatedMetrics })
-                        }
-                      />
+                      <div className="mt-5">
+                        <PbbEvaluationSection
+                          metrics={record.metrics}
+                          onUpdateMetrics={(updatedMetrics) =>
+                            patchRecord({ metrics: updatedMetrics })
+                          }
+                        />
+                      </div>
                     ) : (
                       <div className="mt-3 grid gap-4 md:grid-cols-3">
                         {definition.fields.map((field) => (

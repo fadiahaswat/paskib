@@ -23,6 +23,7 @@ import {
   Plus,
   Printer,
   RefreshCw,
+  RotateCw,
   Search,
   Settings2,
   ShieldCheck,
@@ -78,30 +79,45 @@ const DocumentsView = lazy(() => import("./features/documents/DocumentsView"))
 
 export type View = "overview" | "sessions" | "guide" | "stages" | "candidates" | "progress" | "ranking" | "standards" | "schedules" | "cat-bank" | "documents"
 
-const primaryNavItems = [
-  { id: "overview" as View, label: "Ringkasan", icon: LayoutDashboard },
-  { id: "sessions" as View, label: "Sesi & latihan", icon: ClipboardCheck },
-  { id: "guide" as View, label: "Panduan lengkap", icon: BookOpenCheck },
-  { id: "stages" as View, label: "Tahapan seleksi", icon: Settings2 },
-  {
-    id: "candidates" as View,
-    label: "Kandidat",
-    icon: UsersRound,
-    hasCount: true,
-  },
-  { id: "progress" as View, label: "Perkembangan", icon: Activity },
-  { id: "ranking" as View, label: "Pemeringkatan", icon: Trophy },
-  {
-    id: "standards" as View,
-    label: "Standar & kalkulator",
-    icon: SlidersHorizontal,
-  },
-]
+type NavItem = {
+  id: View
+  label: string
+  icon: typeof LayoutDashboard
+  hasCount?: boolean
+}
 
-const secondaryNavigation = [
-  { id: "schedules" as View, label: "Jadwal seleksi", icon: CalendarDays },
-  { id: "cat-bank" as View, label: "Bank soal CAT", icon: BookOpenCheck },
-  { id: "documents" as View, label: "Dokumen", icon: FileCheck2 },
+type NavSection = {
+  title: string
+  items: NavItem[]
+}
+
+const navSections: NavSection[] = [
+  {
+    title: "1. Pendidikan & Latihan",
+    items: [
+      { id: "overview", label: "Ringkasan", icon: LayoutDashboard },
+      { id: "sessions", label: "Sesi & latihan", icon: ClipboardCheck },
+      { id: "candidates", label: "Kandidat", icon: UsersRound, hasCount: true },
+      { id: "progress", label: "Perkembangan", icon: Activity },
+      { id: "schedules", label: "Jadwal latihan", icon: CalendarDays },
+      { id: "cat-bank", label: "Bank soal CAT", icon: GraduationCap },
+    ],
+  },
+  {
+    title: "2. Seleksi",
+    items: [
+      { id: "stages", label: "Tahapan seleksi", icon: Settings2 },
+      { id: "ranking", label: "Pemeringkatan", icon: Trophy },
+      { id: "standards", label: "Standar & kalkulator", icon: SlidersHorizontal },
+    ],
+  },
+  {
+    title: "3. Panduan",
+    items: [
+      { id: "guide", label: "Panduan lengkap", icon: BookOpenCheck },
+      { id: "documents", label: "Dokumen & regulasi", icon: FileCheck2 },
+    ],
+  },
 ]
 
 function stageTone(status: StageStatus) {
@@ -363,60 +379,44 @@ function Sidebar({
           ) : null}
         </div>
 
-        <nav className="mt-6 grid gap-1" aria-label="Navigasi utama">
-          <p className="mb-2 px-3 text-[0.68rem] font-bold uppercase tracking-[0.15em] text-slate-500">
-            Operasional
-          </p>
-          {primaryNavItems.map((item) => {
-            const Icon = item.icon
-            const active = view === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onView(item.id)
-                  onClose()
-                }}
-                className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${
-                  active
-                    ? "bg-red-600 text-white shadow-lg shadow-red-950/30"
-                    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
-                }`}
-              >
-                <Icon className="size-[1.15rem]" />
-                <span className="flex-1">{item.label}</span>
-                {item.hasCount ? (
-                  <span className={active ? "text-red-100" : "text-slate-400"}>
-                    {candidates.length}
-                  </span>
-                ) : null}
-              </button>
-            )
-          })}
-          <p className="mb-2 mt-6 px-3 text-[0.68rem] font-bold uppercase tracking-[0.15em] text-slate-500">
-            Pendukung
-          </p>
-          {secondaryNavigation.map((item) => {
-            const Icon = item.icon
-            const active = view === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  onView(item.id)
-                  onClose()
-                }}
-                className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${
-                  active
-                    ? "bg-red-600 text-white shadow-lg shadow-red-950/30"
-                    : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
-                }`}
-              >
-                <Icon className="size-[1.15rem]" />
-                {item.label}
-              </button>
-            )
-          })}
+        <nav className="mt-6 grid gap-5" aria-label="Navigasi utama">
+          {navSections.map((section) => (
+            <div key={section.title}>
+              <p className="mb-2 px-3 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-400">
+                {section.title}
+              </p>
+              <div className="grid gap-1">
+                {section.items.map((item) => {
+                  const Icon = item.icon
+                  const active = view === item.id
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        onView(item.id)
+                        onClose()
+                      }}
+                      className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${
+                        active
+                          ? "bg-red-600 text-white shadow-lg shadow-red-950/30"
+                          : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+                      }`}
+                    >
+                      <Icon className="size-[1.15rem]" />
+                      <span className="flex-1">{item.label}</span>
+                      {item.hasCount ? (
+                        <span
+                          className={active ? "text-red-100" : "text-slate-400"}
+                        >
+                          {candidates.length}
+                        </span>
+                      ) : null}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <div className="mt-auto pt-6">
@@ -468,6 +468,8 @@ function Header({
     standardRules,
     cloudSyncStatus,
     googleSheetUrl,
+    refreshAndSync,
+    hasUnsavedChanges,
   } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [showNotif, setShowNotif] = useState(false)
@@ -611,31 +613,65 @@ function Header({
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling" ? (
-          <div className="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-1.5 text-xs text-slate-600 font-medium">
-            <RefreshCw className="size-3.5 animate-spin text-blue-600" />
-            <span className="hidden sm:inline">Menyimpan ke cloud...</span>
-          </div>
-        ) : googleSheetUrl ? (
+        {/* Tombol Refresh Sinkronisasi Google Sheet */}
+        <button
+          type="button"
+          onClick={() => refreshAndSync("manual")}
+          disabled={cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"}
+          className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
+            hasUnsavedChanges
+              ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-2xs"
+              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
+          }`}
+          title={
+            hasUnsavedChanges
+              ? "Ada perubahan data lokal yang belum tersimpan di Google Sheet. Klik untuk sinkronkan."
+              : "Sinkronkan data dengan Google Sheet"
+          }
+        >
+          <RotateCw
+            className={`size-3.5 ${
+              cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"
+                ? "animate-spin text-blue-600"
+                : hasUnsavedChanges
+                  ? "text-amber-700"
+                  : "text-slate-600"
+            }`}
+          />
+          <span className="hidden sm:inline">
+            {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"
+              ? "Menyinkronkan..."
+              : hasUnsavedChanges
+                ? "Sinkronkan Perubahan"
+                : "Refresh Data"}
+          </span>
+          {hasUnsavedChanges ? (
+            <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
+          ) : (
+            <span className="size-2 rounded-full bg-emerald-500" />
+          )}
+        </button>
+
+        {/* Status Database Google Sheet */}
+        {googleSheetUrl ? (
           <button
             type="button"
             onClick={onOpenGoogleSync}
-            className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
-            title="Klik untuk melihat status database Google Sheet"
+            className="hidden md:flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+            title="Database Google Sheet terhubung. Klik untuk melihat detail."
           >
             <Cloud className="size-3.5 text-emerald-600" />
-            <span className="hidden sm:inline">Tersimpan di Cloud</span>
-            <Check className="size-3 text-emerald-600 stroke-[3]" />
+            <span>Google Sheet</span>
           </button>
         ) : (
           <button
             type="button"
             onClick={onOpenGoogleSync}
-            className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 transition hover:bg-amber-100 animate-pulse"
-            title="Hubungkan Google Sheet untuk menyimpan otomatis"
+            className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-900 transition hover:bg-amber-100"
+            title="Hubungkan Google Sheet"
           >
             <Cloud className="size-3.5 text-amber-600" />
-            <span>Sambungkan Google Sheet</span>
+            <span>Hubungkan Cloud</span>
           </button>
         )}
 
