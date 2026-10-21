@@ -241,21 +241,29 @@ const defaultChecklists: Record<number, boolean[]> = {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [cycles, setCycles] = useState<SelectionCycle[]>(() => {
     const loaded = loadStorage<SelectionCycle[]>("paska-clean-cycles", initialCycles)
-    return loaded.map((c) =>
-      c.id === "cycle-2026-kab" || c.name === "Latihan & Pembinaan 2026"
+    const updated = loaded.map((c) =>
+      c.id === "cycle-2026-kab" || c.year === 2026 || c.name.includes("2026")
         ? {
             ...c,
-            id: "cycle-2027-kab",
-            name: "Latihan & Pembinaan 2027",
+            id: c.id === "cycle-2026-kab" ? "cycle-2027-kab" : c.id,
+            name: c.name.replace("2026", "2027"),
             year: 2027,
-            referenceDate: "2027-08-17",
+            referenceDate: c.referenceDate ? c.referenceDate.replace("2026", "2027") : "2027-08-17",
           }
         : c,
     )
+    try {
+      localStorage.setItem("paska-clean-cycles", JSON.stringify(updated))
+    } catch {}
+    return updated
   })
   const [activeCycleId, setActiveCycleId] = useState<string>(() => {
     const loaded = loadStorage<string>("paska-clean-active-cycle", initialCycles[0].id)
-    return loaded === "cycle-2026-kab" ? "cycle-2027-kab" : loaded
+    const nextId = loaded === "cycle-2026-kab" ? "cycle-2027-kab" : loaded
+    try {
+      localStorage.setItem("paska-clean-active-cycle", JSON.stringify(nextId))
+    } catch {}
+    return nextId
   })
   const [users, setUsers] = useState<UserProfile[]>(() =>
     loadStorage("paska-clean-users", initialUsers),
@@ -268,12 +276,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
   const [allCandidates, setAllCandidates] = useState<Candidate[]>(() => {
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
-    if (!loaded || loaded.length === 0) return seededCandidates
-    // Bersihkan seluruh data dummy: PIP, TIU, PBB, dan Kepribadian yang belum dites dijadikan null murni
-    const sanitized = loaded.map((c) => {
+    const baseList = !loaded || loaded.length === 0 ? seededCandidates : loaded
+    // Ensure all 13 seeded candidates are always present
+    const candidateMap = new Map<string, Candidate>()
+    for (const sc of seededCandidates) {
+      candidateMap.set(sc.number, sc)
+    }
+    for (const c of baseList) {
+      const existing = candidateMap.get(c.number)
+      candidateMap.set(c.number || c.id, { ...(existing ?? {}), ...c })
+    }
+    const merged = Array.from(candidateMap.values())
+    const sanitized = merged.map((c) => {
       const match = seededCandidates.find((sc) => sc.id === c.id || sc.number === c.number)
       return {
         ...c,
+        cycleId: c.cycleId === "cycle-2026-kab" ? "cycle-2027-kab" : (c.cycleId || "cycle-2027-kab"),
         pip: null,
         tiu: null,
         pbb: null,
@@ -286,6 +304,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         physicalMetrics: match?.physicalMetrics ?? (c.physicalMetrics ?? []).filter((m) => m.label.toLowerCase().includes("lari")),
       }
     })
+    try {
+      localStorage.setItem("paska-clean-candidates", JSON.stringify(sanitized))
+    } catch {}
     return sanitized
   })
   const [stageChecklists, setStageChecklists] =
@@ -357,15 +378,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [cycles, activeCycleId],
   )
 
-  const candidates = useMemo(
-    () =>
-      cycles.length === 0
-        ? []
-        : allCandidates.filter(
-            (c) => !c.cycleId || c.cycleId === activeCycle.id,
-          ),
-    [allCandidates, activeCycle.id, cycles.length],
-  )
+  const candidates = useMemo(() => {
+    const list = allCandidates.length > 0 ? allCandidates : seededCandidates
+    const filtered = list.filter(
+      (c) =>
+        !c.cycleId ||
+        c.cycleId === activeCycle.id ||
+        c.cycleId === "cycle-2027-kab" ||
+        c.cycleId === "cycle-2026-kab",
+    )
+    return filtered.length > 0 ? filtered : list
+  }, [allCandidates, activeCycle.id])
+
+  // Auto-recovery: if allCandidates is somehow cleared, immediately restore all 13 candidates
+  useEffect(() => {
+    if (allCandidates.length === 0) {
+      setAllCandidates(
+        seededCandidates.map((c) => ({
+          ...c,
+          cycleId: activeCycle.id || "cycle-2027-kab",
+        })),
+      )
+    }
+  }, [allCandidates.length, activeCycle.id])
 
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -645,7 +680,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const target = cycles.find((c) => c.id === id)
       if (!target) return
       const remainingCycles = cycles.filter((c) => c.id !== id)
-      const remainingCandidates = allCandidates.filter((c) => c.cycleId !== id)
+      let remainingCandidates = allCandidates.filter((c) => c.cycleId !== id)
+      if (remainingCandidates.length === 0) {
+        remainingCandidates = seededCandidates.map((c) => ({
+          ...c,
+          cycleId: remainingCycles[0]?.id ?? "cycle-2027-kab",
+        }))
+      }
       setCycles(remainingCycles)
       setAllCandidates(remainingCandidates)
       const nextActiveId =

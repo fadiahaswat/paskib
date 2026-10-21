@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useRef, useState } from "react"
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react"
 import {
   Activity,
   Bell,
@@ -7,6 +7,7 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   ClipboardCheck,
   Cloud,
@@ -74,11 +75,10 @@ const GuideView = lazy(() => import("./features/guide/GuideView"))
 const SimulationCenter = lazy(
   () => import("./features/simulation/SimulationCenter"),
 )
-const SchedulesView = lazy(() => import("./features/schedules/SchedulesView"))
 const CatBankView = lazy(() => import("./features/cat/CatBankView"))
 const DocumentsView = lazy(() => import("./features/documents/DocumentsView"))
 
-export type View = "overview" | "sessions" | "guide" | "stages" | "candidates" | "progress" | "ranking" | "standards" | "schedules" | "cat-bank" | "documents"
+export type View = "overview" | "sessions" | "guide" | "stages" | "candidates" | "progress" | "ranking" | "standards" | "cat-bank" | "documents"
 
 type NavItem = {
   id: View
@@ -94,18 +94,17 @@ type NavSection = {
 
 const navSections: NavSection[] = [
   {
-    title: "1. Pendidikan & Latihan",
+    title: "Pendidikan & Latihan",
     items: [
       { id: "overview", label: "Ringkasan", icon: LayoutDashboard },
       { id: "sessions", label: "Sesi & latihan", icon: ClipboardCheck },
       { id: "candidates", label: "Kandidat", icon: UsersRound, hasCount: true },
       { id: "progress", label: "Perkembangan", icon: Activity },
-      { id: "schedules", label: "Jadwal latihan", icon: CalendarDays },
       { id: "cat-bank", label: "Bank soal CAT", icon: GraduationCap },
     ],
   },
   {
-    title: "2. Seleksi",
+    title: "Seleksi",
     items: [
       { id: "stages", label: "Tahapan seleksi", icon: Settings2 },
       { id: "ranking", label: "Pemeringkatan", icon: Trophy },
@@ -113,7 +112,7 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: "3. Panduan",
+    title: "Panduan",
     items: [
       { id: "guide", label: "Panduan lengkap", icon: BookOpenCheck },
       { id: "documents", label: "Dokumen & regulasi", icon: FileCheck2 },
@@ -155,17 +154,17 @@ function StatusBadge({ status }: { status: StageStatus }) {
 
 function Brand() {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2.5">
       <img
         src="/BACAPASMUIN.webp"
         alt="BACAPASMUIN!"
-        className="h-11 w-auto object-contain drop-shadow"
+        className="h-8 w-auto object-contain drop-shadow"
       />
       <div>
-        <p className="font-display text-base font-bold tracking-tight text-white">
+        <p className="font-display text-sm font-bold tracking-tight text-white leading-none">
           BACAPASMUIN!
         </p>
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-amber-400/90">
+        <p className="text-[0.62rem] font-semibold uppercase tracking-[0.08em] text-amber-400/90 leading-none mt-1">
           Seleksi &amp; Pembinaan Paskibraka
         </p>
       </div>
@@ -188,37 +187,7 @@ function Sidebar({
   onOpenGoogleSync?: () => void
   onOpenUsersModal?: () => void
 }) {
-  const {
-    currentUser,
-    candidates,
-    cycles,
-    activeCycle,
-    setActiveCycleId,
-    addCycle,
-    deleteCycle,
-  } = useApp()
-  const [cycleMenuOpen, setCycleMenuOpen] = useState(false)
-  const [showNewCycle, setShowNewCycle] = useState(false)
-  const [newCycleName, setNewCycleName] = useState("")
-  const [newCycleYear, setNewCycleYear] = useState(2027)
-  const [newCycleLevel, setNewCycleLevel] =
-    useState<"Kabupaten/Kota" | "Provinsi" | "Pusat">("Kabupaten/Kota")
-
-  function handleCreateCycle(e: React.FormEvent) {
-    e.preventDefault()
-    if (!newCycleName.trim()) return
-    const yearNum = Number(newCycleYear) || 2027
-    addCycle({
-      name: newCycleName.trim(),
-      year: yearNum,
-      level: newCycleLevel,
-      referenceDate: `${yearNum}-08-17`,
-      status: "active",
-    })
-    setNewCycleName("")
-    setShowNewCycle(false)
-    setCycleMenuOpen(false)
-  }
+  const { currentUser, candidates } = useApp()
 
   return (
     <>
@@ -230,168 +199,32 @@ function Sidebar({
         />
       ) : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col overflow-y-auto bg-slate-950 px-4 py-5 text-white transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-950 p-3.5 text-white transition-transform lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-2">
+        <div className="flex items-center justify-between px-2 pt-1 pb-3 mb-3 border-b border-white/[0.08]">
           <Brand />
           <Button
             variant="ghost"
-            className="!px-2 text-slate-300 lg:hidden"
+            className="!px-1.5 text-slate-300 lg:hidden"
             onClick={onClose}
             aria-label="Tutup menu"
           >
-            <X className="size-5" />
+            <X className="size-4" />
           </Button>
         </div>
 
-        <div className="relative mt-6">
-          <button
-            type="button"
-            onClick={() => setCycleMenuOpen((v) => !v)}
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] p-3 text-left transition hover:bg-white/[0.1]"
-          >
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Periode aktif
-            </p>
-            <div className="mt-1.5 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">{activeCycle.name}</p>
-                <p className="mt-0.5 text-xs text-slate-400">
-                  {cycles.length ? activeCycle.level : "Klik untuk buat periode"}
-                </p>
-              </div>
-              <ChevronDown
-                className={`size-4 text-slate-400 transition ${
-                  cycleMenuOpen ? "rotate-180" : ""
-                }`}
-              />
-            </div>
-          </button>
-
-          {cycleMenuOpen ? (
-            <div className="mt-2 rounded-2xl border border-white/15 bg-slate-900 p-2 shadow-xl">
-              {cycles.length ? (
-                <div className="grid gap-1">
-                  {cycles.map((c) => (
-                    <div
-                      key={c.id}
-                      className={`flex items-center gap-1 rounded-xl pr-1 transition ${
-                        c.id === activeCycle.id
-                          ? "bg-red-600 text-white"
-                          : "text-slate-300 hover:bg-white/10"
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveCycleId(c.id)
-                          setCycleMenuOpen(false)
-                        }}
-                        className="flex flex-1 items-center justify-between px-3 py-2 text-left text-xs font-semibold"
-                      >
-                        <span className="truncate">
-                          {c.name} · {c.level}
-                        </span>
-                        {c.id === activeCycle.id ? (
-                          <CheckCircle2 className="size-3.5 shrink-0" />
-                        ) : null}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          deleteCycle(c.id)
-                        }}
-                        title={`Hapus periode ${c.name}`}
-                        aria-label={`Hapus periode ${c.name}`}
-                        className={`rounded-lg p-1.5 transition ${
-                          c.id === activeCycle.id
-                            ? "text-red-100 hover:bg-red-700 hover:text-white"
-                            : "text-slate-400 hover:bg-red-500/20 hover:text-red-300"
-                        }`}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="px-3 py-2 text-xs text-slate-400">
-                  Belum ada periode terdaftar.
-                </p>
-              )}
-              {!showNewCycle ? (
-                <button
-                  type="button"
-                  onClick={() => setShowNewCycle(true)}
-                  className="mt-1.5 flex w-full items-center gap-1.5 rounded-xl border border-dashed border-white/20 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-white/5"
-                >
-                  <Plus className="size-3.5" /> Buat periode baru
-                </button>
-              ) : (
-                <form
-                  onSubmit={handleCreateCycle}
-                  className="mt-2 grid gap-2 border-t border-white/10 pt-2"
-                >
-                  <input
-                    value={newCycleName}
-                    onChange={(e) => setNewCycleName(e.target.value)}
-                    placeholder="Nama periode (mis. Seleksi 2026)..."
-                    className="rounded-lg border border-white/20 bg-slate-950 px-2.5 py-1.5 text-xs text-white outline-none"
-                  />
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <input
-                      type="number"
-                      value={newCycleYear}
-                      onChange={(e) => setNewCycleYear(Number(e.target.value))}
-                      placeholder="Tahun"
-                      className="rounded-lg border border-white/20 bg-slate-950 px-2.5 py-1.5 text-xs text-white outline-none"
-                    />
-                    <select
-                      value={newCycleLevel}
-                      onChange={(e) =>
-                        setNewCycleLevel(
-                          e.target
-                            .value as "Kabupaten/Kota" | "Provinsi" | "Pusat",
-                        )
-                      }
-                      className="rounded-lg border border-white/20 bg-slate-950 px-2.5 py-1.5 text-xs text-white outline-none"
-                    >
-                      <option value="Kabupaten/Kota">Kabupaten/Kota</option>
-                      <option value="Provinsi">Provinsi</option>
-                      <option value="Pusat">Pusat</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-end gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setShowNewCycle(false)}
-                      className="rounded-lg px-2 py-1 text-xs text-slate-400"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="submit"
-                      className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white"
-                    >
-                      Simpan
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          ) : null}
-        </div>
-
-        <nav className="mt-6 grid gap-5" aria-label="Navigasi utama">
+        <nav
+          className="flex-1 space-y-5 overflow-y-auto pr-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          aria-label="Navigasi utama"
+        >
           {navSections.map((section) => (
-            <div key={section.title}>
-              <p className="mb-2 px-3 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-slate-400">
+            <div key={section.title} className="space-y-1">
+              <p className="px-3 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
                 {section.title}
               </p>
-              <div className="grid gap-1">
+              <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const Icon = item.icon
                   const active = view === item.id
@@ -402,17 +235,27 @@ function Sidebar({
                         onView(item.id)
                         onClose()
                       }}
-                      className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${
+                      className={`group flex h-9 w-full items-center gap-3 rounded-lg px-3 text-left text-xs transition ${
                         active
-                          ? "bg-red-600 text-white shadow-lg shadow-red-950/30"
-                          : "text-slate-300 hover:bg-white/[0.07] hover:text-white"
+                          ? "bg-red-600 text-white font-semibold shadow-xs shadow-red-950/40"
+                          : "text-slate-300 hover:bg-white/[0.07] hover:text-white font-medium"
                       }`}
                     >
-                      <Icon className="size-[1.15rem]" />
-                      <span className="flex-1">{item.label}</span>
+                      <Icon
+                        className={`size-4 shrink-0 transition-colors ${
+                          active
+                            ? "text-white"
+                            : "text-slate-400 group-hover:text-slate-200"
+                        }`}
+                      />
+                      <span className="flex-1 truncate">{item.label}</span>
                       {item.hasCount ? (
                         <span
-                          className={active ? "text-red-100" : "text-slate-400"}
+                          className={`text-[0.65rem] px-2 py-0.5 rounded-full font-bold tabular-nums tracking-tight ${
+                            active
+                              ? "bg-red-700/80 text-white"
+                              : "bg-white/10 text-slate-300"
+                          }`}
                         >
                           {candidates.length}
                         </span>
@@ -425,27 +268,27 @@ function Sidebar({
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-white/10 pt-4">
+        <div className="mt-auto border-t border-white/[0.08] pt-3">
           <button
             type="button"
             onClick={() => {
               onOpenUsersModal?.()
               onClose()
             }}
-            className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 text-left transition hover:bg-white/[0.08]"
+            className="group flex w-full items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-2 px-2.5 text-left transition hover:bg-white/[0.07] hover:border-white/15"
           >
-            <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-slate-900 text-xs font-bold text-white shadow-sm">
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-slate-900 text-xs font-bold text-white shadow-xs">
               {currentUser.avatar}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-bold text-white">
+              <span className="block truncate text-xs font-bold text-white leading-tight">
                 {currentUser.name}
               </span>
-              <span className="block truncate text-xs text-slate-400">
+              <span className="block truncate text-[0.62rem] text-slate-400 leading-tight mt-0.5">
                 {currentUser.title}
               </span>
             </span>
-            <ChevronDown className="size-4 shrink-0 text-slate-400 transition group-hover:text-slate-200" />
+            <ChevronDown className="size-3.5 shrink-0 text-slate-400 transition group-hover:text-slate-200" />
           </button>
         </div>
       </aside>
@@ -469,6 +312,11 @@ function Header({
   const {
     candidates,
     currentUser,
+    cycles,
+    activeCycle,
+    setActiveCycleId,
+    addCycle,
+    deleteCycle,
     standardRules,
     cloudSyncStatus,
     googleSheetUrl,
@@ -478,6 +326,44 @@ function Header({
   } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [showNotif, setShowNotif] = useState(false)
+  const [cycleMenuOpen, setCycleMenuOpen] = useState(false)
+  const [showNewCycle, setShowNewCycle] = useState(false)
+  const [newCycleName, setNewCycleName] = useState("")
+  const [newCycleYear, setNewCycleYear] = useState(2027)
+  const [newCycleLevel, setNewCycleLevel] =
+    useState<"Kabupaten/Kota" | "Provinsi" | "Pusat">("Kabupaten/Kota")
+  const cycleMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (cycleMenuRef.current && !cycleMenuRef.current.contains(event.target as Node)) {
+        setCycleMenuOpen(false)
+        setShowNewCycle(false)
+      }
+    }
+    if (cycleMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [cycleMenuOpen])
+
+  function handleCreateCycle(e: React.FormEvent) {
+    e.preventDefault()
+    if (!newCycleName.trim()) return
+    const yearNum = Number(newCycleYear) || 2027
+    addCycle({
+      name: newCycleName.trim(),
+      year: yearNum,
+      level: newCycleLevel,
+      referenceDate: `${yearNum}-08-17`,
+      status: "active",
+    })
+    setNewCycleName("")
+    setShowNewCycle(false)
+    setCycleMenuOpen(false)
+  }
 
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -554,6 +440,151 @@ function Header({
       >
         <Menu className="size-5" />
       </Button>
+
+      {/* Selector Periode Seleksi / Latihan */}
+      <div ref={cycleMenuRef} className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => setCycleMenuOpen((v) => !v)}
+          className="flex h-9 items-center gap-1.5 sm:gap-2 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300"
+          title="Ubah atau kelola periode seleksi / latihan"
+        >
+          <CalendarDays className="size-3.5 text-red-600 shrink-0" />
+          <span className="font-bold truncate max-w-28 sm:max-w-44 md:max-w-none">
+            {activeCycle?.name || "Periode Seleksi"}
+          </span>
+          <span className="hidden md:inline rounded bg-slate-100 px-1.5 py-0.5 text-[0.62rem] font-bold text-slate-600">
+            {activeCycle?.level}
+          </span>
+          <ChevronDown
+            className={`size-3 text-slate-400 transition shrink-0 ${
+              cycleMenuOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {cycleMenuOpen ? (
+          <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-3.5 py-2.5">
+              <div>
+                <p className="text-xs font-bold text-slate-900">Periode Seleksi & Latihan</p>
+                <p className="text-[0.68rem] text-slate-500">Pilih angkatan aktif atau kelola periode</p>
+              </div>
+              {currentUser.role === "admin" && (
+                <button
+                  type="button"
+                  onClick={() => setShowNewCycle((v) => !v)}
+                  className="flex items-center gap-1 text-[0.7rem] font-bold text-red-600 hover:text-red-700 hover:underline"
+                >
+                  <Plus className="size-3.5" />
+                  <span>{showNewCycle ? "Batal" : "Tambah"}</span>
+                </button>
+              )}
+            </div>
+
+            {showNewCycle ? (
+              <form onSubmit={handleCreateCycle} className="border-b border-slate-100 p-3 bg-slate-50/50">
+                <p className="text-[0.7rem] font-bold text-slate-700 mb-2">Tambah Periode Baru</p>
+                <div className="space-y-2">
+                  <Input
+                    value={newCycleName}
+                    onChange={(e) => setNewCycleName(e.target.value)}
+                    placeholder="Contoh: Latihan & Pembinaan 2026/2027"
+                    className="h-8 text-xs bg-white"
+                    autoFocus
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[0.62rem] font-bold text-slate-500 uppercase">Tahun</label>
+                      <Input
+                        type="number"
+                        value={newCycleYear}
+                        onChange={(e) => setNewCycleYear(Number(e.target.value))}
+                        className="h-8 text-xs bg-white mt-0.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[0.62rem] font-bold text-slate-500 uppercase">Tingkat</label>
+                      <select
+                        value={newCycleLevel}
+                        onChange={(e) => setNewCycleLevel(e.target.value as any)}
+                        className="mt-0.5 h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none focus:border-slate-300"
+                      >
+                        <option value="Kabupaten/Kota">Kabupaten/Kota</option>
+                        <option value="Provinsi">Provinsi</option>
+                        <option value="Pusat">Pusat</option>
+                      </select>
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="w-full h-8 text-xs font-bold bg-red-600 hover:bg-red-700 text-white mt-1"
+                  >
+                    Simpan Periode
+                  </Button>
+                </div>
+              </form>
+            ) : null}
+
+            <div className="p-1.5 max-h-64 overflow-y-auto divide-y divide-slate-100">
+              {cycles.map((c) => {
+                const isCurrent = c.id === activeCycle.id
+                return (
+                  <div
+                    key={c.id}
+                    className={`flex items-center justify-between rounded-lg px-2.5 py-2 transition ${
+                      isCurrent ? "bg-red-50 text-red-900" : "hover:bg-slate-50 text-slate-800"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveCycleId(c.id)
+                        setCycleMenuOpen(false)
+                      }}
+                      className="flex flex-1 items-center gap-2.5 text-left min-w-0"
+                    >
+                      <div
+                        className={`grid size-7 place-items-center rounded-md text-xs font-bold shrink-0 ${
+                          isCurrent ? "bg-red-600 text-white" : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {c.year}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-xs font-bold truncate ${isCurrent ? "text-red-950" : "text-slate-900"}`}>
+                          {c.name}
+                        </p>
+                        <p className="text-[0.65rem] text-slate-500 truncate">
+                          Tingkat {c.level} · {c.status === "active" ? "Aktif" : "Arsip"}
+                        </p>
+                      </div>
+                      {isCurrent ? <CheckCircle2 className="size-4 text-red-600 shrink-0" /> : null}
+                    </button>
+
+                    {cycles.length > 1 && currentUser.role === "admin" && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (confirm(`Hapus periode "${c.name}"? Data di dalamnya akan dibersihkan.`)) {
+                            deleteCycle(c.id)
+                          }
+                        }}
+                        className="ml-2 rounded p-1 text-slate-400 hover:text-red-600 hover:bg-red-100/50 transition shrink-0"
+                        title="Hapus periode"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <div className="relative max-w-md flex-1">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -836,15 +867,66 @@ function StagePipeline({
 }: {
   onSelectStage: (stageIndex: number) => void
 }) {
-  const { candidates, standardRules } = useApp()
-  const counts = useMemo(
-    () =>
-      selectionStages.map(
-        (_, index) =>
-          candidates.filter((c) => c.stageStatuses[index] !== "locked").length,
-      ),
-    [candidates],
-  )
+  const { candidates, standardRules, sessions, records } = useApp()
+  const totalCandidates = candidates.length
+
+  const stageStats = useMemo(() => {
+    return selectionStages.map((stage, index) => {
+      const readyCount = candidates.filter((c) => {
+        // Materi 1: Berkas Administrasi (6 dokumen terverifikasi)
+        if (index === 0) {
+          return Boolean(c.documents && c.documents.length >= 6 && c.documents.every(Boolean))
+        }
+        // Materi 2: CAT Wawasan / PIP (Passing grade >= 70)
+        if (index === 1) {
+          return c.pip !== null && c.pip >= 70
+        }
+        // Materi 3: CAT Intelegensia / TIU (Passing grade >= 70)
+        if (index === 2) {
+          return c.tiu !== null && c.tiu >= 70
+        }
+        // Materi 4: Standar Medis & Kesehatan (Hanya jika ada sesi pemeriksaan medis)
+        if (index === 3) {
+          return sessions.some((s) => {
+            if (s.type !== "medical") return false
+            const rec = records[`${s.id}:${c.id}`]
+            return rec && (rec.result === "passed" || rec.attendance === "hadir")
+          })
+        }
+        // Materi 5: Parade & Postur Tubuh (Hanya jika ada sesi evaluasi parade)
+        if (index === 4) {
+          return sessions.some((s) => {
+            if (s.type !== "parade") return false
+            const rec = records[`${s.id}:${c.id}`]
+            return rec && (rec.result === "passed" || rec.attendance === "hadir")
+          })
+        }
+        // Materi 6: Drill PBB (Passing grade >= 70)
+        if (index === 5) {
+          return c.pbb !== null && c.pbb >= 70
+        }
+        // Materi 7: Kesamaptaan / Ketahanan Fisik (Passing grade >= 70)
+        if (index === 6) {
+          return c.fitness !== null && c.fitness >= 70
+        }
+        // Materi 8: Kepribadian & Wawancara (Passing grade >= 70)
+        if (index === 7) {
+          return c.personality !== null && c.personality >= 70
+        }
+        return false
+      }).length
+
+      const percent = totalCandidates > 0 ? Math.round((readyCount / totalCandidates) * 100) : 0
+      return { readyCount, percent }
+    })
+  }, [candidates, totalCandidates, sessions, records])
+
+  const overallAvg = useMemo(() => {
+    if (stageStats.length === 0) return 0
+    const sum = stageStats.reduce((acc, curr) => acc + curr.percent, 0)
+    return Math.round(sum / stageStats.length)
+  }, [stageStats])
+
   const unverifiedCount = standardRules.filter(
     (r) => r.status !== "Terverifikasi internal",
   ).length
@@ -856,54 +938,88 @@ function StagePipeline({
           <div className="flex items-center gap-2">
             <ClipboardCheck className="size-5 text-red-600" />
             <h2 className="font-display text-lg font-bold text-slate-900">
-              Alur Materi Latihan &amp; Seleksi
+              Peta Kesiapan 8 Materi Latihan
             </h2>
           </div>
           <p className="mt-1 text-sm text-slate-500">
-            Klik tahapan di bawah untuk mencatat evaluasi dan memantau perkembangan santri.
+            Seluruh santri mencoba semua materi tanpa sistem gugur. Klik materi untuk input nilai dan evaluasi.
           </p>
         </div>
-        <Badge tone={unverifiedCount > 0 ? "warning" : "success"}>
-          {unverifiedCount > 0
-            ? `${unverifiedCount} aturan belum terverifikasi`
-            : "Seluruh aturan terverifikasi"}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone={overallAvg >= 50 ? "success" : "info"}>
+            Rata-rata Kesiapan: {overallAvg}%
+          </Badge>
+          <Badge tone="neutral">
+            Mode Pembinaan Fleksibel
+          </Badge>
+        </div>
       </div>
       <div className="overflow-x-auto px-5 py-6 sm:px-6">
         <div className="flex min-w-[56rem] items-start">
-          {selectionStages.map((stage, index) => (
-            <div className="flex flex-1 items-start" key={stage.key}>
-              <button
-                type="button"
-                onClick={() => onSelectStage(index)}
-                className="group flex flex-1 flex-col items-center text-center transition hover:-translate-y-0.5"
-              >
-                <div
-                  className={`grid size-11 place-items-center rounded-full font-display text-xs font-bold transition group-hover:ring-4 group-hover:ring-red-100 ${
-                    index < 5
-                      ? "bg-slate-900 text-white"
-                      : "bg-red-600 text-white"
-                  }`}
+          {selectionStages.map((stage, index) => {
+            const stat = stageStats[index] ?? { readyCount: 0, percent: 0 }
+            return (
+              <div className="flex flex-1 items-start" key={stage.key}>
+                <button
+                  type="button"
+                  onClick={() => onSelectStage(index)}
+                  className="group flex flex-1 flex-col items-center text-center transition hover:-translate-y-0.5"
                 >
-                  {stage.shortLabel}
-                </div>
-                <p className="mt-3 max-w-24 text-xs font-bold text-slate-800 group-hover:text-red-600">
-                  {stage.label}
-                </p>
-                <p className="mt-1 text-lg font-bold tabular-nums text-slate-950">
-                  {counts[index]}
-                </p>
-                <p className="text-[0.68rem] text-slate-400">kandidat</p>
-              </button>
-              {index < selectionStages.length - 1 ? (
-                <div
-                  className={`mt-5 h-0.5 flex-1 ${
-                    index === 4 ? "bg-red-200" : "bg-slate-200"
-                  }`}
-                />
-              ) : null}
-            </div>
-          ))}
+                  <div
+                    className={`grid size-11 place-items-center rounded-full font-display text-xs font-bold transition group-hover:ring-4 group-hover:ring-red-100 ${
+                      stat.percent === 100
+                        ? "bg-emerald-600 text-white"
+                        : stat.percent > 0
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-800 text-slate-200"
+                    }`}
+                  >
+                    {stage.shortLabel}
+                  </div>
+                  <p className="mt-3 max-w-24 text-xs font-bold text-slate-800 group-hover:text-red-600">
+                    {stage.label}
+                  </p>
+                  <p
+                    className={`mt-1 font-display text-lg font-bold tabular-nums ${
+                      stat.percent === 100
+                        ? "text-emerald-600"
+                        : stat.percent > 0
+                          ? "text-blue-600"
+                          : "text-slate-400"
+                    }`}
+                  >
+                    {stat.percent}%
+                  </p>
+                  <div className="mt-1 flex items-center justify-center">
+                    <div className="h-1.5 w-12 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          stat.percent === 100
+                            ? "bg-emerald-500"
+                            : stat.percent > 0
+                              ? "bg-blue-500"
+                              : "bg-transparent"
+                        }`}
+                        style={{ width: `${stat.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                  <p className="mt-1 text-[0.68rem] font-medium text-slate-400">
+                    {stat.percent > 0
+                      ? `${stat.readyCount}/${totalCandidates} santri tuntas`
+                      : `0/${totalCandidates} belum dinilai`}
+                  </p>
+                </button>
+                {index < selectionStages.length - 1 ? (
+                  <div
+                    className={`mt-5 h-0.5 flex-1 ${
+                      stat.percent === 100 ? "bg-emerald-200" : "bg-slate-200"
+                    }`}
+                  />
+                ) : null}
+              </div>
+            )
+          })}
         </div>
       </div>
     </Card>
@@ -1706,12 +1822,12 @@ function StagesView({
   activeStage,
   setActiveStage,
   onSelectCandidate,
-  onNavigateSchedules,
+  onNavigateSessions,
 }: {
   activeStage: number
   setActiveStage: (index: number) => void
   onSelectCandidate: (candidateId: string) => void
-  onNavigateSchedules: () => void
+  onNavigateSessions: () => void
 }) {
   const {
     candidates,
@@ -1763,8 +1879,8 @@ function StagesView({
             status kelulusan kandidat.
           </p>
         </div>
-        <Button variant="secondary" onClick={onNavigateSchedules}>
-          <CalendarDays className="size-4" /> Atur jadwal tahap
+        <Button variant="secondary" onClick={onNavigateSessions}>
+          <ClipboardCheck className="size-4" /> Buka sesi latihan
         </Button>
       </div>
 
@@ -2085,6 +2201,7 @@ function ProgressView({
 }) {
   const { candidates, activeCycle } = useApp()
   const [selectedId, setSelectedId] = useState(candidates[0]?.id ?? "")
+
   const candidate =
     candidates.find((item) => item.id === selectedId) ?? candidates[0]
 
@@ -2094,6 +2211,24 @@ function ProgressView({
         Belum ada kandidat pada periode ini.
       </Card>
     )
+  }
+
+  const currentIndex = candidates.findIndex((c) => c.id === candidate.id)
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setSelectedId(candidates[currentIndex - 1].id)
+    } else {
+      setSelectedId(candidates[candidates.length - 1].id)
+    }
+  }
+
+  const handleNext = () => {
+    if (currentIndex < candidates.length - 1) {
+      setSelectedId(candidates[currentIndex + 1].id)
+    } else {
+      setSelectedId(candidates[0].id)
+    }
   }
 
   const docsValidCount = (candidate.documents ?? []).filter(Boolean).length
@@ -2147,18 +2282,54 @@ function ProgressView({
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-red-600">
+          <p className="text-xs font-bold uppercase tracking-wider text-red-600">
             Rekam perkembangan individual
           </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Perkembangan kandidat
-          </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Pantau progres seleksi, akademik, fisik, dan kesiapan kandidat.
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
+              Perkembangan santri
+            </h1>
+
+            {/* Navigasi Santri Bersih: Dropdown 1-klik + tombol panah Sebelumnya / Berikutnya */}
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
+              <button
+                type="button"
+                onClick={handlePrev}
+                className="grid size-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+                title="Santri sebelumnya"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+
+              <select
+                value={candidate.id}
+                onChange={(e) => setSelectedId(e.target.value)}
+                className="h-8 max-w-[15rem] sm:max-w-[20rem] truncate rounded-lg border-0 bg-transparent px-2 text-xs sm:text-sm font-bold text-slate-900 outline-none cursor-pointer"
+              >
+                {candidates.map((c, i) => (
+                  <option key={c.id} value={c.id}>
+                    {i + 1}. {c.name} ({c.number})
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={handleNext}
+                className="grid size-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+                title="Santri berikutnya"
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Santri ke-{currentIndex + 1} dari {candidates.length} santri aktif · MA Mu&apos;allimin Yogyakarta
           </p>
         </div>
+
         <div className="flex flex-wrap gap-2">
           <Button
             variant="secondary"
@@ -2175,104 +2346,137 @@ function ProgressView({
         </div>
       </div>
 
-      <Card className="p-4">
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {candidates.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setSelectedId(item.id)}
-              className={`flex min-w-56 items-center gap-3 rounded-xl border p-3 text-left transition ${
-                candidate.id === item.id
-                  ? "border-red-200 bg-red-50 ring-2 ring-red-100"
-                  : "border-slate-100 bg-white hover:border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              <span
-                className={`grid size-10 shrink-0 place-items-center rounded-xl text-xs font-bold text-white ${
-                  candidate.id === item.id ? "bg-red-600" : "bg-slate-900"
-                }`}
-              >
-                {item.avatar}
-              </span>
-              <span>
-                <span className="block text-sm font-bold text-slate-900">
-                  {item.name}
-                </span>
-                <span className="mt-0.5 block text-xs text-slate-500">
-                  Tahap {item.stage} ·{" "}
-                  {selectionStages[item.stage - 1]?.shortLabel}
-                </span>
-              </span>
-            </button>
-          ))}
-        </div>
-      </Card>
-
+      {/* Banner Profil & Stepper Alur 8 Materi (Fully Responsive, No Cutoff!) */}
       <Card className="overflow-hidden">
-        <div className="grid gap-6 bg-slate-950 p-6 text-white md:grid-cols-[auto_1fr_auto] md:items-center">
-          <span className="grid size-16 place-items-center rounded-2xl bg-red-600 font-display text-lg font-bold">
-            {candidate.avatar}
-          </span>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-display text-2xl font-bold">
-                {candidate.name}
-              </h2>
-              <Badge
-                tone={
-                  candidate.stageStatuses.includes("failed")
-                    ? "danger"
-                    : "success"
-                }
-              >
-                {candidate.stageStatuses.includes("failed")
-                  ? "Perlu Pembinaan Khusus"
-                  : "Aktif"}
-              </Badge>
+        <div className="bg-slate-950 p-5 sm:p-6 text-white">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-red-600 font-display text-lg font-bold text-white shadow-lg shadow-red-950/40">
+                {candidate.avatar}
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
+                    {candidate.name}
+                  </h2>
+                  <Badge
+                    tone={
+                      candidate.stageStatuses.includes("failed")
+                        ? "danger"
+                        : "success"
+                    }
+                  >
+                    {candidate.stageStatuses.includes("failed")
+                      ? "Perlu Pembinaan Khusus"
+                      : "Aktif"}
+                  </Badge>
+                </div>
+                <p className="mt-1 text-xs sm:text-sm text-slate-400">
+                  {candidate.number} · {candidate.school} · {candidate.gender}
+                </p>
+              </div>
             </div>
-            <p className="mt-1 text-sm text-slate-400">
-              {candidate.number} · {candidate.school} · {candidate.gender}
-            </p>
-          </div>
-          <div className="min-w-40">
-            <div className="flex items-center justify-between text-xs font-semibold">
-              <span className="text-slate-400">Progres seleksi</span>
-              <span>{completion}%</span>
-            </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-red-500"
-                style={{ width: `${completion}%` }}
-              />
+
+            <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0">
+              <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center min-w-24">
+                <p className="text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wider">
+                  Fisik (TB/BB)
+                </p>
+                <p className="mt-0.5 text-xs font-bold text-white">
+                  {candidate.heightCm ?? "—"} cm · {candidate.weightKg ?? "—"} kg
+                </p>
+              </div>
+
+              <div className="min-w-36 flex-1 sm:flex-initial">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-slate-400">Progres materi</span>
+                  <span className="text-red-300 font-bold">{completion}%</span>
+                </div>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-red-500 transition-all duration-300"
+                    style={{ width: `${completion}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="overflow-x-auto px-6 py-6">
-          <div className="flex min-w-[58rem]">
+
+        {/* Responsive Stage Stepper (Grid 8 kolom di Desktop, 4 kolom di Tablet, 2 kolom di HP) */}
+        <div className="border-t border-slate-100 bg-slate-50/60 p-4 sm:p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              Alur 8 Materi Seleksi &amp; Latihan
+            </p>
+            <span className="text-xs font-semibold text-slate-500">
+              {passedCount} dari {selectionStages.length} materi terpenuhi
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
             {selectionStages.map((stage, index) => {
               const status = candidate.stageStatuses[index]
+              const isPassed = status === "passed"
+              const isActive = status === "active"
+              const isFailed = status === "failed"
+              const isReview = status === "review"
               return (
-                <div className="flex flex-1 items-start" key={stage.key}>
-                  <div className="flex flex-col items-center text-center">
+                <div
+                  key={stage.key}
+                  className={`flex flex-col justify-between rounded-xl border p-2.5 text-center transition ${
+                    isActive
+                      ? "border-blue-400 bg-blue-50/70 ring-2 ring-blue-100 shadow-2xs"
+                      : isPassed
+                        ? "border-emerald-200 bg-emerald-50/40"
+                        : isFailed
+                          ? "border-red-200 bg-red-50/50"
+                          : isReview
+                            ? "border-amber-200 bg-amber-50/50"
+                            : "border-slate-200/70 bg-white"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
                     <span
-                      className={`grid size-9 place-items-center rounded-full text-xs font-bold ${stageTone(status)}`}
+                      className={`grid size-6 place-items-center rounded-full text-[0.68rem] font-bold ${
+                        isPassed
+                          ? "bg-emerald-600 text-white"
+                          : isActive
+                            ? "bg-blue-600 text-white shadow-xs"
+                            : isFailed
+                              ? "bg-red-600 text-white"
+                              : isReview
+                                ? "bg-amber-500 text-white"
+                                : "bg-slate-200 text-slate-600"
+                      }`}
                     >
                       {index + 1}
                     </span>
-                    <p className="mt-2 max-w-20 text-[0.68rem] font-bold text-slate-700">
-                      {stage.label}
-                    </p>
-                    <p className="mt-1 text-[0.65rem] text-slate-400">
-                      {stageLabel(status)}
-                    </p>
-                  </div>
-                  {index < selectionStages.length - 1 ? (
-                    <div
-                      className={`mt-4 h-0.5 flex-1 ${
-                        status === "passed" ? "bg-emerald-300" : "bg-slate-200"
+                    <span
+                      className={`text-[0.62rem] font-bold uppercase tracking-wider ${
+                        isPassed
+                          ? "text-emerald-700"
+                          : isActive
+                            ? "text-blue-700 font-extrabold"
+                            : isFailed
+                              ? "text-red-700"
+                              : isReview
+                                ? "text-amber-700"
+                                : "text-slate-400"
                       }`}
-                    />
-                  ) : null}
+                    >
+                      {stageLabel(status)}
+                    </span>
+                  </div>
+                  <p
+                    className="mt-2 line-clamp-1 text-xs font-bold text-slate-800"
+                    title={stage.label}
+                  >
+                    {stage.label}
+                  </p>
+                  <p className="mt-0.5 text-[0.65rem] font-medium text-slate-400">
+                    {stage.shortLabel} · {index < 5 ? "Dasar" : "Lapangan"}
+                  </p>
                 </div>
               )
             })}
@@ -3022,7 +3226,7 @@ function AppShell() {
         onOpenGoogleSync={() => setShowGoogleSync(true)}
         onOpenUsersModal={() => setShowUsersModal(true)}
       />
-      <div className="lg:pl-72">
+      <div className="lg:pl-64">
         <Header
           onMenu={() => setMobileOpen(true)}
           onView={setView}
@@ -3057,7 +3261,7 @@ function AppShell() {
               activeStage={activeStage}
               setActiveStage={setActiveStage}
               onSelectCandidate={(id) => setSelectedCandidateId(id)}
-              onNavigateSchedules={() => setView("schedules")}
+              onNavigateSessions={() => setView("sessions")}
             />
           ) : null}
           {view === "candidates" ? (
@@ -3077,11 +3281,6 @@ function AppShell() {
             />
           ) : null}
           {view === "standards" ? <StandardsView /> : null}
-          {view === "schedules" ? (
-            <Suspense fallback={<PageLoader />}>
-              <SchedulesView />
-            </Suspense>
-          ) : null}
           {view === "cat-bank" ? (
             <Suspense fallback={<PageLoader />}>
               <CatBankView />
