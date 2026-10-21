@@ -87,6 +87,17 @@ export function saveLastSyncTime(time: string): void {
   }
 }
 
+export function formatLastSync(timestamp: string | null): string {
+  if (!timestamp) return "Belum pernah"
+  try {
+    const d = new Date(timestamp)
+    if (isNaN(d.getTime())) return "Belum pernah"
+    return `${d.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} ${d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`
+  } catch {
+    return "Belum pernah"
+  }
+}
+
 /**
  * Uji konektivitas dengan Google Apps Script Web App
  */

@@ -107,7 +107,7 @@ type AppContextValue = {
     result: "pending" | "passed" | "review" | "failed"
     note: string
     attendance?: "hadir" | "sakit" | "izin" | "alpa"
-  }) => void
+  }) => Candidate[]
 
   // Stage checklists
   stageChecklists: Record<number, boolean[]>
@@ -167,6 +167,9 @@ type AppContextValue = {
   cloudSyncStatus: "idle" | "syncing" | "pulling" | "synced" | "error"
   lastCloudSync: string | null
   hasUnsavedChanges: boolean
+  saveToCloud: (
+    override?: Partial<AppDatabaseState>,
+  ) => Promise<{ ok: boolean, message: string }>
   refreshAndSync: (reason?: "initial" | "manual" | "idle") => Promise<void>
   syncToGoogleSheet: (
     customUrl?: string,
@@ -236,12 +239,24 @@ const defaultChecklists: Record<number, boolean[]> = {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [cycles, setCycles] = useState<SelectionCycle[]>(() =>
-    loadStorage("paska-clean-cycles", initialCycles),
-  )
-  const [activeCycleId, setActiveCycleId] = useState<string>(() =>
-    loadStorage("paska-clean-active-cycle", initialCycles[0].id),
-  )
+  const [cycles, setCycles] = useState<SelectionCycle[]>(() => {
+    const loaded = loadStorage<SelectionCycle[]>("paska-clean-cycles", initialCycles)
+    return loaded.map((c) =>
+      c.id === "cycle-2026-kab" || c.name === "Latihan & Pembinaan 2026"
+        ? {
+            ...c,
+            id: "cycle-2027-kab",
+            name: "Latihan & Pembinaan 2027",
+            year: 2027,
+            referenceDate: "2027-08-17",
+          }
+        : c,
+    )
+  })
+  const [activeCycleId, setActiveCycleId] = useState<string>(() => {
+    const loaded = loadStorage<string>("paska-clean-active-cycle", initialCycles[0].id)
+    return loaded === "cycle-2026-kab" ? "cycle-2027-kab" : loaded
+  })
   const [users, setUsers] = useState<UserProfile[]>(() =>
     loadStorage("paska-clean-users", initialUsers),
   )
@@ -334,9 +349,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       cycles[0] ?? {
         id: "cycle-empty",
         name: "Belum ada periode",
-        year: 2026,
+        year: 2027,
         level: "Kabupaten/Kota",
-        referenceDate: "2026-08-17",
+        referenceDate: "2027-08-17",
         status: "draft",
       },
     [cycles, activeCycleId],
@@ -447,6 +462,131 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearToast = useCallback(() => setToast(null), [])
 
+  const lastSyncedHash = useRef<string>("")
+  const isSyncingRef = useRef<boolean>(false)
+  const isSavingRef = useRef<boolean>(false)
+  const saveQueueRef = useRef<Partial<AppDatabaseState> | null>(null)
+  const initialMountDone = useRef<boolean>(false)
+
+  const stateRef = useRef({
+    allCandidates,
+    cycles,
+    activeCycleId,
+    sessions,
+    records,
+    schedules,
+    questions,
+    supportingDocs,
+    standardRules,
+    stageChecklists,
+    users,
+    auditLogs,
+    rankingPublished,
+  })
+  stateRef.current = {
+    allCandidates,
+    cycles,
+    activeCycleId,
+    sessions,
+    records,
+    schedules,
+    questions,
+    supportingDocs,
+    standardRules,
+    stageChecklists,
+    users,
+    auditLogs,
+    rankingPublished,
+  }
+
+  const computeDataHash = useCallback(() => {
+    const s = stateRef.current
+    return JSON.stringify({
+      c: s.allCandidates,
+      s: s.sessions,
+      r: s.records,
+      sch: s.schedules,
+      q: s.questions,
+      d: s.supportingDocs,
+      st: s.standardRules,
+      ch: s.stageChecklists,
+    })
+  }, [])
+
+  const saveToCloud = useCallback(
+    async (
+      override?: Partial<AppDatabaseState>,
+    ): Promise<{ ok: boolean, message: string }> => {
+      const targetUrl = googleSheetUrl.trim()
+      if (!targetUrl) {
+        return { ok: false, message: "URL Google Apps Script belum diatur." }
+      }
+
+      if (isSavingRef.current) {
+        saveQueueRef.current = {
+          ...(saveQueueRef.current || {}),
+          ...(override || {}),
+        }
+        return { ok: true, message: "Perubahan dijadwalkan untuk disimpan" }
+      }
+
+      isSavingRef.current = true
+      setCloudSyncStatus("syncing")
+
+      try {
+        const s = stateRef.current
+        const stateToPush: AppDatabaseState = {
+          candidates: override?.candidates ?? s.allCandidates,
+          cycles: override?.cycles ?? s.cycles,
+          activeCycleId: override?.activeCycleId ?? s.activeCycleId,
+          sessions: override?.sessions ?? s.sessions,
+          records: override?.records ?? s.records,
+          schedules: override?.schedules ?? s.schedules,
+          questions: override?.questions ?? s.questions,
+          supportingDocs: override?.supportingDocs ?? s.supportingDocs,
+          standardRules: override?.standardRules ?? s.standardRules,
+          stageChecklists: override?.stageChecklists ?? s.stageChecklists,
+          users: override?.users ?? s.users,
+          auditLogs: override?.auditLogs ?? s.auditLogs,
+          rankingPublished: override?.rankingPublished ?? s.rankingPublished,
+        }
+
+        const res = await pushStateToGoogleSheet(stateToPush, targetUrl)
+        if (res.ok) {
+          lastSyncedHash.current = JSON.stringify({
+            c: stateToPush.candidates,
+            s: stateToPush.sessions,
+            r: stateToPush.records,
+            sch: stateToPush.schedules,
+            q: stateToPush.questions,
+            d: stateToPush.supportingDocs,
+            st: stateToPush.standardRules,
+            ch: stateToPush.stageChecklists,
+          })
+          setCloudSyncStatus("synced")
+          setLastCloudSync(new Date().toISOString())
+        } else {
+          setCloudSyncStatus("error")
+        }
+        return res
+      } catch (err) {
+        setCloudSyncStatus("error")
+        return {
+          ok: false,
+          message: err instanceof Error ? err.message : String(err),
+        }
+      } finally {
+        isSavingRef.current = false
+        if (saveQueueRef.current) {
+          const nextOverride = saveQueueRef.current
+          saveQueueRef.current = null
+          saveToCloud(nextOverride)
+        }
+      }
+    },
+    [googleSheetUrl],
+  )
+
   const logAudit = useCallback(
     (action: string, target: string, detail: string) => {
       const now = new Date()
@@ -472,7 +612,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...cycle,
         id: `cycle-${Date.now()}`,
       }
-      setCycles((prev) => [...prev, next])
+      const nextCycles = [...cycles, next]
+      setCycles(nextCycles)
       setActiveCycleId(next.id)
       logAudit(
         "CREATE_CYCLE",
@@ -480,30 +621,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `Membuat periode ${next.name} (${next.level})`,
       )
       showToast(`Periode "${next.name}" berhasil dibuat & diaktifkan.`)
+      saveToCloud({ cycles: nextCycles, activeCycleId: next.id })
     },
-    [logAudit, showToast],
+    [cycles, logAudit, showToast, saveToCloud],
   )
 
   const updateCycle = useCallback(
     (id: string, patch: Partial<SelectionCycle>) => {
-      setCycles((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-      )
+      let nextCycles: SelectionCycle[] = []
+      setCycles((prev) => {
+        nextCycles = prev.map((c) => (c.id === id ? { ...c, ...patch } : c))
+        return nextCycles
+      })
       logAudit("UPDATE_CYCLE", id, "Memperbarui konfigurasi periode seleksi")
       showToast("Periode seleksi berhasil diperbarui.")
+      saveToCloud({ cycles: nextCycles })
     },
-    [logAudit, showToast],
+    [logAudit, showToast, saveToCloud],
   )
 
   const deleteCycle = useCallback(
     (id: string) => {
       const target = cycles.find((c) => c.id === id)
       if (!target) return
-      const remaining = cycles.filter((c) => c.id !== id)
-      setCycles(remaining)
-      setAllCandidates((prev) => prev.filter((c) => c.cycleId !== id))
+      const remainingCycles = cycles.filter((c) => c.id !== id)
+      const remainingCandidates = allCandidates.filter((c) => c.cycleId !== id)
+      setCycles(remainingCycles)
+      setAllCandidates(remainingCandidates)
+      const nextActiveId =
+        activeCycleId === id ? remainingCycles[0]?.id ?? "" : activeCycleId
       if (activeCycleId === id) {
-        setActiveCycleId(remaining[0]?.id ?? "")
+        setActiveCycleId(nextActiveId)
       }
       logAudit(
         "DELETE_CYCLE",
@@ -511,8 +659,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `Menghapus periode ${target.name} (${target.level}) beserta kandidat di dalamnya`,
       )
       showToast(`Periode "${target.name}" telah dihapus.`, "warning")
+      saveToCloud({
+        cycles: remainingCycles,
+        candidates: remainingCandidates,
+        activeCycleId: nextActiveId,
+      })
     },
-    [cycles, activeCycleId, logAudit, showToast],
+    [cycles, allCandidates, activeCycleId, logAudit, showToast, saveToCloud],
   )
 
   // Auth & User actions
@@ -616,28 +769,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
         cycleId: data.cycleId ?? activeCycle.id,
         updatedAt: "Baru saja",
       }
-      setAllCandidates((prev) => [next, ...prev])
+      const nextCandidates = [next, ...allCandidates]
+      setAllCandidates(nextCandidates)
       logAudit(
         "CREATE_CANDIDATE",
         `${next.name} (${next.number})`,
         `Menambahkan kandidat baru dari ${next.school}`,
       )
       showToast(`Kandidat ${next.name} (${next.number}) berhasil ditambahkan.`)
+      saveToCloud({ candidates: nextCandidates })
       return next
     },
     [
-      allCandidates.length,
+      allCandidates,
       activeCycle.id,
       activeCycle.year,
       logAudit,
       showToast,
+      saveToCloud,
     ],
   )
 
   const updateCandidate = useCallback(
     (id: string, patch: Partial<Candidate>) => {
-      setAllCandidates((prev) =>
-        prev.map((item) => {
+      let nextCandidates: Candidate[] = []
+      setAllCandidates((prev) => {
+        nextCandidates = prev.map((item) => {
           if (item.id !== id) return item
           const updatedName = patch.name ?? item.name
           return {
@@ -646,18 +803,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
             avatar: patch.name ? makeAvatar(updatedName) : item.avatar,
             updatedAt: "Baru saja",
           }
-        }),
-      )
+        })
+        return nextCandidates
+      })
       logAudit("UPDATE_CANDIDATE", id, "Memperbarui data/profil kandidat")
       showToast("Data kandidat berhasil diperbarui.")
+      saveToCloud({ candidates: nextCandidates })
     },
-    [logAudit, showToast],
+    [logAudit, showToast, saveToCloud],
   )
 
   const deleteCandidate = useCallback(
     (id: string) => {
       const target = allCandidates.find((c) => c.id === id)
-      setAllCandidates((prev) => prev.filter((item) => item.id !== id))
+      const nextCandidates = allCandidates.filter((item) => item.id !== id)
+      setAllCandidates(nextCandidates)
       if (target) {
         logAudit(
           "DELETE_CANDIDATE",
@@ -666,23 +826,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
         )
         showToast(`Kandidat ${target.name} telah dihapus.`, "warning")
       }
+      saveToCloud({ candidates: nextCandidates })
     },
-    [allCandidates, logAudit, showToast],
+    [allCandidates, logAudit, showToast, saveToCloud],
   )
 
   const importCandidates = useCallback(
     (newItems: Candidate[]) => {
       if (!newItems.length) return 0
-      setAllCandidates((prev) => [...newItems, ...prev])
+      const nextCandidates = [...newItems, ...allCandidates]
+      setAllCandidates(nextCandidates)
       logAudit(
         "IMPORT_CANDIDATES",
         `${newItems.length} kandidat`,
         "Impor massal data kandidat via CSV",
       )
       showToast(`${newItems.length} kandidat berhasil diimpor.`)
+      saveToCloud({ candidates: nextCandidates })
       return newItems.length
     },
-    [logAudit, showToast],
+    [allCandidates, logAudit, showToast, saveToCloud],
   )
 
   const updateCandidateStage = useCallback(
@@ -692,8 +855,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       status: StageStatus,
       reason?: string,
     ) => {
-      setAllCandidates((prev) =>
-        prev.map((cand) => {
+      let nextCandidates: Candidate[] = []
+      setAllCandidates((prev) => {
+        nextCandidates = prev.map((cand) => {
           if (cand.id !== candidateId) return cand
           const { stageStatuses, activeStageNumber } = applyStageDecision(
             cand.stageStatuses,
@@ -712,8 +876,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   : cand.eliminationReason,
             updatedAt: "Baru saja",
           }
-        }),
-      )
+        })
+        return nextCandidates
+      })
       const cand = allCandidates.find((c) => c.id === candidateId)
       if (cand) {
         logAudit(
@@ -725,14 +890,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         )
       }
       showToast(`Status Tahap ${stageIndex + 1} diperbarui menjadi ${status}.`)
+      saveToCloud({ candidates: nextCandidates })
     },
-    [allCandidates, logAudit, showToast],
+    [allCandidates, logAudit, showToast, saveToCloud],
   )
 
   const toggleCandidateDocument = useCallback(
     (candidateId: string, docIndex: number) => {
-      setAllCandidates((prev) =>
-        prev.map((cand) => {
+      let nextCandidates: Candidate[] = []
+      setAllCandidates((prev) => {
+        nextCandidates = prev.map((cand) => {
           if (cand.id !== candidateId) return cand
           const docs = [
             ...(cand.documents ?? [false, false, false, false, false, false]),
@@ -758,10 +925,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
             stage: nextStage,
             updatedAt: "Baru saja",
           }
-        }),
-      )
+        })
+        return nextCandidates
+      })
+      saveToCloud({ candidates: nextCandidates })
     },
-    [],
+    [saveToCloud],
   )
 
   const addAnthropometryLog = useCallback(
@@ -769,8 +938,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       candidateId: string,
       entry: { date: string, heightCm: number, weightKg: number, note?: string },
     ) => {
-      setAllCandidates((prev) =>
-        prev.map((cand) => {
+      let nextCandidates: Candidate[] = []
+      setAllCandidates((prev) => {
+        nextCandidates = prev.map((cand) => {
           if (cand.id !== candidateId) return cand
           const newLog = {
             id: `anthro-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
@@ -790,22 +960,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
             anthropometryHistory: history,
             updatedAt: "Baru saja",
           }
-        }),
-      )
+        })
+        return nextCandidates
+      })
       logAudit(
         "LOG_ANTHROPOMETRY",
         candidateId,
         `Mencatat tinggi ${entry.heightCm} cm & berat ${entry.weightKg} kg (${entry.date})`,
       )
       showToast("Data pengukuran tinggi & berat badan berhasil dicatat.")
+      saveToCloud({ candidates: nextCandidates })
     },
-    [logAudit, showToast],
+    [logAudit, showToast, saveToCloud],
   )
 
   const deleteAnthropometryLog = useCallback(
     (candidateId: string, logId: string) => {
-      setAllCandidates((prev) =>
-        prev.map((cand) => {
+      let nextCandidates: Candidate[] = []
+      setAllCandidates((prev) => {
+        nextCandidates = prev.map((cand) => {
           if (cand.id !== candidateId) return cand
           const history = (cand.anthropometryHistory ?? []).filter(
             (item) => item.id !== logId,
@@ -818,11 +991,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
             anthropometryHistory: history,
             updatedAt: "Baru saja",
           }
-        }),
-      )
+        })
+        return nextCandidates
+      })
       showToast("Riwayat pengukuran tinggi & berat badan dihapus.", "warning")
+      saveToCloud({ candidates: nextCandidates })
     },
-    [showToast],
+    [showToast, saveToCloud],
   )
 
   const syncCandidateFromSession = useCallback(
@@ -841,8 +1016,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       note: string
       attendance?: "hadir" | "sakit" | "izin" | "alpa"
     }) => {
-      setAllCandidates((prev) =>
-        prev.map((cand) => {
+      let nextCandidates: Candidate[] = []
+      setAllCandidates((prev) => {
+        nextCandidates = prev.map((cand) => {
           if (cand.id !== candidateId) return cand
           const patch: Partial<Candidate> = {
             updatedAt: "Baru saja",
@@ -1083,28 +1259,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ...cand,
             ...patch,
           }
-        }),
-      )
+        })
+        return nextCandidates
+      })
       logAudit(
         "SESSION_RECORD_SAVED",
         candidateId,
         `Menyimpan hasil sesi ${sessionType.toUpperCase()} (status: ${result})`,
       )
       showToast("Hasil sesi & profil kandidat berhasil disinkronkan.")
+      saveToCloud({ candidates: nextCandidates })
+      return nextCandidates
     },
-    [logAudit, showToast],
+    [logAudit, showToast, saveToCloud],
   )
 
   const toggleStageChecklist = useCallback(
     (stageIndex: number, itemIndex: number) => {
+      let nextChecklists: Record<number, boolean[]> = {}
       setStageChecklists((prev) => {
         const current = prev[stageIndex] ?? [false, false, false, false]
         const next = [...current]
         next[itemIndex] = !next[itemIndex]
-        return { ...prev, [stageIndex]: next }
+        nextChecklists = { ...prev, [stageIndex]: next }
+        return nextChecklists
       })
+      saveToCloud({ stageChecklists: nextChecklists })
     },
-    [],
+    [saveToCloud],
   )
 
   // Schedule CRUD
@@ -1114,33 +1296,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...schedule,
         id: `sched-${Date.now()}`,
       }
-      setSchedules((prev) => [next, ...prev])
+      const nextSchedules = [next, ...schedules]
+      setSchedules(nextSchedules)
       logAudit(
         "CREATE_SCHEDULE",
         next.title,
         `Jadwal tahap ${next.stageId} pada ${next.date}`,
       )
       showToast(`Jadwal "${next.title}" berhasil dibuat.`)
+      saveToCloud({ schedules: nextSchedules })
     },
-    [logAudit, showToast],
+    [schedules, logAudit, showToast, saveToCloud],
   )
 
   const updateSchedule = useCallback(
     (id: string, patch: Partial<SelectionSchedule>) => {
-      setSchedules((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...patch } : item)),
-      )
+      let nextSchedules: SelectionSchedule[] = []
+      setSchedules((prev) => {
+        nextSchedules = prev.map((item) =>
+          item.id === id ? { ...item, ...patch } : item,
+        )
+        return nextSchedules
+      })
       showToast("Jadwal seleksi berhasil diperbarui.")
+      saveToCloud({ schedules: nextSchedules })
     },
-    [showToast],
+    [showToast, saveToCloud],
   )
 
   const deleteSchedule = useCallback(
     (id: string) => {
-      setSchedules((prev) => prev.filter((item) => item.id !== id))
+      const remaining = schedules.filter((item) => item.id !== id)
+      setSchedules(remaining)
       showToast("Jadwal seleksi telah dihapus.", "warning")
+      saveToCloud({ schedules: remaining })
     },
-    [showToast],
+    [schedules, showToast, saveToCloud],
   )
 
   const toggleCandidateSchedule = useCallback(
@@ -1155,18 +1346,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         )
         return false
       }
-      setSchedules((prev) =>
-        prev.map((s) => {
+      let nextSchedules: SelectionSchedule[] = []
+      setSchedules((prev) => {
+        nextSchedules = prev.map((s) => {
           if (s.id !== scheduleId) return s
           const nextIds = exists
             ? s.assignedCandidateIds.filter((id) => id !== candidateId)
             : [...s.assignedCandidateIds, candidateId]
           return { ...s, assignedCandidateIds: nextIds }
-        }),
-      )
+        })
+        return nextSchedules
+      })
+      saveToCloud({ schedules: nextSchedules })
       return true
     },
-    [schedules, showToast],
+    [schedules, showToast, saveToCloud],
   )
 
   // CAT Questions CRUD
@@ -1176,33 +1370,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...question,
         id: `q-${question.type}-${Date.now()}`,
       }
-      setQuestions((prev) => [next, ...prev])
+      const nextQuestions = [next, ...questions]
+      setQuestions(nextQuestions)
       logAudit(
         "CREATE_QUESTION",
         `${next.type.toUpperCase()} · ${next.category}`,
         "Menambahkan butir soal baru ke bank soal",
       )
       showToast("Soal berhasil ditambahkan ke Bank Soal CAT.")
+      saveToCloud({ questions: nextQuestions })
     },
-    [logAudit, showToast],
+    [questions, logAudit, showToast, saveToCloud],
   )
 
   const updateQuestion = useCallback(
     (id: string, patch: Partial<CatQuestion>) => {
-      setQuestions((prev) =>
-        prev.map((q) => (q.id === id ? { ...q, ...patch } : q)),
-      )
+      let nextQuestions: CatQuestion[] = []
+      setQuestions((prev) => {
+        nextQuestions = prev.map((q) => (q.id === id ? { ...q, ...patch } : q))
+        return nextQuestions
+      })
       showToast("Butir soal berhasil diperbarui.")
+      saveToCloud({ questions: nextQuestions })
     },
-    [showToast],
+    [showToast, saveToCloud],
   )
 
   const deleteQuestion = useCallback(
     (id: string) => {
-      setQuestions((prev) => prev.filter((q) => q.id !== id))
+      const remaining = questions.filter((q) => q.id !== id)
+      setQuestions(remaining)
       showToast("Butir soal telah dihapus.", "warning")
+      saveToCloud({ questions: remaining })
     },
-    [showToast],
+    [questions, showToast, saveToCloud],
   )
 
   // Supporting Docs CRUD
@@ -1213,49 +1414,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
         id: `doc-${Date.now()}`,
         updatedAt: "Baru saja",
       }
-      setSupportingDocs((prev) => [next, ...prev])
+      const nextDocs = [next, ...supportingDocs]
+      setSupportingDocs(nextDocs)
       logAudit("CREATE_DOCUMENT", next.title, `Kategori: ${next.category}`)
       showToast(`Dokumen "${next.title}" berhasil diterbitkan.`)
+      saveToCloud({ supportingDocs: nextDocs })
     },
-    [logAudit, showToast],
+    [supportingDocs, logAudit, showToast, saveToCloud],
   )
 
   const updateSupportingDoc = useCallback(
     (id: string, patch: Partial<SupportingDoc>) => {
-      setSupportingDocs((prev) =>
-        prev.map((d) =>
+      let nextDocs: SupportingDoc[] = []
+      setSupportingDocs((prev) => {
+        nextDocs = prev.map((d) =>
           d.id === id ? { ...d, ...patch, updatedAt: "Baru saja" } : d,
-        ),
-      )
+        )
+        return nextDocs
+      })
       showToast("Dokumen pendukung berhasil diperbarui.")
+      saveToCloud({ supportingDocs: nextDocs })
     },
-    [showToast],
+    [showToast, saveToCloud],
   )
 
   const deleteSupportingDoc = useCallback(
     (id: string) => {
-      setSupportingDocs((prev) => prev.filter((d) => d.id !== id))
+      const remaining = supportingDocs.filter((d) => d.id !== id)
+      setSupportingDocs(remaining)
       showToast("Dokumen telah dihapus.", "warning")
+      saveToCloud({ supportingDocs: remaining })
     },
-    [showToast],
+    [supportingDocs, showToast, saveToCloud],
   )
 
   // Standards Governance
   const updateStandardRule = useCallback(
     (id: string, patch: Partial<StandardRuleItem>) => {
-      setStandardRules((prev) =>
-        prev.map((rule) =>
+      let nextRules: StandardRuleItem[] = []
+      setStandardRules((prev) => {
+        nextRules = prev.map((rule) =>
           rule.id === id ? { ...rule, ...patch, updatedAt: "Baru saja" } : rule,
-        ),
-      )
+        )
+        return nextRules
+      })
       logAudit(
         "UPDATE_STANDARD_RULE",
         id,
         `Status aturan diubah menjadi ${patch.status ?? "diperbarui"} oleh ${patch.approver ?? currentUser.name}`,
       )
       showToast("Register aturan standar berhasil diperbarui.")
+      saveToCloud({ standardRules: nextRules })
     },
-    [currentUser.name, logAudit, showToast],
+    [currentUser.name, logAudit, showToast, saveToCloud],
   )
 
   const setRankingPublished = useCallback(
@@ -1274,8 +1485,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : "Publikasi pemeringkatan ditarik kembali ke mode draft internal.",
         value ? "success" : "info",
       )
+      saveToCloud({ rankingPublished: value })
     },
-    [activeCycle.name, logAudit, showToast],
+    [activeCycle.name, logAudit, showToast, saveToCloud],
   )
 
   // Cloud Sync with Supabase Edge Function (with automatic local fallback)
@@ -1353,55 +1565,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setAutoSyncGoogleSheet = useCallback((enabled: boolean) => {
     setAutoSyncEnabled(enabled)
     setAutoSyncGoogleSheetState(enabled)
-  }, [])
-
-  const lastSyncedHash = useRef<string>("")
-  const isSyncingRef = useRef<boolean>(false)
-  const initialMountDone = useRef<boolean>(false)
-
-  const stateRef = useRef({
-    allCandidates,
-    cycles,
-    activeCycleId,
-    sessions,
-    records,
-    schedules,
-    questions,
-    supportingDocs,
-    standardRules,
-    stageChecklists,
-    users,
-    auditLogs,
-    rankingPublished,
-  })
-  stateRef.current = {
-    allCandidates,
-    cycles,
-    activeCycleId,
-    sessions,
-    records,
-    schedules,
-    questions,
-    supportingDocs,
-    standardRules,
-    stageChecklists,
-    users,
-    auditLogs,
-    rankingPublished,
-  }
-
-  const computeDataHash = useCallback(() => {
-    const s = stateRef.current
-    return JSON.stringify({
-      c: s.allCandidates,
-      s: s.sessions,
-      r: s.records,
-      sch: s.schedules,
-      q: s.questions,
-      d: s.supportingDocs,
-      st: s.standardRules,
-      ch: s.stageChecklists,
-    })
   }, [])
 
   const hasUnsavedChanges = Boolean(
@@ -1601,6 +1764,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
+        if (
+          document.activeElement &&
+          (document.activeElement.tagName === "INPUT" ||
+            document.activeElement.tagName === "TEXTAREA")
+        ) {
+          return
+        }
         const timeAwayMs = Date.now() - lastActive
         if (timeAwayMs > 180000) {
           // Tab ditinggal > 3 menit
@@ -1612,6 +1782,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.addEventListener("visibilitychange", handleVisibility)
 
     const idleTimer = setInterval(() => {
+      if (
+        document.activeElement &&
+        (document.activeElement.tagName === "INPUT" ||
+          document.activeElement.tagName === "TEXTAREA")
+      ) {
+        return
+      }
       const timeAwayMs = Date.now() - lastActive
       if (timeAwayMs > 300000) {
         // Tidak ada interaksi > 5 menit
@@ -1694,6 +1871,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncToGoogleSheet,
       pullFromGoogleSheet,
       testGoogleSheet,
+      saveToCloud,
       refreshAndSync,
       hasUnsavedChanges,
     }),
@@ -1759,6 +1937,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncToGoogleSheet,
       pullFromGoogleSheet,
       testGoogleSheet,
+      saveToCloud,
       refreshAndSync,
       hasUnsavedChanges,
     ],

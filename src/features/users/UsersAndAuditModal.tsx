@@ -325,15 +325,17 @@ export function LoginScreen() {
     <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4 text-white">
       <Card className="w-full max-w-lg border-white/10 bg-slate-900 p-6 text-white sm:p-8">
         <div className="flex items-center gap-3">
-          <div className="grid size-12 place-items-center rounded-2xl bg-red-600 text-white shadow-lg">
-            <ShieldCheck className="size-6" />
-          </div>
+          <img
+            src="/BACAPASMUIN.webp"
+            alt="BACAPASMUIN!"
+            className="h-12 w-auto object-contain drop-shadow"
+          />
           <div>
             <p className="font-display text-xl font-bold tracking-tight">
-              PASKA TRACK 2026
+              BACAPASMUIN!
             </p>
-            <p className="text-xs uppercase tracking-widest text-slate-400">
-              Sistem Pendamping Internal · Autentikasi RBAC
+            <p className="text-xs uppercase tracking-widest text-amber-400/90">
+              Sistem Seleksi &amp; Pembinaan Paskibraka
             </p>
           </div>
         </div>

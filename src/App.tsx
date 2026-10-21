@@ -62,6 +62,7 @@ import {
   UsersAndAuditModal,
 } from "./features/users/UsersAndAuditModal"
 import { GoogleSheetSyncModal } from "./components/GoogleSheetSyncModal"
+import { formatLastSync } from "./lib/googleSheetSync"
 import {
   downloadCandidateTemplateCsv,
   exportCandidatesCsv,
@@ -155,15 +156,17 @@ function StatusBadge({ status }: { status: StageStatus }) {
 function Brand() {
   return (
     <div className="flex items-center gap-3">
-      <div className="grid size-11 place-items-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-900/20">
-        <ShieldCheck className="size-6" />
-      </div>
+      <img
+        src="/BACAPASMUIN.webp"
+        alt="BACAPASMUIN!"
+        className="h-11 w-auto object-contain drop-shadow"
+      />
       <div>
         <p className="font-display text-base font-bold tracking-tight text-white">
-          PASKA TRACK
+          BACAPASMUIN!
         </p>
-        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          Aplikasi Latihan &amp; Pembinaan
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-amber-400/90">
+          Seleksi &amp; Pembinaan Paskibraka
         </p>
       </div>
     </div>
@@ -176,14 +179,17 @@ function Sidebar({
   mobileOpen,
   onClose,
   onOpenGoogleSync,
+  onOpenUsersModal,
 }: {
   view: View
   onView: (view: View) => void
   mobileOpen: boolean
   onClose: () => void
   onOpenGoogleSync?: () => void
+  onOpenUsersModal?: () => void
 }) {
   const {
+    currentUser,
     candidates,
     cycles,
     activeCycle,
@@ -194,14 +200,14 @@ function Sidebar({
   const [cycleMenuOpen, setCycleMenuOpen] = useState(false)
   const [showNewCycle, setShowNewCycle] = useState(false)
   const [newCycleName, setNewCycleName] = useState("")
-  const [newCycleYear, setNewCycleYear] = useState(2026)
+  const [newCycleYear, setNewCycleYear] = useState(2027)
   const [newCycleLevel, setNewCycleLevel] =
     useState<"Kabupaten/Kota" | "Provinsi" | "Pusat">("Kabupaten/Kota")
 
   function handleCreateCycle(e: React.FormEvent) {
     e.preventDefault()
     if (!newCycleName.trim()) return
-    const yearNum = Number(newCycleYear) || 2026
+    const yearNum = Number(newCycleYear) || 2027
     addCycle({
       name: newCycleName.trim(),
       year: yearNum,
@@ -419,30 +425,28 @@ function Sidebar({
           ))}
         </nav>
 
-        <div className="mt-auto pt-6">
+        <div className="mt-auto border-t border-white/10 pt-4">
           <button
             type="button"
-            onClick={onOpenGoogleSync}
-            className="mb-3 flex w-full items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/20"
+            onClick={() => {
+              onOpenUsersModal?.()
+              onClose()
+            }}
+            className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-2.5 text-left transition hover:bg-white/[0.08]"
           >
-            <div className="flex items-center gap-2">
-              <Cloud className="size-4 text-emerald-400" />
-              <span>Database Google Sheet</span>
-            </div>
-            <span className="text-[0.68rem] font-bold text-emerald-400">Atur &gt;</span>
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-slate-900 text-xs font-bold text-white shadow-sm">
+              {currentUser.avatar}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-bold text-white">
+                {currentUser.name}
+              </span>
+              <span className="block truncate text-xs text-slate-400">
+                {currentUser.title}
+              </span>
+            </span>
+            <ChevronDown className="size-4 shrink-0 text-slate-400 transition group-hover:text-slate-200" />
           </button>
-
-          <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4">
-            <div className="flex items-center gap-2 text-amber-200">
-              <ShieldCheck className="size-4" />
-              <p className="text-xs font-bold uppercase tracking-wider">
-                Aplikasi Latihan &amp; Pembinaan
-              </p>
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-slate-400">
-              Khusus pembinaan latihan santri MA Mu&apos;allimin Yogyakarta. Seluruh data tersimpan aman di browser &amp; tersinkron otomatis ke Google Sheet.
-            </p>
-          </div>
         </div>
       </aside>
     </>
@@ -468,6 +472,7 @@ function Header({
     standardRules,
     cloudSyncStatus,
     googleSheetUrl,
+    lastCloudSync,
     refreshAndSync,
     hasUnsavedChanges,
   } = useApp()
@@ -540,7 +545,7 @@ function Header({
   }, [candidates, standardRules])
 
   return (
-    <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl md:min-h-20 md:gap-4 md:px-8">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl md:gap-4 md:px-6">
       <Button
         variant="ghost"
         className="!px-2 lg:hidden"
@@ -550,12 +555,12 @@ function Header({
         <Menu className="size-5" />
       </Button>
 
-      <div className="relative max-w-lg flex-1">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+      <div className="relative max-w-md flex-1">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="min-h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-8 text-sm outline-none transition focus:border-red-300 focus:bg-white focus:ring-4 focus:ring-red-50 md:min-h-11"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-9 pr-8 text-xs outline-none transition placeholder:text-slate-400 hover:bg-slate-50 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-100"
           placeholder="Cari kandidat, nomor peserta, atau sekolah..."
         />
         {searchQuery ? (
@@ -565,17 +570,17 @@ function Header({
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             aria-label="Bersihkan pencarian"
           >
-            <X className="size-4" />
+            <X className="size-3.5" />
           </button>
         ) : null}
 
         {searchQuery.trim() ? (
-          <div className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+          <div className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50">
             <div className="border-b border-slate-100 bg-slate-50 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
               Hasil pencarian kandidat ({searchResults.length})
             </div>
             {searchResults.length ? (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
                 {searchResults.map((cand) => (
                   <button
                     key={cand.id}
@@ -584,17 +589,17 @@ function Header({
                       onSelectCandidate(cand.id)
                       setSearchQuery("")
                     }}
-                    className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-slate-50"
+                    className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="grid size-9 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
+                      <span className="grid size-8 place-items-center rounded-lg bg-slate-900 text-xs font-bold text-white">
                         {cand.avatar}
                       </span>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">
+                        <p className="text-xs font-bold text-slate-900">
                           {cand.name}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-[0.68rem] text-slate-500">
                           {cand.number} · {cand.school}
                         </p>
                       </div>
@@ -613,84 +618,91 @@ function Header({
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        {/* Tombol Refresh Sinkronisasi Google Sheet */}
-        <button
-          type="button"
-          onClick={() => refreshAndSync("manual")}
-          disabled={cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"}
-          className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
-            hasUnsavedChanges
-              ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 shadow-2xs"
-              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
-          }`}
-          title={
-            hasUnsavedChanges
-              ? "Ada perubahan data lokal yang belum tersimpan di Google Sheet. Klik untuk sinkronkan."
-              : "Sinkronkan data dengan Google Sheet"
-          }
-        >
-          <RotateCw
-            className={`size-3.5 ${
-              cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"
-                ? "animate-spin text-blue-600"
-                : hasUnsavedChanges
-                  ? "text-amber-700"
-                  : "text-slate-600"
-            }`}
-          />
-          <span className="hidden sm:inline">
-            {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"
-              ? "Menyinkronkan..."
-              : hasUnsavedChanges
-                ? "Sinkronkan Perubahan"
-                : "Refresh Data"}
-          </span>
-          {hasUnsavedChanges ? (
-            <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
-          ) : (
-            <span className="size-2 rounded-full bg-emerald-500" />
-          )}
-        </button>
-
-        {/* Status Database Google Sheet */}
+        {/* Google Sheet Cloud Status & Sync Control */}
         {googleSheetUrl ? (
-          <button
-            type="button"
-            onClick={onOpenGoogleSync}
-            className="hidden md:flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
-            title="Database Google Sheet terhubung. Klik untuk melihat detail."
-          >
-            <Cloud className="size-3.5 text-emerald-600" />
-            <span>Google Sheet</span>
-          </button>
+          <div className="flex h-9 items-center rounded-lg border border-slate-200 bg-white shadow-2xs text-xs">
+            {/* Status Indikator Cloud */}
+            <div
+              className="flex h-full items-center gap-1.5 px-2.5 font-medium border-r border-slate-200 select-none cursor-default"
+              title={
+                cloudSyncStatus === "syncing"
+                  ? "Sedang menyimpan perubahan ke Google Sheet..."
+                  : cloudSyncStatus === "pulling"
+                    ? "Sedang memuat data terbaru dari Google Sheet..."
+                    : `Tersimpan aman di Google Sheet (Terakhir: ${formatLastSync(lastCloudSync)})`
+              }
+            >
+              {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling" ? (
+                <>
+                  <RotateCw className="size-3.5 animate-spin text-blue-600" />
+                  <span className="hidden sm:inline text-blue-700">
+                    {cloudSyncStatus === "syncing" ? "Menyimpan..." : "Memuat..."}
+                  </span>
+                </>
+              ) : cloudSyncStatus === "error" ? (
+                <>
+                  <span className="size-2 rounded-full bg-red-500" />
+                  <span className="hidden sm:inline text-red-600">Gagal simpan</span>
+                </>
+              ) : (
+                <>
+                  <span className="size-2 rounded-full bg-emerald-500" />
+                  <span className="hidden sm:inline text-slate-700">Google Sheet</span>
+                </>
+              )}
+            </div>
+
+            {/* Tombol Refresh Manual */}
+            <button
+              type="button"
+              onClick={() => refreshAndSync("manual")}
+              disabled={cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"}
+              className="flex h-full items-center gap-1.5 px-2.5 font-medium text-slate-700 hover:bg-slate-50 transition border-r border-slate-200 disabled:opacity-50"
+              title="Ambil data terbaru dari Google Sheet"
+            >
+              <RotateCw className="size-3 text-slate-500" />
+              <span>Refresh</span>
+            </button>
+
+            {/* Modal Pengaturan Sheet */}
+            <button
+              type="button"
+              onClick={onOpenGoogleSync}
+              className="flex h-full items-center px-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition rounded-r-lg"
+              title="Pengaturan Google Sheet"
+            >
+              <Cloud className="size-3.5" />
+            </button>
+          </div>
         ) : (
           <button
             type="button"
             onClick={onOpenGoogleSync}
-            className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-900 transition hover:bg-amber-100"
+            className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition shadow-2xs"
             title="Hubungkan Google Sheet"
           >
-            <Cloud className="size-3.5 text-amber-600" />
-            <span>Hubungkan Cloud</span>
+            <Cloud className="size-3.5 text-slate-400" />
+            <span className="hidden sm:inline">Hubungkan Sheet</span>
           </button>
         )}
 
+        {/* Notifikasi */}
         <div className="relative">
-          <Button
-            variant="ghost"
-            className="relative !px-3"
-            aria-label="Notifikasi"
+          <button
+            type="button"
             onClick={() => setShowNotif((v) => !v)}
+            className="relative flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition shadow-2xs"
+            aria-label="Notifikasi"
           >
-            <Bell className="size-5" />
+            <Bell className="size-4" />
             {notifications.length > 0 ? (
-              <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-red-600 ring-2 ring-white" />
+              <span className="absolute right-2 top-2 size-2 rounded-full bg-red-600 ring-2 ring-white" />
             ) : null}
-          </Button>
+          </button>
 
           {showNotif ? (
-            <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:w-96">
-              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3">
+            <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:w-96 z-50">
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-700">
                   Notifikasi & Tugas ({notifications.length})
                 </p>
@@ -702,7 +714,7 @@ function Header({
                   Tutup
                 </button>
               </div>
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
                 {notifications.map((item) => (
                   <button
                     key={item.id}
@@ -711,7 +723,7 @@ function Header({
                       onView(item.targetView)
                       setShowNotif(false)
                     }}
-                    className="block w-full p-4 text-left transition hover:bg-slate-50"
+                    className="block w-full p-3.5 text-left transition hover:bg-slate-50"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs font-bold text-slate-900">
@@ -732,24 +744,26 @@ function Header({
           ) : null}
         </div>
 
-        <div className="mx-1 hidden h-8 w-px bg-slate-200 sm:block" />
+        <div className="mx-0.5 hidden h-5 w-px bg-slate-200 sm:block" />
+
+        {/* Profil Pengguna */}
         <button
           type="button"
           onClick={onOpenUsersModal}
-          className="flex items-center gap-3 rounded-xl p-1.5 text-left transition hover:bg-slate-50"
+          className="flex h-9 items-center gap-2.5 rounded-lg px-2 text-left transition hover:bg-slate-100"
         >
-          <span className="grid size-9 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
+          <span className="grid size-7 place-items-center rounded-lg bg-slate-900 text-xs font-bold text-white shadow-2xs">
             {currentUser.avatar}
           </span>
           <span className="hidden sm:block">
-            <span className="block text-sm font-bold text-slate-800">
+            <span className="block text-xs font-bold text-slate-800 leading-tight">
               {currentUser.name}
             </span>
-            <span className="block text-xs text-slate-500">
+            <span className="block text-[0.68rem] text-slate-500 leading-tight">
               {currentUser.title}
             </span>
           </span>
-          <ChevronDown className="hidden size-4 text-slate-400 sm:block" />
+          <ChevronDown className="hidden size-3.5 text-slate-400 sm:block" />
         </button>
       </div>
     </header>
@@ -842,12 +856,11 @@ function StagePipeline({
           <div className="flex items-center gap-2">
             <ClipboardCheck className="size-5 text-red-600" />
             <h2 className="font-display text-lg font-bold text-slate-900">
-              Pipeline seleksi Kabupaten/Kota
+              Alur Materi Latihan &amp; Seleksi
             </h2>
           </div>
           <p className="mt-1 text-sm text-slate-500">
-            Tahap 1–5 memakai hard-lock. Klik tahapan di bawah untuk mengelola
-            evaluasi kandidat.
+            Klik tahapan di bawah untuk mencatat evaluasi dan memantau perkembangan santri.
           </p>
         </div>
         <Badge tone={unverifiedCount > 0 ? "warning" : "success"}>
@@ -1295,9 +1308,9 @@ function Overview({
           tone="bg-blue-50 text-blue-700"
         />
         <StatCard
-          label="Lolos Fase 1"
+          label="Memenuhi Standar Dasar"
           value={String(phase1Count)}
-          detail={`${phase1Percent}% dari total kandidat`}
+          detail={`${phase1Percent}% siap tahap simulasi`}
           icon={ShieldCheck}
           tone="bg-emerald-50 text-emerald-700"
         />
@@ -1309,9 +1322,9 @@ function Overview({
           tone="bg-amber-50 text-amber-700"
         />
         <StatCard
-          label="Tereliminasi"
+          label="Perlu Pembinaan Khusus"
           value={String(eliminatedCount)}
-          detail="Terkunci otomatis oleh hard-lock"
+          detail="Di bawah batas target latihan"
           icon={PanelLeftClose}
           tone="bg-red-50 text-red-700"
         />
@@ -1355,8 +1368,8 @@ function Overview({
               },
               {
                 icon: GraduationCap,
-                label: "Finalisasi nilai juri",
-                detail: `${judgeTasks} kandidat Fase 2`,
+                label: "Input nilai simulasi lapangan",
+                detail: `${judgeTasks} santri (PBB & Samapta)`,
                 tone: "bg-blue-50 text-blue-700",
                 onClick: () => onNavigateStage(5),
               },
@@ -2213,7 +2226,7 @@ function ProgressView({
                 }
               >
                 {candidate.stageStatuses.includes("failed")
-                  ? "Tereliminasi"
+                  ? "Perlu Pembinaan Khusus"
                   : "Aktif"}
               </Badge>
             </div>
@@ -3007,6 +3020,7 @@ function AppShell() {
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
         onOpenGoogleSync={() => setShowGoogleSync(true)}
+        onOpenUsersModal={() => setShowUsersModal(true)}
       />
       <div className="lg:pl-72">
         <Header

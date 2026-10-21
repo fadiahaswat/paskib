@@ -13,11 +13,11 @@ import type {
 
 export const initialCycles: SelectionCycle[] = [
   {
-    id: "cycle-2026-kab",
-    name: "Latihan & Pembinaan 2026",
-    year: 2026,
+    id: "cycle-2027-kab",
+    name: "Latihan & Pembinaan 2027",
+    year: 2027,
     level: "Kabupaten/Kota",
-    referenceDate: "2026-08-17",
+    referenceDate: "2027-08-17",
     status: "active",
   },
 ]

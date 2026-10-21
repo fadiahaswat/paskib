@@ -85,7 +85,7 @@ export function exportCandidatesCsv(candidates: Candidate[]) {
     ]
   })
 
-  downloadCsv("daftar-kandidat-paskibraka-2026.csv", headers, rows)
+  downloadCsv("daftar-kandidat-paskibraka-2027.csv", headers, rows)
 }
 
 export function exportRankingCsv(
@@ -120,7 +120,7 @@ export function exportRankingCsv(
     ]
   })
 
-  downloadCsv("rekap-pemeringkatan-paskibraka-2026.csv", headers, rows)
+  downloadCsv("rekap-pemeringkatan-paskibraka-2027.csv", headers, rows)
 }
 
 export function downloadCandidateTemplateCsv() {
@@ -138,7 +138,7 @@ export function downloadCandidateTemplateCsv() {
 
 export function printCandidateReport(
   candidate: Candidate,
-  referenceYear = 2026,
+  referenceYear = 2027,
 ) {
   const age = ageOnReferenceDate(candidate.birthDate, referenceYear)
   const bmiInfo = bmi(candidate.weightKg ?? 0, candidate.heightCm ?? 0)
@@ -293,7 +293,7 @@ export function printAdmissionCard(
     <div class="banner">
       <div>
         <div style="font-size:11px;color:#fca5a5;font-weight:700;letter-spacing:0.12em;">KARTU PESERTA SIMULASI & SELEKSI INTERNAL</div>
-        <div style="font-size:18px;font-weight:800;margin-top:2px;">PASKA TRACK · PERIODE 2026</div>
+        <div style="font-size:18px;font-weight:800;margin-top:2px;">PASKA TRACK · PERIODE 2027</div>
       </div>
       <div style="background:#dc2626;padding:6px 12px;border-radius:8px;font-weight:800;font-size:14px;">${candidate.number}</div>
     </div>
@@ -314,7 +314,7 @@ export function printAdmissionCard(
       <div class="row"><span>Lokasi Pelaksanaan</span><strong>${schedule?.location ?? "Sekretariat / Lapangan Utama"}</strong></div>
       <div class="stamp">
         <div>
-          <strong>Token Verifikasi Internal:</strong> PT-2026-${candidate.id.toUpperCase()}<br/>
+          <strong>Token Verifikasi Internal:</strong> PT-2027-${candidate.id.toUpperCase()}<br/>
           <span style="color:#64748b;">Wajib dibawa bersama kartu pelajar asli saat registrasi sesi.</span>
         </div>
         <div style="text-align:right;font-weight:700;color:#15803d;">VALID</div>

@@ -449,6 +449,7 @@ export default function SimulationCenter() {
     setSessions,
     records,
     setRecords,
+    saveToCloud,
   } = useApp()
 
   const [sessionId, setSessionId] = useState(sessions[0]?.id ?? "")
@@ -536,11 +537,13 @@ export default function SimulationCenter() {
         draft.type === "fitness" ? draft.activeFitnessTests : undefined,
       trackLength: draft.type === "fitness" ? draft.trackLength : undefined,
     }
-    setSessions((current) => [next, ...current])
+    const nextSessions = [next, ...sessions]
+    setSessions(nextSessions)
     setSessionId(next.id)
     setCandidateId(next.participantIds[0] ?? candidates[0]?.id ?? "")
     setShowCreate(false)
     showToast(`Sesi "${next.title}" berhasil dibuat.`)
+    saveToCloud({ sessions: nextSessions })
   }
 
   const createModalBlock = showCreate ? (
@@ -815,17 +818,17 @@ export default function SimulationCenter() {
             : ["distance", "pushup", "situp", "backup", "shuttle"]
 
     const nextTests = tests ?? defaultTests
-    setSessions((current) =>
-      current.map((s) =>
-        s.id === session.id
-          ? {
-              ...s,
-              fitnessPreset: presetId,
-              activeFitnessTests: nextTests,
-            }
-          : s,
-      ),
+    const nextSessions = sessions.map((s) =>
+      s.id === session.id
+        ? {
+            ...s,
+            fitnessPreset: presetId,
+            activeFitnessTests: nextTests,
+          }
+        : s,
     )
+    setSessions(nextSessions)
+    saveToCloud({ sessions: nextSessions })
   }
 
   function toggleFitnessTest(testKey: string) {
@@ -846,25 +849,25 @@ export default function SimulationCenter() {
     } else {
       next = [...currentTests, testKey]
     }
-    setSessions((current) =>
-      current.map((s) =>
-        s.id === session.id
-          ? {
-              ...s,
-              fitnessPreset: "custom",
-              activeFitnessTests: next,
-            }
-          : s,
-      ),
+    const nextSessions = sessions.map((s) =>
+      s.id === session.id
+        ? {
+            ...s,
+            fitnessPreset: "custom",
+            activeFitnessTests: next,
+          }
+        : s,
     )
+    setSessions(nextSessions)
+    saveToCloud({ sessions: nextSessions })
   }
 
   function updateTrackLength(newLen: number) {
-    setSessions((current) =>
-      current.map((s) =>
-        s.id === session.id ? { ...s, trackLength: newLen } : s,
-      ),
+    const nextSessions = sessions.map((s) =>
+      s.id === session.id ? { ...s, trackLength: newLen } : s,
     )
+    setSessions(nextSessions)
+    saveToCloud({ sessions: nextSessions })
     const currentLaps = record.metrics.laps
     if (currentLaps && !isNaN(Number(currentLaps))) {
       const extra = Number(record.metrics.extraMeters) || 0
@@ -955,12 +958,13 @@ export default function SimulationCenter() {
 
   function saveRecord() {
     const nextRecord = { ...record, savedAt: new Date().toISOString() }
-    setRecords((current) => ({
-      ...current,
+    const nextRecords = {
+      ...records,
       [key]: nextRecord,
-    }))
+    }
+    setRecords(nextRecords)
     // Sync score & stage status directly to Candidate master state!
-    syncCandidateFromSession({
+    const nextCandidates = syncCandidateFromSession({
       candidateId: candidate.id,
       sessionType: session.type,
       metrics: nextRecord.metrics,
@@ -970,15 +974,19 @@ export default function SimulationCenter() {
     })
     setSaved(true)
     window.setTimeout(() => setSaved(false), 2000)
+    saveToCloud({
+      records: nextRecords,
+      candidates: nextCandidates,
+    })
   }
 
   function updateSessionStatus(nextStatus: SessionStatus) {
-    setSessions((current) =>
-      current.map((s) =>
-        s.id === session.id ? { ...s, status: nextStatus } : s,
-      ),
+    const nextSessions = sessions.map((s) =>
+      s.id === session.id ? { ...s, status: nextStatus } : s,
     )
+    setSessions(nextSessions)
     showToast(`Status sesi diubah menjadi ${nextStatus}.`, "info")
+    saveToCloud({ sessions: nextSessions })
   }
 
   function deleteCurrentSession() {
@@ -986,6 +994,7 @@ export default function SimulationCenter() {
     setSessions(remaining)
     setSessionId(remaining[0]?.id ?? "")
     showToast(`Sesi "${session.title}" telah dihapus.`, "warning")
+    saveToCloud({ sessions: remaining })
   }
 
   return (
