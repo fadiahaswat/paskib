@@ -13,7 +13,9 @@ import {
   initialAuditLogs,
   initialCycles,
   initialQuestions,
+  initialRecords,
   initialSchedules,
+  initialSessions,
   initialStandardRules,
   initialSupportingDocs,
   initialUsers,
@@ -247,9 +249,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() =>
     loadStorage("paska-clean-auth", true),
   )
-  const [allCandidates, setAllCandidates] = useState<Candidate[]>(() =>
-    loadStorage("paska-clean-candidates", seededCandidates),
-  )
+  const [allCandidates, setAllCandidates] = useState<Candidate[]>(() => {
+    const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
+    if (!loaded || loaded.length === 0) return seededCandidates
+    // Jika data di browser masih data lama yang terjebak di Administrasi tahap 1 (dokumen kosong),
+    // otomatis upgrade ke data latihan terbaru
+    const isStuckInAdm =
+      loaded.length > 0 &&
+      loaded.every(
+        (c) =>
+          c.stage === 1 &&
+          c.stageStatuses[0] === "active" &&
+          (!c.documents || c.documents.every((d) => !d)),
+      )
+    if (isStuckInAdm && seededCandidates.length > 0) {
+      return seededCandidates
+    }
+    return loaded
+  })
   const [stageChecklists, setStageChecklists] =
     useState<Record<number, boolean[]>>(() =>
       loadStorage("paska-clean-checklists", defaultChecklists),
@@ -267,17 +284,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadStorage("paska-clean-standards", initialStandardRules),
   )
   const [rankingPublished, setRankingPublishedState] = useState<boolean>(() =>
-    loadStorage("paska-clean-ranking-published", false),
+    loadStorage("paska-clean-ranking-published", true),
   )
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() =>
     loadStorage("paska-clean-audit", initialAuditLogs),
   )
-  const [sessions, setSessions] = useState<Session[]>(() =>
-    loadStorage("paska-clean-sessions", []),
-  )
-  const [records, setRecords] = useState<Record<string, SessionRecord>>(() =>
-    loadStorage("paska-clean-records", {}),
-  )
+  const [sessions, setSessions] = useState<Session[]>(() => {
+    const loaded = loadStorage<Session[]>("paska-clean-sessions", initialSessions)
+    if (!loaded || loaded.length === 0) return initialSessions
+    return loaded
+  })
+  const [records, setRecords] = useState<Record<string, SessionRecord>>(() => {
+    const loaded = loadStorage<Record<string, SessionRecord>>(
+      "paska-clean-records",
+      initialRecords,
+    )
+    if (!loaded || Object.keys(loaded).length === 0) return initialRecords
+    return loaded
+  })
   const [googleSheetUrl, setGoogleSheetUrlState] = useState<string>(() =>
     getSavedGasUrl(),
   )
@@ -715,7 +739,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (
             cand.stage === 1 &&
             allValid &&
-            cand.stageStatuses[0] === "review"
+            (cand.stageStatuses[0] === "review" || cand.stageStatuses[0] === "active")
           ) {
             const applied = applyStageDecision(cand.stageStatuses, 0, "passed")
             nextStageStatuses = applied.stageStatuses
@@ -889,14 +913,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           } else if (sessionType === "pbb") {
             stageIndex = 5
-            const s = Number(metrics.static)
-            const d = Number(metrics.dynamic)
-            const c = Number(metrics.command)
-            const vals = [s, d, c].filter((v) => Number.isFinite(v) && v > 0)
-            if (vals.length > 0) {
-              patch.pbb = Number(
-                (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1),
-              )
+            const pbbScore = Number(metrics.pbbScore)
+            if (Number.isFinite(pbbScore) && pbbScore > 0) {
+              patch.pbb = Number(pbbScore.toFixed(1))
+            } else {
+              const s = Number(metrics.static)
+              const d = Number(metrics.dynamic)
+              const c = Number(metrics.command)
+              const vals = [s, d, c].filter((v) => Number.isFinite(v) && v > 0)
+              if (vals.length > 0) {
+                patch.pbb = Number(
+                  (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1),
+                )
+              }
             }
           } else if (sessionType === "fitness") {
             stageIndex = 6
@@ -1015,11 +1044,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           }
 
-          if (stageIndex !== null && result !== "pending") {
+          let effectiveResult = result
+          if (effectiveResult === "pending") {
+            if (attendance && attendance !== "hadir") {
+              effectiveResult = "review"
+            } else if (sessionType === "fitness") {
+              if (metrics.runDnf === "yes") {
+                effectiveResult = "review"
+              } else if (Number(metrics.distance) >= 2400) {
+                effectiveResult = "passed"
+              } else if (Number(metrics.distance) > 0) {
+                effectiveResult = "review"
+              }
+            } else if (sessionType === "pbb") {
+              if (patch.pbb !== undefined && patch.pbb > 0) {
+                effectiveResult = "passed"
+              }
+            }
+          }
+
+          if (stageIndex !== null && effectiveResult !== "pending") {
             const { stageStatuses, activeStageNumber } = applyStageDecision(
               cand.stageStatuses,
               stageIndex,
-              result as StageStatus,
+              effectiveResult as StageStatus,
             )
             patch.stageStatuses = stageStatuses
             patch.stage = activeStageNumber
@@ -1301,6 +1349,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAutoSyncGoogleSheetState(enabled)
   }, [])
 
+  const lastSyncedHash = useRef<string>("")
+  const isSyncingRef = useRef<boolean>(false)
+
+  const computeDataHash = useCallback(() => {
+    return JSON.stringify({
+      c: allCandidates,
+      s: sessions,
+      r: records,
+      sch: schedules,
+      q: questions,
+      d: supportingDocs,
+      st: standardRules,
+      ch: stageChecklists,
+    })
+  }, [
+    allCandidates,
+    sessions,
+    records,
+    schedules,
+    questions,
+    supportingDocs,
+    standardRules,
+    stageChecklists,
+  ])
+
   const syncToGoogleSheet = useCallback(
     async (customUrl?: string, silent: boolean = false) => {
       const targetUrl = customUrl?.trim() || googleSheetUrl
@@ -1308,6 +1381,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (!silent) showToast("URL Google Apps Script belum diisi.", "warning")
         return { ok: false, message: "URL belum diatur" }
       }
+
+      const currentHash = computeDataHash()
+      if (silent && lastSyncedHash.current === currentHash) {
+        setCloudSyncStatus("synced")
+        return { ok: true, message: "Sudah tersimpan di Google Sheet" }
+      }
+
+      if (isSyncingRef.current) {
+        return { ok: false, message: "Sedang dalam proses sinkronisasi" }
+      }
+
+      isSyncingRef.current = true
       setCloudSyncStatus("syncing")
       try {
         const state: AppDatabaseState = {
@@ -1327,6 +1412,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         const res = await pushStateToGoogleSheet(state, targetUrl)
         if (res.ok) {
+          lastSyncedHash.current = currentHash
           setCloudSyncStatus("synced")
           const now = new Date().toISOString()
           setLastCloudSync(now)
@@ -1335,18 +1421,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
               res.message || "Data berhasil disinkronkan ke Google Sheet!",
               "success",
             )
+            logAudit(
+              "SYNC_GOOGLE_SHEET",
+              "Google Sheet",
+              `Sinkronisasi ${allCandidates.length} kandidat & ${sessions.length} sesi ke Google Sheet`,
+            )
           }
-          logAudit(
-            "SYNC_GOOGLE_SHEET",
-            "Google Sheet",
-            `Sinkronisasi ${allCandidates.length} kandidat & ${sessions.length} sesi ke Google Sheet`,
-          )
         } else {
           setCloudSyncStatus("error")
           if (!silent) showToast(res.message, "danger")
         }
+        isSyncingRef.current = false
         return res
       } catch (err) {
+        isSyncingRef.current = false
         setCloudSyncStatus("error")
         const msg = err instanceof Error ? err.message : String(err)
         if (!silent) showToast(`Gagal sinkron: ${msg}`, "danger")
@@ -1370,6 +1458,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       googleSheetUrl,
       showToast,
       logAudit,
+      computeDataHash,
     ],
   )
 
@@ -1385,7 +1474,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const res = await pullStateFromGoogleSheet(targetUrl)
         if (res.ok && res.data) {
           const d = res.data
-          if (Array.isArray(d.candidates)) setAllCandidates(d.candidates)
+          let sanitizedCandidates = allCandidates
+          if (Array.isArray(d.candidates)) {
+            sanitizedCandidates = d.candidates.map((c: Candidate) => {
+              if (
+                c.stage === 1 &&
+                c.stageStatuses?.[0] === "active" &&
+                (!c.documents || c.documents.every((doc) => !doc))
+              ) {
+                const matched = seededCandidates.find(
+                  (sc) => sc.number === c.number || sc.name === c.name,
+                )
+                if (matched) return { ...c, ...matched }
+              }
+              return c
+            })
+            setAllCandidates(sanitizedCandidates)
+          }
           if (Array.isArray(d.cycles) && d.cycles.length > 0) setCycles(d.cycles)
           if (d.activeCycleId) setActiveCycleId(d.activeCycleId)
           if (Array.isArray(d.sessions)) setSessions(d.sessions)
@@ -1400,6 +1505,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(d.auditLogs)) setAuditLogs(d.auditLogs)
           if (d.rankingPublished !== undefined)
             setRankingPublishedState(d.rankingPublished)
+
+          lastSyncedHash.current = JSON.stringify({
+            c: sanitizedCandidates,
+            s: d.sessions || [],
+            r: d.records || {},
+            sch: d.schedules || [],
+            q: d.questions || [],
+            d: d.supportingDocs || [],
+            st: d.standardRules || [],
+            ch: d.stageChecklists || defaultChecklists,
+          })
 
           setCloudSyncStatus("synced")
           const now = new Date().toISOString()
@@ -1429,7 +1545,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: msg }
       }
     },
-    [googleSheetUrl, showToast, logAudit, allCandidates, syncToGoogleSheet],
+    [googleSheetUrl, showToast, logAudit, allCandidates, sessions, syncToGoogleSheet],
   )
 
   const testGoogleSheet = useCallback(
@@ -1454,26 +1570,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [googleSheetUrl])
 
-  // 2. Auto-save otomatis di latar belakang setiap ada perubahan data (seperti Google Docs / Notion)
+  // 2. Auto-save otomatis di latar belakang HANYA jika data benar-benar berubah
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false
       return
     }
     if (!autoSyncGoogleSheet || !googleSheetUrl) return
+    const currentHash = computeDataHash()
+    if (currentHash === lastSyncedHash.current) {
+      return
+    }
     const timer = setTimeout(() => {
       syncToGoogleSheet(undefined, true)
     }, 2000)
     return () => clearTimeout(timer)
   }, [
-    allCandidates,
-    sessions,
-    records,
-    schedules,
-    questions,
-    supportingDocs,
-    standardRules,
-    stageChecklists,
+    computeDataHash,
     autoSyncGoogleSheet,
     googleSheetUrl,
     syncToGoogleSheet,

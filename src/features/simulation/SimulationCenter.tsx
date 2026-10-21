@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { Badge, Button, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
+import PbbEvaluationSection from "./PbbEvaluationSection"
 import {
   administrationDocuments,
   anamnesisItems,
@@ -1625,6 +1626,13 @@ export default function SimulationCenter() {
                           </div>
                         ) : null}
                       </div>
+                    ) : session.type === "pbb" ? (
+                      <PbbEvaluationSection
+                        metrics={record.metrics}
+                        onUpdateMetrics={(updatedMetrics) =>
+                          patchRecord({ metrics: updatedMetrics })
+                        }
+                      />
                     ) : (
                       <div className="mt-3 grid gap-4 md:grid-cols-3">
                         {definition.fields.map((field) => (

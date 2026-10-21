@@ -197,14 +197,17 @@ export const fitnessTables = {
 
 export const pbbRubric = [
   [
-    "PBB Statis",
-    "Sikap sempurna, istirahat, kerapian, perubahan arah, jalan di tempat.",
+    "PBB Statis (12 Gerakan)",
+    "Gerakan di Tempat (Sikap Sempurna, Penghormatan, Istirahat), Perubahan Arah di Tempat (Hadap Kanan/Kiri, Serong, Balik Kanan), dan Berpindah Tempat.",
   ],
   [
-    "PBB Dinamis",
-    "Langkah tegap 96 BPM, langkah biasa, perlahan, haluan, dan melintang.",
+    "PBB Dinamis (9 Gerakan)",
+    "Gerakan Berjalan (Jalan di Tempat, Langkah Biasa, Langkah Tegap) dan Perubahan Arah Berjalan (Belok Kanan/Kiri, 2x Belok, Tiap Banjar 2x Belok).",
   ],
-  ["Vokal Komando", "Diafragma, kelantangan, ketegasan, dan jeda aba-aba."],
+  [
+    "Komandan (4 Item)",
+    "Volume dan kekuatan suara, sikap, artikulasi & intonasi, serta ketepatan aba-aba.",
+  ],
 ]
 
 export const weeklyProgram = [

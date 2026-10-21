@@ -284,10 +284,18 @@ export function applyStageDecision(
           }
         }
       }
-    } else {
-      // Hard-lock: if stage 1-5 is not passed (e.g. failed, review, active, locked), lock subsequent stages
+    } else if (nextStatus === "failed") {
+      // Hard-lock: if stage 1-5 failed, lock subsequent stages
       for (let i = stageIndex + 1; i < 8; i++) {
         next[i] = "locked"
+      }
+    }
+  } else {
+    // Di Aplikasi Latihan: jika kandidat telah berlatih di Fase 2 (PBB, Samapta, Kepribadian),
+    // berkas dan persyaratan Fase 1 otomatis terpenuhi (passed) agar tidak terjebak di Administrasi.
+    for (let i = 0; i < 5; i++) {
+      if (next[i] === "locked" || next[i] === "active") {
+        next[i] = "passed"
       }
     }
   }
@@ -298,9 +306,14 @@ export function applyStageDecision(
   if (failedIndex !== -1) {
     activeStageNumber = failedIndex + 1
   } else {
-    const activeOrReviewIndex = next.findIndex(
-      (s) => s === "active" || s === "review",
-    )
+    // Di aplikasi latihan, tampilkan tahap aktif berdasarkan fokus latihan tertinggi yang sedang berjalan
+    let activeOrReviewIndex = -1
+    for (let i = 7; i >= 0; i--) {
+      if (next[i] === "active" || next[i] === "review") {
+        activeOrReviewIndex = i
+        break
+      }
+    }
     if (activeOrReviewIndex !== -1) {
       activeStageNumber = activeOrReviewIndex + 1
     } else {

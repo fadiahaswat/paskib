@@ -147,7 +147,7 @@ function Brand() {
           PASKA TRACK
         </p>
         <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          Sistem pendamping internal
+          Aplikasi Latihan &amp; Pembinaan
         </p>
       </div>
     </div>
@@ -436,12 +436,11 @@ function Sidebar({
             <div className="flex items-center gap-2 text-amber-200">
               <ShieldCheck className="size-4" />
               <p className="text-xs font-bold uppercase tracking-wider">
-                Mode data internal
+                Aplikasi Latihan &amp; Pembinaan
               </p>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-slate-400">
-              Bukan portal resmi BPIP. Seluruh perubahan data tersimpan secara
-              lokal & siap disinkronkan ke Google Sheet.
+              Khusus pembinaan latihan santri MA Mu&apos;allimin Yogyakarta. Seluruh data tersimpan aman di browser &amp; tersinkron otomatis ke Google Sheet.
             </p>
           </div>
         </div>
@@ -1084,7 +1083,7 @@ function CandidateTable({
             <tr className="border-b border-slate-100 bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
               <th className="px-6 py-3.5">Kandidat</th>
               <th className="px-4 py-3.5">TB / BB (BMI)</th>
-              <th className="px-4 py-3.5">Tahap aktif</th>
+              <th className="px-4 py-3.5">Tahap latihan aktif</th>
               <th className="px-4 py-3.5">PIP</th>
               <th className="px-4 py-3.5">TIU</th>
               <th className="px-4 py-3.5">Status</th>
