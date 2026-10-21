@@ -1,0 +1,10 @@
+{
+  "description": "A comprehensive digital platform for managing and tracking the Paskibraka selection process, offering simulators and tools for candidates, trainers, and judges.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
