@@ -196,8 +196,8 @@ export function printCandidateReport(
         bmiInfo ? `${bmiInfo.value} (${bmiInfo.category})` : "Belum diukur"
       }</div>
       <div><strong>Tahap Aktif:</strong> Tahap ${candidate.stage} (${selectionStages[candidate.stage - 1]?.label ?? ""})</div>
-      <div><strong>Status Fase 1:</strong> ${
-        phase1 ? "LOLOS SELURUH HARD-LOCK" : "Dalam Proses / Belum Lengkap"
+      <div><strong>Status Standar Dasar:</strong> ${
+        phase1 ? "MEMENUHI SYARAT" : "Dalam Proses / Belum Lengkap"
       }</div>
       <div><strong>Nilai Akhir Sementara:</strong> ${
         score !== null ? score.toFixed(2) : "Belum lengkap"
@@ -238,7 +238,7 @@ export function printCandidateReport(
             <td>Tahap ${st.id}</td>
             <td>${st.label}</td>
             <td>${
-              st.phase === 1 ? "Fase 1 (Hard-lock)" : "Fase 2 (Pembobotan)"
+              st.phase === 1 ? "Standar Dasar" : "Simulasi Lapangan"
             }</td>
             <td><strong>${stStatus.toUpperCase()}</strong></td>
             <td>${val}</td>

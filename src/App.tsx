@@ -1813,7 +1813,7 @@ function StagesView({
                   </span>
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-red-300">
-                      Tahap {stage.id} · Fase {stage.phase}
+                      Tahap {stage.id} · {stage.phase === 1 ? "Standar Dasar" : "Simulasi Lapangan"}
                     </p>
                     <h2 className="mt-1 font-display text-2xl font-bold">
                       {stage.label}
@@ -1823,8 +1823,8 @@ function StagesView({
                     </p>
                   </div>
                 </div>
-                <Badge tone={stage.phase === 1 ? "danger" : "info"}>
-                  {stage.phase === 1 ? "Hard-lock" : "Pembobotan"}
+                <Badge tone={stage.phase === 1 ? "neutral" : "info"}>
+                  {stage.phase === 1 ? "Kualifikasi Dasar" : "Pembobotan Nilai"}
                 </Badge>
               </div>
             </div>
@@ -2471,7 +2471,7 @@ function RankingView({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-red-600">
-            Fase 2 · Kabupaten/Kota
+            Simulasi Penjurian Lapangan · Kabupaten/Kota
           </p>
           <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
             Pemeringkatan akhir
@@ -2515,9 +2515,9 @@ function RankingView({
                 : "Status: Simulasi Internal (Draft Belum Dipublikasikan)"}
             </p>
             <p className="mt-1 opacity-90">
-              Hanya kandidat yang lulus seluruh Tahap 1–5 (Hard-Lock Fase 1) dan
-              memiliki ketiga nilai Fase 2 lengkap yang masuk ke tabel
-              leaderboard.
+              Hanya santri yang telah memenuhi seluruh standar dasar (Tahap 1–5) dan
+              memiliki ketiga nilai simulasi lapangan lengkap yang masuk ke tabel
+              pemeringkatan.
             </p>
           </div>
         </div>
@@ -2665,8 +2665,8 @@ function RankingView({
               Kandidat belum masuk pemeringkatan ({unranked.length})
             </h3>
             <p className="text-xs text-slate-500">
-              Klik kandidat untuk melengkapi nilai Fase 2 atau memeriksa alasan
-              eliminasi Fase 1.
+              Klik kandidat untuk melengkapi nilai simulasi lapangan atau melihat
+              catatan evaluasi standar dasar.
             </p>
           </div>
           <div className="divide-y divide-slate-100">
@@ -2676,9 +2676,9 @@ function RankingView({
               )
               const reason =
                 failedIdx !== -1
-                  ? `Gugur pada Tahap ${failedIdx + 1} (${selectionStages[failedIdx]?.label})`
+                  ? `Catatan khusus pada Tahap ${failedIdx + 1} (${selectionStages[failedIdx]?.label})`
                   : !isPhaseOnePassed(cand)
-                    ? `Masih dalam proses Fase 1 (Tahap ${cand.stage})`
+                    ? `Masih dalam evaluasi standar dasar (Tahap ${cand.stage})`
                     : "Menunggu kelengkapan nilai PBB / Samapta / Kepribadian"
 
               return (
@@ -2700,7 +2700,7 @@ function RankingView({
                     </div>
                   </div>
                   <Badge tone={failedIdx !== -1 ? "danger" : "warning"}>
-                    {failedIdx !== -1 ? "Tereliminasi" : "Belum Lengkap"}
+                    {failedIdx !== -1 ? "Perlu Pembinaan" : "Belum Lengkap"}
                   </Badge>
                 </button>
               )
