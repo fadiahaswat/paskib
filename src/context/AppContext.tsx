@@ -254,20 +254,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [allCandidates, setAllCandidates] = useState<Candidate[]>(() => {
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
     if (!loaded || loaded.length === 0) return seededCandidates
-    // Jika data di browser masih data lama yang terjebak di Administrasi tahap 1 (dokumen kosong),
-    // otomatis upgrade ke data latihan terbaru
-    const isStuckInAdm =
-      loaded.length > 0 &&
-      loaded.every(
-        (c) =>
-          c.stage === 1 &&
-          c.stageStatuses[0] === "active" &&
-          (!c.documents || c.documents.every((d) => !d)),
-      )
-    if (isStuckInAdm && seededCandidates.length > 0) {
-      return seededCandidates
-    }
-    return loaded
+    // Bersihkan seluruh data dummy: PIP, TIU, PBB, dan Kepribadian yang belum dites dijadikan null murni
+    const sanitized = loaded.map((c) => {
+      const match = seededCandidates.find((sc) => sc.id === c.id || sc.number === c.number)
+      return {
+        ...c,
+        pip: null,
+        tiu: null,
+        pbb: null,
+        personality: null,
+        documents: [true, true, true, true, true, true],
+        stage: match ? match.stage : c.stage,
+        stageStatuses: match ? match.stageStatuses : c.stageStatuses,
+        fitness: match ? match.fitness : c.fitness,
+        coachNote: match ? match.coachNote : c.coachNote,
+        physicalMetrics: match?.physicalMetrics ?? (c.physicalMetrics ?? []).filter((m) => m.label.toLowerCase().includes("lari")),
+      }
+    })
+    return sanitized
   })
   const [stageChecklists, setStageChecklists] =
     useState<Record<number, boolean[]>>(() =>
@@ -1353,20 +1357,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const lastSyncedHash = useRef<string>("")
   const isSyncingRef = useRef<boolean>(false)
+  const initialMountDone = useRef<boolean>(false)
 
-  const computeDataHash = useCallback(() => {
-    return JSON.stringify({
-      c: allCandidates,
-      s: sessions,
-      r: records,
-      sch: schedules,
-      q: questions,
-      d: supportingDocs,
-      st: standardRules,
-      ch: stageChecklists,
-    })
-  }, [
+  const stateRef = useRef({
     allCandidates,
+    cycles,
+    activeCycleId,
     sessions,
     records,
     schedules,
@@ -1374,7 +1370,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     supportingDocs,
     standardRules,
     stageChecklists,
-  ])
+    users,
+    auditLogs,
+    rankingPublished,
+  })
+  stateRef.current = {
+    allCandidates,
+    cycles,
+    activeCycleId,
+    sessions,
+    records,
+    schedules,
+    questions,
+    supportingDocs,
+    standardRules,
+    stageChecklists,
+    users,
+    auditLogs,
+    rankingPublished,
+  }
+
+  const computeDataHash = useCallback(() => {
+    const s = stateRef.current
+    return JSON.stringify({
+      c: s.allCandidates,
+      s: s.sessions,
+      r: s.records,
+      sch: s.schedules,
+      q: s.questions,
+      d: s.supportingDocs,
+      st: s.standardRules,
+      ch: s.stageChecklists,
+    })
+  }, [])
 
   const hasUnsavedChanges = Boolean(
     googleSheetUrl &&
@@ -1401,6 +1429,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setCloudSyncStatus(reason === "initial" ? "pulling" : "syncing")
 
       try {
+        const s = stateRef.current
         const currentHash = computeDataHash()
         const hasLocalChanges =
           Boolean(lastSyncedHash.current) &&
@@ -1408,29 +1437,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Jika ada perubahan data lokal dan bukan saat pertama buka, simpan perubahan ke Google Sheet
         if (hasLocalChanges && reason !== "initial") {
-          const state: AppDatabaseState = {
-            candidates: allCandidates,
-            cycles,
-            activeCycleId,
-            sessions,
-            records,
-            schedules,
-            questions,
-            supportingDocs,
-            standardRules,
-            stageChecklists,
-            users,
-            auditLogs,
-            rankingPublished,
+          const stateToPush: AppDatabaseState = {
+            candidates: s.allCandidates,
+            cycles: s.cycles,
+            activeCycleId: s.activeCycleId,
+            sessions: s.sessions,
+            records: s.records,
+            schedules: s.schedules,
+            questions: s.questions,
+            supportingDocs: s.supportingDocs,
+            standardRules: s.standardRules,
+            stageChecklists: s.stageChecklists,
+            users: s.users,
+            auditLogs: s.auditLogs,
+            rankingPublished: s.rankingPublished,
           }
-          await pushStateToGoogleSheet(state, targetUrl)
+          await pushStateToGoogleSheet(stateToPush, targetUrl)
         }
 
         // Ambil data terbaru dari Google Sheet
         const res = await pullStateFromGoogleSheet(targetUrl)
         if (res.ok && res.data) {
           const d = res.data
-          let sanitizedCandidates = allCandidates
+          let sanitizedCandidates = s.allCandidates
           if (Array.isArray(d.candidates)) {
             sanitizedCandidates = d.candidates.map((c: Candidate) => {
               if (
@@ -1486,23 +1515,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         } else if (res.ok && !res.data) {
           // Google Sheet kosong tapi lokal ada data
-          if (allCandidates.length > 0 || sessions.length > 0) {
-            const state: AppDatabaseState = {
-              candidates: allCandidates,
-              cycles,
-              activeCycleId,
-              sessions,
-              records,
-              schedules,
-              questions,
-              supportingDocs,
-              standardRules,
-              stageChecklists,
-              users,
-              auditLogs,
-              rankingPublished,
+          if (s.allCandidates.length > 0 || s.sessions.length > 0) {
+            const stateToPush: AppDatabaseState = {
+              candidates: s.allCandidates,
+              cycles: s.cycles,
+              activeCycleId: s.activeCycleId,
+              sessions: s.sessions,
+              records: s.records,
+              schedules: s.schedules,
+              questions: s.questions,
+              supportingDocs: s.supportingDocs,
+              standardRules: s.standardRules,
+              stageChecklists: s.stageChecklists,
+              users: s.users,
+              auditLogs: s.auditLogs,
+              rankingPublished: s.rankingPublished,
             }
-            await pushStateToGoogleSheet(state, targetUrl)
+            await pushStateToGoogleSheet(stateToPush, targetUrl)
             lastSyncedHash.current = currentHash
           }
           setCloudSyncStatus("synced")
@@ -1518,25 +1547,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isSyncingRef.current = false
       }
     },
-    [
-      googleSheetUrl,
-      computeDataHash,
-      allCandidates,
-      cycles,
-      activeCycleId,
-      sessions,
-      records,
-      schedules,
-      questions,
-      supportingDocs,
-      standardRules,
-      stageChecklists,
-      users,
-      auditLogs,
-      rankingPublished,
-      showToast,
-      logAudit,
-    ],
+    [googleSheetUrl, computeDataHash, showToast, logAudit],
   )
 
   const syncToGoogleSheet = useCallback(
@@ -1568,9 +1579,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [googleSheetUrl, showToast],
   )
 
-  // 1. Kondisi 1: Membuka pertama kali -> otomatis sinkron data terbaru dari Google Sheet
+  // 1. Kondisi 1: Membuka pertama kali -> otomatis sinkron data terbaru dari Google Sheet (hanya 1x)
   useEffect(() => {
-    if (googleSheetUrl) {
+    if (!initialMountDone.current && googleSheetUrl) {
+      initialMountDone.current = true
       refreshAndSync("initial")
     }
   }, [googleSheetUrl, refreshAndSync])
