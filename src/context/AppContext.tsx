@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
@@ -25,11 +26,25 @@ import {
   type CatQuestion,
   type SelectionCycle,
   type SelectionSchedule,
+  type Session,
+  type SessionRecord,
   type StageStatus,
   type StandardRuleItem,
   type SupportingDoc,
   type UserProfile,
 } from "../domain/selection"
+import {
+  type AppDatabaseState,
+  getAutoSyncEnabled,
+  getLastSyncTime,
+  getSavedGasUrl,
+  pullStateFromGoogleSheet,
+  pushStateToGoogleSheet,
+  saveGasUrl,
+  saveLastSyncTime,
+  setAutoSyncEnabled,
+  testGasConnection,
+} from "../lib/googleSheetSync"
 import { serverUrl } from "../lib/supabase"
 import { publicAnonKey } from "../../utils/supabase/info"
 
@@ -89,6 +104,7 @@ type AppContextValue = {
     metrics: Record<string, string>
     result: "pending" | "passed" | "review" | "failed"
     note: string
+    attendance?: "hadir" | "sakit" | "izin" | "alpa"
   }) => void
 
   // Stage checklists
@@ -136,6 +152,27 @@ type AppContextValue = {
   syncStatus: SyncStatus
   syncWithBackend: () => Promise<void>
   resetAllData: () => void
+
+  // Google Sheet Cloud Sync
+  sessions: Session[]
+  setSessions: React.Dispatch<React.SetStateAction<Session[]>>
+  records: Record<string, SessionRecord>
+  setRecords: React.Dispatch<React.SetStateAction<Record<string, SessionRecord>>>
+  googleSheetUrl: string
+  setGoogleSheetUrl: (url: string) => void
+  autoSyncGoogleSheet: boolean
+  setAutoSyncGoogleSheet: (enabled: boolean) => void
+  cloudSyncStatus: "idle" | "syncing" | "pulling" | "synced" | "error"
+  lastCloudSync: string | null
+  syncToGoogleSheet: (
+    customUrl?: string,
+    silent?: boolean,
+  ) => Promise<{ ok: boolean, message: string }>
+  pullFromGoogleSheet: (
+    customUrl?: string,
+    silent?: boolean,
+  ) => Promise<{ ok: boolean, message: string }>
+  testGoogleSheet: (customUrl?: string) => Promise<{ ok: boolean, message: string }>
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -234,6 +271,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() =>
     loadStorage("paska-clean-audit", initialAuditLogs),
+  )
+  const [sessions, setSessions] = useState<Session[]>(() =>
+    loadStorage("paska-clean-sessions", []),
+  )
+  const [records, setRecords] = useState<Record<string, SessionRecord>>(() =>
+    loadStorage("paska-clean-records", {}),
+  )
+  const [googleSheetUrl, setGoogleSheetUrlState] = useState<string>(() =>
+    getSavedGasUrl(),
+  )
+  const [autoSyncGoogleSheet, setAutoSyncGoogleSheetState] = useState<boolean>(
+    () => getAutoSyncEnabled(),
+  )
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<
+    "idle" | "syncing" | "pulling" | "synced" | "error"
+  >("idle")
+  const [lastCloudSync, setLastCloudSync] = useState<string | null>(() =>
+    getLastSyncTime(),
   )
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("local")
@@ -337,6 +392,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("paska-clean-audit", JSON.stringify(auditLogs))
   }, [auditLogs])
+
+  useEffect(() => {
+    localStorage.setItem("paska-clean-sessions", JSON.stringify(sessions))
+  }, [sessions])
+
+  useEffect(() => {
+    localStorage.setItem("paska-clean-records", JSON.stringify(records))
+  }, [records])
 
   const showToast = useCallback(
     (
@@ -739,12 +802,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       metrics,
       result,
       note,
+      attendance,
     }: {
       candidateId: string
       sessionType: string
       metrics: Record<string, string>
       result: "pending" | "passed" | "review" | "failed"
       note: string
+      attendance?: "hadir" | "sakit" | "izin" | "alpa"
     }) => {
       setAllCandidates((prev) =>
         prev.map((cand) => {
@@ -754,6 +819,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
           if (note.trim()) {
             patch.coachNote = note.trim()
+          } else if (attendance && attendance !== "hadir") {
+            patch.coachNote = `Status sesi: ${attendance.toUpperCase()}`
           }
 
           let stageIndex: number | null = null
@@ -833,54 +900,105 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           } else if (sessionType === "fitness") {
             stageIndex = 6
-            const distance = Number(metrics.distance) || 0
-            const pushup = Number(metrics.pushup) || 0
-            const situp = Number(metrics.situp) || 0
-            const backup = Number(metrics.backup) || 0
-            const shuttle = Number(metrics.shuttle) || 0
-            if (distance || pushup || situp || backup || shuttle) {
-              const scores = [
-                fitnessScore("run", distance),
-                fitnessScore("pushup", pushup),
-                fitnessScore("situp", situp),
-                fitnessScore("backup", backup),
-                fitnessScore("shuttle", shuttle || 99),
-              ]
+            const isRunDnf = metrics.runDnf === "yes"
+            const hasDistance =
+              isRunDnf ||
+              (metrics.distance !== undefined &&
+                metrics.distance.trim() !== "" &&
+                !isNaN(Number(metrics.distance)))
+            const hasPushup =
+              metrics.pushup !== undefined &&
+              metrics.pushup.trim() !== "" &&
+              !isNaN(Number(metrics.pushup))
+            const hasSitup =
+              metrics.situp !== undefined &&
+              metrics.situp.trim() !== "" &&
+              !isNaN(Number(metrics.situp))
+            const hasBackup =
+              metrics.backup !== undefined &&
+              metrics.backup.trim() !== "" &&
+              !isNaN(Number(metrics.backup))
+            const hasShuttle =
+              metrics.shuttle !== undefined &&
+              metrics.shuttle.trim() !== "" &&
+              !isNaN(Number(metrics.shuttle))
+
+            const distance = hasDistance ? Number(metrics.distance) || 0 : 0
+            const pushup = hasPushup ? Number(metrics.pushup) : 0
+            const situp = hasSitup ? Number(metrics.situp) : 0
+            const backup = hasBackup ? Number(metrics.backup) : 0
+            const shuttle = hasShuttle ? Number(metrics.shuttle) : 0
+
+            const scores: number[] = []
+            if (hasDistance) {
+              scores.push(isRunDnf ? 0 : fitnessScore("run", distance))
+            }
+            if (hasPushup) scores.push(fitnessScore("pushup", pushup))
+            if (hasSitup) scores.push(fitnessScore("situp", situp))
+            if (hasBackup) scores.push(fitnessScore("backup", backup))
+            if (hasShuttle) scores.push(fitnessScore("shuttle", shuttle))
+
+            if (scores.length > 0) {
               const avg =
-                scores.reduce((acc, val) => acc + Number(val), 0) /
-                scores.length
+                scores.reduce((acc, val) => acc + val, 0) / scores.length
               patch.fitness = Number(avg.toFixed(1))
-              patch.physicalMetrics = [
-                {
-                  label: "Lari 12 menit",
-                  current: `${distance} m`,
-                  target: "3.000 m",
-                  percent: Math.min(100, Math.round((distance / 3000) * 100)),
-                },
-                {
-                  label: "Push-up",
-                  current: `${pushup} kali`,
-                  target: "43 kali",
-                  percent: Math.min(100, Math.round((pushup / 43) * 100)),
-                },
-                {
-                  label: "Sit-up",
-                  current: `${situp} kali`,
-                  target: "40 kali",
-                  percent: Math.min(100, Math.round((situp / 40) * 100)),
-                },
-                {
-                  label: "Shuttle run",
-                  current: `${shuttle || "—"} dtk`,
-                  target: "15,4 dtk",
-                  percent: shuttle
-                    ? Math.min(
+
+              const existing = cand.physicalMetrics ?? []
+              const getExisting = (lbl: string) =>
+                existing.find((m) =>
+                  m.label.toLowerCase().includes(lbl.toLowerCase()),
+                )
+
+              const updatedMetrics = [
+                hasDistance
+                  ? {
+                      label: "Lari 12 menit",
+                      current: isRunDnf
+                        ? distance > 0
+                          ? `${distance} m (DNF)`
+                          : "DNF"
+                        : `${distance} m`,
+                      target: "3.000 m",
+                      percent: isRunDnf
+                        ? 0
+                        : Math.min(
+                            100,
+                            Math.round((distance / 3000) * 100),
+                          ),
+                    }
+                  : getExisting("Lari 12 menit"),
+                hasPushup
+                  ? {
+                      label: "Push-up",
+                      current: `${pushup} kali`,
+                      target: "43 kali",
+                      percent: Math.min(100, Math.round((pushup / 43) * 100)),
+                    }
+                  : getExisting("Push-up"),
+                hasSitup
+                  ? {
+                      label: "Sit-up",
+                      current: `${situp} kali`,
+                      target: "40 kali",
+                      percent: Math.min(100, Math.round((situp / 40) * 100)),
+                    }
+                  : getExisting("Sit-up"),
+                hasShuttle
+                  ? {
+                      label: "Shuttle run",
+                      current: `${shuttle} dtk`,
+                      target: "15,4 dtk",
+                      percent: Math.min(
                         100,
                         Math.max(40, Math.round((15.4 / shuttle) * 100)),
-                      )
-                    : 70,
-                },
-              ]
+                      ),
+                    }
+                  : getExisting("Shuttle run"),
+              ].filter(Boolean) as NonNullable<Candidate["physicalMetrics"]>
+
+              if (updatedMetrics.length > 0) {
+                patch.physicalMetrics = updatedMetrics
+              }
             }
           } else if (sessionType === "interview") {
             stageIndex = 7
@@ -1166,9 +1284,200 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStandardRules(initialStandardRules)
     setRankingPublishedState(false)
     setAuditLogs(initialAuditLogs)
+    setSessions([])
+    setRecords({})
     window.dispatchEvent(new CustomEvent("paska-track-updated"))
     showToast("Seluruh data berhasil direset ke kondisi awal.", "info")
   }, [showToast])
+
+  // Google Sheet Methods
+  const setGoogleSheetUrl = useCallback((url: string) => {
+    saveGasUrl(url)
+    setGoogleSheetUrlState(url.trim())
+  }, [])
+
+  const setAutoSyncGoogleSheet = useCallback((enabled: boolean) => {
+    setAutoSyncEnabled(enabled)
+    setAutoSyncGoogleSheetState(enabled)
+  }, [])
+
+  const syncToGoogleSheet = useCallback(
+    async (customUrl?: string, silent: boolean = false) => {
+      const targetUrl = customUrl?.trim() || googleSheetUrl
+      if (!targetUrl) {
+        if (!silent) showToast("URL Google Apps Script belum diisi.", "warning")
+        return { ok: false, message: "URL belum diatur" }
+      }
+      setCloudSyncStatus("syncing")
+      try {
+        const state: AppDatabaseState = {
+          candidates: allCandidates,
+          cycles,
+          activeCycleId,
+          sessions,
+          records,
+          schedules,
+          questions,
+          supportingDocs,
+          standardRules,
+          stageChecklists,
+          users,
+          auditLogs,
+          rankingPublished,
+        }
+        const res = await pushStateToGoogleSheet(state, targetUrl)
+        if (res.ok) {
+          setCloudSyncStatus("synced")
+          const now = new Date().toISOString()
+          setLastCloudSync(now)
+          if (!silent) {
+            showToast(
+              res.message || "Data berhasil disinkronkan ke Google Sheet!",
+              "success",
+            )
+          }
+          logAudit(
+            "SYNC_GOOGLE_SHEET",
+            "Google Sheet",
+            `Sinkronisasi ${allCandidates.length} kandidat & ${sessions.length} sesi ke Google Sheet`,
+          )
+        } else {
+          setCloudSyncStatus("error")
+          if (!silent) showToast(res.message, "danger")
+        }
+        return res
+      } catch (err) {
+        setCloudSyncStatus("error")
+        const msg = err instanceof Error ? err.message : String(err)
+        if (!silent) showToast(`Gagal sinkron: ${msg}`, "danger")
+        return { ok: false, message: msg }
+      }
+    },
+    [
+      allCandidates,
+      cycles,
+      activeCycleId,
+      sessions,
+      records,
+      schedules,
+      questions,
+      supportingDocs,
+      standardRules,
+      stageChecklists,
+      users,
+      auditLogs,
+      rankingPublished,
+      googleSheetUrl,
+      showToast,
+      logAudit,
+    ],
+  )
+
+  const pullFromGoogleSheet = useCallback(
+    async (customUrl?: string, silent: boolean = false) => {
+      const targetUrl = customUrl?.trim() || googleSheetUrl
+      if (!targetUrl) {
+        if (!silent) showToast("URL Google Apps Script belum diisi.", "warning")
+        return { ok: false, message: "URL belum diatur" }
+      }
+      setCloudSyncStatus("pulling")
+      try {
+        const res = await pullStateFromGoogleSheet(targetUrl)
+        if (res.ok && res.data) {
+          const d = res.data
+          if (Array.isArray(d.candidates)) setAllCandidates(d.candidates)
+          if (Array.isArray(d.cycles) && d.cycles.length > 0) setCycles(d.cycles)
+          if (d.activeCycleId) setActiveCycleId(d.activeCycleId)
+          if (Array.isArray(d.sessions)) setSessions(d.sessions)
+          if (d.records && typeof d.records === "object") setRecords(d.records)
+          if (Array.isArray(d.schedules)) setSchedules(d.schedules)
+          if (Array.isArray(d.questions)) setQuestions(d.questions)
+          if (Array.isArray(d.supportingDocs)) setSupportingDocs(d.supportingDocs)
+          if (Array.isArray(d.standardRules)) setStandardRules(d.standardRules)
+          if (d.stageChecklists && typeof d.stageChecklists === "object")
+            setStageChecklists(d.stageChecklists)
+          if (Array.isArray(d.users) && d.users.length > 0) setUsers(d.users)
+          if (Array.isArray(d.auditLogs)) setAuditLogs(d.auditLogs)
+          if (d.rankingPublished !== undefined)
+            setRankingPublishedState(d.rankingPublished)
+
+          setCloudSyncStatus("synced")
+          const now = new Date().toISOString()
+          setLastCloudSync(now)
+          if (!silent) showToast("Data dari Google Sheet berhasil dimuat!", "success")
+          logAudit(
+            "PULL_GOOGLE_SHEET",
+            "Google Sheet",
+            "Memuat salinan database terbaru dari Google Sheet",
+          )
+        } else if (res.ok && !res.data) {
+          // Google Sheet masih kosong, jika kita punya data lokal (kandidat / sesi), upload otomatis
+          if (allCandidates.length > 0 || sessions.length > 0) {
+            syncToGoogleSheet(targetUrl, false)
+          } else {
+            setCloudSyncStatus("synced")
+          }
+        } else {
+          setCloudSyncStatus("error")
+          if (!silent) showToast(res.message, "danger")
+        }
+        return { ok: res.ok, message: res.message }
+      } catch (err) {
+        setCloudSyncStatus("error")
+        const msg = err instanceof Error ? err.message : String(err)
+        if (!silent) showToast(`Gagal membaca cloud: ${msg}`, "danger")
+        return { ok: false, message: msg }
+      }
+    },
+    [googleSheetUrl, showToast, logAudit, allCandidates, syncToGoogleSheet],
+  )
+
+  const testGoogleSheet = useCallback(
+    async (customUrl?: string) => {
+      const res = await testGasConnection(customUrl || googleSheetUrl)
+      if (res.ok) {
+        showToast(res.message, "success")
+      } else {
+        showToast(res.message, "danger")
+      }
+      return res
+    },
+    [googleSheetUrl, showToast],
+  )
+
+  const isInitialMount = useRef(true)
+
+  // 1. Auto-pull saat aplikasi pertama kali dibuka jika URL Google Sheet sudah diatur
+  useEffect(() => {
+    if (googleSheetUrl) {
+      pullFromGoogleSheet(undefined, true)
+    }
+  }, [googleSheetUrl])
+
+  // 2. Auto-save otomatis di latar belakang setiap ada perubahan data (seperti Google Docs / Notion)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    if (!autoSyncGoogleSheet || !googleSheetUrl) return
+    const timer = setTimeout(() => {
+      syncToGoogleSheet(undefined, true)
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [
+    allCandidates,
+    sessions,
+    records,
+    schedules,
+    questions,
+    supportingDocs,
+    standardRules,
+    stageChecklists,
+    autoSyncGoogleSheet,
+    googleSheetUrl,
+    syncToGoogleSheet,
+  ])
 
   const value = useMemo<AppContextValue>(
     () => ({
@@ -1223,6 +1532,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncStatus,
       syncWithBackend,
       resetAllData,
+      sessions,
+      setSessions,
+      records,
+      setRecords,
+      googleSheetUrl,
+      setGoogleSheetUrl,
+      autoSyncGoogleSheet,
+      setAutoSyncGoogleSheet,
+      cloudSyncStatus,
+      lastCloudSync,
+      syncToGoogleSheet,
+      pullFromGoogleSheet,
+      testGoogleSheet,
     }),
     [
       cycles,
@@ -1275,6 +1597,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncStatus,
       syncWithBackend,
       resetAllData,
+      sessions,
+      records,
+      googleSheetUrl,
+      setGoogleSheetUrl,
+      autoSyncGoogleSheet,
+      setAutoSyncGoogleSheet,
+      cloudSyncStatus,
+      lastCloudSync,
+      syncToGoogleSheet,
+      pullFromGoogleSheet,
+      testGoogleSheet,
     ],
   )
 

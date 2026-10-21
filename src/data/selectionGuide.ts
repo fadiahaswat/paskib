@@ -272,6 +272,7 @@ export const dosDonts = [
 ]
 
 export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
+  if (!raw || raw <= 0) return 0
   if (type === "run") {
     if (raw >= 3000) return 100
     if (raw >= 2900) return 95
@@ -282,7 +283,9 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
     if (raw >= 2400) return 70
     if (raw >= 2200) return 60
     if (raw >= 2000) return 50
-    return 35
+    if (raw >= 1600) return 35
+    if (raw >= 1200) return 20
+    return 10
   }
   if (type === "pushup") {
     if (raw >= 43) return 100
@@ -292,7 +295,9 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
     if (raw >= 31) return 72
     if (raw >= 28) return 65
     if (raw >= 24) return 55
-    return 35
+    if (raw >= 20) return 40
+    if (raw >= 10) return 20
+    return 10
   }
   if (type === "situp") {
     if (raw >= 40) return 100
@@ -301,7 +306,9 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
     if (raw >= 31) return 76
     if (raw >= 28) return 68
     if (raw >= 25) return 60
-    return 40
+    if (raw >= 21) return 40
+    if (raw >= 10) return 20
+    return 10
   }
   if (type === "backup") {
     if (raw >= 45) return 100
@@ -309,7 +316,9 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
     if (raw >= 37) return 80
     if (raw >= 33) return 70
     if (raw >= 29) return 60
-    return 40
+    if (raw >= 25) return 40
+    if (raw >= 10) return 20
+    return 10
   }
   if (raw <= 15.4) return 100
   if (raw <= 16) return 92
@@ -317,5 +326,7 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
   if (raw <= 17.2) return 76
   if (raw <= 17.8) return 68
   if (raw <= 18.5) return 60
-  return 40
+  if (raw <= 19.5) return 40
+  if (raw <= 22) return 20
+  return 10
 }

@@ -32,6 +32,9 @@ export function UsersAndAuditModal({
     syncStatus,
     syncWithBackend,
     resetAllData,
+    googleSheetUrl,
+    syncToGoogleSheet,
+    cloudSyncStatus,
   } = useApp()
 
   const [tab, setTab] = useState<"switch" | "manage" | "audit">("switch")
@@ -101,9 +104,15 @@ export function UsersAndAuditModal({
           <div className="flex items-center gap-2 py-2">
             <Button
               variant="secondary"
-              className="!px-3 !py-1.5 !text-xs"
-              loading={syncStatus === "syncing"}
-              onClick={syncWithBackend}
+              className="!px-3 !py-1.5 !text-xs font-semibold"
+              loading={syncStatus === "syncing" || cloudSyncStatus === "syncing"}
+              onClick={async () => {
+                if (googleSheetUrl) {
+                  await syncToGoogleSheet()
+                } else {
+                  await syncWithBackend()
+                }
+              }}
             >
               <CloudUpload className="size-3.5" /> Sinkronisasi Cloud
             </Button>

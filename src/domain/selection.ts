@@ -429,3 +429,39 @@ export function getQuotaBand(
   }
   return { label: "Di Luar Kuota", tone: "neutral" }
 }
+
+export type SessionType =
+  | "administration"
+  | "pip"
+  | "tiu"
+  | "medical"
+  | "parade"
+  | "pbb"
+  | "fitness"
+  | "interview"
+
+export type SessionStatus = "scheduled" | "active" | "completed"
+export type ResultStatus = "pending" | "passed" | "review" | "failed"
+
+export type Session = {
+  id: string
+  type: SessionType
+  title: string
+  date: string
+  time: string
+  location: string
+  coach: string
+  participantIds: string[]
+  status: SessionStatus
+}
+
+export type SessionRecord = {
+  metrics: Record<string, string>
+  result: ResultStatus
+  discipline: string
+  focus: string
+  stamina: string
+  note: string
+  savedAt?: string
+}
+

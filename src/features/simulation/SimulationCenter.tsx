@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import {
   Activity,
   BookOpenCheck,
+  Calculator,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
@@ -44,9 +45,68 @@ type Session = {
   coach: string
   participantIds: string[]
   status: SessionStatus
+  fitnessPreset?: "all" | "run_only" | "run_shuttle" | "samapta_b" | "custom"
+  activeFitnessTests?: string[]
+  trackLength?: number
 }
 
+export const FITNESS_ITEMS = [
+  {
+    key: "distance",
+    label: "Lari 12 menit",
+    shortLabel: "Lari",
+    target: "3.000 m",
+    unit: "meter",
+    placeholder: "meter",
+    typeKey: "run" as const,
+    category: "Samapta A",
+  },
+  {
+    key: "pushup",
+    label: "Push-up 1 menit",
+    shortLabel: "Push-up",
+    target: "43 kali",
+    unit: "kali",
+    placeholder: "kali",
+    typeKey: "pushup" as const,
+    category: "Samapta B",
+  },
+  {
+    key: "situp",
+    label: "Sit-up 1 menit",
+    shortLabel: "Sit-up",
+    target: "40 kali",
+    unit: "kali",
+    placeholder: "kali",
+    typeKey: "situp" as const,
+    category: "Samapta B",
+  },
+  {
+    key: "backup",
+    label: "Back-up 1 menit",
+    shortLabel: "Back-up",
+    target: "45 kali",
+    unit: "kali",
+    placeholder: "kali",
+    typeKey: "backup" as const,
+    category: "Samapta B",
+  },
+  {
+    key: "shuttle",
+    label: "Shuttle run 6x10m",
+    shortLabel: "Shuttle",
+    target: "15,4 dtk",
+    unit: "detik",
+    placeholder: "detik",
+    typeKey: "shuttle" as const,
+    category: "Kelincahan",
+  },
+]
+
+type AttendanceStatus = "hadir" | "sakit" | "izin" | "alpa"
+
 type SessionRecord = {
+  attendance?: AttendanceStatus
   metrics: globalThis.Record<string, string>
   result: ResultStatus
   discipline: string
@@ -275,6 +335,7 @@ const definitions: globalThis.Record<SessionType, {
 }
 
 const emptyRecord = (): SessionRecord => ({
+  attendance: "hadir",
   metrics: {},
   result: "pending",
   discipline: "4",
@@ -379,31 +440,16 @@ function Profile({
 }
 
 export default function SimulationCenter() {
-  const { candidates, syncCandidateFromSession, showToast } = useApp()
+  const {
+    candidates,
+    syncCandidateFromSession,
+    showToast,
+    sessions,
+    setSessions,
+    records,
+    setRecords,
+  } = useApp()
 
-  const [sessions, setSessions] = useState<Session[]>(() => {
-    const value = localStorage.getItem("paska-clean-sessions")
-    if (value) {
-      try {
-        return JSON.parse(value)
-      } catch {
-        return []
-      }
-    }
-    return []
-  })
-  const [records, setRecords] =
-    useState<globalThis.Record<string, SessionRecord>>(() => {
-      const value = localStorage.getItem("paska-clean-records")
-      if (value) {
-        try {
-          return JSON.parse(value)
-        } catch {
-          return {}
-        }
-      }
-      return {}
-    })
   const [sessionId, setSessionId] = useState(sessions[0]?.id ?? "")
   const [candidateId, setCandidateId] = useState(
     sessions[0]?.participantIds[0] ?? candidates[0]?.id ?? "",
@@ -419,6 +465,15 @@ export default function SimulationCenter() {
     time: "14:00",
     location: "",
     coach: "",
+    fitnessPreset: "all" as "all" | "run_only" | "run_shuttle" | "samapta_b" | "custom",
+    activeFitnessTests: [
+      "distance",
+      "pushup",
+      "situp",
+      "backup",
+      "shuttle",
+    ] as string[],
+    trackLength: 400,
   })
 
   // Ensure any new candidate added in the app is available in active sessions
@@ -444,6 +499,24 @@ export default function SimulationCenter() {
     window.dispatchEvent(new CustomEvent("paska-track-updated"))
   }, [records])
 
+  useEffect(() => {
+    if (
+      (!sessionId || !sessions.some((s) => s.id === sessionId)) &&
+      sessions.length > 0
+    ) {
+      setSessionId(sessions[0].id)
+    }
+  }, [sessions, sessionId])
+
+  useEffect(() => {
+    if (
+      (!candidateId || !candidates.some((c) => c.id === candidateId)) &&
+      candidates.length > 0
+    ) {
+      setCandidateId(sessions[0]?.participantIds[0] ?? candidates[0].id)
+    }
+  }, [candidates, sessions, candidateId])
+
   const session = sessions.find((item) => item.id === sessionId) ?? sessions[0]
   const candidate =
     candidates.find((item) => item.id === candidateId) ?? candidates[0]
@@ -457,6 +530,10 @@ export default function SimulationCenter() {
       coach: draft.coach.trim() || "Petugas Seleksi",
       participantIds: candidates.map((item) => item.id),
       status: "scheduled",
+      fitnessPreset: draft.type === "fitness" ? draft.fitnessPreset : undefined,
+      activeFitnessTests:
+        draft.type === "fitness" ? draft.activeFitnessTests : undefined,
+      trackLength: draft.type === "fitness" ? draft.trackLength : undefined,
     }
     setSessions((current) => [next, ...current])
     setSessionId(next.id)
@@ -483,12 +560,14 @@ export default function SimulationCenter() {
           Jenis sesi
           <select
             value={draft.type}
-            onChange={(event) =>
+            onChange={(event) => {
+              const newType = event.target.value as SessionType
               setDraft((value) => ({
                 ...value,
-                type: event.target.value as SessionType,
+                type: newType,
+                title: definitions[newType].label,
               }))
-            }
+            }}
             className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
           >
             {Object.entries(definitions).map(([value, item]) => (
@@ -498,6 +577,64 @@ export default function SimulationCenter() {
             ))}
           </select>
         </label>
+        {draft.type === "fitness" ? (
+          <>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              Fokus latihan fisik
+              <select
+                value={draft.fitnessPreset}
+                onChange={(e) => {
+                  const p = e.target.value as any
+                  const tests =
+                    p === "run_only"
+                      ? ["distance"]
+                      : p === "run_shuttle"
+                        ? ["distance", "shuttle"]
+                        : p === "samapta_b"
+                          ? ["pushup", "situp", "backup"]
+                          : [
+                              "distance",
+                              "pushup",
+                              "situp",
+                              "backup",
+                              "shuttle",
+                            ]
+                  setDraft((v) => ({
+                    ...v,
+                    fitnessPreset: p,
+                    activeFitnessTests: tests,
+                  }))
+                }}
+                className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+              >
+                <option value="all">5 Tes Lengkap (Samapta A & B)</option>
+                <option value="run_only">🏃 Hanya Lari 12 Menit</option>
+                <option value="run_shuttle">🏃⚡ Lari & Shuttle Run</option>
+                <option value="samapta_b">
+                  💪 Samapta B (Push/Sit/Back-up)
+                </option>
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              Panjang lintasan lari
+              <select
+                value={draft.trackLength}
+                onChange={(e) =>
+                  setDraft((v) => ({
+                    ...v,
+                    trackLength: Number(e.target.value) || 400,
+                  }))
+                }
+                className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+              >
+                <option value={400}>400m (Stadion / Lapangan Standar)</option>
+                <option value={350}>350m</option>
+                <option value={300}>300m</option>
+                <option value={200}>200m</option>
+              </select>
+            </label>
+          </>
+        ) : null}
         <Input
           label="Nama sesi"
           value={draft.title}
@@ -611,29 +748,200 @@ export default function SimulationCenter() {
       criticalAnamnesis.has(index) &&
       record.metrics[`anamnesis-${index}`] === "yes",
   )
-  const fitnessScores =
+  const activeFitnessTests: string[] =
     session.type === "fitness"
-      ? [
-          ["Lari", fitnessScore("run", Number(record.metrics.distance) || 0)],
-          [
-            "Push-up",
-            fitnessScore("pushup", Number(record.metrics.pushup) || 0),
-          ],
-          ["Sit-up", fitnessScore("situp", Number(record.metrics.situp) || 0)],
-          [
-            "Back-up",
-            fitnessScore("backup", Number(record.metrics.backup) || 0),
-          ],
-          [
-            "Shuttle",
-            fitnessScore("shuttle", Number(record.metrics.shuttle) || 99),
-          ],
-        ]
+      ? (session.activeFitnessTests ?? [
+          "distance",
+          "pushup",
+          "situp",
+          "backup",
+          "shuttle",
+        ])
       : []
-  const fitnessAverage = fitnessScores.length
-    ? fitnessScores.reduce((total, item) => total + Number(item[1]), 0) /
-      fitnessScores.length
+
+  const sessionTrackLength: number = session.trackLength ?? 400
+
+  const isRunDnf = record.metrics.runDnf === "yes"
+
+  const fitnessItemsData =
+    session.type === "fitness"
+      ? FITNESS_ITEMS.map((item) => {
+          const rawStr = (record.metrics[item.key] ?? "").trim()
+          const isDnf = item.key === "distance" && isRunDnf
+          const hasVal =
+            isDnf ||
+            (rawStr !== "" && !isNaN(Number(rawStr)) && Number(rawStr) > 0)
+          const rawNum =
+            hasVal && !isNaN(Number(rawStr)) ? Number(rawStr) : 0
+          const score = isDnf
+            ? 0
+            : hasVal
+              ? fitnessScore(item.typeKey, rawNum)
+              : 0
+          const isActive = activeFitnessTests.includes(item.key)
+          return {
+            ...item,
+            rawStr,
+            hasVal,
+            rawNum,
+            score,
+            isDnf,
+            isActive,
+          }
+        })
+      : []
+
+  const testedFitnessItems = fitnessItemsData.filter(
+    (item) => item.isActive && item.hasVal,
+  )
+
+  const fitnessAverage = testedFitnessItems.length
+    ? testedFitnessItems.reduce((acc, item) => acc + item.score, 0) /
+      testedFitnessItems.length
     : 0
+
+  function setSessionFitnessPreset(
+    presetId: "all" | "run_only" | "run_shuttle" | "samapta_b" | "custom",
+    tests?: string[],
+  ) {
+    const defaultTests =
+      presetId === "run_only"
+        ? ["distance"]
+        : presetId === "run_shuttle"
+          ? ["distance", "shuttle"]
+          : presetId === "samapta_b"
+            ? ["pushup", "situp", "backup"]
+            : ["distance", "pushup", "situp", "backup", "shuttle"]
+
+    const nextTests = tests ?? defaultTests
+    setSessions((current) =>
+      current.map((s) =>
+        s.id === session.id
+          ? {
+              ...s,
+              fitnessPreset: presetId,
+              activeFitnessTests: nextTests,
+            }
+          : s,
+      ),
+    )
+  }
+
+  function toggleFitnessTest(testKey: string) {
+    const currentTests = session.activeFitnessTests ?? [
+      "distance",
+      "pushup",
+      "situp",
+      "backup",
+      "shuttle",
+    ]
+    let next: string[]
+    if (currentTests.includes(testKey)) {
+      if (currentTests.length <= 1) {
+        showToast("Minimal satu item tes harus aktif.", "warning")
+        return
+      }
+      next = currentTests.filter((k) => k !== testKey)
+    } else {
+      next = [...currentTests, testKey]
+    }
+    setSessions((current) =>
+      current.map((s) =>
+        s.id === session.id
+          ? {
+              ...s,
+              fitnessPreset: "custom",
+              activeFitnessTests: next,
+            }
+          : s,
+      ),
+    )
+  }
+
+  function updateTrackLength(newLen: number) {
+    setSessions((current) =>
+      current.map((s) =>
+        s.id === session.id ? { ...s, trackLength: newLen } : s,
+      ),
+    )
+    const currentLaps = record.metrics.laps
+    if (currentLaps && !isNaN(Number(currentLaps))) {
+      const extra = Number(record.metrics.extraMeters) || 0
+      const totalDist = Math.round(Number(currentLaps) * newLen + extra)
+      patchRecord({
+        metrics: {
+          ...record.metrics,
+          distance: totalDist > 0 ? String(totalDist) : "",
+        },
+      })
+    }
+  }
+
+  function handleLapsChange(lapsStr: string) {
+    const lapsNum = parseFloat(lapsStr)
+    const extra = Number(record.metrics.extraMeters) || 0
+    if (!isNaN(lapsNum) && lapsNum >= 0) {
+      const totalDist = Math.round(lapsNum * sessionTrackLength + extra)
+      patchRecord({
+        metrics: {
+          ...record.metrics,
+          laps: lapsStr,
+          distance: totalDist > 0 ? String(totalDist) : "",
+        },
+      })
+    } else {
+      patchRecord({
+        metrics: {
+          ...record.metrics,
+          laps: lapsStr,
+          distance: extra > 0 ? String(extra) : "",
+        },
+      })
+    }
+  }
+
+  function stepLaps(delta: number) {
+    const currentLaps = parseFloat(record.metrics.laps || "0") || 0
+    const nextLaps = Math.max(0, parseFloat((currentLaps + delta).toFixed(2)))
+    handleLapsChange(String(nextLaps))
+  }
+
+  function handleExtraMetersChange(extraStr: string) {
+    const extraNum = parseFloat(extraStr) || 0
+    const lapsNum = parseFloat(record.metrics.laps || "0") || 0
+    const totalDist = Math.round(lapsNum * sessionTrackLength + extraNum)
+    patchRecord({
+      metrics: {
+        ...record.metrics,
+        extraMeters: extraStr,
+        distance: totalDist > 0 ? String(totalDist) : "",
+      },
+    })
+  }
+
+  function handleDistanceDirectChange(distStr: string) {
+    const distNum = parseFloat(distStr)
+    if (!isNaN(distNum) && distNum > 0) {
+      const estLaps = (distNum / sessionTrackLength)
+        .toFixed(2)
+        .replace(/\.00$/, "")
+      patchRecord({
+        metrics: {
+          ...record.metrics,
+          distance: distStr,
+          laps: estLaps,
+        },
+      })
+    } else {
+      patchRecord({
+        metrics: {
+          ...record.metrics,
+          distance: distStr,
+          laps: "",
+        },
+      })
+    }
+  }
   const completed = session.participantIds.filter(
     (id) =>
       candidates.some((c) => c.id === id) &&
@@ -657,6 +965,7 @@ export default function SimulationCenter() {
       metrics: nextRecord.metrics,
       result: nextRecord.result,
       note: nextRecord.note,
+      attendance: nextRecord.attendance,
     })
     setSaved(true)
     window.setTimeout(() => setSaved(false), 2000)
@@ -941,59 +1250,601 @@ export default function SimulationCenter() {
                 </div>
               </div>
               <div className="flex gap-2 overflow-x-auto border-b border-slate-100 p-4 sm:px-6">
-                {candidates.map((item) => (
-                  <button
-                    key={item.id}
-                    title={item.name}
-                    onClick={() => setCandidateId(item.id)}
-                    className={`relative grid size-11 shrink-0 place-items-center rounded-xl text-xs font-bold transition ${
-                      candidate.id === item.id
-                        ? "bg-red-600 text-white ring-4 ring-red-100"
-                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                    }`}
-                  >
-                    {item.avatar}
-                    {records[`${session.id}:${item.id}`]?.savedAt ? (
-                      <CheckCircle2 className="absolute -right-1 -top-1 size-4 rounded-full bg-white text-emerald-600" />
-                    ) : null}
-                  </button>
-                ))}
+                {candidates.map((item) => {
+                  const rec = records[`${session.id}:${item.id}`]
+                  const att = rec?.attendance ?? "hadir"
+                  const isSaved = Boolean(rec?.savedAt)
+                  return (
+                    <button
+                      key={item.id}
+                      title={`${item.name} (${att.toUpperCase()})`}
+                      onClick={() => setCandidateId(item.id)}
+                      className={`relative grid size-11 shrink-0 place-items-center rounded-xl text-xs font-bold transition ${
+                        candidate.id === item.id
+                          ? "bg-red-600 text-white ring-4 ring-red-100"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
+                    >
+                      {item.avatar}
+                      {isSaved ? (
+                        att === "hadir" ? (
+                          <CheckCircle2 className="absolute -right-1 -top-1 size-4 rounded-full bg-white text-emerald-600" />
+                        ) : (
+                          <span
+                            className={`absolute -right-1 -top-1 grid size-4 place-items-center rounded-full text-[0.6rem] font-bold text-white shadow-xs ${
+                              att === "sakit"
+                                ? "bg-amber-500"
+                                : att === "izin"
+                                  ? "bg-blue-500"
+                                  : "bg-rose-500"
+                            }`}
+                          >
+                            {att === "sakit" ? "S" : att === "izin" ? "I" : "A"}
+                          </span>
+                        )
+                      ) : null}
+                    </button>
+                  )
+                })}
               </div>
+
               <div className="p-5 sm:p-6">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-11 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
-                    {candidate.avatar}
-                  </span>
-                  <div>
-                    <p className="font-bold text-slate-900">{candidate.name}</p>
-                    <p className="mt-0.5 text-xs text-slate-500">
-                      {candidate.number} · {candidate.school}
-                    </p>
+                {/* 1. Header Profil Kandidat & Status Kehadiran Sesi */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-11 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
+                      {candidate.avatar}
+                    </span>
+                    <div>
+                      <p className="font-bold text-slate-900">{candidate.name}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {candidate.number} · {candidate.school}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Status Kehadiran: Hadir / Sakit / Izin / Alpa */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-slate-500">
+                      Kehadiran:
+                    </span>
+                    <div className="inline-flex rounded-xl bg-slate-100 p-1">
+                      {[
+                        {
+                          id: "hadir",
+                          label: "Hadir",
+                          activeClass: "bg-emerald-600 text-white shadow-xs",
+                        },
+                        {
+                          id: "sakit",
+                          label: "Sakit",
+                          activeClass: "bg-amber-600 text-white shadow-xs",
+                        },
+                        {
+                          id: "izin",
+                          label: "Izin",
+                          activeClass: "bg-blue-600 text-white shadow-xs",
+                        },
+                        {
+                          id: "alpa",
+                          label: "Alpa",
+                          activeClass: "bg-rose-600 text-white shadow-xs",
+                        },
+                      ].map((item) => {
+                        const isCurrent =
+                          (record.attendance ?? "hadir") === item.id
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              const newAtt = item.id as AttendanceStatus
+                              patchRecord({
+                                attendance: newAtt,
+                                result:
+                                  newAtt === "hadir"
+                                    ? record.result === "review" &&
+                                      (record.attendance === "sakit" ||
+                                        record.attendance === "izin" ||
+                                        record.attendance === "alpa")
+                                      ? "pending"
+                                      : record.result
+                                    : "review",
+                              })
+                            }}
+                            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                              isCurrent
+                                ? item.activeClass
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
 
-                <p className="mt-6 text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Hasil sesi
-                </p>
-                <div className="mt-3 grid gap-4 md:grid-cols-3">
-                  {definition.fields.map((field) => (
-                    <Input
-                      key={field.key}
-                      label={field.label}
-                      type={field.type ?? "text"}
-                      placeholder={field.placeholder}
-                      value={record.metrics[field.key] ?? ""}
-                      onChange={(event) =>
-                        patchRecord({
-                          metrics: {
-                            ...record.metrics,
-                            [field.key]: event.target.value,
-                          },
-                        })
-                      }
-                    />
-                  ))}
-                </div>
+                {/* Notifikasi jika peserta Sakit / Izin / Alpa */}
+                {record.attendance && record.attendance !== "hadir" ? (
+                  <div
+                    className={`mt-4 flex items-center justify-between rounded-xl p-3.5 text-xs font-medium ${
+                      record.attendance === "sakit"
+                        ? "border border-amber-200 bg-amber-50 text-amber-900"
+                        : record.attendance === "izin"
+                          ? "border border-blue-200 bg-blue-50 text-blue-900"
+                          : "border border-rose-200 bg-rose-50 text-rose-900"
+                    }`}
+                  >
+                    <span>
+                      Peserta berstatus{" "}
+                      <strong className="uppercase">
+                        {record.attendance}
+                      </strong>
+                      . Tes fisik dilewati pada sesi ini dan otomatis dijadwalkan
+                      tinjau / susulan.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => patchRecord({ attendance: "hadir" })}
+                      className="ml-2 shrink-0 font-bold underline"
+                    >
+                      Ubah jadi Hadir
+                    </button>
+                  </div>
+                ) : null}
+
+                {/* 2. Hasil Sesi (Hanya jika Hadir) */}
+                {(record.attendance ?? "hadir") === "hadir" ? (
+                  <>
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Hasil sesi
+                      </p>
+                      {session.type === "fitness" ? (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <span className="text-slate-400">Filter tes:</span>
+                          {[
+                            ["all", "Semua"],
+                            ["run_only", "Hanya Lari"],
+                            ["run_shuttle", "Lari & Shuttle"],
+                            ["samapta_b", "Samapta B"],
+                          ].map(([id, label]) => {
+                            const isSelected =
+                              session.fitnessPreset === id ||
+                              (!session.fitnessPreset && id === "all")
+                            return (
+                              <button
+                                key={id}
+                                type="button"
+                                onClick={() =>
+                                  setSessionFitnessPreset(id as any)
+                                }
+                                className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                                  isSelected
+                                    ? "bg-slate-900 text-white"
+                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {session.type === "fitness" ? (
+                      <div className="mt-3 space-y-4">
+                        {/* Lari 12 menit: 3 Kolom Rapi */}
+                        {activeFitnessTests.includes("distance") ? (
+                          <div
+                            className={`rounded-xl border p-4 transition ${
+                              record.metrics.runDnf === "yes"
+                                ? "border-rose-300 bg-rose-50/50"
+                                : "border-slate-200 bg-slate-50/60"
+                            }`}
+                          >
+                            <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-800">
+                                  Lari 12 Menit (Samapta A)
+                                </span>
+                                {record.metrics.runDnf === "yes" ? (
+                                  <span className="rounded-md bg-rose-100 px-2 py-0.5 text-[0.65rem] font-bold text-rose-700">
+                                    DNF
+                                  </span>
+                                ) : null}
+                              </div>
+                              <div className="flex items-center gap-2.5">
+                                <span className="text-xs text-slate-400">
+                                  Target unggul: 3.000 meter
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const isDnf =
+                                      record.metrics.runDnf === "yes"
+                                    patchRecord({
+                                      metrics: {
+                                        ...record.metrics,
+                                        runDnf: isDnf ? "" : "yes",
+                                      },
+                                      result: !isDnf ? "review" : record.result,
+                                    })
+                                  }}
+                                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                                    record.metrics.runDnf === "yes"
+                                      ? "bg-rose-600 text-white shadow-xs"
+                                      : "border border-slate-200 bg-white text-slate-600 hover:border-rose-300 hover:text-rose-600"
+                                  }`}
+                                  title="Tandai DNF jika peserta berhenti sebelum 12 menit tuntas"
+                                >
+                                  {record.metrics.runDnf === "yes"
+                                    ? "✕ DNF Aktif"
+                                    : "+ DNF"}
+                                </button>
+                              </div>
+                            </div>
+
+                            {record.metrics.runDnf === "yes" ? (
+                              <div className="mb-3 rounded-lg border border-rose-200 bg-white/90 px-3 py-1.5 text-xs text-rose-800">
+                                Peserta ditandai <strong>DNF (Do Not Finish)</strong> — berhenti sebelum 12 menit tuntas. Anda tetap dapat mencatat meter yang sempat ditempuh di bawah ini.
+                              </div>
+                            ) : null}
+
+                            <div className="grid gap-3 sm:grid-cols-3">
+                              <div className="grid gap-1">
+                                <label className="text-xs font-medium text-slate-500">
+                                  Panjang lintasan (m)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={sessionTrackLength}
+                                  onChange={(e) =>
+                                    updateTrackLength(
+                                      Number(e.target.value) || 400,
+                                    )
+                                  }
+                                  placeholder="400"
+                                  className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                />
+                              </div>
+
+                              <div className="grid gap-1">
+                                <label className="text-xs font-medium text-slate-500">
+                                  Jumlah putaran
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.25"
+                                  placeholder="Contoh: 6.5"
+                                  value={record.metrics.laps ?? ""}
+                                  onChange={(e) =>
+                                    handleLapsChange(e.target.value)
+                                  }
+                                  className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                />
+                              </div>
+
+                              <div className="grid gap-1">
+                                <label className="text-xs font-medium text-slate-500">
+                                  Total jarak tempuh
+                                </label>
+                                <div className="relative">
+                                  <input
+                                    type="number"
+                                    placeholder="0"
+                                    value={record.metrics.distance ?? ""}
+                                    onChange={(e) =>
+                                      handleDistanceDirectChange(e.target.value)
+                                    }
+                                    className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-14 text-sm font-bold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                  />
+                                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                                    meter
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {/* Samapta B: Push-up, Sit-up, Back-up, Shuttle run */}
+                        {activeFitnessTests.some((k) => k !== "distance") ? (
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            {activeFitnessTests.includes("pushup") ? (
+                              <Input
+                                label="Push-up"
+                                type="number"
+                                placeholder="kali"
+                                value={record.metrics.pushup ?? ""}
+                                onChange={(event) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      pushup: event.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            ) : null}
+
+                            {activeFitnessTests.includes("situp") ? (
+                              <Input
+                                label="Sit-up"
+                                type="number"
+                                placeholder="kali"
+                                value={record.metrics.situp ?? ""}
+                                onChange={(event) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      situp: event.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            ) : null}
+
+                            {activeFitnessTests.includes("backup") ? (
+                              <Input
+                                label="Back-up"
+                                type="number"
+                                placeholder="kali"
+                                value={record.metrics.backup ?? ""}
+                                onChange={(event) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      backup: event.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            ) : null}
+
+                            {activeFitnessTests.includes("shuttle") ? (
+                              <Input
+                                label="Shuttle run"
+                                type="number"
+                                step="0.1"
+                                placeholder="detik"
+                                value={record.metrics.shuttle ?? ""}
+                                onChange={(event) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      shuttle: event.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <div className="mt-3 grid gap-4 md:grid-cols-3">
+                        {definition.fields.map((field) => (
+                          <Input
+                            key={field.key}
+                            label={field.label}
+                            type={field.type ?? "text"}
+                            placeholder={field.placeholder}
+                            value={record.metrics[field.key] ?? ""}
+                            onChange={(event) =>
+                              patchRecord({
+                                metrics: {
+                                  ...record.metrics,
+                                  [field.key]: event.target.value,
+                                },
+                              })
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Sesi Administrasi Khusus */}
+                    {session.type === "administration" ? (
+                      <div className="mt-6 rounded-2xl border border-slate-200 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-slate-900">
+                              Enam berkas pokok
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Tandai setelah file dan isi dokumen diverifikasi.
+                            </p>
+                          </div>
+                          <Badge tone="info">
+                            {
+                              administrationDocuments.filter(
+                                (_, index) =>
+                                  record.metrics[`document-${index}`] ===
+                                  "valid",
+                              ).length
+                            }
+                            /6 valid
+                          </Badge>
+                        </div>
+                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                          {administrationDocuments.map((document, index) => {
+                            const checked =
+                              record.metrics[`document-${index}`] === "valid"
+                            return (
+                              <label
+                                key={document.name}
+                                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                                  checked
+                                    ? "border-emerald-200 bg-emerald-50"
+                                    : "border-slate-100 hover:bg-slate-50"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(event) =>
+                                    patchRecord({
+                                      metrics: {
+                                        ...record.metrics,
+                                        [`document-${index}`]: event.target
+                                          .checked
+                                          ? "valid"
+                                          : "",
+                                      },
+                                    })
+                                  }
+                                  className="mt-0.5 size-4 accent-emerald-600"
+                                />
+                                <span>
+                                  <span className="block text-sm font-bold text-slate-800">
+                                    {document.name}
+                                  </span>
+                                  <span className="mt-1 block text-xs leading-relaxed text-slate-500">
+                                    {document.detail}
+                                  </span>
+                                </span>
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Sesi Rikkes Khusus */}
+                    {session.type === "medical" ? (
+                      <div className="mt-6 rounded-2xl border border-slate-200 p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-slate-900">
+                              Survei 21 anamnesis
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Lebih dari 5 YA atau critical flag memerlukan
+                              keputusan hard-lock.
+                            </p>
+                          </div>
+                          <Badge
+                            tone={
+                              medicalCritical || medicalYesCount > 5
+                                ? "danger"
+                                : medicalYesCount
+                                  ? "warning"
+                                  : "success"
+                            }
+                          >
+                            {medicalYesCount} YA
+                            {medicalCritical ? " · KRITIS" : ""}
+                          </Badge>
+                        </div>
+                        <div className="mt-4 grid gap-2">
+                          {anamnesisItems.map(([item, detail], index) => {
+                            const checked =
+                              record.metrics[`anamnesis-${index}`] === "yes"
+                            return (
+                              <label
+                                key={item}
+                                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                                  checked
+                                    ? criticalAnamnesis.has(index)
+                                      ? "border-red-200 bg-red-50"
+                                      : "border-amber-200 bg-amber-50"
+                                    : "border-slate-100 hover:bg-slate-50"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(event) =>
+                                    patchRecord({
+                                      metrics: {
+                                        ...record.metrics,
+                                        [`anamnesis-${index}`]: event.target
+                                          .checked
+                                          ? "yes"
+                                          : "no",
+                                      },
+                                    })
+                                  }
+                                  className="mt-0.5 size-4 accent-red-600"
+                                />
+                                <span className="grid flex-1 gap-1 md:grid-cols-[1fr_1.1fr]">
+                                  <span className="text-sm font-semibold text-slate-800">
+                                    {index + 1}. {item}
+                                  </span>
+                                  <span className="text-xs leading-relaxed text-slate-500">
+                                    {detail}
+                                  </span>
+                                </span>
+                                {criticalAnamnesis.has(index) ? (
+                                  <Badge tone="danger">Kritis</Badge>
+                                ) : null}
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* 3. Konversi Otomatis Samapta (Langsung di bawah hasil tes) */}
+                    {session.type === "fitness" ? (
+                      <div className="mt-5 rounded-2xl bg-slate-950 p-4 text-white">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold">
+                              Konversi otomatis Samapta
+                            </p>
+                            <p className="mt-1 text-xs text-slate-400">
+                              {testedFitnessItems.length > 0
+                                ? `Rata-rata ${testedFitnessItems.length} tes yang diisi disinkronkan ke nilai Samapta kandidat.`
+                                : "Rata-rata tes yang diisi otomatis disinkronkan ke nilai Samapta kandidat saat disimpan."}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-display text-2xl font-bold">
+                              {testedFitnessItems.length > 0
+                                ? fitnessAverage.toFixed(1)
+                                : "—"}
+                            </p>
+                            <p className="text-[0.68rem] text-slate-400">
+                              {testedFitnessItems.length > 0
+                                ? `nilai rata-rata (${testedFitnessItems.length} tes)`
+                                : "belum diisi"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                          {fitnessItemsData.map((item) => (
+                            <div
+                              className="rounded-xl bg-white/[0.07] p-3 text-center"
+                              key={item.key}
+                            >
+                              <p className="text-[0.68rem] text-slate-400">
+                                {item.shortLabel}
+                              </p>
+                              <p className="mt-1 font-bold">
+                                {item.isDnf ? (
+                                  <span className="font-extrabold text-rose-400">
+                                    DNF
+                                  </span>
+                                ) : item.hasVal ? (
+                                  item.score
+                                ) : (
+                                  "—"
+                                )}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </>
+                ) : null}
+
+                {/* 4. Keputusan / Status Tahapan Kandidat */}
                 <fieldset className="mt-5">
                   <legend className="text-sm font-semibold text-slate-700">
                     Keputusan / status tahapan kandidat
@@ -1028,180 +1879,6 @@ export default function SimulationCenter() {
                     ))}
                   </div>
                 </fieldset>
-
-                {session.type === "administration" ? (
-                  <div className="mt-6 rounded-2xl border border-slate-200 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">
-                          Enam berkas pokok
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          Tandai setelah file dan isi dokumen diverifikasi.
-                        </p>
-                      </div>
-                      <Badge tone="info">
-                        {
-                          administrationDocuments.filter(
-                            (_, index) =>
-                              record.metrics[`document-${index}`] === "valid",
-                          ).length
-                        }
-                        /6 valid
-                      </Badge>
-                    </div>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      {administrationDocuments.map((document, index) => {
-                        const checked =
-                          record.metrics[`document-${index}`] === "valid"
-                        return (
-                          <label
-                            key={document.name}
-                            className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
-                              checked
-                                ? "border-emerald-200 bg-emerald-50"
-                                : "border-slate-100 hover:bg-slate-50"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={(event) =>
-                                patchRecord({
-                                  metrics: {
-                                    ...record.metrics,
-                                    [`document-${index}`]: event.target.checked
-                                      ? "valid"
-                                      : "",
-                                  },
-                                })
-                              }
-                              className="mt-0.5 size-4 accent-emerald-600"
-                            />
-                            <span>
-                              <span className="block text-sm font-bold text-slate-800">
-                                {document.name}
-                              </span>
-                              <span className="mt-1 block text-xs leading-relaxed text-slate-500">
-                                {document.detail}
-                              </span>
-                            </span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ) : null}
-
-                {session.type === "medical" ? (
-                  <div className="mt-6 rounded-2xl border border-slate-200 p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">
-                          Survei 21 anamnesis
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          Lebih dari 5 YA atau critical flag memerlukan
-                          keputusan hard-lock.
-                        </p>
-                      </div>
-                      <Badge
-                        tone={
-                          medicalCritical || medicalYesCount > 5
-                            ? "danger"
-                            : medicalYesCount
-                              ? "warning"
-                              : "success"
-                        }
-                      >
-                        {medicalYesCount} YA
-                        {medicalCritical ? " · KRITIS" : ""}
-                      </Badge>
-                    </div>
-                    <div className="mt-4 grid gap-2">
-                      {anamnesisItems.map(([item, detail], index) => {
-                        const checked =
-                          record.metrics[`anamnesis-${index}`] === "yes"
-                        return (
-                          <label
-                            key={item}
-                            className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
-                              checked
-                                ? criticalAnamnesis.has(index)
-                                  ? "border-red-200 bg-red-50"
-                                  : "border-amber-200 bg-amber-50"
-                                : "border-slate-100 hover:bg-slate-50"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={(event) =>
-                                patchRecord({
-                                  metrics: {
-                                    ...record.metrics,
-                                    [`anamnesis-${index}`]: event.target.checked
-                                      ? "yes"
-                                      : "no",
-                                  },
-                                })
-                              }
-                              className="mt-0.5 size-4 accent-red-600"
-                            />
-                            <span className="grid flex-1 gap-1 md:grid-cols-[1fr_1.1fr]">
-                              <span className="text-sm font-semibold text-slate-800">
-                                {index + 1}. {item}
-                              </span>
-                              <span className="text-xs leading-relaxed text-slate-500">
-                                {detail}
-                              </span>
-                            </span>
-                            {criticalAnamnesis.has(index) ? (
-                              <Badge tone="danger">Kritis</Badge>
-                            ) : null}
-                          </label>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ) : null}
-
-                {session.type === "fitness" ? (
-                  <div className="mt-6 rounded-2xl bg-slate-950 p-4 text-white">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-bold">
-                          Konversi otomatis Samapta
-                        </p>
-                        <p className="mt-1 text-xs text-slate-400">
-                          Rata-rata lima tes otomatis disinkronkan ke nilai
-                          Samapta kandidat saat disimpan.
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-display text-2xl font-bold">
-                          {fitnessAverage.toFixed(1)}
-                        </p>
-                        <p className="text-[0.68rem] text-slate-400">
-                          nilai rata-rata
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                      {fitnessScores.map(([label, score]) => (
-                        <div
-                          className="rounded-xl bg-white/[0.07] p-3 text-center"
-                          key={label}
-                        >
-                          <p className="text-[0.68rem] text-slate-400">
-                            {label}
-                          </p>
-                          <p className="mt-1 font-bold">{score}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
 
                 <div className="mt-7 border-t border-slate-100 pt-6">
                   <div className="flex items-center justify-between">

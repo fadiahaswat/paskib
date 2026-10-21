@@ -4,13 +4,16 @@ import {
   Bell,
   BookOpenCheck,
   CalendarDays,
+  Check,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
+  Cloud,
   Download,
   Edit3,
   FileCheck2,
+  FileSpreadsheet,
   GraduationCap,
   HeartPulse,
   LayoutDashboard,
@@ -19,6 +22,7 @@ import {
   PanelLeftClose,
   Plus,
   Printer,
+  RefreshCw,
   Search,
   Settings2,
   ShieldCheck,
@@ -56,6 +60,7 @@ import {
   LoginScreen,
   UsersAndAuditModal,
 } from "./features/users/UsersAndAuditModal"
+import { GoogleSheetSyncModal } from "./components/GoogleSheetSyncModal"
 import {
   downloadCandidateTemplateCsv,
   exportCandidatesCsv,
@@ -154,11 +159,13 @@ function Sidebar({
   onView,
   mobileOpen,
   onClose,
+  onOpenGoogleSync,
 }: {
   view: View
   onView: (view: View) => void
   mobileOpen: boolean
   onClose: () => void
+  onOpenGoogleSync?: () => void
 }) {
   const {
     candidates,
@@ -413,6 +420,18 @@ function Sidebar({
         </nav>
 
         <div className="mt-auto pt-6">
+          <button
+            type="button"
+            onClick={onOpenGoogleSync}
+            className="mb-3 flex w-full items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/20"
+          >
+            <div className="flex items-center gap-2">
+              <Cloud className="size-4 text-emerald-400" />
+              <span>Database Google Sheet</span>
+            </div>
+            <span className="text-[0.68rem] font-bold text-emerald-400">Atur &gt;</span>
+          </button>
+
           <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4">
             <div className="flex items-center gap-2 text-amber-200">
               <ShieldCheck className="size-4" />
@@ -422,7 +441,7 @@ function Sidebar({
             </div>
             <p className="mt-2 text-xs leading-relaxed text-slate-400">
               Bukan portal resmi BPIP. Seluruh perubahan data tersimpan secara
-              lokal & siap disinkronkan.
+              lokal & siap disinkronkan ke Google Sheet.
             </p>
           </div>
         </div>
@@ -436,13 +455,21 @@ function Header({
   onView,
   onSelectCandidate,
   onOpenUsersModal,
+  onOpenGoogleSync,
 }: {
   onMenu: () => void
   onView: (view: View) => void
   onSelectCandidate: (candidateId: string) => void
   onOpenUsersModal: () => void
+  onOpenGoogleSync: () => void
 }) {
-  const { candidates, currentUser, standardRules } = useApp()
+  const {
+    candidates,
+    currentUser,
+    standardRules,
+    cloudSyncStatus,
+    googleSheetUrl,
+  } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [showNotif, setShowNotif] = useState(false)
 
@@ -585,6 +612,34 @@ function Header({
       </div>
 
       <div className="ml-auto flex items-center gap-2">
+        {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling" ? (
+          <div className="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-1.5 text-xs text-slate-600 font-medium">
+            <RefreshCw className="size-3.5 animate-spin text-blue-600" />
+            <span className="hidden sm:inline">Menyimpan ke cloud...</span>
+          </div>
+        ) : googleSheetUrl ? (
+          <button
+            type="button"
+            onClick={onOpenGoogleSync}
+            className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+            title="Klik untuk melihat status database Google Sheet"
+          >
+            <Cloud className="size-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">Tersimpan di Cloud</span>
+            <Check className="size-3 text-emerald-600 stroke-[3]" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenGoogleSync}
+            className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 transition hover:bg-amber-100 animate-pulse"
+            title="Hubungkan Google Sheet untuk menyimpan otomatis"
+          >
+            <Cloud className="size-3.5 text-amber-600" />
+            <span>Sambungkan Google Sheet</span>
+          </button>
+        )}
+
         <div className="relative">
           <Button
             variant="ghost"
@@ -2903,6 +2958,7 @@ function AppShell() {
     null,
   )
   const [showUsersModal, setShowUsersModal] = useState(false)
+  const [showGoogleSync, setShowGoogleSync] = useState(false)
 
   if (!isAuthenticated) {
     return <LoginScreen />
@@ -2915,6 +2971,7 @@ function AppShell() {
         onView={setView}
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
+        onOpenGoogleSync={() => setShowGoogleSync(true)}
       />
       <div className="lg:pl-72">
         <Header
@@ -2922,6 +2979,7 @@ function AppShell() {
           onView={setView}
           onSelectCandidate={(id) => setSelectedCandidateId(id)}
           onOpenUsersModal={() => setShowUsersModal(true)}
+          onOpenGoogleSync={() => setShowGoogleSync(true)}
         />
         <main className="mx-auto max-w-[100rem] px-4 pb-28 pt-5 sm:px-5 md:p-8">
           {view === "overview" ? (
@@ -3007,6 +3065,11 @@ function AppShell() {
       <UsersAndAuditModal
         open={showUsersModal}
         onClose={() => setShowUsersModal(false)}
+      />
+
+      <GoogleSheetSyncModal
+        open={showGoogleSync}
+        onClose={() => setShowGoogleSync(false)}
       />
 
       {toast ? (
