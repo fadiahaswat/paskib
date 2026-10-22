@@ -566,7 +566,7 @@ function Header({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl md:gap-4 md:px-6">
+    <header className="sticky top-0 z-30 flex min-w-0 h-16 items-center gap-2 border-b border-slate-200/80 bg-white/90 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:gap-4 md:px-6">
       <Button
         variant="ghost"
         className="!px-2 lg:hidden"
@@ -954,7 +954,7 @@ function MobileNav({
       ]
   return (
     <nav
-      className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-2xl shadow-slate-900/15 backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 grid grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-2xl shadow-slate-900/15 backdrop-blur-xl lg:hidden"
       aria-label="Navigasi mobile"
     >
       {items.map((item) => {
@@ -4916,14 +4916,14 @@ function AppShell() {
         onClose={() => setMobileOpen(false)}
         onOpenGoogleSync={() => setShowGoogleSync(true)}
       />
-      <div className="lg:pl-72">
+      <div className="min-w-0 lg:pl-72">
         <Header
           onMenu={() => setMobileOpen(true)}
           onView={handleViewChange}
           onSelectCandidate={(id) => setSelectedCandidateId(id)}
           onOpenGoogleSync={() => setShowGoogleSync(true)}
         />
-        <main className="mx-auto max-w-[100rem] px-4 pb-28 pt-5 sm:px-5 md:p-8">
+        <main className="mx-auto min-w-0 max-w-[100rem] px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-5 sm:pt-5 md:px-8 md:pt-8 md:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8">
           {selectedCandidateId ? (
             <CandidateDetailView
               candidateId={selectedCandidateId}

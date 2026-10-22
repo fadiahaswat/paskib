@@ -12,6 +12,13 @@
 
 html {
   background: #f8fafc;
+  overflow-x: clip;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
 }
 
 body {
@@ -25,6 +32,24 @@ body {
 @media (max-width: 1023px) {
   body {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  main {
+    overflow-x: clip;
+  }
+}
+
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+
+  [role="dialog"] {
+    max-height: calc(100dvh - 1.5rem - env(safe-area-inset-top));
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
 
