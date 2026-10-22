@@ -19,3 +19,9 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+# Raw source documents and extraction artifacts
+Pendidikan-Pancasila-BS-KLS-X.pdf
+Pendidikan-Pancasila-BS-KLS-X.txt
+bank_soal_pancasila_cat.json
+

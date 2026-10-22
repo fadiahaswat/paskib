@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react"
 import {
+  ArrowLeft,
+  Camera,
   CheckCircle2,
+  Eye,
   FileCheck2,
+  FileText,
   IdCard,
+  Paperclip,
   Printer,
   Save,
   ShieldAlert,
   Trash2,
+  Upload,
   UserRoundCheck,
   X,
 } from "lucide-react"
-import { Badge, Button, Input } from "../../components/ui"
+import { Badge, Button, CandidateAvatar, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { administrationDocuments } from "../../data/selectionGuide"
 import {
@@ -23,6 +29,10 @@ import {
   type StageStatus,
 } from "../../domain/selection"
 import { printAdmissionCard, printCandidateReport } from "../../lib/exportUtils"
+import {
+  compressImageToDataUrl,
+  readDocumentFileToDataUrl,
+} from "../../lib/imageUtils"
 
 export function CreateCandidateModal({
   open,
@@ -42,12 +52,29 @@ export function CreateCandidateModal({
   const [weightKg, setWeightKg] = useState(62)
   const [phone, setPhone] = useState("")
   const [socialMedia, setSocialMedia] = useState("")
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [error, setError] = useState("")
 
   if (!open) return null
 
   const ageCheck = evaluateAgeEligibility(birthDate, activeCycle.year)
   const bmiCheck = bmi(weightKg, heightCm)
+
+  async function handlePhotoPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setUploadingPhoto(true)
+      const dataUrl = await compressImageToDataUrl(file)
+      setPhotoUrl(dataUrl)
+    } catch {
+      setError("Gagal memproses foto. Pastikan format gambar valid (JPG, PNG, WebP).")
+    } finally {
+      setUploadingPhoto(false)
+      e.target.value = ""
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -70,6 +97,7 @@ export function CreateCandidateModal({
       weightKg,
       phone: phone.trim() || undefined,
       socialMedia: socialMedia.trim() || undefined,
+      photoUrl,
       pip: null,
       tiu: null,
       pbb: null,
@@ -81,6 +109,7 @@ export function CreateCandidateModal({
     setNumber("")
     setNik("")
     setSchool("")
+    setPhotoUrl(undefined)
     setError("")
     onClose()
   }
@@ -108,6 +137,54 @@ export function CreateCandidateModal({
               {error}
             </div>
           ) : null}
+
+          <div className="flex items-center gap-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-3.5">
+            <div className="relative group size-20 shrink-0">
+              <CandidateAvatar
+                name={name || "Kandidat Baru"}
+                avatar={name ? name.slice(0, 2).toUpperCase() : "KB"}
+                photoUrl={photoUrl}
+                className="size-20 text-xl border border-slate-200 shadow-2xs"
+                rounded="rounded-2xl"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-900">
+                Foto Profil Santri (Opsional)
+              </p>
+              <p className="text-[0.68rem] text-slate-500">
+                Otomatis dioptimasi dan langsung jadi avatar di semua modul.
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition">
+                  <Camera className="size-3.5 text-red-600" />
+                  <span>
+                    {uploadingPhoto
+                      ? "Memproses..."
+                      : photoUrl
+                        ? "Ganti Foto"
+                        : "Unggah Foto Santri"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploadingPhoto}
+                    className="hidden"
+                    onChange={handlePhotoPick}
+                  />
+                </label>
+                {photoUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => setPhotoUrl(undefined)}
+                    className="text-xs text-red-600 hover:underline font-semibold"
+                  >
+                    Hapus Foto
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
@@ -224,7 +301,7 @@ export function CreateCandidateModal({
   )
 }
 
-export function CandidateDetailModal({
+export function CandidateDetailView({
   candidateId,
   onClose,
 }: {
@@ -262,6 +339,70 @@ export function CandidateDetailModal({
   const [trainingCompliance, setTrainingCompliance] = useState("88")
   const [coachNote, setCoachNote] = useState("")
   const [stageReason, setStageReason] = useState("")
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [uploadingDocIdx, setUploadingDocIdx] = useState<number | null>(null)
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !candidate) return
+    try {
+      setUploadingPhoto(true)
+      const dataUrl = await compressImageToDataUrl(file)
+      updateCandidate(candidate.id, { photoUrl: dataUrl })
+    } catch {
+      alert("Gagal memproses foto. Pastikan format gambar valid (JPG, PNG, WebP).")
+    } finally {
+      setUploadingPhoto(false)
+      e.target.value = ""
+    }
+  }
+
+  function handleRemovePhoto() {
+    if (!candidate) return
+    if (confirm("Hapus foto profil santri ini dan gunakan avatar inisial?")) {
+      updateCandidate(candidate.id, { photoUrl: undefined })
+    }
+  }
+
+  async function handleDocumentUpload(
+    e: React.ChangeEvent<HTMLInputElement>,
+    docIdx: number,
+  ) {
+    const file = e.target.files?.[0]
+    if (!file || !candidate) return
+    try {
+      setUploadingDocIdx(docIdx)
+      const docData = await readDocumentFileToDataUrl(file)
+      const nextFiles = {
+        ...(candidate.documentFiles ?? {}),
+        [docIdx]: docData,
+      }
+      const nextDocs = [
+        ...(candidate.documents ?? [false, false, false, false, false, false]),
+      ]
+      nextDocs[docIdx] = true // otomatis centang valid jika file diupload
+      updateCandidate(candidate.id, {
+        documentFiles: nextFiles,
+        documents: nextDocs,
+      })
+    } catch (err: any) {
+      alert(err.message || "Gagal mengunggah berkas.")
+    } finally {
+      setUploadingDocIdx(null)
+      e.target.value = ""
+    }
+  }
+
+  function handleRemoveDocument(docIdx: number) {
+    if (!candidate) return
+    if (confirm("Hapus file berkas ini?")) {
+      const nextFiles = { ...(candidate.documentFiles ?? {}) }
+      delete nextFiles[docIdx]
+      updateCandidate(candidate.id, {
+        documentFiles: nextFiles,
+      })
+    }
+  }
 
   useEffect(() => {
     if (!candidate) return
@@ -328,20 +469,57 @@ export function CandidateDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs">
-      <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl">
-        <div className="flex flex-wrap items-start justify-between gap-4 bg-slate-950 p-6 text-white">
+    <div className="mx-auto max-w-5xl space-y-4 animate-in fade-in duration-200">
+      {/* Top Back & Breadcrumb Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={onClose}
+          className="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 active:scale-95"
+        >
+          <ArrowLeft className="size-4 text-slate-500 group-hover:text-red-600 transition" />
+          <span>Kembali</span>
+        </button>
+        <div className="flex items-center gap-2 text-xs text-slate-500">
+          <span>Buku Induk Santri</span>
+          <span>/</span>
+          <span className="font-bold text-slate-900">{candidate.name}</span>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+        <div className="flex flex-wrap items-start justify-between gap-4 bg-slate-950 p-5 sm:p-6 text-white">
           <div className="flex items-center gap-4">
-            <span className="grid size-14 place-items-center rounded-2xl bg-red-600 font-display text-lg font-bold">
-              {candidate.avatar}
-            </span>
+            <div className="relative group size-16 sm:size-20 shrink-0">
+              <CandidateAvatar
+                name={candidate.name}
+                avatar={candidate.avatar}
+                photoUrl={candidate.photoUrl}
+                className="size-16 sm:size-20 text-2xl border-2 border-white/20 shadow-md"
+                rounded="rounded-2xl"
+              />
+              <label
+                className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/75 opacity-0 group-hover:opacity-100 transition cursor-pointer text-[0.68rem] font-bold text-white text-center p-1"
+                title="Klik untuk unggah atau ganti foto profil santri"
+              >
+                <Camera className="size-4 mb-0.5" />
+                <span>{uploadingPhoto ? "Memuat..." : "Ganti Foto"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={uploadingPhoto}
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                />
+              </label>
+            </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-2xl font-bold">
+                <h2 className="font-display text-xl sm:text-2xl font-bold">
                   {candidate.name}
                 </h2>
                 <Badge tone={phase1Passed ? "success" : "info"}>
-                  Tahap {candidate.stage} ·{" "}
+                  Materi {candidate.stage} ·{" "}
                   {selectionStages[candidate.stage - 1]?.shortLabel}
                 </Badge>
               </div>
@@ -351,7 +529,7 @@ export function CandidateDetailModal({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="secondary"
               className="!px-3 !py-1.5 !text-xs"
@@ -368,10 +546,10 @@ export function CandidateDetailModal({
             </Button>
             <Button
               variant="ghost"
-              className="!px-2 text-white hover:bg-white/10"
+              className="!px-3 !py-1.5 !text-xs text-white hover:bg-white/10"
               onClick={onClose}
             >
-              <X className="size-5" />
+              <ArrowLeft className="size-4" /> Kembali
             </Button>
           </div>
         </div>
@@ -379,7 +557,7 @@ export function CandidateDetailModal({
         <div className="flex border-b border-slate-200 bg-slate-50 px-6">
           {([
             ["profile", "Profil & 6 Berkas"],
-            ["stages", "Tahapan & Hard-Lock (1–8)"],
+            ["stages", "Peta Kesiapan 8 Materi"],
             ["scores", "Nilai & Catatan Pelatih"],
           ] as const).map(([id, label]) => (
             <button
@@ -399,7 +577,70 @@ export function CandidateDetailModal({
         <div className="p-6">
           {tab === "profile" ? (
             <div className="grid gap-6">
+              {/* Photo & Avatar Card */}
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-4.5 shadow-2xs">
+                <div className="flex items-center gap-4">
+                  <div className="relative group size-20 sm:size-24 shrink-0">
+                    <CandidateAvatar
+                      name={candidate.name}
+                      avatar={candidate.avatar}
+                      photoUrl={candidate.photoUrl}
+                      className="size-20 sm:size-24 text-2xl border-2 border-white shadow-md"
+                      rounded="rounded-2xl"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-display text-sm font-bold text-slate-900">
+                      Foto Profil &amp; Avatar Santri
+                    </h4>
+                    <p className="mt-0.5 text-xs text-slate-500 max-w-md">
+                      {candidate.photoUrl
+                        ? "Foto aktif tersimpan dan otomatis menjadi avatar santri di tabel kandidat, leaderboard, dan kartu cetak."
+                        : "Belum ada foto santri. Sistem saat ini menampilkan inisial dua huruf sebagai avatar."}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-800 shadow-2xs hover:bg-slate-50 transition">
+                    <Camera className="size-4 text-red-600" />
+                    <span>
+                      {uploadingPhoto
+                        ? "Memproses..."
+                        : candidate.photoUrl
+                          ? "Ganti Foto"
+                          : "Unggah Foto Santri"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingPhoto}
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                    />
+                  </label>
+                  {candidate.photoUrl ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="!px-3 !py-2 !text-xs text-red-600 hover:bg-red-50"
+                      onClick={handleRemovePhoto}
+                    >
+                      <Trash2 className="size-3.5" /> Hapus Foto
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* Biodata Form */}
               <form onSubmit={saveProfile} className="grid gap-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-base font-bold text-slate-900">
+                    Edit Biodata &amp; Data Fisik
+                  </h3>
+                  <span className="text-xs text-slate-500">
+                    Perubahan langsung disimpan ke data aplikasi
+                  </span>
+                </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Input
                     label="Nama lengkap"
@@ -478,14 +719,15 @@ export function CandidateDetailModal({
                 </div>
               </form>
 
+              {/* 6 Berkas Pokok Administrasi */}
               <div className="border-t border-slate-100 pt-5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <h3 className="font-display text-base font-bold text-slate-900">
-                      Verifikasi 6 berkas pokok administrasi
+                      Verifikasi &amp; Upload 6 Berkas Administrasi
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Centang berkas yang sudah valid.
+                      Unggah dokumen digital (PDF atau Foto gambar) dan tandai verifikasi berkas pokok.
                     </p>
                   </div>
                   <Badge
@@ -493,36 +735,112 @@ export function CandidateDetailModal({
                       docs.filter(Boolean).length === 6 ? "success" : "warning"
                     }
                   >
-                    {docs.filter(Boolean).length}/6 Valid
+                    {docs.filter(Boolean).length}/6 Berkas Valid
                   </Badge>
                 </div>
-                <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {administrationDocuments.map((doc, idx) => {
                     const checked = Boolean(docs[idx])
+                    const file = candidate.documentFiles?.[idx]
+                    const isUploadingThis = uploadingDocIdx === idx
+
                     return (
-                      <label
+                      <div
                         key={doc.name}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-xs transition ${
+                        className={`flex flex-col justify-between rounded-xl border p-3.5 text-xs transition ${
                           checked
-                            ? "border-emerald-200 bg-emerald-50/70"
-                            : "border-slate-200 hover:bg-slate-50"
+                            ? "border-emerald-200 bg-emerald-50/50"
+                            : "border-slate-200 bg-white"
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() =>
-                            toggleCandidateDocument(candidate.id, idx)
-                          }
-                          className="mt-0.5 size-4 accent-emerald-600"
-                        />
-                        <span>
-                          <strong className="block text-slate-900">
-                            {idx + 1}. {doc.name}
-                          </strong>
-                          <span className="text-slate-500">{doc.detail}</span>
-                        </span>
-                      </label>
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <label className="flex cursor-pointer items-start gap-2.5">
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() =>
+                                  toggleCandidateDocument(candidate.id, idx)
+                                }
+                                className="mt-0.5 size-4 accent-emerald-600 cursor-pointer"
+                              />
+                              <div>
+                                <strong className="block text-slate-900 text-xs font-semibold leading-tight">
+                                  {idx + 1}. {doc.name}
+                                </strong>
+                                <span className="mt-0.5 block text-[0.7rem] text-slate-500">
+                                  {doc.detail}
+                                </span>
+                              </div>
+                            </label>
+                            <Badge
+                              tone={checked ? "success" : "neutral"}
+                              className="text-[0.62rem] !py-0.5 shrink-0"
+                            >
+                              {checked ? "Valid" : "Belum Valid"}
+                            </Badge>
+                          </div>
+
+                          {file ? (
+                            <div className="mt-2.5 flex items-center justify-between rounded-lg border border-emerald-200 bg-white p-2 text-[0.68rem] text-emerald-900 shadow-2xs">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileCheck2 className="size-4 shrink-0 text-emerald-600" />
+                                <div className="truncate">
+                                  <p className="font-semibold truncate">{file.name}</p>
+                                  <p className="text-[0.62rem] text-slate-400">
+                                    {(file.size / 1024).toFixed(0)} KB · {file.uploadedAt}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
+                          {file ? (
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={file.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-1 text-[0.68rem] font-bold text-emerald-800 hover:bg-emerald-200 transition"
+                              >
+                                <Eye className="size-3" /> Lihat / Unduh
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveDocument(idx)}
+                                className="inline-flex items-center gap-1 text-[0.68rem] text-red-600 hover:underline"
+                              >
+                                <Trash2 className="size-3" /> Hapus File
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[0.68rem] text-slate-400">
+                              Belum ada lampiran file
+                            </span>
+                          )}
+
+                          <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[0.68rem] font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition">
+                            <Upload className="size-3 text-slate-500" />
+                            <span>
+                              {isUploadingThis
+                                ? "Memuat..."
+                                : file
+                                  ? "Ganti File"
+                                  : "Upload File"}
+                            </span>
+                            <input
+                              type="file"
+                              accept=".pdf,image/*"
+                              disabled={isUploadingThis}
+                              className="hidden"
+                              onChange={(e) => handleDocumentUpload(e, idx)}
+                            />
+                          </label>
+                        </div>
+                      </div>
                     )
                   })}
                 </div>
@@ -547,24 +865,20 @@ export function CandidateDetailModal({
 
           {tab === "stages" ? (
             <div className="grid gap-4">
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900">
-                <strong>Aturan State Machine Hard-Lock:</strong> Tahap 1–5
-                bersifat sekuensial. Jika salah satu Tahap 1–5 disetel{" "}
-                <strong>Gugur</strong>, seluruh tahap sesudahnya otomatis{" "}
-                <strong>Terkunci</strong>. Meloloskan Tahap 5 (Parade) akan
-                membuka Tahap 6, 7, dan 8 secara paralel.
+              <div className="rounded-xl border border-blue-200 bg-blue-50 p-3.5 text-xs text-blue-900">
+                <strong>Paradigma Pembinaan &amp; Kesiapan:</strong> Setiap materi latihan bersifat mandiri tanpa sistem gugur. Santri dapat dievaluasi, diberi penguatan, atau ditandai remedial kapan saja untuk persiapan seleksi resmi.
               </div>
 
               <Input
-                label="Catatan / alasan keputusan tahap (wajib diisi untuk Gugur atau Reopen)"
-                placeholder="Contoh: Lulus verifikasi berkas / Gugur TIU di bawah passing grade"
+                label="Catatan perkembangan / hasil evaluasi materi"
+                placeholder="Contoh: Berkas terverifikasi lengkap / Perlu drill vokal komando PBB"
                 value={stageReason}
                 onChange={(e) => setStageReason(e.target.value)}
               />
 
               <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200">
                 {selectionStages.map((stage, idx) => {
-                  const st = candidate.stageStatuses[idx] ?? "locked"
+                  const st = candidate.stageStatuses[idx] ?? "active"
                   return (
                     <div
                       key={stage.key}
@@ -573,7 +887,7 @@ export function CandidateDetailModal({
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-400">
-                            Tahap {stage.id}
+                            Materi {stage.id}
                           </span>
                           <p className="text-sm font-bold text-slate-900">
                             {stage.label}
@@ -591,22 +905,30 @@ export function CandidateDetailModal({
                                       : "neutral"
                             }
                           >
-                            {st.toUpperCase()}
+                            {st === "passed"
+                              ? "SIAP"
+                              : st === "failed"
+                                ? "REMEDIAL"
+                                : st === "review"
+                                  ? "PENGUATAN"
+                                  : st === "active"
+                                    ? "PROSES"
+                                    : "BELUM DINILAI"}
                           </Badge>
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
                           {stage.phase === 1
-                            ? "Fase 1 · Hard-Lock"
-                            : "Fase 2 · Pembobotan Nilai Akhir"}
+                            ? "Standar Kualifikasi Dasar"
+                            : "Simulasi Lapangan & Bobot Nilai"}
                         </p>
                       </div>
 
                       <div className="flex flex-wrap gap-1.5">
                         {([
-                          ["passed", "Lolos"],
-                          ["active", "Aktif"],
-                          ["review", "Ditinjau"],
-                          ["failed", "Gugur"],
+                          ["passed", "Siap Standar"],
+                          ["active", "Sedang Dilatih"],
+                          ["review", "Perlu Penguatan"],
+                          ["failed", "Perlu Remedial"],
                         ] as [StageStatus, string][]).map(
                           ([statusVal, label]) => (
                             <button
@@ -732,7 +1054,7 @@ export function CandidateDetailModal({
 
               <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
                 <Button type="button" variant="secondary" onClick={onClose}>
-                  Tutup
+                  <ArrowLeft className="size-4" /> Kembali
                 </Button>
                 <Button type="submit">
                   <Save className="size-4" /> Simpan seluruh nilai & catatan
@@ -745,3 +1067,5 @@ export function CandidateDetailModal({
     </div>
   )
 }
+
+export const CandidateDetailModal = CandidateDetailView

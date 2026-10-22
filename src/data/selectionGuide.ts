@@ -158,10 +158,10 @@ export const fitnessTables = {
     ["< 2.000 m", "<40", "TMS"],
   ],
   pushup: [
-    [">= 43", "100", "Sempurna"],
-    ["40–42", "93", "Sangat Baik"],
-    ["37–39", "86", "Baik Sekali"],
-    ["34–36", "79", "Baik"],
+    [">= 45", "100", "Sempurna"],
+    ["41–44", "93", "Sangat Baik"],
+    ["38–40", "86", "Baik Sekali"],
+    ["34–37", "79", "Baik"],
     ["31–33", "72", "Cukup"],
     ["28–30", "65", "Batas Minimal"],
     ["24–27", "55", "Kurang"],
@@ -177,11 +177,11 @@ export const fitnessTables = {
     ["< 21", "<40", "TMS"],
   ],
   backup: [
-    [">= 45", "100", "Sempurna"],
-    ["41–44", "90", "Sangat Baik"],
-    ["37–40", "80", "Baik Sekali"],
-    ["33–36", "70", "Batas Aman"],
-    ["29–32", "60", "Batas Minimal"],
+    [">= 50", "100", "Sempurna"],
+    ["45–49", "90", "Sangat Baik"],
+    ["40–44", "80", "Baik Sekali"],
+    ["35–39", "70", "Batas Aman"],
+    ["30–34", "60", "Batas Minimal"],
     ["< 25", "<40", "TMS"],
   ],
   shuttle: [
@@ -291,9 +291,9 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
     return 10
   }
   if (type === "pushup") {
-    if (raw >= 43) return 100
-    if (raw >= 40) return 93
-    if (raw >= 37) return 86
+    if (raw >= 45) return 100
+    if (raw >= 41) return 93
+    if (raw >= 38) return 86
     if (raw >= 34) return 79
     if (raw >= 31) return 72
     if (raw >= 28) return 65
@@ -314,11 +314,11 @@ export function fitnessScore(type: keyof typeof fitnessTables, raw: number) {
     return 10
   }
   if (type === "backup") {
-    if (raw >= 45) return 100
-    if (raw >= 41) return 90
-    if (raw >= 37) return 80
-    if (raw >= 33) return 70
-    if (raw >= 29) return 60
+    if (raw >= 50) return 100
+    if (raw >= 45) return 90
+    if (raw >= 40) return 80
+    if (raw >= 35) return 70
+    if (raw >= 30) return 60
     if (raw >= 25) return 40
     if (raw >= 10) return 20
     return 10

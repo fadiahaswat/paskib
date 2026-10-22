@@ -82,15 +82,100 @@ export function Badge({
 export function Card({
   children,
   className = "",
+  onClick,
 }: {
   children: ReactNode
   className?: string
+  onClick?: () => void
 }) {
   return (
     <section
+      onClick={onClick}
       className={`rounded-2xl border border-slate-200/80 bg-white shadow-sm ${className}`}
     >
       {children}
     </section>
+  )
+}
+
+export function CandidateAvatar({
+  name,
+  avatar,
+  photoUrl,
+  className = "size-10 text-xs",
+  rounded = "rounded-xl",
+}: {
+  name?: string
+  avatar: string
+  photoUrl?: string
+  className?: string
+  rounded?: string
+}) {
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={name ?? avatar}
+        className={`${className} ${rounded} object-cover shrink-0 border border-slate-200/80 shadow-2xs`}
+      />
+    )
+  }
+  return (
+    <span
+      className={`grid place-items-center font-display font-bold text-white shrink-0 bg-slate-900 ${rounded} ${className}`}
+    >
+      {avatar}
+    </span>
+  )
+}
+
+export function UserAvatar({
+  avatar,
+  name,
+  className = "size-8",
+  rounded = "rounded-lg",
+}: {
+  avatar?: string
+  name?: string
+  className?: string
+  rounded?: string
+}) {
+  const isUrl = Boolean(
+    avatar &&
+      (avatar.startsWith("http://") ||
+        avatar.startsWith("https://") ||
+        avatar.startsWith("data:") ||
+        avatar.startsWith("/")),
+  )
+
+  const initials = (() => {
+    if (!name) return "CA"
+    const parts = name.trim().split(/\s+/).filter(Boolean)
+    if (parts.length === 0) return "CA"
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+  })()
+
+  if (isUrl) {
+    return (
+      <img
+        src={avatar}
+        alt={name ?? "User"}
+        className={`${className} ${rounded} object-cover shrink-0 border border-white/10 shadow-xs`}
+        onError={(e) => {
+          e.currentTarget.style.display = "none"
+        }}
+      />
+    )
+  }
+
+  const textVal = avatar && avatar.length <= 4 ? avatar : initials
+
+  return (
+    <span
+      className={`grid ${className} ${rounded} shrink-0 place-items-center bg-slate-900 text-xs font-bold text-white shadow-xs select-none`}
+    >
+      {textVal}
+    </span>
   )
 }

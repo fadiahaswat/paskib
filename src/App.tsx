@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react"
 import {
   Activity,
+  AlertTriangle,
   Bell,
   BookOpenCheck,
   CalendarDays,
@@ -13,11 +14,13 @@ import {
   Cloud,
   Download,
   Edit3,
+  Eye,
   FileCheck2,
   FileSpreadsheet,
   GraduationCap,
   HeartPulse,
   LayoutDashboard,
+  LogOut,
   Menu,
   MoreHorizontal,
   PanelLeftClose,
@@ -39,13 +42,21 @@ import {
   UsersRound,
   X,
 } from "lucide-react"
-import { Badge, Button, Card, Input } from "./components/ui"
+import {
+  Badge,
+  Button,
+  CandidateAvatar,
+  Card,
+  Input,
+  UserAvatar,
+} from "./components/ui"
 import { AppProvider, useApp } from "./context/AppContext"
 import { fitnessScore } from "./data/selectionGuide"
 import {
   ageOnReferenceDate,
   bmi,
   compareRankedCandidates,
+  evaluateAnthropometry,
   finalScore,
   getQuotaBand,
   isPhaseOnePassed,
@@ -54,13 +65,14 @@ import {
   type StageStatus,
 } from "./domain/selection"
 import {
-  CandidateDetailModal,
+  CandidateDetailView,
   CreateCandidateModal,
 } from "./features/candidates/CandidateModal"
 import CandidateProjection from "./features/progress/CandidateProjection"
+import { StageCards } from "./features/progress/StageCards"
 import {
+  CandidateLoginModal,
   LoginScreen,
-  UsersAndAuditModal,
 } from "./features/users/UsersAndAuditModal"
 import { GoogleSheetSyncModal } from "./components/GoogleSheetSyncModal"
 import { formatLastSync } from "./lib/googleSheetSync"
@@ -78,8 +90,22 @@ const SimulationCenter = lazy(
 )
 const CatBankView = lazy(() => import("./features/cat/CatBankView"))
 const DocumentsView = lazy(() => import("./features/documents/DocumentsView"))
+const IshiharaView = lazy(() => import("./features/ishihara/IshiharaView"))
+const UsersAuditView = lazy(() => import("./features/users/UsersAuditView"))
 
-export type View = "overview" | "sessions" | "guide" | "stages" | "candidates" | "progress" | "ranking" | "standards" | "cat-bank" | "documents"
+export type View =
+  | "overview"
+  | "sessions"
+  | "guide"
+  | "stages"
+  | "candidates"
+  | "progress"
+  | "ranking"
+  | "standards"
+  | "cat-bank"
+  | "documents"
+  | "ishihara"
+  | "users-audit"
 
 type NavItem = {
   id: View
@@ -101,14 +127,14 @@ const navSections: NavSection[] = [
       { id: "sessions", label: "Sesi & latihan", icon: ClipboardCheck },
       { id: "candidates", label: "Kandidat", icon: UsersRound, hasCount: true },
       { id: "progress", label: "Perkembangan", icon: Activity },
-      { id: "cat-bank", label: "Bank soal CAT", icon: GraduationCap },
+      { id: "cat-bank", label: "CAT Tryout (PIP & TIU)", icon: GraduationCap },
     ],
   },
   {
     title: "Seleksi",
     items: [
       { id: "stages", label: "Tahapan seleksi", icon: Settings2 },
-      { id: "ranking", label: "Pemeringkatan", icon: Trophy },
+      { id: "ranking", label: "Pemeringkatan sementara", icon: Trophy },
       { id: "standards", label: "Standar & kalkulator", icon: SlidersHorizontal },
     ],
   },
@@ -117,6 +143,34 @@ const navSections: NavSection[] = [
     items: [
       { id: "guide", label: "Panduan lengkap", icon: BookOpenCheck },
       { id: "documents", label: "Dokumen & regulasi", icon: FileCheck2 },
+      { id: "ishihara", label: "Tes buta warna (Ishihara)", icon: Eye },
+    ],
+  },
+  {
+    title: "Administrasi",
+    items: [
+      {
+        id: "users-audit",
+        label: "Manajemen staf & audit",
+        icon: ShieldCheck,
+      },
+    ],
+  },
+]
+
+const candidateNavSections: NavSection[] = [
+  {
+    title: "Ruang Ujian & Latihan",
+    items: [
+      { id: "cat-bank", label: "CAT Tryout (PIP & TIU)", icon: GraduationCap },
+      { id: "ishihara", label: "Tes Buta Warna (Ishihara)", icon: Eye },
+    ],
+  },
+  {
+    title: "Materi & Dokumen",
+    items: [
+      { id: "guide", label: "Panduan Lengkap", icon: BookOpenCheck },
+      { id: "documents", label: "Dokumen & Regulasi", icon: FileCheck2 },
     ],
   },
 ]
@@ -131,11 +185,11 @@ function stageTone(status: StageStatus) {
 
 function stageLabel(status: StageStatus) {
   return {
-    passed: "Lolos",
-    active: "Aktif",
-    locked: "Terkunci",
-    failed: "Gugur",
-    review: "Ditinjau",
+    passed: "Siap Standar",
+    active: "Sedang Dilatih",
+    locked: "Belum Dinilai",
+    failed: "Perlu Remedial",
+    review: "Perlu Penguatan",
   }[status]
 }
 
@@ -179,16 +233,16 @@ function Sidebar({
   mobileOpen,
   onClose,
   onOpenGoogleSync,
-  onOpenUsersModal,
 }: {
   view: View
   onView: (view: View) => void
   mobileOpen: boolean
   onClose: () => void
   onOpenGoogleSync?: () => void
-  onOpenUsersModal?: () => void
 }) {
-  const { currentUser, candidates } = useApp()
+  const { currentUser, candidates, logout } = useApp()
+  const isCandidate = currentUser.role === "candidate"
+  const sectionsToRender = isCandidate ? candidateNavSections : navSections
 
   return (
     <>
@@ -200,11 +254,11 @@ function Sidebar({
         />
       ) : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-950 p-3.5 text-white transition-transform lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-slate-950 p-3.5 text-white transition-transform lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-2 pt-1 pb-3 mb-3 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-2 pt-1 pb-3 mb-2 border-b border-white/[0.08]">
           <Brand />
           <Button
             variant="ghost"
@@ -217,12 +271,12 @@ function Sidebar({
         </div>
 
         <nav
-          className="flex-1 space-y-5 overflow-y-auto pr-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex-1 space-y-4 overflow-y-auto pr-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           aria-label="Navigasi utama"
         >
-          {navSections.map((section) => (
-            <div key={section.title} className="space-y-1">
-              <p className="px-3 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">
+          {sectionsToRender.map((section) => (
+            <div key={section.title} className="space-y-0.5">
+              <p className="px-2.5 pt-2 pb-1 text-[0.62rem] font-bold uppercase tracking-widest text-slate-400">
                 {section.title}
               </p>
               <div className="space-y-0.5">
@@ -236,10 +290,10 @@ function Sidebar({
                         onView(item.id)
                         onClose()
                       }}
-                      className={`group flex h-9 w-full items-center gap-3 rounded-lg px-3 text-left text-xs transition ${
+                      className={`group flex h-8.5 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-xs transition ${
                         active
-                          ? "bg-red-600 text-white font-semibold shadow-xs shadow-red-950/40"
-                          : "text-slate-300 hover:bg-white/[0.07] hover:text-white font-medium"
+                          ? "bg-red-600/90 text-white font-medium shadow-xs shadow-red-950/40"
+                          : "text-slate-300 hover:bg-white/[0.06] hover:text-white font-normal"
                       }`}
                     >
                       <Icon
@@ -252,7 +306,7 @@ function Sidebar({
                       <span className="flex-1 truncate">{item.label}</span>
                       {item.hasCount ? (
                         <span
-                          className={`text-[0.65rem] px-2 py-0.5 rounded-full font-bold tabular-nums tracking-tight ${
+                          className={`text-[0.62rem] px-1.5 py-0.5 rounded-full font-bold tabular-nums tracking-tight ${
                             active
                               ? "bg-red-700/80 text-white"
                               : "bg-white/10 text-slate-300"
@@ -269,28 +323,63 @@ function Sidebar({
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-white/[0.08] pt-3">
-          <button
-            type="button"
-            onClick={() => {
-              onOpenUsersModal?.()
-              onClose()
-            }}
-            className="group flex w-full items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-2 px-2.5 text-left transition hover:bg-white/[0.07] hover:border-white/15"
-          >
-            <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-slate-900 text-xs font-bold text-white shadow-xs">
-              {currentUser.avatar}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-xs font-bold text-white leading-tight">
-                {currentUser.name}
-              </span>
-              <span className="block truncate text-[0.62rem] text-slate-400 leading-tight mt-0.5">
-                {currentUser.title}
-              </span>
-            </span>
-            <ChevronDown className="size-3.5 shrink-0 text-slate-400 transition group-hover:text-slate-200" />
-          </button>
+        <div className="mt-auto border-t border-white/[0.08] pt-2.5">
+          {isCandidate ? (
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-red-500/20 bg-red-950/20 p-1.5 pl-2">
+              <div className="min-w-0 flex-1">
+                <span className="block truncate text-xs font-semibold text-white leading-tight">
+                  {currentUser.name}
+                </span>
+                <span className="block truncate text-[0.62rem] text-slate-400 leading-tight mt-0.5">
+                  Sesi Mandiri Santri
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  logout()
+                  onClose()
+                }}
+                className="flex items-center gap-1 rounded-lg bg-red-500/10 border border-red-500/20 px-2 py-1 text-[0.68rem] font-bold text-red-400 hover:bg-red-500/20 transition shrink-0"
+                title="Keluar dari sesi santri"
+              >
+                <LogOut className="size-3" />
+                <span>Keluar</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-1.5 pl-2">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <UserAvatar
+                  avatar={currentUser.avatar}
+                  name={currentUser.name}
+                  className="size-8"
+                  rounded="rounded-lg"
+                />
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-semibold text-white leading-tight">
+                    {currentUser.name}
+                  </span>
+                  <span className="block truncate text-[0.65rem] text-slate-400 leading-tight mt-0.5">
+                    {currentUser.title}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  logout()
+                  onClose()
+                }}
+                className="flex items-center gap-1 rounded-lg bg-red-500/10 border border-red-500/20 px-2.5 py-1 text-[0.68rem] font-bold text-red-400 hover:bg-red-500/20 transition shrink-0"
+                title="Keluar Sesi (Logout)"
+              >
+                <LogOut className="size-3.5" />
+                <span>Keluar</span>
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>
@@ -301,13 +390,11 @@ function Header({
   onMenu,
   onView,
   onSelectCandidate,
-  onOpenUsersModal,
   onOpenGoogleSync,
 }: {
   onMenu: () => void
   onView: (view: View) => void
   onSelectCandidate: (candidateId: string) => void
-  onOpenUsersModal: () => void
   onOpenGoogleSync: () => void
 }) {
   const {
@@ -324,6 +411,7 @@ function Header({
     lastCloudSync,
     refreshAndSync,
     hasUnsavedChanges,
+    logout,
   } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
   const [showNotif, setShowNotif] = useState(false)
@@ -430,6 +518,40 @@ function Header({
 
     return items
   }, [candidates, standardRules])
+
+  // CANDIDATE RESTRICTED HEADER
+  if (currentUser.role === "candidate") {
+    return (
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-xl md:px-6">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            className="!px-2 lg:hidden"
+            onClick={onMenu}
+            aria-label="Buka navigasi"
+          >
+            <Menu className="size-5" />
+          </Button>
+          <div className="flex items-center gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-950 font-bold shadow-2xs">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Portal Siswa: {currentUser.name}</span>
+            <span className="hidden sm:inline text-emerald-700 font-normal">({currentUser.title})</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={logout}
+          className="flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 transition hover:bg-red-100 shadow-2xs"
+          title="Keluar dari sesi ujian santri"
+        >
+          <LogOut className="size-3.5" />
+          <span className="hidden sm:inline">Keluar Sesi Santri</span>
+          <span className="sm:hidden">Keluar</span>
+        </button>
+      </header>
+    )
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl md:gap-4 md:px-6">
@@ -624,9 +746,12 @@ function Header({
                     className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="grid size-8 place-items-center rounded-lg bg-slate-900 text-xs font-bold text-white">
-                        {cand.avatar}
-                      </span>
+                      <CandidateAvatar
+                        name={cand.name}
+                        avatar={cand.avatar}
+                        photoUrl={cand.photoUrl}
+                        className="size-8 text-xs shrink-0"
+                      />
                       <div>
                         <p className="text-xs font-bold text-slate-900">
                           {cand.name}
@@ -776,27 +901,17 @@ function Header({
           ) : null}
         </div>
 
-        <div className="mx-0.5 hidden h-5 w-px bg-slate-200 sm:block" />
-
-        {/* Profil Pengguna */}
-        <button
-          type="button"
-          onClick={onOpenUsersModal}
-          className="flex h-9 items-center gap-2.5 rounded-lg px-2 text-left transition hover:bg-slate-100"
-        >
-          <span className="grid size-7 place-items-center rounded-lg bg-slate-900 text-xs font-bold text-white shadow-2xs">
-            {currentUser.avatar}
-          </span>
-          <span className="hidden sm:block">
-            <span className="block text-xs font-bold text-slate-800 leading-tight">
-              {currentUser.name}
-            </span>
-            <span className="block text-[0.68rem] text-slate-500 leading-tight">
-              {currentUser.title}
-            </span>
-          </span>
-          <ChevronDown className="hidden size-3.5 text-slate-400 sm:block" />
-        </button>
+        {/* Status Sesi Mandiri Santri (Hanya jika login sebagai santri) */}
+        {currentUser.role === "candidate" && (
+          <div
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 text-xs font-bold text-emerald-800 shadow-2xs"
+            title="Sesi Mandiri Santri Aktif"
+          >
+            <GraduationCap className="size-4 text-emerald-600" />
+            <span className="hidden sm:inline">Santri: {currentUser.name.split(" ")[0]}</span>
+            <span className="sm:hidden">{currentUser.name.split(" ")[0]}</span>
+          </div>
+        )}
       </div>
     </header>
   )
@@ -868,97 +983,157 @@ function StagePipeline({
 }: {
   onSelectStage: (stageIndex: number) => void
 }) {
-  const { candidates, standardRules, sessions, records } = useApp()
+  const { candidates } = useApp()
   const totalCandidates = candidates.length
 
   const stageStats = useMemo(() => {
     return selectionStages.map((stage, index) => {
-      const readyCount = candidates.filter((c) => {
-        // Materi 1: Berkas Administrasi (6 dokumen terverifikasi)
-        if (index === 0) {
-          return Boolean(c.documents && c.documents.length >= 6 && c.documents.every(Boolean))
+      const ratio = (count: number) => totalCandidates > 0 ? Math.round((count / totalCandidates) * 100) : 0
+      const average = (values: number[]) => values.length > 0
+        ? (values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(1)
+        : null
+      const scoreStatus = (scores: Array<number | null>, passingGrade = 70) => {
+        const tested = scores.filter((score): score is number => score !== null)
+        const passed = tested.filter((score) => score >= passingGrade).length
+        return {
+          readyCount: tested.length,
+          percent: ratio(tested.length),
+          statusLabel: `${tested.length}/${totalCandidates}`,
+          badgeText: `${passed} mencapai nilai ${passingGrade}`,
+          subtext: tested.length ? `Rata-rata ${average(tested)}` : "Belum ada nilai",
+          tone: tested.length ? "blue" : "slate",
         }
-        // Materi 2: CAT Wawasan / PIP (Passing grade >= 70)
-        if (index === 1) {
-          return c.pip !== null && c.pip >= 70
-        }
-        // Materi 3: CAT Intelegensia / TIU (Passing grade >= 70)
-        if (index === 2) {
-          return c.tiu !== null && c.tiu >= 70
-        }
-        // Materi 4: Standar Medis & Kesehatan (Hanya jika ada sesi pemeriksaan medis)
-        if (index === 3) {
-          return sessions.some((s) => {
-            if (s.type !== "medical") return false
-            const rec = records[`${s.id}:${c.id}`]
-            return rec && (rec.result === "passed" || rec.attendance === "hadir")
-          })
-        }
-        // Materi 5: Parade & Postur Tubuh (Hanya jika ada sesi evaluasi parade)
-        if (index === 4) {
-          return sessions.some((s) => {
-            if (s.type !== "parade") return false
-            const rec = records[`${s.id}:${c.id}`]
-            return rec && (rec.result === "passed" || rec.attendance === "hadir")
-          })
-        }
-        // Materi 6: Drill PBB (Passing grade >= 70)
-        if (index === 5) {
-          return c.pbb !== null && c.pbb >= 70
-        }
-        // Materi 7: Kesamaptaan / Ketahanan Fisik (Passing grade >= 70)
-        if (index === 6) {
-          return c.fitness !== null && c.fitness >= 70
-        }
-        // Materi 8: Kepribadian & Wawancara (Passing grade >= 70)
-        if (index === 7) {
-          return c.personality !== null && c.personality >= 70
-        }
-        return false
-      }).length
+      }
 
-      const percent = totalCandidates > 0 ? Math.round((readyCount / totalCandidates) * 100) : 0
-      return { readyCount, percent }
+      // 0: Administrasi
+      if (index === 0) {
+        const readyCount = candidates.filter(
+          (c) => Boolean(c.documents && c.documents.length >= 6 && c.documents.every(Boolean))
+        ).length
+        const percent = ratio(readyCount)
+        return {
+          readyCount,
+          percent,
+          statusLabel: `${percent}%`,
+          badgeText: `${readyCount}/${totalCandidates} Berkas Lengkap`,
+          subtext: "6 berkas terverifikasi",
+          tone: "emerald",
+        }
+      }
+      // 1: CAT Wawasan / PIP
+      if (index === 1) {
+        return scoreStatus(candidates.map((c) => c.pip))
+      }
+      // 2: CAT Intelegensia / TIU
+      if (index === 2) {
+        return scoreStatus(candidates.map((c) => c.tiu))
+      }
+      // 3: Kesehatan & Antropometri (RIK)
+      if (index === 3) {
+        const evaluated = candidates.filter((c) => ["passed", "failed"].includes(c.stageStatuses[index]))
+        const readyCount = evaluated.filter((c) => c.stageStatuses[index] === "passed").length
+        return {
+          readyCount: evaluated.length,
+          percent: ratio(evaluated.length),
+          statusLabel: `${evaluated.length}/${totalCandidates}`,
+          badgeText: `${readyCount} memenuhi standar`,
+          subtext: evaluated.length ? "Hasil pemeriksaan tercatat" : "Belum ada hasil pemeriksaan",
+          tone: "emerald",
+        }
+      }
+      // 4: Parade & Postur Tubuh (PAR)
+      if (index === 4) {
+        const evaluated = candidates.filter((c) => ["passed", "failed"].includes(c.stageStatuses[index]))
+        const readyCount = evaluated.filter((c) => c.stageStatuses[index] === "passed").length
+        const percent = ratio(evaluated.length)
+        return {
+          readyCount: evaluated.length,
+          percent,
+          statusLabel: `${evaluated.length}/${totalCandidates}`,
+          badgeText: `${readyCount} memenuhi standar`,
+          subtext: evaluated.length ? "Hasil parade tercatat" : "Belum ada hasil parade",
+          tone: "indigo",
+        }
+      }
+      // 5: Drill PBB
+      if (index === 5) {
+        return scoreStatus(candidates.map((c) => c.pbb), 75)
+      }
+      // 6: Kesamaptaan Jasmani (SAM)
+      if (index === 6) {
+        const runValues = candidates.map((c) => {
+          const metric = (c.physicalMetrics ?? []).find((item) => item.label.toLowerCase().includes("lari"))
+          if (!metric?.current || ["DNF", "Belum diuji", "Belum dicatat", "—"].includes(metric.current)) return null
+          const value = Number.parseFloat(metric.current.replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, ""))
+          return Number.isFinite(value) ? value : null
+        }).filter((value): value is number => value !== null)
+        const meanRun = average(runValues)
+        const maxRun = runValues.length ? Math.max(...runValues).toLocaleString("id-ID") : null
+        const percent = ratio(runValues.length)
+        return {
+          readyCount: runValues.length,
+          percent,
+          statusLabel: `${runValues.length}/${totalCandidates}`,
+          badgeText: maxRun ? `Terjauh ${maxRun} m` : "Belum ada hasil",
+          subtext: meanRun ? `Rata-rata ${Number(meanRun).toLocaleString("id-ID")} m` : "Belum ada hasil lari",
+          tone: "emerald",
+        }
+      }
+      // 7: Kepribadian & Wawancara (KEP)
+      return scoreStatus(candidates.map((c) => c.personality))
     })
-  }, [candidates, totalCandidates, sessions, records])
+  }, [candidates, totalCandidates])
 
   const overallAvg = useMemo(() => {
     if (stageStats.length === 0) return 0
-    const sum = stageStats.reduce((acc, curr) => acc + curr.percent, 0)
-    return Math.round(sum / stageStats.length)
+    return Math.round(stageStats.reduce((sum, stage) => sum + stage.percent, 0) / stageStats.length)
   }, [stageStats])
 
-  const unverifiedCount = standardRules.filter(
-    (r) => r.status !== "Terverifikasi internal",
-  ).length
-
   return (
-    <Card className="overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
+    <Card className="overflow-hidden border border-slate-200 shadow-xs">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
         <div>
           <div className="flex items-center gap-2">
             <ClipboardCheck className="size-5 text-red-600" />
-            <h2 className="font-display text-lg font-bold text-slate-900">
-              Peta Kesiapan 8 Materi Latihan
+            <h2 className="font-display text-base sm:text-lg font-bold text-slate-900">
+              Progres 8 tahap seleksi
             </h2>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
-            Seluruh santri mencoba semua materi tanpa sistem gugur. Klik materi untuk input nilai dan evaluasi.
+          <p className="mt-1 text-xs text-slate-500">
+            Dihitung dari nilai, hasil pemeriksaan, dan berkas yang sudah dicatat. Pilih tahap untuk melihat rinciannya.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={overallAvg >= 50 ? "success" : "info"}>
-            Rata-rata Kesiapan: {overallAvg}%
-          </Badge>
-          <Badge tone="neutral">
-            Mode Pembinaan Fleksibel
-          </Badge>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="size-2 rounded-full bg-blue-600 animate-pulse" />
+            Rata-rata progres: {overallAvg}%
+          </span>
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.68rem] text-slate-500">
+            <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-600" />Semua dinilai</span>
+            <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-blue-600" />Sebagian</span>
+            <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-slate-800" />Belum ada hasil</span>
+          </span>
         </div>
       </div>
-      <div className="overflow-x-auto px-5 py-6 sm:px-6">
+
+      <div className="overflow-x-auto px-5 py-6 sm:px-6 bg-slate-50/40">
         <div className="flex min-w-[56rem] items-start">
           {selectionStages.map((stage, index) => {
-            const stat = stageStats[index] ?? { readyCount: 0, percent: 0 }
+            const stat = stageStats[index] ?? {
+              readyCount: 0,
+              percent: 0,
+              statusLabel: "0%",
+              badgeText: "",
+              subtext: "",
+              tone: "slate",
+            }
+
+            const circleColor = stat.percent >= 100
+              ? "bg-emerald-600 text-white shadow-emerald-200"
+              : stat.percent > 0
+                ? "bg-blue-600 text-white shadow-blue-200"
+                : "bg-slate-800 text-white shadow-slate-200"
+
             return (
               <div className="flex flex-1 items-start" key={stage.key}>
                 <button
@@ -967,55 +1142,43 @@ function StagePipeline({
                   className="group flex flex-1 flex-col items-center text-center transition hover:-translate-y-0.5"
                 >
                   <div
-                    className={`grid size-11 place-items-center rounded-full font-display text-xs font-bold transition group-hover:ring-4 group-hover:ring-red-100 ${
-                      stat.percent === 100
-                        ? "bg-emerald-600 text-white"
-                        : stat.percent > 0
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-800 text-slate-200"
-                    }`}
+                    className={`grid size-11 place-items-center rounded-full font-display text-xs font-bold transition shadow-sm group-hover:ring-4 group-hover:ring-red-100 ${circleColor}`}
                   >
                     {stage.shortLabel}
                   </div>
-                  <p className="mt-3 max-w-24 text-xs font-bold text-slate-800 group-hover:text-red-600">
-                    {stage.label}
+
+                  <div className="mt-2.5 flex h-8 items-center justify-center">
+                    <p className="max-w-24 text-center text-xs font-bold leading-tight text-slate-800 group-hover:text-red-600 transition-colors">
+                      {stage.label}
+                    </p>
+                  </div>
+
+                  <p className="mt-1 font-display text-base font-extrabold text-slate-900 tabular-nums">
+                    {stat.statusLabel}
                   </p>
-                  <p
-                    className={`mt-1 font-display text-lg font-bold tabular-nums ${
-                      stat.percent === 100
-                        ? "text-emerald-600"
-                        : stat.percent > 0
-                          ? "text-blue-600"
-                          : "text-slate-400"
-                    }`}
-                  >
-                    {stat.percent}%
-                  </p>
+
                   <div className="mt-1 flex items-center justify-center">
-                    <div className="h-1.5 w-12 overflow-hidden rounded-full bg-slate-100">
+                    <div className="h-1.5 w-14 overflow-hidden rounded-full bg-slate-200">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
-                          stat.percent === 100
-                            ? "bg-emerald-500"
-                            : stat.percent > 0
-                              ? "bg-blue-500"
-                              : "bg-transparent"
+                          stat.percent >= 100 ? "bg-emerald-500" : stat.percent > 0 ? "bg-blue-500" : "bg-slate-400"
                         }`}
                         style={{ width: `${stat.percent}%` }}
                       />
                     </div>
                   </div>
-                  <p className="mt-1 text-[0.68rem] font-medium text-slate-400">
-                    {stat.percent > 0
-                      ? `${stat.readyCount}/${totalCandidates} santri tuntas`
-                      : `0/${totalCandidates} belum dinilai`}
+
+                  <p className="mt-1 text-[0.65rem] font-bold text-slate-600 truncate max-w-[100px]">
+                    {stat.badgeText}
+                  </p>
+                  <p className="text-[0.62rem] text-slate-400 truncate max-w-[100px]">
+                    {stat.subtext}
                   </p>
                 </button>
+
                 {index < selectionStages.length - 1 ? (
                   <div
-                    className={`mt-5 h-0.5 flex-1 ${
-                      stat.percent === 100 ? "bg-emerald-200" : "bg-slate-200"
-                    }`}
+                    className="mt-5 h-0.5 flex-1 bg-slate-200"
                   />
                 ) : null}
               </div>
@@ -1031,29 +1194,57 @@ function StatCard({
   label,
   value,
   detail,
+  badgeText,
+  badgeTone,
+  progress,
   icon: Icon,
   tone,
+  onClick,
 }: {
   label: string
   value: string
   detail: string
+  badgeText?: string
+  badgeTone?: string
+  progress?: number
   icon: typeof UsersRound
   tone: string
+  onClick?: () => void
 }) {
   return (
-    <Card className="p-5">
+    <Card
+      onClick={onClick}
+      className={`p-5 transition ${onClick ? "cursor-pointer hover:border-slate-300 hover:shadow-md" : ""}`}
+    >
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">{label}</p>
-          <p className="mt-2 font-display text-3xl font-bold tracking-tight text-slate-950">
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-slate-600 truncate">{label}</p>
+          <p className="mt-2 font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
             {value}
           </p>
         </div>
-        <div className={`grid size-11 place-items-center rounded-2xl ${tone}`}>
+        <div className={`grid size-11 place-items-center rounded-2xl shrink-0 ${tone}`}>
           <Icon className="size-5" />
         </div>
       </div>
-      <p className="mt-4 text-xs font-medium text-slate-500">{detail}</p>
+      {badgeText && (
+        <div className="mt-2.5">
+          <span className={`inline-flex items-center text-[0.68rem] font-bold px-2 py-0.5 rounded-md border ${badgeTone || "bg-slate-100 text-slate-700 border-slate-200"}`}>
+            {badgeText}
+          </span>
+        </div>
+      )}
+      {typeof progress === "number" && (
+        <div className="mt-3">
+          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${Math.min(100, progress)}%` }}
+            />
+          </div>
+        </div>
+      )}
+      <p className="mt-3 text-xs font-medium text-slate-500 truncate">{detail}</p>
     </Card>
   )
 }
@@ -1209,10 +1400,14 @@ function CandidateTable({
               onClick={() => onSelectCandidate(candidate.id)}
               className="grid gap-3 p-4 text-left transition active:bg-slate-50"
             >
-              <span className="flex items-center gap-3">
-                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
-                  {candidate.avatar}
-                </span>
+              <span className="flex items-center gap-3.5">
+                <CandidateAvatar
+                  name={candidate.name}
+                  avatar={candidate.avatar}
+                  photoUrl={candidate.photoUrl}
+                  className="size-16 text-sm shrink-0 border border-slate-200 shadow-xs"
+                  rounded="rounded-xl"
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-bold text-slate-900">
                     {candidate.name}
@@ -1223,7 +1418,7 @@ function CandidateTable({
                 </span>
                 <ChevronRight className="size-4 shrink-0 text-slate-400" />
               </span>
-              <span className="flex items-center justify-between gap-3 pl-14">
+              <span className="flex items-center justify-between gap-3 pl-19">
                 <span>
                   <span className="block text-xs font-bold text-slate-700">
                     Tahap {candidate.stage} ·{" "}
@@ -1271,10 +1466,14 @@ function CandidateTable({
                   className="group cursor-pointer transition hover:bg-slate-50/80"
                 >
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <span className="grid size-10 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
-                        {candidate.avatar}
-                      </span>
+                    <div className="flex items-center gap-3.5">
+                      <CandidateAvatar
+                        name={candidate.name}
+                        avatar={candidate.avatar}
+                        photoUrl={candidate.photoUrl}
+                        className="size-14 text-sm font-bold shrink-0 border border-slate-200 shadow-xs"
+                        rounded="rounded-xl"
+                      />
                       <div>
                         <p className="text-sm font-bold text-slate-900 group-hover:text-red-600">
                           {candidate.name}
@@ -1361,187 +1560,334 @@ function Overview({
   onNavigateView: (view: View) => void
   onNavigateStage: (stageIndex: number) => void
 }) {
-  const { candidates, currentUser, standardRules } = useApp()
+  const { candidates, currentUser, activeCycle } = useApp()
 
   const totalCount = candidates.length
-  const phase1Count = candidates.filter(isPhaseOnePassed).length
-  const phase1Percent = totalCount
-    ? ((phase1Count / totalCount) * 100).toFixed(1)
-    : "0"
-  const reviewCount = candidates.filter(
-    (c) =>
-      c.stageStatuses.includes("review") ||
-      (c.documents ?? []).filter(Boolean).length < 6,
-  ).length
-  const eliminatedCount = candidates.filter((c) =>
-    c.stageStatuses.includes("failed"),
-  ).length
 
-  const medTasks = candidates.filter(
-    (c) => c.stageStatuses[3] === "review" || c.stageStatuses[3] === "active",
-  ).length
-  const docTasks = candidates.filter(
-    (c) => (c.documents ?? []).filter(Boolean).length < 6,
-  ).length
-  const judgeTasks = candidates.filter(
-    (c) =>
-      isPhaseOnePassed(c) &&
-      (c.pbb === null || c.fitness === null || c.personality === null),
-  ).length
+  const hasRecordedTest = (candidate: Candidate) => {
+    const hasScore = [candidate.pip, candidate.tiu, candidate.pbb, candidate.personality]
+      .some((score) => score !== null)
+      || (candidate.fitness !== null && candidate.fitness > 0)
+    const hasPhysicalResult = (candidate.physicalMetrics ?? []).some((metric) =>
+      Boolean(metric.current)
+      && !["Belum diuji", "Belum dicatat", "—"].includes(metric.current),
+    )
+    return hasScore || hasPhysicalResult
+  }
+  const candidatesWithTests = candidates.filter(hasRecordedTest).length
+  const attentionStage = selectionStages.slice(1).map((stage) => {
+    const index = stage.id - 1
+    const assigned = candidates.filter((candidate) => candidate.stage === stage.id)
+    const pending = assigned.filter((candidate) => candidate.stageStatuses[index] !== "passed")
+    const failed = pending.filter((candidate) => candidate.stageStatuses[index] === "failed").length
+    const needsReview = pending.filter((candidate) => candidate.stageStatuses[index] === "review").length
+    return {
+      stage,
+      index,
+      pendingCount: pending.length,
+      priority: failed * 3 + needsReview * 2 + (pending.length - failed - needsReview),
+    }
+  }).sort((a, b) => b.priority - a.priority)[0]
+  // Perlu Atensi / Sesi Susulan
+  const susulanCandidates = useMemo(() => {
+    return candidates.filter((c) => {
+      const note = (c.coachNote || "").toLowerCase()
+      const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+      const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
+      const noRun = !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
+      const isIzinOrSakit = note.includes("izin") || note.includes("sakit") || note.includes("alpa")
+      const needsReview = c.stageStatuses.slice(1).some((status) => status === "failed" || status === "review")
+      return isDnf || noRun || isIzinOrSakit || needsReview
+    })
+  }, [candidates])
 
-  const verifiedRulesCount = standardRules.filter(
-    (r) => r.status === "Terverifikasi internal",
+  const dnfCount = susulanCandidates.filter((c) => {
+    const note = (c.coachNote || "").toLowerCase()
+    const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+    return (runM && runM.current === "DNF") || note.includes("dnf")
+  }).length
+  const untestedCount = susulanCandidates.filter((c) => {
+    const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+    return !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
+  }).length
+  const needsReviewCount = susulanCandidates.filter((c) =>
+    c.stageStatuses.slice(1).some((status) => status === "failed" || status === "review"),
   ).length
-  const standardsReadiness = standardRules.length
-    ? Math.round((verifiedRulesCount / standardRules.length) * 100)
-    : 100
+  const followUpSummary = [
+    dnfCount > 0 ? `${dnfCount} DNF` : null,
+    untestedCount > 0 ? `${untestedCount} belum tes` : null,
+    needsReviewCount > 0 ? `${needsReviewCount} perlu evaluasi` : null,
+  ].filter(Boolean).join(" · ") || "Tidak ada catatan"
+
+  // Top Performers (Top 3 santri)
+  const topPerformers = useMemo(() => {
+    return [...candidates]
+      .filter((c) => c.fitness !== null || c.pbb !== null)
+      .sort((a, b) => {
+        const scoreA = (a.fitness ?? 0) + (a.pbb ?? 0)
+        const scoreB = (b.fitness ?? 0) + (b.pbb ?? 0)
+        return scoreB - scoreA
+      })
+      .slice(0, 3)
+  }, [candidates])
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            Dashboard Operasional · Peran: {currentUser.title}
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
+          <p className="text-sm text-slate-500">{activeCycle.name} · {activeCycle.level} · MA Mu'allimin Yogyakarta</p>
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
             Selamat datang, {currentUser.name.split(" ")[0]}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
-            Pantau kesiapan kandidat dan tindak lanjuti pekerjaan yang menunggu
-            verifikasi.
-          </p>
+          <p className="mt-1 text-sm text-slate-600">Ringkasan latihan dan hasil tes santri.</p>
         </div>
-        <Button onClick={onOpenAddCandidate}>
-          <UserRoundCheck className="size-4" />
-          Tambah kandidat
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Button
+            variant="secondary"
+            onClick={() => onNavigateView("sessions")}
+            className="text-sm font-medium gap-2"
+          >
+            <ClipboardCheck className="size-4" /> Jadwal latihan
+          </Button>
+          <Button
+            onClick={onOpenAddCandidate}
+            className="bg-red-700 hover:bg-red-800 text-white text-sm font-medium gap-2"
+          >
+            <UserRoundCheck className="size-4" /> Tambah santri
+          </Button>
+        </div>
       </div>
+
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatCard
-          label="Total kandidat"
-          value={String(totalCount)}
-          detail="Kandidat terdaftar pada periode aktif"
+          label="Santri aktif"
+          value={`${totalCount} santri`}
+          detail="Jumlah santri dalam angkatan latihan aktif."
           icon={UsersRound}
           tone="bg-blue-50 text-blue-700"
+          onClick={() => onNavigateView("candidates")}
         />
         <StatCard
-          label="Memenuhi Standar Dasar"
-          value={String(phase1Count)}
-          detail={`${phase1Percent}% siap tahap simulasi`}
-          icon={ShieldCheck}
-          tone="bg-emerald-50 text-emerald-700"
-        />
-        <StatCard
-          label="Menunggu review"
-          value={String(reviewCount)}
-          detail={`${medTasks} medis · ${docTasks} administrasi`}
+          label="Cakupan hasil tes"
+          value={`${candidatesWithTests} / ${totalCount} santri`}
+          detail="Santri yang sudah memiliki hasil tes, dibandingkan total santri aktif."
           icon={Activity}
-          tone="bg-amber-50 text-amber-700"
+          tone="bg-blue-50 text-blue-700"
+          onClick={() => onNavigateView("stages")}
         />
         <StatCard
-          label="Perlu Pembinaan Khusus"
-          value={String(eliminatedCount)}
-          detail="Di bawah batas target latihan"
-          icon={PanelLeftClose}
-          tone="bg-red-50 text-red-700"
+          label="Tahap perlu perhatian"
+          value={attentionStage?.priority ? attentionStage.stage.shortLabel : "—"}
+          badgeText={attentionStage?.priority ? `${attentionStage.pendingCount} belum tuntas` : "Semua tahap tuntas"}
+          badgeTone="bg-amber-50 text-amber-800 border-amber-200"
+          detail={attentionStage?.priority ? attentionStage.stage.label : "Belum ada tahap yang perlu ditindaklanjuti."}
+          icon={Target}
+          tone="bg-indigo-50 text-indigo-700"
+          onClick={() => attentionStage?.priority && onNavigateStage(attentionStage.index)}
+        />
+        <StatCard
+          label="Tindak lanjut"
+          value={`${susulanCandidates.length} santri`}
+          badgeText={followUpSummary}
+          badgeTone="bg-amber-50 text-amber-800 border-amber-200"
+          detail="Periksa catatan dan jadwalkan tes susulan"
+          icon={AlertTriangle}
+          tone="bg-amber-50 text-amber-700"
         />
       </div>
 
+      {/* Peta Kesiapan 8 Materi Latihan */}
       <StagePipeline onSelectStage={onNavigateStage} />
 
-      <div className="grid gap-6 xl:grid-cols-[1.55fr_0.75fr]">
-        <CandidateTable
-          compact
-          onSelectCandidate={onSelectCandidate}
-          onViewAll={() => onNavigateView("candidates")}
-        />
-        <Card className="p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-display text-lg font-bold text-slate-900">
-                Perlu tindakan
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">Prioritas hari ini</p>
+      {/* Dua Kartu Aksi Cepat: Kandidat Unggulan & Atensi Sesi Susulan */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="p-5 sm:p-6 flex flex-col justify-between border border-slate-200 shadow-xs">
+          <div>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
+                  <Trophy className="size-4" />
+                </span>
+                <div>
+                  <h2 className="font-display text-base font-bold text-slate-900">
+                    Hasil latihan terbaik
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Berdasarkan nilai tes lari dan PBB yang sudah dicatat
+                  </p>
+                </div>
+              </div>
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
+                3 teratas
+              </span>
             </div>
-            <Badge tone="danger">
-              {medTasks + docTasks + judgeTasks} tugas
-            </Badge>
-          </div>
-          <div className="mt-5 grid gap-3">
-            {[
-              {
-                icon: HeartPulse,
-                label: "Review hasil Rikkes",
-                detail: `${medTasks} kandidat`,
-                tone: "bg-red-50 text-red-700",
-                onClick: () => onNavigateStage(3),
-              },
-              {
-                icon: FileCheck2,
-                label: "Verifikasi dokumen",
-                detail: `${docTasks} kandidat belum 6/6`,
-                tone: "bg-amber-50 text-amber-700",
-                onClick: () => onNavigateView("documents"),
-              },
-              {
-                icon: GraduationCap,
-                label: "Input nilai simulasi lapangan",
-                detail: `${judgeTasks} santri (PBB & Samapta)`,
-                tone: "bg-blue-50 text-blue-700",
-                onClick: () => onNavigateStage(5),
-              },
-            ].map((task) => {
-              const Icon = task.icon
-              return (
-                <button
-                  key={task.label}
-                  type="button"
-                  onClick={task.onClick}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-100 p-3.5 text-left transition hover:border-slate-200 hover:bg-slate-50"
-                >
-                  <span
-                    className={`grid size-10 place-items-center rounded-xl ${task.tone}`}
+
+            <div className="mt-3.5 divide-y divide-slate-100">
+              {topPerformers.map((cand, idx) => {
+                const runM = (cand.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+                return (
+                  <button
+                    key={cand.id}
+                    type="button"
+                    onClick={() => onSelectCandidate(cand.id)}
+                    className="flex w-full items-center justify-between gap-3 py-3 text-left transition hover:bg-slate-50 rounded-xl px-2 group"
                   >
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="flex-1">
-                    <span className="block text-sm font-bold text-slate-800">
-                      {task.label}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-slate-500">
-                      {task.detail}
-                    </span>
-                  </span>
-                  <ChevronRight className="size-4 text-slate-400" />
-                </button>
-              )
-            })}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex size-7 items-center justify-center rounded-full bg-slate-900 font-display text-xs font-bold text-white shrink-0">
+                        {idx + 1}
+                      </div>
+                      <CandidateAvatar
+                        name={cand.name}
+                        avatar={cand.avatar}
+                        photoUrl={cand.photoUrl}
+                        className="size-10 shrink-0 border border-slate-200 text-xs font-bold"
+                        rounded="rounded-xl"
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-bold text-slate-900 group-hover:text-red-600 transition">
+                          {cand.name}
+                        </p>
+                        <p className="text-[0.68rem] text-slate-400">
+                          {cand.number} · TB {cand.heightCm} cm
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {runM?.current && (
+                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          Lari {runM.current}
+                        </span>
+                      )}
+                      {cand.pbb !== null && (
+                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                          PBB {cand.pbb}
+                        </span>
+                      )}
+                      <ChevronRight className="size-4 text-slate-400 group-hover:text-slate-600" />
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
           </div>
-          <div className="mt-6 border-t border-slate-100 pt-5">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-500">
-              <span>Kelengkapan pengesahan standar</span>
-              <span>{standardsReadiness}%</span>
+
+          <div className="mt-4 border-t border-slate-100 pt-3">
+            <button
+              type="button"
+              onClick={() => onNavigateView("candidates")}
+              className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center justify-center gap-1 w-full py-1.5 transition"
+            >
+              Lihat semua santri <ChevronRight className="size-3.5" />
+            </button>
+          </div>
+        </Card>
+
+        <Card className="p-5 sm:p-6 flex flex-col justify-between border border-slate-200 shadow-xs">
+          <div>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <span className="flex size-8 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                  <AlertTriangle className="size-4" />
+                </span>
+                <div>
+                  <h2 className="font-display text-base font-bold text-slate-900">
+                    Perlu tindak lanjut
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Santri yang belum tes atau perlu tes ulang
+                  </p>
+                </div>
+              </div>
+              <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800 shrink-0">
+                {susulanCandidates.length} Santri
+              </span>
             </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-              <div
-                className="h-full rounded-full bg-amber-400 transition-all"
-                style={{ width: `${standardsReadiness}%` }}
-              />
+
+            <div className="mt-3.5 divide-y divide-slate-100">
+              {susulanCandidates.map((cand) => {
+                const note = (cand.coachNote || "").toLowerCase()
+                const runM = (cand.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+                const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
+                const isBelumTes = !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
+
+                const statusLabel = isDnf
+                  ? "DNF Lari 12M"
+                  : isBelumTes
+                    ? "Belum Ambil Tes"
+                    : "Sesi Susulan"
+
+                const statusTone = isDnf
+                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+
+                return (
+                  <div
+                    key={cand.id}
+                    className="flex items-center justify-between gap-3 py-3 rounded-xl px-2 hover:bg-slate-50 transition"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => onSelectCandidate(cand.id)}
+                      className="flex items-center gap-2.5 min-w-0 text-left flex-1"
+                    >
+                      <CandidateAvatar
+                        name={cand.name}
+                        avatar={cand.avatar}
+                        photoUrl={cand.photoUrl}
+                        className="size-10 shrink-0 border border-slate-200 text-xs font-bold"
+                        rounded="rounded-xl"
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-bold text-slate-900 hover:text-red-600 transition">
+                          {cand.name}
+                        </p>
+                        <p className="mt-0.5 text-[0.68rem] text-slate-500">
+                          {cand.number} · {cand.coachNote || "Menunggu pengujian pos"}
+                        </p>
+                      </div>
+                    </button>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={`rounded-md border px-2 py-0.5 text-[0.68rem] font-bold ${statusTone}`}>
+                        {statusLabel}
+                      </span>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => onSelectCandidate(cand.id)}
+                        className="text-[0.68rem] py-1 px-2.5 h-7 font-bold gap-1"
+                      >
+                        <Edit3 className="size-3" /> Catat
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-            <p className="mt-3 text-xs leading-relaxed text-slate-500">
-              Tabel Samapta, cutoff usia, dan tie-break dapat disahkan pada menu{" "}
-              <button
-                type="button"
-                onClick={() => onNavigateView("standards")}
-                className="font-bold text-red-600 underline"
-              >
-                Standar & kalkulator
-              </button>
-              .
+          </div>
+
+          <div className="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between">
+            <p className="text-xs text-slate-500">
+              Atur jadwal tes susulan
             </p>
+            <button
+              type="button"
+              onClick={() => onNavigateView("sessions")}
+              className="text-xs font-bold text-slate-900 hover:text-red-600 flex items-center gap-1 transition"
+            >
+              Lihat jadwal <ChevronRight className="size-3.5" />
+            </button>
           </div>
         </Card>
       </div>
+
+      {/* Tabel Kandidat Binaan Terpadu */}
+      <CandidateTable
+        compact
+        onSelectCandidate={onSelectCandidate}
+        onViewAll={() => onNavigateView("candidates")}
+      />
     </div>
   )
 }
@@ -1752,14 +2098,14 @@ const stageWorkspace = [
       "Cek komposisi blueprint",
       "Pantau sesi ujian",
       "Tinjau anomali pengerjaan",
-      "Finalisasi status hard-lock",
+      "Finalisasi hasil evaluasi materi",
     ],
     icon: Target,
   },
   {
     description: "Pemeriksaan vital, mata, gigi, THT, dan anamnesis.",
     owner: "Tim Medis",
-    rule: "Lebih dari 5 jawaban ya atau kondisi kritis memicu hard-lock.",
+    rule: "Lebih dari 5 jawaban ya atau kondisi kritis memerlukan pembinaan medis khusus.",
     checklist: [
       "Input tanda vital",
       "Selesaikan 21 anamnesis",
@@ -1819,6 +2165,70 @@ const stageWorkspace = [
   },
 ]
 
+function getCandidateStageMetric(cand: Candidate, stageIdx: number) {
+  if (stageIdx === 0) {
+    const docs = (cand.documents ?? []).filter(Boolean).length
+    return {
+      primary: `${docs}/6 Berkas`,
+      secondary: docs === 6 ? "Lengkap & Valid" : `${6 - docs} berkas kurang`,
+      badge: docs === 6 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200",
+    }
+  }
+  if (stageIdx === 1) {
+    return {
+      primary: cand.pip !== null ? `${cand.pip} Poin` : "Belum Tes",
+      secondary: cand.pip !== null ? (cand.pip >= 70 ? "Memenuhi PG (≥70)" : "Di bawah PG (<70)") : "Passing Grade 70",
+      badge: cand.pip !== null ? (cand.pip >= 70 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200") : "bg-slate-100 text-slate-600 border-slate-200",
+    }
+  }
+  if (stageIdx === 2) {
+    return {
+      primary: cand.tiu !== null ? `${cand.tiu} Poin` : "Belum Tes",
+      secondary: cand.tiu !== null ? (cand.tiu >= 70 ? "Memenuhi PG (≥70)" : "Di bawah PG (<70)") : "Passing Grade 70",
+      badge: cand.tiu !== null ? (cand.tiu >= 70 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200") : "bg-slate-100 text-slate-600 border-slate-200",
+    }
+  }
+  if (stageIdx === 3) {
+    const isReady = cand.stageStatuses[3] === "passed"
+    return {
+      primary: isReady ? "Memenuhi Standar" : cand.stageStatuses[3] === "review" ? "Perlu Konsul Medis" : "Evaluasi Medis",
+      secondary: "Tensi & 21 Anamnesis",
+      badge: isReady ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200",
+    }
+  }
+  if (stageIdx === 4) {
+    const candBmi = cand.heightCm && cand.weightKg ? bmi(cand.weightKg, cand.heightCm) : null
+    return {
+      primary: cand.heightCm ? `${cand.heightCm} cm / ${cand.weightKg ?? "—"} kg` : "Belum Ukur",
+      secondary: candBmi ? `BMI ${candBmi.value} (${candBmi.label})` : "Antropometri Postur",
+      badge: candBmi?.status === "ideal" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-700 border-slate-200",
+    }
+  }
+  if (stageIdx === 5) {
+    return {
+      primary: cand.pbb !== null ? `Nilai ${cand.pbb}` : "Belum Dinilai",
+      secondary: "Statis, Dinamis & Komando (Bobot 30%)",
+      badge: cand.pbb !== null && cand.pbb >= 80 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-blue-50 text-blue-700 border-blue-200",
+    }
+  }
+  if (stageIdx === 6) {
+    const runMetric = (cand.physicalMetrics ?? []).find((m) => m.label.toLowerCase().includes("lari"))
+    return {
+      primary: cand.fitness !== null ? `Skor ${cand.fitness}` : runMetric?.current ? `Lari ${runMetric.current}` : "Belum Dinilai",
+      secondary: runMetric ? `Target: ${runMetric.target}` : "5 Parameter Kesamaptaan",
+      badge: cand.fitness !== null && cand.fitness >= 75 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200",
+    }
+  }
+  if (stageIdx === 7) {
+    return {
+      primary: cand.personality !== null ? `Nilai ${cand.personality}` : "Belum Wawancara",
+      secondary: "STAR, Integritas & Bakat (Bobot 40%)",
+      badge: cand.personality !== null && cand.personality >= 80 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-600 border-slate-200",
+    }
+  }
+  return { primary: "—", secondary: "", badge: "bg-slate-100 text-slate-600 border-slate-200" }
+}
+
 function StagesView({
   activeStage,
   setActiveStage,
@@ -1836,18 +2246,27 @@ function StagesView({
     stageChecklists,
     toggleStageChecklist,
   } = useApp()
+  const [viewMode, setViewMode] = useState<"stage" | "matrix">("stage")
   const [statusFilter, setStatusFilter] = useState<StageStatus | "all">("all")
+  const [searchFilter, setSearchFilter] = useState("")
 
   const stage = selectionStages[activeStage]
   const workspace = stageWorkspace[activeStage]
   const Icon = workspace.icon
-  const stageCandidates = candidates.filter(
-    (candidate) => candidate.stageStatuses[activeStage] !== "locked",
-  )
-  const visibleCandidates = stageCandidates.filter(
-    (c) =>
-      statusFilter === "all" || c.stageStatuses[activeStage] === statusFilter,
-  )
+
+  const stageCandidates = candidates
+  const visibleCandidates = stageCandidates.filter((c) => {
+    const matchesStatus =
+      statusFilter === "all" || c.stageStatuses[activeStage] === statusFilter
+    const q = searchFilter.trim().toLowerCase()
+    const matchesSearch =
+      !q ||
+      c.name.toLowerCase().includes(q) ||
+      c.number.toLowerCase().includes(q) ||
+      c.school.toLowerCase().includes(q)
+    return matchesStatus && matchesSearch
+  })
+
   const passed = stageCandidates.filter(
     (candidate) => candidate.stageStatuses[activeStage] === "passed",
   ).length
@@ -1864,333 +2283,531 @@ function StagesView({
     false,
     false,
   ]
+  const completedChecks = checklistState.filter(Boolean).length
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      {/* Header Halaman */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            Workspace operasional
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Tahapan seleksi
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
+              <Target className="size-3.5" />
+              Evaluasi Per Materi
+            </span>
+            <span className="text-xs text-slate-400">· 8 Tahap Standar BPIP</span>
+          </div>
+          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
+            Kesiapan Tahapan Seleksi
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Buka setiap tahap untuk melihat aturan, pekerjaan, dan menetapkan
-            status kelulusan kandidat.
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-2xl">
+            Pantau target kelayakan materi, evaluasi kesiapan 13 santri binaan, dan checklist tugas pembina.
           </p>
         </div>
-        <Button variant="secondary" onClick={onNavigateSessions}>
-          <ClipboardCheck className="size-4" /> Buka sesi latihan
-        </Button>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Switcher Mode: Fokus Materi vs Matriks 8 Tahap */}
+          <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("stage")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                viewMode === "stage"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              <SlidersHorizontal className="size-3.5" />
+              <span>Fokus Materi</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("matrix")}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                viewMode === "matrix"
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              <LayoutDashboard className="size-3.5" />
+              <span>Matriks 8 Tahap</span>
+            </button>
+          </div>
+
+          <Button variant="secondary" onClick={onNavigateSessions}>
+            <ClipboardCheck className="size-4 text-red-600" />
+            <span>Input Sesi Latihan</span>
+          </Button>
+        </div>
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <div className="flex min-w-[58rem] border-b border-slate-200">
-            {selectionStages.map((item, index) => (
-              <button
-                key={item.key}
-                onClick={() => setActiveStage(index)}
-                className={`relative flex min-w-28 flex-1 flex-col items-center gap-2 px-3 py-4 text-center transition ${
-                  activeStage === index
-                    ? "bg-red-50 text-red-700"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-                }`}
-              >
+      {/* Stepper 8 Tahap Seleksi - Responsif Tanpa Scrollbar Paksa */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        {selectionStages.map((item, index) => {
+          const isCurrent = activeStage === index && viewMode === "stage"
+          const readyCount = candidates.filter(
+            (c) => c.stageStatuses[index] === "passed",
+          ).length
+          return (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => {
+                setActiveStage(index)
+                setViewMode("stage")
+              }}
+              className={`group relative flex flex-col justify-between rounded-xl border p-2.5 text-left transition ${
+                isCurrent
+                  ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
+                  : "border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50/70"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-1">
                 <span
-                  className={`grid size-8 place-items-center rounded-full text-xs font-bold ${
-                    activeStage === index
-                      ? "bg-red-600 text-white"
-                      : index < 5
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-200 text-slate-700"
+                  className={`grid size-6 place-items-center rounded-lg text-[0.68rem] font-bold ${
+                    isCurrent
+                      ? "bg-red-600 text-white shadow-xs"
+                      : "bg-slate-100 text-slate-700 group-hover:bg-slate-200"
                   }`}
                 >
                   {index + 1}
                 </span>
-                <span className="text-xs font-bold">{item.label}</span>
-                {activeStage === index ? (
-                  <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-red-600" />
-                ) : null}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
+                <span
+                  className={`text-[0.62rem] font-bold px-1.5 py-0.5 rounded-md tabular-nums ${
+                    readyCount === candidates.length
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {readyCount}/{candidates.length} Siap
+                </span>
+              </div>
+              <p
+                className={`mt-2 text-xs font-bold truncate ${
+                  isCurrent ? "text-red-950" : "text-slate-800"
+                }`}
+              >
+                {item.label}
+              </p>
+              <p className="text-[0.62rem] text-slate-400 truncate mt-0.5">
+                {item.phase === 1 ? "Kualifikasi Dasar" : "Uji Lapangan"}
+              </p>
+            </button>
+          )
+        })}
+      </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
-        <div className="grid gap-6">
-          <Card className="overflow-hidden">
-            <div className="bg-slate-950 p-6 text-white">
-              <div className="flex flex-wrap items-start justify-between gap-5">
-                <div className="flex items-start gap-4">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-red-600">
-                    <Icon className="size-6" />
-                  </span>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-red-300">
-                      Tahap {stage.id} · {stage.phase === 1 ? "Standar Dasar" : "Simulasi Lapangan"}
-                    </p>
-                    <h2 className="mt-1 font-display text-2xl font-bold">
-                      {stage.label}
-                    </h2>
-                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300">
-                      {workspace.description}
-                    </p>
+      {viewMode === "stage" ? (
+        <>
+          {/* Kartu Ringkasan Materi & SOP Checklist */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Box Target & Standar Materi */}
+            <Card className="lg:col-span-2 p-5 sm:p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex items-start gap-3.5">
+                    <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-red-600 text-white shadow-xs">
+                      <Icon className="size-6" />
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold uppercase tracking-wider text-red-600">
+                          Tahap {stage.id} · {stage.phase === 1 ? "Kualifikasi Dasar" : "Uji Lapangan"}
+                        </span>
+                        <span className="rounded bg-slate-100 px-2 py-0.5 text-[0.65rem] font-semibold text-slate-600">
+                          PJ: {workspace.owner}
+                        </span>
+                      </div>
+                      <h2 className="mt-1 font-display text-xl sm:text-2xl font-bold text-slate-900">
+                        {stage.label}
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        {workspace.description}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <Badge tone={stage.phase === 1 ? "neutral" : "info"}>
-                  {stage.phase === 1 ? "Kualifikasi Dasar" : "Pembobotan Nilai"}
-                </Badge>
-              </div>
-            </div>
-            <div className="grid gap-4 p-5 sm:grid-cols-3 sm:p-6">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold text-slate-500">
-                  Penanggung jawab
-                </p>
-                <p className="mt-2 text-sm font-bold text-slate-900">
-                  {workspace.owner}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold text-slate-500">
-                  Progres tahap
-                </p>
-                <p className="mt-2 text-sm font-bold text-slate-900">
-                  {passed} lolos · {attention} ditinjau · {failedCount} gugur
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold text-slate-500">
-                  Perlu perhatian
-                </p>
-                <p className="mt-2 text-sm font-bold text-amber-700">
-                  {attention} kandidat
-                </p>
-              </div>
-            </div>
-            <div className="border-t border-slate-100 px-5 py-4 sm:px-6">
-              <div className="flex gap-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
-                <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-                <p>{workspace.rule}</p>
-              </div>
-            </div>
-          </Card>
 
-          <Card className="overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
-              <div>
-                <h2 className="font-display text-lg font-bold text-slate-900">
-                  Kandidat pada tahap ini
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  {visibleCandidates.length} ditampilkan · {passed} sudah lolos
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {([
-                  ["all", "Semua"],
-                  ["passed", "Lolos"],
-                  ["active", "Aktif"],
-                  ["review", "Ditinjau"],
-                  ["failed", "Gugur"],
-                ] as const).map(([st, lbl]) => (
-                  <button
-                    key={st}
-                    onClick={() => setStatusFilter(st)}
-                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                      statusFilter === st
-                        ? "bg-slate-950 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    {lbl}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="divide-y divide-slate-100">
-              {visibleCandidates.length ? (
-                visibleCandidates.map((candidate) => {
-                  const status = candidate.stageStatuses[activeStage]
-                  const score =
-                    activeStage === 1
-                      ? candidate.pip
-                      : activeStage === 2
-                        ? candidate.tiu
-                        : activeStage === 5
-                          ? candidate.pbb
-                          : activeStage === 6
-                            ? candidate.fitness
-                            : activeStage === 7
-                              ? candidate.personality
-                              : null
-                  return (
-                    <div
-                      key={candidate.id}
-                      className="flex flex-wrap items-center gap-4 px-6 py-4 transition hover:bg-slate-50"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => onSelectCandidate(candidate.id)}
-                        className="flex min-w-44 flex-1 items-center gap-3 text-left"
-                      >
-                        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
-                          {candidate.avatar}
-                        </span>
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 hover:text-red-600">
-                            {candidate.name}
-                          </p>
-                          <p className="mt-0.5 text-xs text-slate-500">
-                            {candidate.number} · {candidate.school}
-                          </p>
-                        </div>
-                      </button>
-                      {score !== null ? (
-                        <div className="text-right">
-                          <p className="font-display text-lg font-bold tabular-nums text-slate-900">
-                            {score}
-                          </p>
-                          <p className="text-[0.68rem] text-slate-400">nilai</p>
-                        </div>
-                      ) : null}
-                      <StatusBadge status={status} />
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateCandidateStage(
-                              candidate.id,
-                              activeStage,
-                              "passed",
-                            )
-                          }
-                          className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
-                          title="Loloskan tahap ini"
-                        >
-                          Loloskan
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateCandidateStage(
-                              candidate.id,
-                              activeStage,
-                              "review",
-                            )
-                          }
-                          className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100"
-                          title="Tandai untuk ditinjau"
-                        >
-                          Tinjau
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            updateCandidateStage(
-                              candidate.id,
-                              activeStage,
-                              "failed",
-                            )
-                          }
-                          className="rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs font-bold text-red-700 hover:bg-red-100"
-                          title="Gugurkan pada tahap ini"
-                        >
-                          Gugur
-                        </button>
-                        <Button
-                          variant="ghost"
-                          className="!px-2"
-                          onClick={() => onSelectCandidate(candidate.id)}
-                          aria-label={`Detail ${candidate.name}`}
-                        >
-                          <ChevronRight className="size-5" />
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <div className="px-6 py-12 text-center text-sm text-slate-500">
-                  Belum ada kandidat dengan status tersebut pada tahap ini.
+                {/* Aturan / Passing Grade Mutlak */}
+                <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-xs sm:text-sm text-amber-900 font-medium">
+                  <ShieldCheck className="size-4 text-amber-700 shrink-0 mt-0.5" />
+                  <p>
+                    <strong className="font-bold">Standar Mutlak: </strong>
+                    {workspace.rule}
+                  </p>
                 </div>
-              )}
-            </div>
-          </Card>
-        </div>
+              </div>
 
-        <div className="grid content-start gap-6">
-          <Card className="p-5 sm:p-6">
-            <div className="flex items-center justify-between">
+              {/* Stat Counters Kesiapan Santri */}
+              <div className="mt-4 grid grid-cols-3 gap-2.5 pt-4 border-t border-slate-100">
+                <div className="rounded-xl bg-emerald-50/60 border border-emerald-100 p-2.5 text-center">
+                  <p className="text-[0.68rem] font-bold text-emerald-800 uppercase">Siap Standar</p>
+                  <p className="font-display text-lg sm:text-xl font-bold text-emerald-900 mt-0.5 tabular-nums">
+                    {passed} <span className="text-xs font-normal text-emerald-700">santri</span>
+                  </p>
+                </div>
+                <div className="rounded-xl bg-blue-50/60 border border-blue-100 p-2.5 text-center">
+                  <p className="text-[0.68rem] font-bold text-blue-800 uppercase">Sedang Dilatih</p>
+                  <p className="font-display text-lg sm:text-xl font-bold text-blue-900 mt-0.5 tabular-nums">
+                    {attention} <span className="text-xs font-normal text-blue-700">santri</span>
+                  </p>
+                </div>
+                <div className="rounded-xl bg-red-50/60 border border-red-100 p-2.5 text-center">
+                  <p className="text-[0.68rem] font-bold text-red-800 uppercase">Perlu Remedial</p>
+                  <p className="font-display text-lg sm:text-xl font-bold text-red-900 mt-0.5 tabular-nums">
+                    {failedCount} <span className="text-xs font-normal text-red-700">santri</span>
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Checklist SOP Pembina */}
+            <Card className="p-5 sm:p-6 flex flex-col justify-between">
               <div>
-                <h2 className="font-display text-lg font-bold text-slate-900">
-                  Checklist petugas
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display text-sm font-bold text-slate-900">
+                      SOP &amp; Checklist Pembina
+                    </h3>
+                    <p className="text-[0.68rem] text-slate-500">
+                      Verifikasi teknis materi tahap ini
+                    </p>
+                  </div>
+                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700 tabular-nums">
+                    {completedChecks}/{workspace.checklist.length}
+                  </span>
+                </div>
+
+                <div className="mt-3.5 space-y-2">
+                  {workspace.checklist.map((item, index) => (
+                    <label
+                      key={item}
+                      className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-slate-100 p-2.5 text-xs transition hover:bg-slate-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(checklistState[index])}
+                        onChange={() => toggleStageChecklist(activeStage, index)}
+                        className="mt-0.5 size-3.5 rounded border-slate-300 accent-red-600"
+                      />
+                      <span
+                        className={`font-medium leading-snug ${
+                          checklistState[index]
+                            ? "text-slate-400 line-through"
+                            : "text-slate-700"
+                        }`}
+                      >
+                        {item}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-3 pt-3 border-t border-slate-100 text-[0.68rem] text-slate-400">
+                Pembaruan checklist tersimpan otomatis secara real-time.
+              </div>
+            </Card>
+          </div>
+
+          {/* Tabel Evaluasi Kesiapan Santri */}
+          <Card className="overflow-hidden">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 bg-slate-50/50">
+              <div>
+                <h2 className="font-display text-base font-bold text-slate-900">
+                  Evaluasi Kesiapan Santri — {stage.label}
                 </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Langkah wajib sebelum finalisasi.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Menampilkan {visibleCandidates.length} dari {candidates.length} santri binaan MA Mu'allimin
                 </p>
               </div>
-              <Badge tone="info">
-                {checklistState.filter(Boolean).length}/
-                {workspace.checklist.length}
-              </Badge>
+
+              {/* Kontrol Filter & Pencarian */}
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  value={searchFilter}
+                  onChange={(e) => setSearchFilter(e.target.value)}
+                  placeholder="Cari santri..."
+                  className="h-8 w-36 sm:w-44 rounded-lg border border-slate-200 bg-white px-2.5 text-xs outline-none focus:border-slate-400"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {([
+                    ["all", `Semua (${stageCandidates.length})`],
+                    ["passed", `Siap Standar (${passed})`],
+                    ["review", `Penguatan (${attention})`],
+                    ["failed", `Remedial (${failedCount})`],
+                  ] as const).map(([st, lbl]) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setStatusFilter(st)}
+                      className={`h-8 rounded-lg px-2.5 text-xs font-semibold transition ${
+                        statusFilter === st
+                          ? "bg-slate-900 text-white shadow-2xs"
+                          : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="mt-5 grid gap-3">
-              {workspace.checklist.map((item, index) => (
-                <label
-                  key={item}
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 p-3 transition hover:bg-slate-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={Boolean(checklistState[index])}
-                    onChange={() => toggleStageChecklist(activeStage, index)}
-                    className="mt-0.5 size-4 rounded border-slate-300 accent-red-600"
-                  />
-                  <span className="text-sm font-semibold leading-snug text-slate-700">
-                    {item}
-                  </span>
-                </label>
-              ))}
+
+            {/* List Tabel Santri */}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[44rem] text-left text-xs">
+                <thead>
+                  <tr className="bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                    <th className="px-5 py-3">Santri</th>
+                    <th className="px-4 py-3">Capaian / Data Riil</th>
+                    <th className="px-4 py-3">Status Kesiapan</th>
+                    <th className="px-5 py-3 text-right">Aksi Evaluasi 1-Klik</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {visibleCandidates.length ? (
+                    visibleCandidates.map((candidate) => {
+                      const status = candidate.stageStatuses[activeStage]
+                      const metric = getCandidateStageMetric(candidate, activeStage)
+                      return (
+                        <tr key={candidate.id} className="hover:bg-slate-50/70 transition">
+                          <td className="px-5 py-3.5">
+                            <button
+                              type="button"
+                              onClick={() => onSelectCandidate(candidate.id)}
+                              className="flex items-center gap-3 text-left group"
+                            >
+                              <CandidateAvatar
+                                name={candidate.name}
+                                avatar={candidate.avatar}
+                                photoUrl={candidate.photoUrl}
+                                className="size-9 text-xs font-bold shrink-0 border border-slate-200 rounded-lg shadow-2xs"
+                              />
+                              <div>
+                                <p className="font-bold text-slate-900 group-hover:text-red-600 transition">
+                                  {candidate.name}
+                                </p>
+                                <p className="text-[0.68rem] text-slate-500">
+                                  {candidate.number} · {candidate.gender}
+                                </p>
+                              </div>
+                            </button>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`inline-block px-2 py-0.5 rounded-md font-bold text-xs border ${metric.badge}`}
+                              >
+                                {metric.primary}
+                              </span>
+                              <span className="text-[0.68rem] text-slate-500">
+                                {metric.secondary}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <StatusBadge status={status} />
+                          </td>
+                          <td className="px-5 py-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateCandidateStage(candidate.id, activeStage, "passed")
+                                }
+                                className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                                  status === "passed"
+                                    ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                                    : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                                }`}
+                                title="Tandai santri siap standar"
+                              >
+                                Siap
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateCandidateStage(candidate.id, activeStage, "review")
+                                }
+                                className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                                  status === "review"
+                                    ? "bg-amber-500 text-white border-amber-500 shadow-2xs"
+                                    : "bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100"
+                                }`}
+                                title="Tandai butuh penguatan"
+                              >
+                                Penguatan
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateCandidateStage(candidate.id, activeStage, "failed")
+                                }
+                                className={`rounded-lg px-2.5 py-1 text-xs font-bold transition border ${
+                                  status === "failed"
+                                    ? "bg-red-600 text-white border-red-600 shadow-2xs"
+                                    : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                                }`}
+                                title="Tandai butuh remedial"
+                              >
+                                Remedial
+                              </button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="!px-1.5 text-slate-400 hover:text-slate-700"
+                                onClick={() => onSelectCandidate(candidate.id)}
+                                title="Buka profil lengkap"
+                              >
+                                <ChevronRight className="size-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-10 text-center text-sm text-slate-500">
+                        Tidak ada santri yang sesuai filter pencarian.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </Card>
-          <Card className="p-5 sm:p-6">
-            <h2 className="font-display text-lg font-bold text-slate-900">
-              Distribusi status
-            </h2>
-            <div className="mt-5 grid gap-4">
-              {(["passed", "active", "review", "failed"] as StageStatus[]).map(
-                (status) => {
-                  const count = stageCandidates.filter(
-                    (candidate) =>
-                      candidate.stageStatuses[activeStage] === status,
+        </>
+      ) : (
+        /* Matriks Peta Kesiapan 8 Tahap Seleksi */
+        <Card className="overflow-hidden">
+          <div className="border-b border-slate-100 px-5 py-4 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-display text-base font-bold text-slate-900">
+                Matriks Peta Kesiapan 13 Santri (8 Tahap Seleksi)
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pantau seluruh santri lintas 8 materi. Klik kolom atau santri untuk beralih ke materi tersebut.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="flex items-center gap-1 font-medium text-slate-600">
+                <span className="grid size-4 place-items-center rounded bg-emerald-100 text-emerald-800 font-bold text-[0.6rem]">✓</span>
+                Siap
+              </span>
+              <span className="flex items-center gap-1 font-medium text-slate-600">
+                <span className="grid size-4 place-items-center rounded bg-amber-100 text-amber-800 font-bold text-[0.6rem]">!</span>
+                Penguatan
+              </span>
+              <span className="flex items-center gap-1 font-medium text-slate-600">
+                <span className="grid size-4 place-items-center rounded bg-red-100 text-red-800 font-bold text-[0.6rem]">✕</span>
+                Remedial
+              </span>
+              <span className="flex items-center gap-1 font-medium text-slate-600">
+                <span className="grid size-4 place-items-center rounded bg-slate-100 text-slate-500 font-bold text-[0.6rem]">⏳</span>
+                Berjalan
+              </span>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[56rem] text-left text-xs">
+              <thead>
+                <tr className="bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                  <th className="px-4 py-3 sticky left-0 bg-slate-50 z-10 border-r border-slate-200">
+                    Santri
+                  </th>
+                  {selectionStages.map((s, idx) => (
+                    <th
+                      key={s.key}
+                      onClick={() => {
+                        setActiveStage(idx)
+                        setViewMode("stage")
+                      }}
+                      className="px-2 py-3 text-center cursor-pointer hover:bg-red-50 hover:text-red-700 transition"
+                      title={`Klik untuk buka Tahap ${idx + 1}: ${s.label}`}
+                    >
+                      <div className="font-bold text-slate-900">T{idx + 1}</div>
+                      <div className="font-normal text-[0.62rem] text-slate-500 truncate max-w-20 mx-auto">
+                        {s.shortLabel}
+                      </div>
+                    </th>
+                  ))}
+                  <th className="px-4 py-3 text-center">Ringkasan Kesiapan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {candidates.map((cand) => {
+                  const readyCount = cand.stageStatuses.filter(
+                    (s) => s === "passed",
                   ).length
-                  const width = stageCandidates.length
-                    ? Math.max((count / stageCandidates.length) * 100, 3)
-                    : 0
                   return (
-                    <div key={status}>
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                        <span>{stageLabel(status)}</span>
-                        <span>{count}</span>
-                      </div>
-                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className={`h-full rounded-full ${stageTone(status).split(" ")[0]}`}
-                          style={{ width: `${width}%` }}
-                        />
-                      </div>
-                    </div>
+                    <tr key={cand.id} className="hover:bg-slate-50/60 transition">
+                      <td className="px-4 py-3 font-bold text-slate-900 sticky left-0 bg-white z-10 border-r border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => onSelectCandidate(cand.id)}
+                          className="flex items-center gap-2 hover:text-red-600 text-left truncate max-w-48"
+                        >
+                          <span className="grid size-6 place-items-center rounded bg-slate-900 text-[0.62rem] font-bold text-white shrink-0">
+                            {cand.avatar}
+                          </span>
+                          <span className="truncate">{cand.name}</span>
+                        </button>
+                      </td>
+                      {selectionStages.map((s, idx) => {
+                        const st = cand.stageStatuses[idx]
+                        const isPassed = st === "passed"
+                        const isReview = st === "review"
+                        const isFailed = st === "failed"
+                        return (
+                          <td
+                            key={s.key}
+                            onClick={() => {
+                              setActiveStage(idx)
+                              setViewMode("stage")
+                            }}
+                            className="px-2 py-2.5 text-center cursor-pointer hover:bg-slate-100/70"
+                            title={`${cand.name} · Tahap ${idx + 1} (${s.label}): ${stageLabel(st)}`}
+                          >
+                            <span
+                              className={`inline-grid size-6 place-items-center rounded-md text-xs font-bold ${
+                                isPassed
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : isReview
+                                    ? "bg-amber-100 text-amber-800"
+                                    : isFailed
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-slate-100 text-slate-400"
+                              }`}
+                            >
+                              {isPassed ? "✓" : isReview ? "!" : isFailed ? "✕" : "⏳"}
+                            </span>
+                          </td>
+                        )
+                      })}
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold tabular-nums ${
+                            readyCount >= 6
+                              ? "bg-emerald-100 text-emerald-800"
+                              : readyCount >= 4
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {readyCount} / 8 Tahap Siap
+                        </span>
+                      </td>
+                    </tr>
                   )
-                },
-              )}
-            </div>
-          </Card>
-        </div>
-      </div>
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
     </div>
   )
 }
@@ -2200,8 +2817,22 @@ function ProgressView({
 }: {
   onSelectCandidate: (candidateId: string) => void
 }) {
-  const { candidates, activeCycle } = useApp()
+  const { candidates, activeCycle, updateCandidate } = useApp()
   const [selectedId, setSelectedId] = useState(candidates[0]?.id ?? "")
+  const [isEditingSamapta, setIsEditingSamapta] = useState(false)
+  const [samaptaForm, setSamaptaForm] = useState<{
+    run: string
+    pushup: string
+    situp: string
+    backup: string
+    shuttle: string
+  }>({
+    run: "",
+    pushup: "",
+    situp: "",
+    backup: "",
+    shuttle: "",
+  })
 
   const candidate =
     candidates.find((item) => item.id === selectedId) ?? candidates[0]
@@ -2234,6 +2865,194 @@ function ProgressView({
 
   const docsValidCount = (candidate.documents ?? []).filter(Boolean).length
   const docsPercent = Math.round((docsValidCount / 6) * 100)
+
+  const isPutri = candidate.gender === "Putri"
+  const existingMetrics = candidate.physicalMetrics ?? []
+
+  const parseMetricNum = (str: string | undefined): number | null => {
+    if (!str) return null
+    if (str.trim().toUpperCase() === "DNF") return 0
+    const cleaned = str.replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, "")
+    const val = parseFloat(cleaned)
+    return isNaN(val) ? null : val
+  }
+
+  const findMetric = (term: string) => {
+    return existingMetrics.find((m) =>
+      m.label.toLowerCase().includes(term.toLowerCase()) &&
+      m.current &&
+      m.current !== "Belum dicatat" &&
+      m.current !== "Belum diuji" &&
+      m.current !== "—"
+    )
+  }
+
+  const runItem = findMetric("lari")
+  const pushupItem = findMetric("push")
+  const situpItem = findMetric("sit")
+  const backupItem = findMetric("back")
+  const shuttleItem = findMetric("shuttle")
+
+  const runVal = parseMetricNum(runItem?.current)
+  const pushVal = parseMetricNum(pushupItem?.current)
+  const sitVal = parseMetricNum(situpItem?.current)
+  const backVal = parseMetricNum(backupItem?.current)
+  const shuttleVal = parseMetricNum(shuttleItem?.current)
+
+  const handleOpenSamaptaModal = () => {
+    setSamaptaForm({
+      run: runVal !== null ? String(runVal) : "",
+      pushup: pushVal !== null ? String(pushVal) : "",
+      situp: sitVal !== null ? String(sitVal) : "",
+      backup: backVal !== null ? String(backVal) : "",
+      shuttle: shuttleVal !== null ? String(shuttleVal) : "",
+    })
+    setIsEditingSamapta(true)
+  }
+
+  const handleSaveSamapta = () => {
+    const runTarget = isPutri ? 2600 : 3000
+    const pushTarget = isPutri ? 35 : 45
+    const sitTarget = isPutri ? 38 : 40
+    const backTarget = isPutri ? 40 : 50
+    const shuttleTarget = isPutri ? 17.0 : 15.4
+
+    const fRun = samaptaForm.run.trim() !== "" ? parseFloat(samaptaForm.run) : null
+    const fPush = samaptaForm.pushup.trim() !== "" ? parseFloat(samaptaForm.pushup) : null
+    const fSit = samaptaForm.situp.trim() !== "" ? parseFloat(samaptaForm.situp) : null
+    const fBack = samaptaForm.backup.trim() !== "" ? parseFloat(samaptaForm.backup) : null
+    const fShuttle = samaptaForm.shuttle.trim() !== "" ? parseFloat(samaptaForm.shuttle.replace(",", ".")) : null
+
+    const testedScores: number[] = []
+    const newMetrics = []
+
+    if (fRun !== null && !isNaN(fRun)) {
+      testedScores.push(fitnessScore("run", fRun))
+      newMetrics.push({
+        label: "Lari 12 menit",
+        current: `${fRun.toLocaleString("id-ID")} m`,
+        target: `${runTarget.toLocaleString("id-ID")} m`,
+        percent: Math.min(100, Math.round((fRun / runTarget) * 100)),
+      })
+    }
+    if (fPush !== null && !isNaN(fPush)) {
+      testedScores.push(fitnessScore("pushup", fPush))
+      newMetrics.push({
+        label: "Push-up (1 Menit)",
+        current: `${fPush} kali`,
+        target: `${pushTarget} kali`,
+        percent: Math.min(100, Math.round((fPush / pushTarget) * 100)),
+      })
+    }
+    if (fSit !== null && !isNaN(fSit)) {
+      testedScores.push(fitnessScore("situp", fSit))
+      newMetrics.push({
+        label: "Sit-up (1 Menit)",
+        current: `${fSit} kali`,
+        target: `${sitTarget} kali`,
+        percent: Math.min(100, Math.round((fSit / sitTarget) * 100)),
+      })
+    }
+    if (fBack !== null && !isNaN(fBack)) {
+      testedScores.push(fitnessScore("backup", fBack))
+      newMetrics.push({
+        label: "Back-up (1 Menit)",
+        current: `${fBack} kali`,
+        target: `${backTarget} kali`,
+        percent: Math.min(100, Math.round((fBack / backTarget) * 100)),
+      })
+    }
+    if (fShuttle !== null && !isNaN(fShuttle)) {
+      testedScores.push(fitnessScore("shuttle", fShuttle))
+      newMetrics.push({
+        label: "Shuttle Run (6×10m)",
+        current: `${fShuttle.toFixed(1).replace(".", ",")} dtk`,
+        target: `${shuttleTarget.toFixed(1).replace(".", ",")} dtk`,
+        percent: Math.min(100, Math.round((shuttleTarget / fShuttle) * 100)),
+      })
+    }
+
+    const newFitness = testedScores.length > 0
+      ? Number((testedScores.reduce((a, b) => a + b, 0) / testedScores.length).toFixed(1))
+      : null
+
+    updateCandidate(candidate.id, {
+      physicalMetrics: newMetrics,
+      fitness: newFitness,
+    })
+    setIsEditingSamapta(false)
+  }
+
+  const defaultPhysicalList = [
+    {
+      key: "run" as const,
+      label: "Lari 12 Menit",
+      category: "Samapta A",
+      isPrimary: true,
+      current: runItem ? runItem.current : null,
+      target: isPutri ? "2.600 m" : "3.000 m",
+      score: runVal !== null ? fitnessScore("run", runVal) : null,
+      percent: runVal !== null ? Math.min(100, Math.round((runVal / (isPutri ? 2600 : 3000)) * 100)) : null,
+    },
+    {
+      key: "pushup" as const,
+      label: "Push-up (1 Menit)",
+      category: "Samapta B",
+      isPrimary: false,
+      current: pushupItem ? pushupItem.current : null,
+      target: isPutri ? "35 kali" : "45 kali",
+      score: pushVal !== null ? fitnessScore("pushup", pushVal) : null,
+      percent: pushVal !== null ? Math.min(100, Math.round((pushVal / (isPutri ? 35 : 45)) * 100)) : null,
+    },
+    {
+      key: "situp" as const,
+      label: "Sit-up (1 Menit)",
+      category: "Samapta B",
+      isPrimary: false,
+      current: situpItem ? situpItem.current : null,
+      target: isPutri ? "38 kali" : "40 kali",
+      score: sitVal !== null ? fitnessScore("situp", sitVal) : null,
+      percent: sitVal !== null ? Math.min(100, Math.round((sitVal / (isPutri ? 38 : 40)) * 100)) : null,
+    },
+    {
+      key: "backup" as const,
+      label: "Back-up (1 Menit)",
+      category: "Samapta B",
+      isPrimary: false,
+      current: backupItem ? backupItem.current : null,
+      target: isPutri ? "40 kali" : "50 kali",
+      score: backVal !== null ? fitnessScore("backup", backVal) : null,
+      percent: backVal !== null ? Math.min(100, Math.round((backVal / (isPutri ? 40 : 50)) * 100)) : null,
+    },
+    {
+      key: "shuttle" as const,
+      label: "Shuttle Run (6×10m)",
+      category: "Samapta B",
+      isPrimary: false,
+      current: shuttleItem ? shuttleItem.current : null,
+      target: isPutri ? "17,0 dtk" : "15,4 dtk",
+      score: shuttleVal !== null ? fitnessScore("shuttle", shuttleVal) : null,
+      percent: shuttleVal !== null && shuttleVal > 0 ? Math.min(100, Math.round(((isPutri ? 17.0 : 15.4) / shuttleVal) * 100)) : null,
+    },
+  ]
+
+  const formRunVal = samaptaForm.run.trim() !== "" ? parseFloat(samaptaForm.run) : null
+  const formPushVal = samaptaForm.pushup.trim() !== "" ? parseFloat(samaptaForm.pushup) : null
+  const formSitVal = samaptaForm.situp.trim() !== "" ? parseFloat(samaptaForm.situp) : null
+  const formBackVal = samaptaForm.backup.trim() !== "" ? parseFloat(samaptaForm.backup) : null
+  const formShuttleVal = samaptaForm.shuttle.trim() !== "" ? parseFloat(samaptaForm.shuttle.replace(",", ".")) : null
+
+  const modalScores: number[] = []
+  if (formRunVal !== null && !isNaN(formRunVal)) modalScores.push(fitnessScore("run", formRunVal))
+  if (formPushVal !== null && !isNaN(formPushVal)) modalScores.push(fitnessScore("pushup", formPushVal))
+  if (formSitVal !== null && !isNaN(formSitVal)) modalScores.push(fitnessScore("situp", formSitVal))
+  if (formBackVal !== null && !isNaN(formBackVal)) modalScores.push(fitnessScore("backup", formBackVal))
+  if (formShuttleVal !== null && !isNaN(formShuttleVal)) modalScores.push(fitnessScore("shuttle", formShuttleVal))
+
+  const modalCompositeScore = modalScores.length > 0
+    ? (modalScores.reduce((a, b) => a + b, 0) / modalScores.length).toFixed(1)
+    : null
+
   const development = {
     attendance: candidate.attendance ?? 0,
     training: candidate.trainingCompliance ?? 0,
@@ -2241,32 +3060,7 @@ function ProgressView({
     note:
       candidate.coachNote ??
       "Belum ada catatan pelatih. Lengkapi penilaian sesi atau tambahkan catatan evaluasi kandidat.",
-    physical: candidate.physicalMetrics ?? [
-      {
-        label: "Lari 12 menit",
-        current: "Belum diinput",
-        target: "3.000 m",
-        percent: 0,
-      },
-      {
-        label: "Push-up",
-        current: "Belum diinput",
-        target: "43 kali",
-        percent: 0,
-      },
-      {
-        label: "Sit-up",
-        current: "Belum diinput",
-        target: "40 kali",
-        percent: 0,
-      },
-      {
-        label: "Shuttle run",
-        current: "Belum diinput",
-        target: "15,4 dtk",
-        percent: 0,
-      },
-    ],
+    physical: defaultPhysicalList,
   }
 
   const passedCount = candidate.stageStatuses.filter(
@@ -2352,9 +3146,13 @@ function ProgressView({
         <div className="bg-slate-950 p-5 sm:p-6 text-white">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-red-600 font-display text-lg font-bold text-white shadow-lg shadow-red-950/40">
-                {candidate.avatar}
-              </span>
+              <CandidateAvatar
+                name={candidate.name}
+                avatar={candidate.avatar}
+                photoUrl={candidate.photoUrl}
+                className="size-24 sm:size-28 md:size-32 font-display text-2xl sm:text-3xl border-2 border-white/20 shadow-xl shadow-red-950/40 shrink-0"
+                rounded="rounded-2xl"
+              />
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
@@ -2390,12 +3188,12 @@ function ProgressView({
 
               <div className="min-w-36 flex-1 sm:flex-initial">
                 <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-400">Progres materi</span>
-                  <span className="text-red-300 font-bold">{completion}%</span>
+                  <span className="text-slate-400">Tingkat kesiapan</span>
+                  <span className="text-emerald-300 font-bold">{completion}%</span>
                 </div>
                 <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
                   <div
-                    className="h-full rounded-full bg-red-500 transition-all duration-300"
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-300"
                     style={{ width: `${completion}%` }}
                   />
                 </div>
@@ -2408,33 +3206,30 @@ function ProgressView({
         <div className="border-t border-slate-100 bg-slate-50/60 p-4 sm:p-5">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Alur 8 Materi Seleksi &amp; Latihan
+              Peta Kesiapan 8 Materi Latihan
             </p>
             <span className="text-xs font-semibold text-slate-500">
-              {passedCount} dari {selectionStages.length} materi terpenuhi
+              {passedCount} dari {selectionStages.length} materi siap standar
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
             {selectionStages.map((stage, index) => {
-              const status = candidate.stageStatuses[index]
+              const status = candidate.stageStatuses[index] ?? "active"
               const isPassed = status === "passed"
-              const isActive = status === "active"
               const isFailed = status === "failed"
               const isReview = status === "review"
               return (
                 <div
                   key={stage.key}
                   className={`flex flex-col justify-between rounded-xl border p-2.5 text-center transition ${
-                    isActive
-                      ? "border-blue-400 bg-blue-50/70 ring-2 ring-blue-100 shadow-2xs"
-                      : isPassed
-                        ? "border-emerald-200 bg-emerald-50/40"
+                    isPassed
+                      ? "border-emerald-200 bg-emerald-50/60 shadow-2xs"
+                      : isReview
+                        ? "border-amber-200 bg-amber-50/60"
                         : isFailed
-                          ? "border-red-200 bg-red-50/50"
-                          : isReview
-                            ? "border-amber-200 bg-amber-50/50"
-                            : "border-slate-200/70 bg-white"
+                          ? "border-red-200 bg-red-50/60"
+                          : "border-slate-200 bg-white"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">
@@ -2442,13 +3237,11 @@ function ProgressView({
                       className={`grid size-6 place-items-center rounded-full text-[0.68rem] font-bold ${
                         isPassed
                           ? "bg-emerald-600 text-white"
-                          : isActive
-                            ? "bg-blue-600 text-white shadow-xs"
+                          : isReview
+                            ? "bg-amber-500 text-white"
                             : isFailed
                               ? "bg-red-600 text-white"
-                              : isReview
-                                ? "bg-amber-500 text-white"
-                                : "bg-slate-200 text-slate-600"
+                              : "bg-slate-700 text-white"
                       }`}
                     >
                       {index + 1}
@@ -2456,14 +3249,12 @@ function ProgressView({
                     <span
                       className={`text-[0.62rem] font-bold uppercase tracking-wider ${
                         isPassed
-                          ? "text-emerald-700"
-                          : isActive
-                            ? "text-blue-700 font-extrabold"
+                          ? "text-emerald-700 font-extrabold"
+                          : isReview
+                            ? "text-amber-700 font-bold"
                             : isFailed
-                              ? "text-red-700"
-                              : isReview
-                                ? "text-amber-700"
-                                : "text-slate-400"
+                              ? "text-red-700 font-bold"
+                              : "text-slate-500 font-semibold"
                       }`}
                     >
                       {stageLabel(status)}
@@ -2485,98 +3276,313 @@ function ProgressView({
         </div>
       </Card>
 
+      {/* Semua 8 Tahap Punya Kartu Mandiri dengan LineChart */}
+      <StageCards
+        candidate={candidate}
+        onOpenModal={() => onSelectCandidate(candidate.id)}
+      />
+
       <CandidateProjection candidateId={candidate.id} />
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-        <Card className="p-5 sm:p-6">
-          <div className="flex items-start justify-between">
+      <div className="grid gap-6">
+
+        <Card className="overflow-hidden border border-slate-200 shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-white p-5 sm:p-6">
             <div>
-              <h2 className="font-display text-lg font-bold text-slate-900">
-                Perkembangan nilai
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Nilai aktual terhadap target aman.
+              <div className="flex items-center gap-2">
+                <span className="flex size-7 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                  <Activity className="size-4" />
+                </span>
+                <h2 className="font-display text-base sm:text-lg font-bold text-slate-900">
+                  Rekap Uji Kesamaptaan Jasmani (BPIP)
+                </h2>
+              </div>
+              <p className="mt-1 text-xs text-slate-500">
+                Standar Nilai 100: Lari 3.000m · Push-up 45x · Sit-up 40x · Back-up 50x · Shuttle 15,4s
               </p>
             </div>
-            <Target className="size-5 text-red-600" />
+            <div className="flex flex-wrap items-center gap-2">
+              {candidate.fitness !== null && (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-950">
+                  <span className="text-[0.68rem] font-bold uppercase text-emerald-700">Rata-rata:</span>
+                  <span className="font-display font-black text-sm text-emerald-800">{candidate.fitness}</span>
+                  <span className="text-xs text-emerald-600">/ 100</span>
+                </div>
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleOpenSamaptaModal}
+                className="gap-1.5 text-xs font-bold"
+              >
+                <Edit3 className="size-3.5" /> Catat / Edit Nilai
+              </Button>
+            </div>
           </div>
-          <div className="mt-6 grid gap-5">
-            {examScores.map((score) => (
-              <div key={score.label}>
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-600">{score.label}</span>
-                  <span
-                    className={
-                      score.value === null ? "text-slate-400" : "text-slate-900"
-                    }
-                  >
-                    {score.value === null
-                      ? "Belum dinilai"
-                      : `${score.value} / 100`}
-                  </span>
+
+          <div className="divide-y divide-slate-100 bg-white">
+            {defaultPhysicalList.map((metric) => {
+              const isRecorded = metric.current !== null && metric.current !== "Belum dicatat" && metric.current !== "Belum diuji"
+              return (
+                <div
+                  key={metric.key}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 hover:bg-slate-50/70 transition-colors"
+                >
+                  {/* Left: Kategori & Nama Uji */}
+                  <div className="flex items-center gap-3 sm:w-1/3 min-w-0">
+                    <span
+                      className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-md shrink-0 ${
+                        metric.isPrimary
+                          ? "bg-red-50 text-red-700 border border-red-200"
+                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      {metric.category}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-slate-900 truncate">{metric.label}</p>
+                      <p className="text-[0.68rem] text-slate-400">Target 100: <strong className="text-slate-600">{metric.target}</strong></p>
+                    </div>
+                  </div>
+
+                  {/* Middle: Capaian & Nilai BPIP */}
+                  <div className="flex items-center gap-5 sm:w-1/3">
+                    <div>
+                      <span className="text-[0.62rem] uppercase font-bold text-slate-400 block">Hasil</span>
+                      {isRecorded ? (
+                        <span className="font-display text-sm font-bold text-slate-900">
+                          {metric.current}
+                        </span>
+                      ) : (
+                        <span className="font-sans text-xs italic text-slate-400">
+                          Belum diuji
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="pl-4 border-l border-slate-100">
+                      <span className="text-[0.62rem] uppercase font-bold text-slate-400 block">Poin BPIP</span>
+                      {isRecorded && metric.score !== null ? (
+                        <span className={`text-xs font-bold ${metric.score >= 85 ? "text-emerald-600" : metric.score >= 70 ? "text-blue-600" : "text-amber-600"}`}>
+                          {metric.score} Poin
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right: Progress Bar & Status */}
+                  <div className="flex items-center justify-end gap-3 sm:w-1/3">
+                    {isRecorded && metric.percent !== null ? (
+                      <div className="w-full max-w-[140px] space-y-1">
+                        <div className="flex justify-between text-[0.68rem]">
+                          <span className="text-slate-400">Kesiapan</span>
+                          <span className="font-bold text-slate-700">{metric.percent}%</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              metric.percent >= 90
+                                ? "bg-emerald-500"
+                                : metric.percent >= 75
+                                  ? "bg-blue-600"
+                                  : "bg-amber-500"
+                            }`}
+                            style={{ width: `${Math.min(100, metric.percent)}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 text-[0.68rem] font-medium text-slate-400 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
+                        Menunggu Pengujian
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="relative mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className={`h-full rounded-full ${
-                      score.value !== null && score.value >= score.target
-                        ? "bg-emerald-500"
-                        : score.value !== null
-                          ? "bg-amber-400"
-                          : "bg-slate-200"
-                    }`}
-                    style={{ width: `${score.value ?? 0}%` }}
-                  />
-                  <span
-                    className="absolute inset-y-0 w-0.5 bg-slate-700/50"
-                    style={{ left: `${score.target}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              )
+            })}
+          </div>
+
+          {/* Footer note */}
+          <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            <span className="text-[0.72rem]">
+              Passing grade kelulusan jasmani BPIP: <strong className="text-slate-700">Rata-rata &ge; 75.0</strong>.
+            </span>
+            <span className="text-[0.68rem] text-slate-400">
+              Terakhir diperbarui: {candidate.updatedAt || "Hari ini"}
+            </span>
           </div>
         </Card>
 
-        <Card className="p-5 sm:p-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h2 className="font-display text-lg font-bold text-slate-900">
-                Kesiapan fisik
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Hasil latihan terbaru terhadap target.
-              </p>
-            </div>
-            <Activity className="size-5 text-red-600" />
-          </div>
-          <div className="mt-6 grid gap-4">
-            {development.physical.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-xl border border-slate-100 p-3.5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold text-slate-800">
-                      {metric.label}
-                    </p>
-                    <p className="mt-0.5 text-xs text-slate-500">
-                      Target {metric.target}
-                    </p>
-                  </div>
-                  <p className="text-sm font-bold tabular-nums text-slate-900">
-                    {metric.current}
+        {/* Modal Catat / Edit Hasil Tes Samapta Mandiri */}
+        {isEditingSamapta && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs">
+            <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+              <div className="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="font-display text-lg font-bold text-slate-900">
+                    Input / Catat Hasil Tes Samapta
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    {candidate.name} ({candidate.number} · {candidate.gender})
                   </p>
                 </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-blue-500"
-                    style={{ width: `${metric.percent}%` }}
+                <button
+                  type="button"
+                  onClick={() => setIsEditingSamapta(false)}
+                  className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700">
+                    Lari 12 Menit (Jarak dalam meter)
+                  </label>
+                  <p className="text-[0.68rem] text-slate-400">
+                    Target nilai 100: {isPutri ? "2.600 m" : "3.000 m"}
+                  </p>
+                  <input
+                    type="number"
+                    step="10"
+                    placeholder={isPutri ? "Target 2.600 m" : "Target 3.000 m"}
+                    value={samaptaForm.run}
+                    onChange={(e) =>
+                      setSamaptaForm({
+                        ...samaptaForm,
+                        run: e.target.value,
+                      })
+                    }
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold focus:border-red-500 focus:outline-none"
                   />
                 </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Push-up 1 Menit (kali)
+                    </label>
+                    <p className="text-[0.68rem] text-slate-400">
+                      Target: {isPutri ? "35 kali" : "45 kali"}
+                    </p>
+                    <input
+                      type="number"
+                      placeholder="Belum diuji"
+                      value={samaptaForm.pushup}
+                      onChange={(e) =>
+                        setSamaptaForm({
+                          ...samaptaForm,
+                          pushup: e.target.value,
+                        })
+                      }
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Sit-up 1 Menit (kali)
+                    </label>
+                    <p className="text-[0.68rem] text-slate-400">
+                      Target: {isPutri ? "38 kali" : "40 kali"}
+                    </p>
+                    <input
+                      type="number"
+                      placeholder="Belum diuji"
+                      value={samaptaForm.situp}
+                      onChange={(e) =>
+                        setSamaptaForm({
+                          ...samaptaForm,
+                          situp: e.target.value,
+                        })
+                      }
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Back-up 1 Menit (kali)
+                    </label>
+                    <p className="text-[0.68rem] text-slate-400">
+                      Target: {isPutri ? "40 kali" : "50 kali"}
+                    </p>
+                    <input
+                      type="number"
+                      placeholder="Belum diuji"
+                      value={samaptaForm.backup}
+                      onChange={(e) =>
+                        setSamaptaForm({
+                          ...samaptaForm,
+                          backup: e.target.value,
+                        })
+                      }
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700">
+                      Shuttle Run 6×10m (detik)
+                    </label>
+                    <p className="text-[0.68rem] text-slate-400">
+                      Target: {isPutri ? "17,0 dtk" : "15,4 dtk"}
+                    </p>
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="Belum diuji"
+                      value={samaptaForm.shuttle}
+                      onChange={(e) =>
+                        setSamaptaForm({
+                          ...samaptaForm,
+                          shuttle: e.target.value,
+                        })
+                      }
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold focus:border-red-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Preview Skor BPIP */}
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-600">
+                      Estimasi Skor Samapta Standar BPIP:
+                    </span>
+                    {modalCompositeScore !== null ? (
+                      <span className="font-display text-base font-black text-emerald-700">
+                        {modalCompositeScore}{" "}
+                        <span className="text-xs font-normal text-slate-500">
+                          / 100 ({modalScores.length} parameter terisi)
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-xs italic text-slate-400">
+                        Belum ada parameter yang diisi
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-            ))}
+
+              <div className="mt-6 flex justify-end gap-2 border-t border-slate-100 pt-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsEditingSamapta(false)}
+                >
+                  Batal
+                </Button>
+                <Button variant="primary" onClick={handleSaveSamapta}>
+                  <Check className="size-4" /> Simpan Hasil Tes
+                </Button>
+              </div>
+            </div>
           </div>
-        </Card>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -2647,6 +3653,7 @@ function RankingView({
   const [genderFilter, setGenderFilter] = useState<"all" | "Putra" | "Putri">(
     "all",
   )
+  const [searchQuery, setSearchQuery] = useState("")
 
   const ranked = useMemo(
     () =>
@@ -2655,18 +3662,29 @@ function RankingView({
         .map((candidate) => ({ candidate, score: finalScore(candidate) }))
         .filter(
           (item): item is { candidate: Candidate, score: number } =>
-            item.score !== null && isPhaseOnePassed(item.candidate),
+            item.score !== null && item.score > 0,
         )
         .sort(compareRankedCandidates),
     [candidates, genderFilter],
   )
+
+  const filteredRanked = useMemo(() => {
+    if (!searchQuery.trim()) return ranked
+    const q = searchQuery.toLowerCase().trim()
+    return ranked.filter(
+      (item) =>
+        item.candidate.name.toLowerCase().includes(q) ||
+        item.candidate.number.toLowerCase().includes(q) ||
+        item.candidate.school.toLowerCase().includes(q),
+    )
+  }, [ranked, searchQuery])
 
   const unranked = useMemo(
     () =>
       candidates.filter(
         (c) =>
           (genderFilter === "all" || c.gender === genderFilter) &&
-          (!isPhaseOnePassed(c) || finalScore(c) === null),
+          (finalScore(c) === null || (finalScore(c) ?? 0) <= 0),
       ),
     [candidates, genderFilter],
   )
@@ -2676,14 +3694,13 @@ function RankingView({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-red-600">
-            Simulasi Penjurian Lapangan · Kabupaten/Kota
+            Simulasi &amp; Evaluasi Latihan · MA Mu'allimin Yogyakarta
           </p>
           <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Pemeringkatan akhir
+            Pemeringkatan sementara latihan
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Formula: PBB 30% + Samapta 30% + Kepribadian 40% (Tie-break:
-            Kepribadian → PBB → Samapta → Nomor Peserta).
+            Peringkat dinamis berbasis capaian nilai latihan yang sudah tercatat.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -2695,7 +3712,7 @@ function RankingView({
               <ShieldCheck className="size-4" />{" "}
               {rankingPublished
                 ? "Tarik Publikasi Hasil"
-                : "Publikasikan Hasil"}
+                : "Publikasikan Hasil Sementara"}
             </Button>
           ) : null}
           <Button variant="secondary" onClick={() => exportRankingCsv(ranked)}>
@@ -2704,160 +3721,235 @@ function RankingView({
         </div>
       </div>
 
-      <div
-        className={`rounded-2xl border p-4 text-sm ${
-          rankingPublished
-            ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-            : "border-amber-200 bg-amber-50 text-amber-900"
-        }`}
-      >
-        <div className="flex gap-3">
-          <ShieldCheck className="mt-0.5 size-5 shrink-0" />
-          <div>
-            <p className="font-bold">
-              {rankingPublished
-                ? "Status: Dipublikasikan ke Portal Internal Kandidat"
-                : "Status: Simulasi Internal (Draft Belum Dipublikasikan)"}
-            </p>
-            <p className="mt-1 opacity-90">
-              Hanya santri yang telah memenuhi seluruh standar dasar (Tahap 1–5) dan
-              memiliki ketiga nilai simulasi lapangan lengkap yang masuk ke tabel
-              pemeringkatan.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
           <div>
             <h2 className="font-display text-lg font-bold text-slate-900">
-              Leaderboard pemeringkatan
+              Leaderboard kesiapan sementara
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              {ranked.length} kandidat memenuhi syarat & memiliki penilaian
-              lengkap
+              {filteredRanked.length} santri aktif
             </p>
           </div>
-          <div className="flex gap-2">
-            {(["all", "Putra", "Putri"] as const).map((g) => (
-              <button
-                key={g}
-                onClick={() => setGenderFilter(g)}
-                className={`rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-                  genderFilter === g
-                    ? "bg-slate-950 text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {g === "all" ? "Semua Gender" : g}
-              </button>
-            ))}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari nama atau nomor..."
+                className="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-8 text-xs placeholder:text-slate-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="size-3.5" />
+                </button>
+              ) : null}
+            </div>
+
+            <div className="flex gap-1.5">
+              {(["all", "Putra", "Putri"] as const).map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setGenderFilter(g)}
+                  className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
+                    genderFilter === g
+                      ? "bg-slate-950 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {g === "all" ? "Semua Gender" : g}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* Mobile View */}
         <div className="grid divide-y divide-slate-100 md:hidden">
-          {ranked.map(({ candidate, score }, index) => {
-            const band = getQuotaBand(index + 1)
-            return (
-              <button
-                type="button"
-                onClick={() => onSelectCandidate(candidate.id)}
-                className="p-4 text-left"
-                key={candidate.id}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`grid size-10 place-items-center rounded-xl font-display text-sm font-bold ${
-                      index === 0
-                        ? "bg-amber-400 text-amber-950"
-                        : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {index + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-slate-900">
-                      {candidate.name}
-                    </p>
-                    <p className="mt-0.5 text-xs text-slate-500">
-                      {candidate.number} · {candidate.gender}
+          {filteredRanked.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-sm">
+              Tidak ada santri yang sesuai dengan filter pencarian.
+            </div>
+          ) : (
+            filteredRanked.map(({ candidate, score }) => {
+              const actualRank =
+                ranked.findIndex((r) => r.candidate.id === candidate.id) + 1
+              const band = getQuotaBand(actualRank)
+
+              return (
+                <button
+                  type="button"
+                  onClick={() => onSelectCandidate(candidate.id)}
+                  className="p-4 text-left transition hover:bg-slate-50"
+                  key={candidate.id}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`grid size-9 shrink-0 place-items-center rounded-xl font-display text-sm font-bold ${
+                        actualRank === 1
+                          ? "bg-amber-400 text-amber-950"
+                          : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {actualRank}
+                    </span>
+                    <CandidateAvatar
+                      name={candidate.name}
+                      avatar={candidate.avatar}
+                      photoUrl={candidate.photoUrl}
+                      className="size-12 shrink-0 border border-slate-200 text-sm font-bold shadow-xs"
+                      rounded="rounded-xl"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-slate-900">
+                        {candidate.name}
+                      </p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {candidate.number} · {candidate.gender}
+                        {candidate.heightCm ? ` · ${candidate.heightCm} cm` : ""}
+                      </p>
+                    </div>
+                    <p className="font-display text-lg font-bold tabular-nums text-emerald-600">
+                      {score.toFixed(2)}
                     </p>
                   </div>
-                  <p className="font-display text-xl font-bold tabular-nums text-red-600">
-                    {score.toFixed(2)}
-                  </p>
-                </div>
-                <div className="mt-2 pl-13">
-                  <Badge tone={band.tone}>{band.label}</Badge>
-                </div>
-              </button>
-            )
-          })}
+                  <div className="mt-2 pl-12">
+                    <Badge tone={band.tone}>{band.label}</Badge>
+                  </div>
+                </button>
+              )
+            })
+          )}
         </div>
 
+        {/* Desktop Table: Bersih, Rapi & Fungsional */}
         <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[54rem] text-left">
             <thead className="bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="px-6 py-3.5">Peringkat</th>
-                <th className="px-4 py-3.5">Kandidat</th>
+                <th className="px-5 py-3.5 text-center w-16">Peringkat</th>
+                <th className="px-4 py-3.5">Santri</th>
+                <th className="px-4 py-3.5">Postur</th>
                 <th className="px-4 py-3.5">PBB · 30%</th>
                 <th className="px-4 py-3.5">Samapta · 30%</th>
                 <th className="px-4 py-3.5">Kepribadian · 40%</th>
-                <th className="px-4 py-3.5">Kuota Simulasi</th>
-                <th className="px-6 py-3.5">Nilai akhir</th>
+                <th className="px-4 py-3.5">Kategori Proyeksi</th>
+                <th className="px-6 py-3.5 text-right">Nilai Sementara</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {ranked.map(({ candidate, score }, index) => {
-                const band = getQuotaBand(index + 1)
-                return (
-                  <tr
-                    key={candidate.id}
-                    onClick={() => onSelectCandidate(candidate.id)}
-                    className="cursor-pointer hover:bg-slate-50/70"
-                  >
-                    <td className="px-6 py-5">
-                      <span
-                        className={`grid size-9 place-items-center rounded-xl font-display text-sm font-bold ${
-                          index === 0
-                            ? "bg-amber-400 text-amber-950"
-                            : "bg-slate-100 text-slate-700"
-                        }`}
-                      >
-                        {index + 1}
-                      </span>
-                    </td>
-                    <td className="px-4 py-5">
-                      <p className="font-bold text-slate-900">
-                        {candidate.name}
-                      </p>
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        {candidate.number} · {candidate.gender} ·{" "}
-                        {candidate.school}
-                      </p>
-                    </td>
-                    <td className="px-4 py-5 font-semibold tabular-nums text-slate-700">
-                      {candidate.pbb?.toFixed(1)}
-                    </td>
-                    <td className="px-4 py-5 font-semibold tabular-nums text-slate-700">
-                      {candidate.fitness?.toFixed(1)}
-                    </td>
-                    <td className="px-4 py-5 font-semibold tabular-nums text-slate-700">
-                      {candidate.personality?.toFixed(1)}
-                    </td>
-                    <td className="px-4 py-5">
-                      <Badge tone={band.tone}>{band.label}</Badge>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="font-display text-xl font-bold tabular-nums text-red-600">
-                        {score.toFixed(2)}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
+              {filteredRanked.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-slate-500 text-sm">
+                    Tidak ada santri yang sesuai dengan filter pencarian "{searchQuery}".
+                  </td>
+                </tr>
+              ) : (
+                filteredRanked.map(({ candidate, score }) => {
+                  const actualRank =
+                    ranked.findIndex((r) => r.candidate.id === candidate.id) + 1
+                  const band = getQuotaBand(actualRank)
+
+                  return (
+                    <tr
+                      key={candidate.id}
+                      onClick={() => onSelectCandidate(candidate.id)}
+                      className="cursor-pointer transition hover:bg-slate-50/80"
+                    >
+                      {/* Peringkat */}
+                      <td className="px-5 py-4 text-center">
+                        <span
+                          className={`grid size-8 place-items-center rounded-lg font-display text-sm font-bold mx-auto ${
+                            actualRank === 1
+                              ? "bg-amber-400 text-amber-950 font-black shadow-xs"
+                              : "bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          {actualRank}
+                        </span>
+                      </td>
+
+                      {/* Santri */}
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <CandidateAvatar
+                            name={candidate.name}
+                            avatar={candidate.avatar}
+                            photoUrl={candidate.photoUrl}
+                            className="size-11 shrink-0 border border-slate-200 text-xs font-bold shadow-xs"
+                            rounded="rounded-xl"
+                          />
+                          <div>
+                            <p className="font-bold text-slate-900 hover:text-red-600 transition">
+                              {candidate.name}
+                            </p>
+                            <p className="mt-0.5 text-xs text-slate-500">
+                              {candidate.number} · {candidate.gender}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Postur: Simpel & Bersih */}
+                      <td className="px-4 py-4 text-xs font-medium text-slate-700 tabular-nums">
+                        {candidate.heightCm ? (
+                          <span>
+                            {candidate.heightCm} cm / {candidate.weightKg ?? "—"} kg
+                          </span>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+
+                      {/* PBB (30%) */}
+                      <td className="px-4 py-4 text-sm font-semibold tabular-nums text-slate-800">
+                        {candidate.pbb !== null ? (
+                          candidate.pbb.toFixed(1)
+                        ) : (
+                          <span className="text-slate-400 font-normal">—</span>
+                        )}
+                      </td>
+
+                      {/* Samapta (30%) */}
+                      <td className="px-4 py-4 text-sm font-semibold tabular-nums text-slate-800">
+                        {candidate.fitness !== null ? (
+                          candidate.fitness.toFixed(1)
+                        ) : (
+                          <span className="text-slate-400 font-normal">—</span>
+                        )}
+                      </td>
+
+                      {/* Kepribadian (40%) */}
+                      <td className="px-4 py-4 text-sm font-semibold tabular-nums text-slate-800">
+                        {candidate.personality !== null ? (
+                          candidate.personality.toFixed(1)
+                        ) : (
+                          <span className="text-slate-400 font-normal">—</span>
+                        )}
+                      </td>
+
+                      {/* Kategori Proyeksi */}
+                      <td className="px-4 py-4">
+                        <Badge tone={band.tone}>{band.label}</Badge>
+                      </td>
+
+                      {/* Nilai Akhir */}
+                      <td className="px-6 py-4 text-right">
+                        <span className="font-display text-xl font-bold tabular-nums text-emerald-600">
+                          {score.toFixed(2)}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -2867,24 +3959,17 @@ function RankingView({
         <Card className="overflow-hidden">
           <div className="border-b border-slate-100 px-6 py-4">
             <h3 className="font-display text-base font-bold text-slate-900">
-              Kandidat belum masuk pemeringkatan ({unranked.length})
+              Santri menunggu penilaian susulan ({unranked.length})
             </h3>
             <p className="text-xs text-slate-500">
-              Klik kandidat untuk melengkapi nilai simulasi lapangan atau melihat
-              catatan evaluasi standar dasar.
+              Santri yang berhalangan hadir pada sesi sebelumnya (izin/sakit/alpa) dan belum memiliki data nilai latihan.
             </p>
           </div>
           <div className="divide-y divide-slate-100">
             {unranked.map((cand) => {
-              const failedIdx = cand.stageStatuses.findIndex(
-                (s) => s === "failed",
-              )
               const reason =
-                failedIdx !== -1
-                  ? `Catatan khusus pada Tahap ${failedIdx + 1} (${selectionStages[failedIdx]?.label})`
-                  : !isPhaseOnePassed(cand)
-                    ? `Masih dalam evaluasi standar dasar (Tahap ${cand.stage})`
-                    : "Menunggu kelengkapan nilai PBB / Samapta / Kepribadian"
+                cand.coachNote ||
+                "Belum ada catatan nilai dari sesi latihan sebelumnya"
 
               return (
                 <button
@@ -2894,9 +3979,13 @@ function RankingView({
                   className="flex w-full flex-wrap items-center justify-between gap-3 px-6 py-3.5 text-left hover:bg-slate-50"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-xl bg-slate-200 text-xs font-bold text-slate-700">
-                      {cand.avatar}
-                    </span>
+                    <CandidateAvatar
+                      name={cand.name}
+                      avatar={cand.avatar}
+                      photoUrl={cand.photoUrl}
+                      className="size-12 text-sm font-bold shrink-0 border border-slate-200 shadow-xs"
+                      rounded="rounded-xl"
+                    />
                     <div>
                       <p className="text-sm font-bold text-slate-900">
                         {cand.name} ({cand.number})
@@ -2904,8 +3993,8 @@ function RankingView({
                       <p className="text-xs text-slate-500">{reason}</p>
                     </div>
                   </div>
-                  <Badge tone={failedIdx !== -1 ? "danger" : "warning"}>
-                    {failedIdx !== -1 ? "Perlu Pembinaan" : "Belum Lengkap"}
+                  <Badge tone="warning">
+                    Perlu Sesi Susulan
                   </Badge>
                 </button>
               )
@@ -3202,7 +4291,7 @@ function StandardsView() {
 }
 
 function AppShell() {
-  const { isAuthenticated, toast, clearToast } = useApp()
+  const { isAuthenticated, toast, clearToast, currentUser } = useApp()
   const [view, setView] = useState<View>("overview")
   const [activeStage, setActiveStage] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -3210,94 +4299,126 @@ function AppShell() {
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(
     null,
   )
-  const [showUsersModal, setShowUsersModal] = useState(false)
   const [showGoogleSync, setShowGoogleSync] = useState(false)
+  const [showCandidateLogin, setShowCandidateLogin] = useState(false)
+
+  // Security Route Guard: Candidate restricted views
+  useEffect(() => {
+    if (currentUser?.role === "candidate") {
+      const allowedViews: View[] = ["cat-bank", "guide", "documents", "ishihara"]
+      if (!allowedViews.includes(view)) {
+        setView("cat-bank")
+      }
+    }
+  }, [currentUser?.role, view])
 
   if (!isAuthenticated) {
     return <LoginScreen />
+  }
+
+  const handleViewChange = (nextView: View) => {
+    setSelectedCandidateId(null)
+    setView(nextView)
   }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <Sidebar
         view={view}
-        onView={setView}
+        onView={handleViewChange}
         mobileOpen={mobileOpen}
         onClose={() => setMobileOpen(false)}
         onOpenGoogleSync={() => setShowGoogleSync(true)}
-        onOpenUsersModal={() => setShowUsersModal(true)}
       />
-      <div className="lg:pl-64">
+      <div className="lg:pl-72">
         <Header
           onMenu={() => setMobileOpen(true)}
-          onView={setView}
+          onView={handleViewChange}
           onSelectCandidate={(id) => setSelectedCandidateId(id)}
-          onOpenUsersModal={() => setShowUsersModal(true)}
           onOpenGoogleSync={() => setShowGoogleSync(true)}
         />
         <main className="mx-auto max-w-[100rem] px-4 pb-28 pt-5 sm:px-5 md:p-8">
-          {view === "overview" ? (
-            <Overview
-              onOpenAddCandidate={() => setShowAddCandidate(true)}
-              onSelectCandidate={(id) => setSelectedCandidateId(id)}
-              onNavigateView={setView}
-              onNavigateStage={(idx) => {
-                setActiveStage(idx)
-                setView("stages")
-              }}
+          {selectedCandidateId ? (
+            <CandidateDetailView
+              candidateId={selectedCandidateId}
+              onClose={() => setSelectedCandidateId(null)}
             />
-          ) : null}
-          {view === "sessions" ? (
-            <Suspense fallback={<PageLoader />}>
-              <SimulationCenter />
-            </Suspense>
-          ) : null}
-          {view === "guide" ? (
-            <Suspense fallback={<PageLoader />}>
-              <GuideView />
-            </Suspense>
-          ) : null}
-          {view === "stages" ? (
-            <StagesView
-              activeStage={activeStage}
-              setActiveStage={setActiveStage}
-              onSelectCandidate={(id) => setSelectedCandidateId(id)}
-              onNavigateSessions={() => setView("sessions")}
-            />
-          ) : null}
-          {view === "candidates" ? (
-            <CandidatesView
-              onOpenAddCandidate={() => setShowAddCandidate(true)}
-              onSelectCandidate={(id) => setSelectedCandidateId(id)}
-            />
-          ) : null}
-          {view === "progress" ? (
-            <ProgressView
-              onSelectCandidate={(id) => setSelectedCandidateId(id)}
-            />
-          ) : null}
-          {view === "ranking" ? (
-            <RankingView
-              onSelectCandidate={(id) => setSelectedCandidateId(id)}
-            />
-          ) : null}
-          {view === "standards" ? <StandardsView /> : null}
-          {view === "cat-bank" ? (
-            <Suspense fallback={<PageLoader />}>
-              <CatBankView />
-            </Suspense>
-          ) : null}
-          {view === "documents" ? (
-            <Suspense fallback={<PageLoader />}>
-              <DocumentsView />
-            </Suspense>
-          ) : null}
+          ) : (
+            <>
+              {view === "overview" ? (
+                <Overview
+                  onOpenAddCandidate={() => setShowAddCandidate(true)}
+                  onSelectCandidate={(id) => setSelectedCandidateId(id)}
+                  onNavigateView={handleViewChange}
+                  onNavigateStage={(idx) => {
+                    setActiveStage(idx)
+                    handleViewChange("stages")
+                  }}
+                />
+              ) : null}
+              {view === "sessions" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <SimulationCenter />
+                </Suspense>
+              ) : null}
+              {view === "guide" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <GuideView />
+                </Suspense>
+              ) : null}
+              {view === "stages" ? (
+                <StagesView
+                  activeStage={activeStage}
+                  setActiveStage={setActiveStage}
+                  onSelectCandidate={(id) => setSelectedCandidateId(id)}
+                  onNavigateSessions={() => handleViewChange("sessions")}
+                />
+              ) : null}
+              {view === "candidates" ? (
+                <CandidatesView
+                  onOpenAddCandidate={() => setShowAddCandidate(true)}
+                  onSelectCandidate={(id) => setSelectedCandidateId(id)}
+                />
+              ) : null}
+              {view === "progress" ? (
+                <ProgressView
+                  onSelectCandidate={(id) => setSelectedCandidateId(id)}
+                />
+              ) : null}
+              {view === "ranking" ? (
+                <RankingView
+                  onSelectCandidate={(id) => setSelectedCandidateId(id)}
+                />
+              ) : null}
+              {view === "standards" ? <StandardsView /> : null}
+              {view === "cat-bank" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <CatBankView />
+                </Suspense>
+              ) : null}
+              {view === "documents" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <DocumentsView />
+                </Suspense>
+              ) : null}
+              {view === "ishihara" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <IshiharaView />
+                </Suspense>
+              ) : null}
+              {view === "users-audit" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <UsersAuditView onNavigate={handleViewChange} />
+                </Suspense>
+              ) : null}
+            </>
+          )}
         </main>
       </div>
 
       <MobileNav
         view={view}
-        onView={setView}
+        onView={handleViewChange}
         onMenu={() => setMobileOpen(true)}
       />
 
@@ -3306,14 +4427,13 @@ function AppShell() {
         onClose={() => setShowAddCandidate(false)}
       />
 
-      <CandidateDetailModal
-        candidateId={selectedCandidateId}
-        onClose={() => setSelectedCandidateId(null)}
-      />
-
-      <UsersAndAuditModal
-        open={showUsersModal}
-        onClose={() => setShowUsersModal(false)}
+      <CandidateLoginModal
+        open={showCandidateLogin}
+        onClose={() => setShowCandidateLogin(false)}
+        onLoggedIn={() => {
+          setSelectedCandidateId(null)
+          setView("cat-bank")
+        }}
       />
 
       <GoogleSheetSyncModal

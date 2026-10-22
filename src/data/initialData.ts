@@ -10,6 +10,7 @@ import type {
   SupportingDoc,
   UserProfile,
 } from "../domain/selection"
+import { standardCatQuestions } from "./catQuestions"
 
 export const initialCycles: SelectionCycle[] = [
   {
@@ -41,7 +42,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "DA",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -81,7 +82,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "MA",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -96,7 +97,7 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.720 m",
+        current: "2.740 m",
         target: "3.000 m",
         percent: 91,
       },
@@ -121,7 +122,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "MI",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -136,9 +137,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.720 m",
+        current: "2.710 m",
         target: "3.000 m",
-        percent: 91,
+        percent: 90,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -161,7 +162,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "AD",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -176,9 +177,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.560 m",
+        current: "2.580 m",
         target: "3.000 m",
-        percent: 85,
+        percent: 86,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -201,7 +202,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "TY",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -216,9 +217,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.560 m",
+        current: "2.520 m",
         target: "3.000 m",
-        percent: 85,
+        percent: 84,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -241,7 +242,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "GR",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -256,9 +257,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.560 m",
+        current: "2.480 m",
         target: "3.000 m",
-        percent: 85,
+        percent: 83,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -281,7 +282,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "YB",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -296,9 +297,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.560 m",
+        current: "2.420 m",
         target: "3.000 m",
-        percent: 85,
+        percent: 81,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -321,7 +322,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "MH",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -336,9 +337,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.560 m",
+        current: "2.390 m",
         target: "3.000 m",
-        percent: 85,
+        percent: 80,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -361,7 +362,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "MI",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "active", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "passed", "active"],
     attendance: 100,
     trainingCompliance: 100,
     anthropometryHistory: [
@@ -376,9 +377,9 @@ export const candidates: Candidate[] = [
     physicalMetrics: [
       {
         label: "Lari 12 menit",
-        current: "2.560 m",
+        current: "2.350 m",
         target: "3.000 m",
-        percent: 85,
+        percent: 78,
       },
     ],
     updatedAt: "21 Okt 2026",
@@ -401,7 +402,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "MF",
     stage: 7,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "active", "review", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "active", "review", "active"],
     attendance: 100,
     trainingCompliance: 50,
     coachNote: "Status sesi: DNF pada lari 12 menit",
@@ -442,7 +443,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "NF",
     stage: 6,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "review", "review", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "review", "review", "active"],
     attendance: 0,
     trainingCompliance: 0,
     coachNote: "Status sesi: IZIN",
@@ -476,7 +477,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "YA",
     stage: 6,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "review", "review", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "review", "review", "active"],
     attendance: 0,
     trainingCompliance: 0,
     coachNote: "Status sesi: SAKIT",
@@ -510,7 +511,7 @@ export const candidates: Candidate[] = [
     documents: [true, true, true, true, true, true],
     avatar: "RI",
     stage: 6,
-    stageStatuses: ["passed", "passed", "passed", "passed", "passed", "review", "review", "locked"],
+    stageStatuses: ["passed", "active", "active", "active", "active", "review", "review", "active"],
     attendance: 0,
     trainingCompliance: 0,
     coachNote: "Status sesi: ALPA",
@@ -850,7 +851,7 @@ export const initialRecords: Record<string, SessionRecord> = {
 
 export const initialSchedules: SelectionSchedule[] = []
 
-export const initialQuestions: CatQuestion[] = []
+export const initialQuestions: CatQuestion[] = standardCatQuestions
 
 export const initialSupportingDocs: SupportingDoc[] = []
 
@@ -898,3 +899,52 @@ export const initialUsers: UserProfile[] = [
 ]
 
 export const initialAuditLogs: AuditLogEntry[] = []
+
+export const initialAuthorizedAccounts = [
+  {
+    id: "auth-1",
+    emailNormalized: "coach.andi@muallimin.sch.id",
+    fullName: "Coach Andi",
+    role: "admin" as const,
+    isAllowed: true,
+    approvedBy: "Sistem Seleksi",
+    approvedAt: "2026-10-01T08:00:00Z",
+    createdAt: "2026-10-01T08:00:00Z",
+    notes: "Pelatih Kepala & Koordinator Tim Seleksi",
+  },
+  {
+    id: "auth-2",
+    emailNormalized: "medis.paskibra@muallimin.sch.id",
+    fullName: "dr. Hendra (Tim Medis)",
+    role: "operator" as const,
+    isAllowed: true,
+    approvedBy: "Coach Andi",
+    approvedAt: "2026-10-05T09:30:00Z",
+    createdAt: "2026-10-05T09:30:00Z",
+    notes: "Pengawas & Operator Skrining Rikkes Tahap 4",
+  },
+  {
+    id: "auth-3",
+    emailNormalized: "devga.aulia@santri.muallimin.sch.id",
+    fullName: "DEVGA AULIA",
+    role: "participant" as const,
+    participantId: "cand-1792581332351-q04",
+    isAllowed: true,
+    approvedBy: "Coach Andi",
+    approvedAt: "2026-10-10T10:00:00Z",
+    createdAt: "2026-10-10T10:00:00Z",
+    notes: "Peserta Seleksi KAB-27-003",
+  },
+  {
+    id: "auth-4",
+    emailNormalized: "farhan.k@santri.muallimin.sch.id",
+    fullName: "M. FARHAN KURNIAWAN",
+    role: "participant" as const,
+    participantId: "cand-1792581332351-y08",
+    isAllowed: true,
+    approvedBy: "Coach Andi",
+    approvedAt: "2026-10-10T10:00:00Z",
+    createdAt: "2026-10-10T10:00:00Z",
+    notes: "Peserta Seleksi KAB-27-004",
+  },
+]

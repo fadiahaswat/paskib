@@ -1,23 +1,38 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   Activity,
+  ArrowRight,
   BookOpenCheck,
   Calculator,
   CalendarDays,
+  Check,
   CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
   ClipboardList,
   Dumbbell,
+  Eye,
+  Filter,
   HeartPulse,
+  ListFilter,
   MapPin,
+  Minus,
   Plus,
+  RotateCcw,
   Save,
+  Search,
   ShieldCheck,
+  Sparkles,
   Target,
   Trash2,
   UserRound,
   UsersRound,
+  X,
+  Zap,
 } from "lucide-react"
-import { Badge, Button, Card, Input } from "../../components/ui"
+import { Badge, Button, CandidateAvatar, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import PbbEvaluationSection from "./PbbEvaluationSection"
 import {
@@ -28,6 +43,9 @@ import {
 } from "../../data/selectionGuide"
 import {
   ageOnReferenceDate,
+  bmi,
+  evaluateAnthropometry,
+  provisionalScore,
   selectionStages,
   type Candidate,
 } from "../../domain/selection"
@@ -66,7 +84,7 @@ export const FITNESS_ITEMS = [
     key: "pushup",
     label: "Push-up 1 menit",
     shortLabel: "Push-up",
-    target: "43 kali",
+    target: "45 kali",
     unit: "kali",
     placeholder: "kali",
     typeKey: "pushup" as const,
@@ -86,7 +104,7 @@ export const FITNESS_ITEMS = [
     key: "backup",
     label: "Back-up 1 menit",
     shortLabel: "Back-up",
-    target: "45 kali",
+    target: "50 kali",
     unit: "kali",
     placeholder: "kali",
     typeKey: "backup" as const,
@@ -345,6 +363,41 @@ const emptyRecord = (): SessionRecord => ({
   note: "",
 })
 
+function formatSecondsToMmSs(totalSec: number): string {
+  if (isNaN(totalSec) || totalSec <= 0) return "--:--"
+  const m = Math.floor(totalSec / 60)
+  const s = Math.round(totalSec % 60)
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+}
+
+function calculateIntervalScore(
+  targetSets: number,
+  completedSets: number,
+  targetPace: number,
+  avgSplit: number,
+  isDnf: boolean,
+): number {
+  if (isDnf) return 0
+  if (completedSets === 0) return 0
+
+  const completionRatio = Math.min(1, completedSets / Math.max(1, targetSets))
+  let score = completionRatio * 85
+
+  if (targetPace > 0 && avgSplit > 0) {
+    if (avgSplit <= targetPace) {
+      score += 15
+    } else if (avgSplit <= targetPace * 1.05) {
+      score += 10
+    } else if (avgSplit <= targetPace * 1.15) {
+      score += 5
+    }
+  } else {
+    score += 10
+  }
+
+  return Math.min(100, Math.max(10, Math.round(score)))
+}
+
 function SessionBadge({ status }: { status: SessionStatus }) {
   return (
     <Badge
@@ -375,6 +428,112 @@ function ResultBadge({ status }: { status: ResultStatus }) {
   return <Badge tone={values[status][1]}>{values[status][0]}</Badge>
 }
 
+function NumberStepper({
+  label,
+  value,
+  onChange,
+  step = 1,
+  min = 0,
+  max,
+  unit,
+  placeholder,
+  quickAdds = [],
+  hint,
+}: {
+  label: string
+  value: string
+  onChange: (val: string) => void
+  step?: number
+  min?: number
+  max?: number
+  unit?: string
+  placeholder?: string
+  quickAdds?: number[]
+  hint?: string
+}) {
+  const numVal = parseFloat(value) || 0
+
+  const handleStep = (delta: number) => {
+    const nextVal = Math.max(
+      min,
+      max !== undefined ? Math.min(max, numVal + delta) : numVal + delta,
+    )
+    const formatted = Number.isInteger(nextVal)
+      ? String(nextVal)
+      : parseFloat(nextVal.toFixed(2)).toString()
+    onChange(formatted)
+  }
+
+  return (
+    <div className="grid gap-1.5 rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-2xs">
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-bold text-slate-800">{label}</label>
+        {unit && (
+          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[0.68rem] font-bold text-slate-500">
+            {unit}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => handleStep(-step)}
+          disabled={numVal <= min}
+          className="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition active:scale-95 disabled:opacity-30 hover:bg-slate-200"
+          aria-label={`Kurangi ${label}`}
+        >
+          <Minus className="size-4.5" />
+        </button>
+        <div className="relative min-w-[4.5rem] flex-1">
+          <input
+            type="number"
+            inputMode="decimal"
+            step="any"
+            value={value}
+            placeholder={placeholder || "0"}
+            onChange={(e) => onChange(e.target.value)}
+            className="h-11 w-full min-w-[4.5rem] rounded-xl border border-slate-200 bg-slate-50/70 px-2 text-center font-display text-xl font-extrabold text-slate-900 outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:border-red-400 focus:bg-white focus:ring-3 focus:ring-red-100"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => handleStep(step)}
+          className="grid size-11 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 transition active:scale-95 hover:bg-red-100"
+          aria-label={`Tambah ${label}`}
+        >
+          <Plus className="size-4.5" />
+        </button>
+      </div>
+      {quickAdds.length > 0 && (
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-2">
+          <span className="text-[0.65rem] font-semibold text-slate-400">
+            Cepat:
+          </span>
+          {quickAdds.map((add) => (
+            <button
+              key={add}
+              type="button"
+              onClick={() => {
+                const next = Math.max(
+                  min,
+                  max !== undefined
+                    ? Math.min(max, numVal + add)
+                    : numVal + add,
+                )
+                onChange(String(next))
+              }}
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95"
+            >
+              +{add}
+            </button>
+          ))}
+        </div>
+      )}
+      {hint && <span className="text-[0.68rem] text-slate-400">{hint}</span>}
+    </div>
+  )
+}
+
 function Profile({
   candidate,
   sessionCount,
@@ -385,56 +544,186 @@ function Profile({
   recordCount: number
 }) {
   const age = ageOnReferenceDate(candidate.birthDate, 2026)
+  const bmiResult =
+    candidate.weightKg && candidate.heightCm
+      ? bmi(candidate.weightKg, candidate.heightCm)
+      : null
+  const anthroEval = evaluateAnthropometry(
+    candidate.gender,
+    candidate.heightCm,
+    candidate.weightKg,
+  )
+  const score = provisionalScore(candidate)
+  const docCount = candidate.documents
+    ? candidate.documents.filter(Boolean).length
+    : 6
+  const maskedNik = candidate.nik
+    ? `${candidate.nik.slice(0, 4)}••••••${candidate.nik.slice(-4)}`
+    : "—"
+
   return (
-    <div>
-      <div className="rounded-2xl bg-slate-950 p-5 text-white">
+    <div className="space-y-4">
+      {/* 1. Header Card with 4 Quick Metrics & Provisional Score */}
+      <div className="rounded-2xl bg-slate-950 p-4 sm:p-5 text-white shadow-xs">
         <div className="flex items-center gap-4">
-          <span className="grid size-14 place-items-center rounded-2xl bg-red-600 font-display font-bold">
-            {candidate.avatar}
-          </span>
-          <div>
-            <p className="font-display text-lg font-bold">{candidate.name}</p>
-            <p className="mt-1 text-xs text-slate-400">{candidate.number}</p>
+          <CandidateAvatar
+            name={candidate.name}
+            avatar={candidate.avatar}
+            photoUrl={candidate.photoUrl}
+            className="size-16 sm:size-20 text-xl border-2 border-white/20 shadow-md shrink-0"
+            rounded="rounded-2xl"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-base font-extrabold tracking-tight truncate">
+              {candidate.name}
+            </p>
+            <p className="text-xs text-slate-400 font-medium">{candidate.number}</p>
           </div>
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-white/[0.07] p-3">
+
+        {/* 2x2 Metric Grid */}
+        <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+          <div className="rounded-xl bg-white/[0.08] p-2.5">
             <p className="text-[0.68rem] text-slate-400">Usia 17 Agustus</p>
-            <p className="mt-1 text-sm font-bold">
+            <p className="mt-0.5 font-bold text-white">
               {age.years} th {age.months} bln
             </p>
           </div>
-          <div className="rounded-xl bg-white/[0.07] p-3">
-            <p className="text-[0.68rem] text-slate-400">Tahap aktif</p>
-            <p className="mt-1 text-sm font-bold">
-              {selectionStages[candidate.stage - 1]?.shortLabel ?? "ADM"}
+          <div className="rounded-xl bg-white/[0.08] p-2.5">
+            <p className="text-[0.68rem] text-slate-400">Tahap Aktif</p>
+            <p className="mt-0.5 font-bold text-white truncate">
+              {selectionStages[candidate.stage - 1]?.shortLabel ?? "ADM"} · {selectionStages[candidate.stage - 1]?.label ?? "Administrasi"}
+            </p>
+          </div>
+          <div className="rounded-xl bg-white/[0.08] p-2.5">
+            <p className="text-[0.68rem] text-slate-400">Tinggi / Berat</p>
+            <p className="mt-0.5 font-bold text-white">
+              {candidate.heightCm ?? 170} cm / {candidate.weightKg ?? 60} kg
+            </p>
+          </div>
+          <div className="rounded-xl bg-white/[0.08] p-2.5">
+            <p className="text-[0.68rem] text-slate-400">IMT / Status</p>
+            <p className="mt-0.5 font-bold text-emerald-400 truncate">
+              {bmiResult?.value ?? "—"} ({bmiResult?.category ?? "Normal"})
             </p>
           </div>
         </div>
-      </div>
-      <div className="mt-5 grid gap-3 text-sm">
-        {[
-          ["Sekolah", candidate.school],
-          ["Jenis kelamin", candidate.gender],
-          ["PIP / TIU", `${candidate.pip ?? "—"} / ${candidate.tiu ?? "—"}`],
-          [
-            "PBB / Samapta",
-            `${candidate.pbb ?? "—"} / ${candidate.fitness ?? "—"}`,
-          ],
-          ["Kepribadian", `${candidate.personality ?? "—"}`],
-          ["Sesi diikuti", `${sessionCount} sesi`],
-          ["Hasil tersimpan", `${recordCount} hasil`],
-        ].map(([label, value]) => (
-          <div
-            className="flex justify-between gap-4 border-b border-slate-100 pb-3"
-            key={label}
-          >
-            <span className="text-slate-500">{label}</span>
-            <span className="text-right font-semibold text-slate-800">
-              {value}
-            </span>
+
+        {/* Skor Kumulatif Sementara Banner */}
+        <div className="mt-3 flex items-center justify-between rounded-xl bg-white/[0.06] px-3 py-2 border border-white/10">
+          <div>
+            <span className="text-[0.68rem] text-slate-400">Skor Total Sementara</span>
+            <p className="font-display text-base font-black text-amber-400">
+              {score > 0 ? score.toFixed(1) : "—"}
+              <span className="text-xs font-normal text-slate-400"> / 100</span>
+            </p>
           </div>
-        ))}
+          <span
+            className={`rounded-lg px-2 py-0.5 text-xs font-extrabold ${
+              score >= 80
+                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                : score >= 70
+                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                  : "bg-slate-500/20 text-slate-300 border border-slate-500/30"
+            }`}
+          >
+            {score >= 80 ? "Sangat Baik" : score >= 70 ? "Memenuhi" : "Dalam Pantauan"}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. Informasi Detail Tabular */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-2xs divide-y divide-slate-100 text-xs">
+        <div className="pb-3">
+          <p className="font-bold text-slate-900 mb-2">Identitas & Administrasi</p>
+          <div className="grid gap-2">
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Sekolah</span>
+              <span className="font-semibold text-slate-800 text-right">{candidate.school}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Jenis Kelamin</span>
+              <span className="font-semibold text-slate-800">{candidate.gender}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Tanggal Lahir</span>
+              <span className="font-semibold text-slate-800">{candidate.birthDate}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">NIK Resmi</span>
+              <span className="font-mono font-semibold text-slate-800">{maskedNik}</span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Kelengkapan Berkas</span>
+              <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
+                <Check className="size-3" /> {docCount}/6 Berkas Valid
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Tinggi Standar BPIP</span>
+              <span
+                className={`font-semibold ${
+                  anthroEval.heightStatus.tone === "danger"
+                    ? "text-rose-600"
+                    : "text-slate-800"
+                }`}
+              >
+                {anthroEval.heightStatus.label}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="py-3">
+          <p className="font-bold text-slate-900 mb-2">Rekap Nilai Materi</p>
+          <div className="grid gap-2">
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">CAT PIP / TIU</span>
+              <span className="font-semibold text-slate-800">
+                {candidate.pip !== null ? candidate.pip : "—"} / {candidate.tiu !== null ? candidate.tiu : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">PBB & Komando</span>
+              <span className="font-semibold text-slate-800">
+                {candidate.pbb !== null ? candidate.pbb : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Kesamaptaan Jasmani</span>
+              <span className="font-semibold text-slate-800">
+                {candidate.fitness !== null ? candidate.fitness : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Kepribadian / Wawancara</span>
+              <span className="font-semibold text-slate-800">
+                {candidate.personality !== null ? candidate.personality : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Riwayat Sesi Terdata</span>
+              <span className="font-semibold text-slate-800">
+                {sessionCount} Sesi ({recordCount} Hasil)
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-slate-500">Kedisiplinan Latihan</span>
+              <span className="font-bold text-blue-700">
+                {candidate.trainingCompliance ?? 100}% Disiplin
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {candidate.coachNote && (
+          <div className="pt-3">
+            <p className="font-bold text-slate-900 mb-1">Catatan Pelatih</p>
+            <p className="rounded-xl bg-slate-50 p-2.5 text-[0.72rem] italic text-slate-600 border border-slate-100">
+              "{candidate.coachNote}"
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -460,6 +749,15 @@ export default function SimulationCenter() {
   const [saved, setSaved] = useState(false)
   const [sessionFilter, setSessionFilter] =
     useState<"Semua" | "Seleksi" | "CAT" | "Latihan">("Semua")
+  const [candidateFilter, setCandidateFilter] = useState<
+    "all" | "unrated" | "rated"
+  >("all")
+  const [mobileTab, setMobileTab] = useState<"scoring" | "survey" | "profile">(
+    "scoring",
+  )
+  const [showCandidatePicker, setShowCandidatePicker] = useState(false)
+  const [candidateSearch, setCandidateSearch] = useState("")
+  const [showMobileSessionList, setShowMobileSessionList] = useState(false)
   const [draft, setDraft] = useState({
     type: "pip" as SessionType,
     title: "",
@@ -467,7 +765,12 @@ export default function SimulationCenter() {
     time: "14:00",
     location: "",
     coach: "",
-    fitnessPreset: "all" as "all" | "run_only" | "run_shuttle" | "samapta_b" | "custom",
+    fitnessPreset: "all" as
+      | "all"
+      | "run_only"
+      | "run_shuttle"
+      | "samapta_b"
+      | "custom",
     activeFitnessTests: [
       "distance",
       "pushup",
@@ -522,6 +825,72 @@ export default function SimulationCenter() {
   const session = sessions.find((item) => item.id === sessionId) ?? sessions[0]
   const candidate =
     candidates.find((item) => item.id === candidateId) ?? candidates[0]
+
+  const sessionCandidates = useMemo(() => {
+    if (!session) return candidates
+    const idSet = new Set(session.participantIds)
+    const list = candidates.filter((c) => idSet.has(c.id))
+    return list.length > 0 ? list : candidates
+  }, [candidates, session])
+
+  const completedCandidateIds = useMemo(() => {
+    if (!session) return new Set<string>()
+    return new Set(
+      sessionCandidates
+        .filter((c) => records[`${session.id}:${c.id}`]?.savedAt)
+        .map((c) => c.id),
+    )
+  }, [session, sessionCandidates, records])
+
+
+  const currentCandidateIndex = useMemo(() => {
+    return sessionCandidates.findIndex((c) => c.id === candidate?.id)
+  }, [sessionCandidates, candidate])
+
+  const prevCandidate =
+    currentCandidateIndex > 0
+      ? sessionCandidates[currentCandidateIndex - 1]
+      : null
+  const nextCandidate =
+    currentCandidateIndex >= 0 &&
+    currentCandidateIndex < sessionCandidates.length - 1
+      ? sessionCandidates[currentCandidateIndex + 1]
+      : null
+
+  const nextUnratedCandidate = useMemo(() => {
+    if (currentCandidateIndex < 0) return null
+    for (let i = currentCandidateIndex + 1; i < sessionCandidates.length; i++) {
+      if (!completedCandidateIds.has(sessionCandidates[i].id)) {
+        return sessionCandidates[i]
+      }
+    }
+    for (let i = 0; i < currentCandidateIndex; i++) {
+      if (!completedCandidateIds.has(sessionCandidates[i].id)) {
+        return sessionCandidates[i]
+      }
+    }
+    return null
+  }, [sessionCandidates, currentCandidateIndex, completedCandidateIds])
+
+  const filteredCandidates = useMemo(() => {
+    return sessionCandidates.filter((c) => {
+      const isSaved = completedCandidateIds.has(c.id)
+      if (candidateFilter === "unrated") return !isSaved
+      if (candidateFilter === "rated") return isSaved
+      return true
+    })
+  }, [sessionCandidates, completedCandidateIds, candidateFilter])
+
+  const searchedCandidates = useMemo(() => {
+    const q = candidateSearch.trim().toLowerCase()
+    if (!q) return sessionCandidates
+    return sessionCandidates.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.number.toLowerCase().includes(q) ||
+        c.school.toLowerCase().includes(q),
+    )
+  }, [sessionCandidates, candidateSearch])
 
   function createSession() {
     const next: Session = {
@@ -620,22 +989,25 @@ export default function SimulationCenter() {
               </select>
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              Panjang lintasan lari
-              <select
-                value={draft.trackLength}
-                onChange={(e) =>
-                  setDraft((v) => ({
-                    ...v,
-                    trackLength: Number(e.target.value) || 400,
-                  }))
-                }
-                className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
-              >
-                <option value={400}>400m (Stadion / Lapangan Standar)</option>
-                <option value={350}>350m</option>
-                <option value={300}>300m</option>
-                <option value={200}>200m</option>
-              </select>
+              Panjang lintasan lari (meter)
+              <div className="relative">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="400"
+                  value={draft.trackLength || ""}
+                  onChange={(e) =>
+                    setDraft((v) => ({
+                      ...v,
+                      trackLength: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 pr-8 text-sm font-bold text-slate-800 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                />
+                <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                  m
+                </span>
+              </div>
             </label>
           </>
         ) : null}
@@ -699,8 +1071,7 @@ export default function SimulationCenter() {
       <div className="grid gap-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-red-600">Pusat simulasi</p>
-            <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950">
               Sesi seleksi & latihan
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-500">
@@ -752,39 +1123,92 @@ export default function SimulationCenter() {
       criticalAnamnesis.has(index) &&
       record.metrics[`anamnesis-${index}`] === "yes",
   )
+  const isIntervalSession = session.title.toLowerCase().includes("interval")
   const activeFitnessTests: string[] =
     session.type === "fitness"
-      ? (session.activeFitnessTests ?? [
-          "distance",
-          "pushup",
-          "situp",
-          "backup",
-          "shuttle",
-        ])
+      ? (session.activeFitnessTests ?? (
+          isIntervalSession && session.title.toLowerCase().includes("shuttle")
+            ? ["distance", "shuttle"]
+            : isIntervalSession
+              ? ["distance"]
+              : [
+                  "distance",
+                  "pushup",
+                  "situp",
+                  "backup",
+                  "shuttle",
+                ]
+        ))
       : []
 
   const sessionTrackLength: number = session.trackLength ?? 400
 
   const isRunDnf = record.metrics.runDnf === "yes"
 
+  const currentRunMode: "test12" | "interval" =
+    record.metrics.runMode === "test12"
+      ? "test12"
+      : record.metrics.runMode === "interval"
+        ? "interval"
+        : isIntervalSession
+          ? "interval"
+          : "test12"
+
   const fitnessItemsData =
     session.type === "fitness"
       ? FITNESS_ITEMS.map((item) => {
           const rawStr = (record.metrics[item.key] ?? "").trim()
           const isDnf = item.key === "distance" && isRunDnf
+          const isIntervalDistance =
+            item.key === "distance" && currentRunMode === "interval"
+          const hasIntervalLaps = [1, 2, 3, 4, 5, 6].some(
+            (i) => Boolean(record.metrics[`intervalLap${i}`]),
+          )
           const hasVal =
             isDnf ||
-            (rawStr !== "" && !isNaN(Number(rawStr)) && Number(rawStr) > 0)
+            (rawStr !== "" && !isNaN(Number(rawStr)) && Number(rawStr) > 0) ||
+            (isIntervalDistance && hasIntervalLaps)
           const rawNum =
             hasVal && !isNaN(Number(rawStr)) ? Number(rawStr) : 0
-          const score = isDnf
-            ? 0
-            : hasVal
-              ? fitnessScore(item.typeKey, rawNum)
-              : 0
+
+          let score = 0
+          if (isDnf) {
+            score = 0
+          } else if (isIntervalDistance) {
+            const targetSets =
+              parseInt(record.metrics.intervalTargetSets || "4", 10) || 4
+            const targetPace =
+              parseFloat(record.metrics.intervalTargetPace || "90") || 90
+            const laps = Array.from({ length: 12 }, (_, i) => i + 1)
+              .map((i) => parseFloat(record.metrics[`intervalLap${i}`] || ""))
+              .filter((v) => !isNaN(v) && v > 0)
+            const completedSets =
+              laps.length > 0
+                ? laps.length
+                : parseInt(record.metrics.intervalTargetSets || "4", 10) || 4
+            const avgSplit =
+              laps.length > 0
+                ? laps.reduce((a, b) => a + b, 0) / laps.length
+                : targetPace
+            score = calculateIntervalScore(
+              targetSets,
+              completedSets,
+              targetPace,
+              avgSplit,
+              isRunDnf,
+            )
+          } else if (hasVal) {
+            score = fitnessScore(item.typeKey, rawNum)
+          }
+
           const isActive = activeFitnessTests.includes(item.key)
+          const label = isIntervalDistance ? "Lari Interval" : item.label
+          const shortLabel = isIntervalDistance ? "Interval" : item.shortLabel
+
           return {
             ...item,
+            label,
+            shortLabel,
             rawStr,
             hasVal,
             rawNum,
@@ -946,6 +1370,73 @@ export default function SimulationCenter() {
       })
     }
   }
+
+  const intervalLaps = Array.from({ length: 12 }, (_, i) => i + 1)
+    .map((i) => parseFloat(record.metrics[`intervalLap${i}`] || ""))
+    .filter((v) => !isNaN(v) && v > 0)
+  const calcIntervalCompletedSets = intervalLaps.length
+  const currentIntervalDist =
+    record.metrics.intervalDist || String(sessionTrackLength || 400)
+  const currentIntervalTargetSets =
+    record.metrics.intervalTargetSets || "4"
+  const currentIntervalTargetPace =
+    record.metrics.intervalTargetPace || "90"
+  const calcIntervalDistPerSet = parseFloat(currentIntervalDist) || 400
+  const effectiveSets =
+    calcIntervalCompletedSets > 0
+      ? calcIntervalCompletedSets
+      : parseInt(currentIntervalTargetSets, 10) || 4
+  const calcIntervalTotalDistance = effectiveSets * calcIntervalDistPerSet
+  const calcIntervalAvgSplit =
+    calcIntervalCompletedSets > 0
+      ? intervalLaps.reduce((a, b) => a + b, 0) / calcIntervalCompletedSets
+      : 0
+
+  function updateIntervalMetrics(patch: Record<string, string>) {
+    const nextMetrics = {
+      ...record.metrics,
+      ...patch,
+    }
+    const distPerSet =
+      parseFloat(nextMetrics.intervalDist || String(sessionTrackLength || 400)) || 400
+    const completedLaps = Array.from({ length: 12 }, (_, i) => i + 1)
+      .map((i) => parseFloat(nextMetrics[`intervalLap${i}`] || ""))
+      .filter((v) => !isNaN(v) && v > 0).length
+
+    const setsCount =
+      completedLaps > 0
+        ? completedLaps
+        : parseInt(nextMetrics.intervalTargetSets || "4", 10) || 4
+
+    nextMetrics.distance = String(setsCount * distPerSet)
+    patchRecord({ metrics: nextMetrics })
+  }
+
+  function updateLapSplit(setNum: number, value: string) {
+    const fieldKey = `intervalLap${setNum}`
+    const nextMetrics = {
+      ...record.metrics,
+      [fieldKey]: value,
+    }
+    const laps = Array.from({ length: 12 }, (_, i) => i + 1)
+      .map((i) =>
+        i === setNum
+          ? parseFloat(value)
+          : parseFloat(record.metrics[`intervalLap${i}`] || "")
+      )
+      .filter((v) => !isNaN(v) && v > 0)
+
+    const distPerSet =
+      parseFloat(nextMetrics.intervalDist || String(sessionTrackLength || 400)) || 400
+    const totalDist = laps.length * distPerSet
+    const avg = laps.length > 0 ? laps.reduce((a, b) => a + b, 0) / laps.length : 0
+
+    nextMetrics.distance = totalDist > 0 ? String(totalDist) : ""
+    nextMetrics.intervalAvg = avg > 0 ? avg.toFixed(1) : ""
+    nextMetrics.laps = String(laps.length)
+
+    patchRecord({ metrics: nextMetrics })
+  }
   const completed = session.participantIds.filter(
     (id) =>
       candidates.some((c) => c.id === id) &&
@@ -956,7 +1447,7 @@ export default function SimulationCenter() {
     setRecords((current) => ({ ...current, [key]: { ...record, ...patch } }))
   }
 
-  function saveRecord() {
+  function saveRecord(advanceToNext = false) {
     const nextRecord = { ...record, savedAt: new Date().toISOString() }
     const nextRecords = {
       ...records,
@@ -978,6 +1469,24 @@ export default function SimulationCenter() {
       records: nextRecords,
       candidates: nextCandidates,
     })
+
+    if (advanceToNext) {
+      const target = nextUnratedCandidate || nextCandidate
+      if (target && target.id !== candidate.id) {
+        setCandidateId(target.id)
+        showToast(
+          `Nilai ${candidate.name} disimpan! Lanjut ke ${target.name}.`,
+          "success",
+        )
+      } else {
+        showToast(
+          `Nilai ${candidate.name} disimpan! Semua peserta dalam sesi ini telah selesai diinput. 🎉`,
+          "success",
+        )
+      }
+    } else {
+      showToast(`Nilai ${candidate.name} berhasil disimpan.`, "success")
+    }
   }
 
   function updateSessionStatus(nextStatus: SessionStatus) {
@@ -997,92 +1506,384 @@ export default function SimulationCenter() {
     saveToCloud({ sessions: remaining })
   }
 
+  // Statistik & Standar Khusus Sesi Aktif untuk Mengisi Ruang Kartu dengan Informasi Relevan
+  const sessionGradedRecords = useMemo(() => {
+    return session.participantIds
+      .map((id) => records[`${session.id}:${id}`])
+      .filter((r): r is SessionRecord => Boolean(r && r.savedAt))
+  }, [session.id, session.participantIds, records])
+
+  const sessionPassCount = useMemo(() => {
+    return sessionGradedRecords.filter((r) => r.result === "passed").length
+  }, [sessionGradedRecords])
+
+  const sessionReviewCount = useMemo(() => {
+    return sessionGradedRecords.filter((r) => r.result === "review").length
+  }, [sessionGradedRecords])
+
+  const sessionStandards = useMemo(() => {
+    switch (session.type) {
+      case "fitness": {
+        const isInterval = session.title.toLowerCase().includes("interval")
+        const allItems = [
+          {
+            key: "distance",
+            label: isInterval ? "Lari Interval" : "Lari 12 Menit",
+            target: isInterval ? "4–6 Set" : "3.000 m",
+            sub: isInterval
+              ? `Track ${sessionTrackLength}m · Pace Stabil`
+              : `Track ${sessionTrackLength}m · Min. 2.400m`,
+          },
+          {
+            key: "pushup",
+            label: "Push-up (1 mnt)",
+            target: "45 kali",
+            sub: "Putra · Min. 30x",
+          },
+          {
+            key: "situp",
+            label: "Sit-up (1 mnt)",
+            target: "40 kali",
+            sub: "Putra · Min. 30x",
+          },
+          {
+            key: "backup",
+            label: "Back-up (1 mnt)",
+            target: "50 kali",
+            sub: "Putra · Min. 30x",
+          },
+          {
+            key: "shuttle",
+            label: "Shuttle-Run",
+            target: "16.2 dtk",
+            sub: "6x10m angka 8",
+          },
+        ]
+        const filteredItems = allItems.filter((item) =>
+          activeFitnessTests.includes(item.key),
+        )
+        return {
+          title: isInterval
+            ? "Standar & Parameter Latihan Interval (Jasmani)"
+            : "Standar & Parameter Jasmani (BPIP)",
+          badge: isInterval ? "Latihan Interval & Stamina" : "Kesamaptaan Jasmani",
+          items: filteredItems.length > 0 ? filteredItems : allItems,
+          guideline: isInterval
+            ? "Fokus menjaga konsistensi split waktu antar-set (pace target) dan adaptasi denyut pemulihan."
+            : "Target nilai 100 mengacu pada Peraturan BPIP RI. Rata-rata skor minimal 75.0 untuk predikat Siap.",
+        }
+      }
+      case "pbb":
+        return {
+          title: "Standar Penilaian PBB BPIP",
+          badge: "Baris Berbaris",
+          items: [
+            { label: "12 Gerakan Pokok", target: "Sempurna", sub: "Sikap, hadap/balik, jalan di tempat" },
+            { label: "PBB Berjalan", target: "Tegap & Irama", sub: "Langkah tegap, hormat kanan" },
+            { label: "Kerapian Saf/Banjar", target: "Presisi", sub: "Kekompakan tempo barisan" },
+            { label: "Aba-aba & Respon", target: "Tegas", sub: "Kecepatan dan kepatuhan komando" },
+          ],
+          guideline: "Standar kelulusan PBB minimal 75.0. Penilaian menitikberatkan ketegapan postur dan keseragaman tempo.",
+        }
+      case "pip":
+      case "tiu":
+        return {
+          title: "Standar Ujian CAT Terstandarisasi",
+          badge: session.type === "pip" ? "CAT PIP (Pancasila)" : "CAT TIU (Intelegensia)",
+          items: [
+            { label: "Jumlah Soal", target: "100 Soal", sub: "Pilihan ganda CAT BPIP" },
+            { label: "Alokasi Waktu", target: "90 Menit", sub: "Rata-rata 54 dtk per butir" },
+            { label: "Passing Grade", target: "≥ 70.0", sub: "Ambang batas kelulusan resmi" },
+            { label: "Bobot Kelulusan", target: "Kumulatif", sub: "Penentu kuota ranking kota" },
+          ],
+          guideline: "Peserta wajib melampaui passing grade 70.0 untuk dapat direkomendasikan ke tahapan parade berikutnya.",
+        }
+      case "medical":
+        return {
+          title: "Standar Rikkes & Kesehatan Mata",
+          badge: "Pemeriksaan Kesehatan",
+          items: [
+            { label: "Antropometri TB/BB", target: "TB ≥ 170cm", sub: "Putra (Putri 165cm) · BMI 18.5 - 25.0" },
+            { label: "Ishihara Buta Warna", target: "24 Plat", sub: "Wajib Bebas Buta Warna" },
+            { label: "Tensi & Jantung", target: "120/80 mmHg", sub: "Kardiovaskular prima" },
+            { label: "Postur & Rangka", target: "Normal", sub: "Bebas kaki O/X, skoliosis, varises" },
+          ],
+          guideline: "Pemeriksaan kesehatan awal memastikan santri memiliki ketahanan fisik bebas kendala klinis.",
+        }
+      case "interview":
+        return {
+          title: "Standar Wawancara & Kepribadian",
+          badge: "Integritas & Bakat",
+          items: [
+            { label: "Wawasan Kebangsaan", target: "Mendalam", sub: "4 Konsensus Dasar & Sejarah RI" },
+            { label: "Integritas & Mental", target: "Tangguh", sub: "Kepemimpinan & motivasi diri" },
+            { label: "Bakat Kesenian", target: "Terampil", sub: "Kesenian daerah atau olahraga" },
+            { label: "Public Speaking", target: "Santun", sub: "Artikulasi lugas & percaya diri" },
+          ],
+          guideline: "Menilai kedewasaan berpikir, komitmen pengabdian, dan kepribadian luhur calon pengibar bendera.",
+        }
+      case "parade":
+        return {
+          title: "Standar Parade & Kesamaptaan Fisik",
+          badge: "Parade Awal",
+          items: [
+            { label: "Tegak Simetris", target: "Sempurna", sub: "Bahu datar & dagu terangkat" },
+            { label: "Garis Tungkai", target: "Lurus", sub: "Bebas kelainan sendi kaki O/X" },
+            { label: "Keseimbangan Statis", target: "Stabil", sub: "Tanpa goyang saat sikap sempurna" },
+            { label: "Sorot Mata", target: "Fokus", sub: "Tatapan lurus berwibawa" },
+          ],
+          guideline: "Verifikasi visual bentuk tubuh dan kesiapan performa sebelum seleksi baris-berbaris mendalam.",
+        }
+      case "administration":
+      default:
+        return {
+          title: "Standar Validasi Berkas Administrasi",
+          badge: "Verifikasi Pokok",
+          items: [
+            { label: "Izin Orang Tua/Wali", target: "Lengkap", sub: "Bermeterai & bertandatangan" },
+            { label: "Rekomendasi Madrasah", target: "Resmi", sub: "Disetujui Kepala Madrasah" },
+            { label: "Legalisir Rapor", target: "Valid", sub: "Semester berjalan memenuhi syarat" },
+            { label: "Identitas NIK/KTP", target: "Cocok", sub: "Sesuai Dapodik & Dukcapil" },
+          ],
+          guideline: "Semua dokumen wajib terverifikasi sah untuk memastikan kepesertaan santri di tingkat kota/kabupaten.",
+        }
+    }
+  }, [session.type, session.title, sessionTrackLength, activeFitnessTests])
+
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 pb-28 lg:pb-0">
+      {/* Candidate Jump & Search Modal */}
+      {showCandidatePicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-5">
+              <div>
+                <h3 className="font-display text-base font-bold text-slate-900">
+                  Pilih Peserta Sesi
+                </h3>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {completedCandidateIds.size} dari {sessionCandidates.length}{" "}
+                  peserta telah dinilai
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCandidatePicker(false)}
+                className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="border-b border-slate-100 p-3 space-y-2.5">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={candidateSearch}
+                  onChange={(e) => setCandidateSearch(e.target.value)}
+                  placeholder="Cari nama, nomor, atau sekolah..."
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm text-slate-800 outline-none transition focus:border-red-400 focus:bg-white focus:ring-4 focus:ring-red-100"
+                />
+              </div>
+              <div className="flex gap-1.5 overflow-x-auto text-xs font-semibold pb-1">
+                {[
+                  { id: "all", label: `Semua (${sessionCandidates.length})` },
+                  {
+                    id: "unrated",
+                    label: `Belum (${
+                      sessionCandidates.length - completedCandidateIds.size
+                    })`,
+                  },
+                  {
+                    id: "rated",
+                    label: `Sudah (${completedCandidateIds.size})`,
+                  },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setCandidateFilter(f.id as any)}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition whitespace-nowrap ${
+                      candidateFilter === f.id
+                        ? "bg-slate-900 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100 p-2">
+              {searchedCandidates
+                .filter((c) => {
+                  const isSaved = completedCandidateIds.has(c.id)
+                  if (candidateFilter === "unrated") return !isSaved
+                  if (candidateFilter === "rated") return isSaved
+                  return true
+                })
+                .map((c) => {
+                  const isSelected = c.id === candidate.id
+                  const rec = records[`${session.id}:${c.id}`]
+                  const isSaved = Boolean(rec?.savedAt)
+                  const att = rec?.attendance ?? "hadir"
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        setCandidateId(c.id)
+                        setShowCandidatePicker(false)
+                      }}
+                      className={`w-full flex items-center justify-between gap-3 p-3 text-left rounded-xl transition ${
+                        isSelected
+                          ? "bg-red-50 text-red-900 ring-1 ring-red-200"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <CandidateAvatar
+                          name={c.name}
+                          avatar={c.avatar}
+                          photoUrl={c.photoUrl}
+                          className="size-12 text-sm shrink-0"
+                          rounded="rounded-xl"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm text-slate-900 truncate">
+                            {c.name}
+                          </p>
+                          <p className="text-xs text-slate-500 truncate">
+                            {c.number} · {c.school}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {att !== "hadir" ? (
+                          <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[0.65rem] font-bold text-amber-800 uppercase">
+                            {att}
+                          </span>
+                        ) : null}
+                        {isSaved ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
+                            <Check className="size-3" /> Dinilai
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                            Belum
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Page Header */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-red-600">Pusat simulasi</p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
             Sesi seleksi & latihan
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
-            Buat sesi, input hasil, isi survei pelatih, dan sinkronkan otomatis
-            ke profil, tahapan, serta pemeringkatan kandidat.
+          <p className="mt-1 max-w-2xl text-xs text-slate-500 sm:text-sm">
+            Input hasil seleksi & latihan secara cepat di lapangan dengan
+            sinkronisasi otomatis.
           </p>
         </div>
-        <Button onClick={() => setShowCreate((value) => !value)}>
-          <Plus className="size-4" /> Buat sesi baru
-        </Button>
-      </div>
-
-      <Card className="p-3 sm:p-4">
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            ["1", "Pilih sesi", true],
-            ["2", "Pilih kandidat", Boolean(candidate)],
-            ["3", "Input & simpan", Boolean(record.savedAt)],
-          ].map(([number, label, complete], index) => (
-            <div
-              key={label as string}
-              className={`flex items-center gap-2 rounded-xl p-2.5 sm:p-3 ${
-                complete
-                  ? "bg-emerald-50 text-emerald-800"
-                  : index === 2
-                    ? "bg-red-50 text-red-800"
-                    : "bg-slate-50 text-slate-500"
-              }`}
-            >
-              <span
-                className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                  complete ? "bg-emerald-600 text-white" : "bg-white"
-                }`}
-              >
-                {complete ? <CheckCircle2 className="size-4" /> : number}
-              </span>
-              <span className="hidden text-xs font-bold sm:block">
-                {label as string}
-              </span>
-              <span className="text-[0.65rem] font-bold sm:hidden">
-                {index === 0 ? "Sesi" : index === 1 ? "Kandidat" : "Simpan"}
-              </span>
-            </div>
-          ))}
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setShowCreate((value) => !value)}>
+            <Plus className="size-4" /> Buat sesi baru
+          </Button>
         </div>
-      </Card>
+      </div>
 
       {createModalBlock}
 
-      <div className="grid gap-6 xl:grid-cols-[21rem_minmax(0,1fr)]">
-        <Card className="h-fit overflow-hidden p-4">
-          <div className="flex items-center justify-between px-1 pb-4">
-            <div>
-              <h2 className="font-display font-bold text-slate-900">
-                Daftar sesi
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                {sessions.length} sesi tercatat
-              </p>
+      {/* Mobile Active Session Banner with Quick Switcher */}
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs xl:hidden">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span
+            className={`grid size-10 shrink-0 place-items-center rounded-xl ${definition.tone}`}
+          >
+            <definition.icon className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[0.65rem] font-bold uppercase tracking-wider text-red-600">
+                Sesi Aktif
+              </span>
+              <SessionBadge status={session.status} />
             </div>
-            <Badge>
-              {sessions.filter((item) => item.status === "active").length} aktif
-            </Badge>
+            <p className="truncate text-sm font-bold text-slate-900">
+              {session.title}
+            </p>
+            <p className="text-[0.68rem] text-slate-500">
+              {completedCandidateIds.size}/{sessionCandidates.length} peserta dinilai ({Math.round(
+                sessionCandidates.length
+                  ? (completedCandidateIds.size / sessionCandidates.length) * 100
+                  : 0,
+              )}%)
+            </p>
           </div>
-          <div className="mb-4 flex gap-2 overflow-x-auto px-1 pb-1">
-            {(["Semua", "Seleksi", "CAT", "Latihan"] as const).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSessionFilter(filter)}
-                className={`min-h-9 shrink-0 rounded-full px-3 text-xs font-bold transition ${
-                  sessionFilter === filter
-                    ? "bg-slate-950 text-white"
-                    : "bg-slate-100 text-slate-600"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowMobileSessionList((v) => !v)}
+          className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition active:scale-95"
+        >
+          <ListFilter className="size-3.5" />
+          <span>{showMobileSessionList ? "Tutup" : "Ganti Sesi"}</span>
+        </button>
+      </div>
+
+      {/* 1. BAGIAN ATAS: Daftar Sesi & Header Sesi Aktif (2 Kolom Seimbang) */}
+      <div className="grid gap-6 xl:grid-cols-[22rem_minmax(0,1fr)] items-stretch">
+        {/* Col 1: Daftar Sesi Card */}
+        <Card
+          className={`overflow-hidden flex flex-col ${
+            showMobileSessionList ? "block" : "hidden xl:flex"
+          }`}
+        >
+          <div className="border-b border-slate-100 p-4">
+            <div className="flex items-center justify-between pb-3">
+              <div>
+                <h2 className="font-display font-bold text-slate-900">
+                  Daftar sesi
+                </h2>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {sessions.length} sesi tercatat
+                </p>
+              </div>
+              <Badge tone="neutral">
+                {sessions.filter((item) => item.status === "active").length} aktif
+              </Badge>
+            </div>
+            {/* Filter pills tanpa scrollbar abu-abu */}
+            <div className="flex flex-wrap gap-1.5">
+              {(["Semua", "Seleksi", "CAT", "Latihan"] as const).map(
+                (filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setSessionFilter(filter)}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition active:scale-95 ${
+                      sessionFilter === filter
+                        ? "bg-slate-950 text-white shadow-2xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ),
+              )}
+            </div>
           </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 xl:grid xl:max-h-[45rem] xl:overflow-x-visible xl:overflow-y-auto xl:pb-0">
+
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {visibleSessions.map((item) => {
               const config = definitions[item.type]
               const Icon = config.icon
@@ -1093,117 +1894,183 @@ export default function SimulationCenter() {
                   onClick={() => {
                     setSessionId(item.id)
                     setCandidateId(item.participantIds[0] ?? candidates[0].id)
+                    setShowMobileSessionList(false)
                   }}
-                  className={`min-w-[17rem] rounded-2xl border p-4 text-left transition xl:min-w-0 ${
+                  className={`w-full rounded-xl border p-3 text-left transition active:scale-[0.99] ${
                     active
-                      ? "border-red-200 bg-red-50 ring-2 ring-red-100"
-                      : "border-slate-200 hover:bg-slate-50"
+                      ? "border-red-300 bg-red-50/80 shadow-2xs ring-1 ring-red-200"
+                      : "border-slate-200/80 bg-white hover:bg-slate-50 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-3">
                     <span
-                      className={`grid size-10 shrink-0 place-items-center rounded-xl ${config.tone}`}
+                      className={`grid size-9 shrink-0 place-items-center rounded-lg ${config.tone}`}
                     >
-                      <Icon className="size-5" />
+                      <Icon className="size-4" />
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-bold text-slate-900">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-bold text-slate-900">
                         {item.title}
-                      </span>
-                      <span className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                        <CalendarDays className="size-3.5" /> {item.date} ·{" "}
-                        {item.time}
-                      </span>
-                      <span className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-                        <UsersRound className="size-3.5" /> {candidates.length}{" "}
-                        kandidat
-                      </span>
-                    </span>
+                      </p>
+                      <div className="mt-0.5 flex items-center gap-2 text-[0.68rem] text-slate-500">
+                        <span>{item.date}</span>
+                        <span>·</span>
+                        <span>{sessionCandidates.length} kandidat</span>
+                      </div>
+                    </div>
                     <SessionBadge status={item.status} />
                   </div>
                 </button>
               )
             })}
             {!visibleSessions.length ? (
-              <div className="min-w-full rounded-2xl bg-slate-50 p-6 text-center text-sm text-slate-500">
+              <div className="rounded-xl bg-slate-50 p-6 text-center text-xs text-slate-400">
                 Belum ada sesi pada kategori ini.
               </div>
             ) : null}
           </div>
         </Card>
 
-        <div className="grid min-w-0 gap-6">
-          <Card className="overflow-hidden">
-            <div className="bg-slate-950 p-5 text-white sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-5">
-                <div className="flex gap-4">
-                  <span
-                    className={`grid size-12 shrink-0 place-items-center rounded-2xl ${definition.tone}`}
-                  >
-                    <definition.icon className="size-6" />
-                  </span>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-xs font-bold uppercase tracking-wider text-red-300">
-                        {definition.group}
-                      </p>
-                      <SessionBadge status={session.status} />
-                    </div>
-                    <h2 className="mt-1 font-display text-2xl font-bold">
-                      {session.title}
-                    </h2>
-                    <p className="mt-2 text-sm text-slate-400">
-                      {definition.description}
+        {/* Col 2: Detail Sesi Aktif */}
+        <Card className="overflow-hidden flex flex-col justify-between">
+          <div className="bg-slate-950 p-5 text-white sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-5">
+              <div className="flex gap-4">
+                <span
+                  className={`grid size-12 shrink-0 place-items-center rounded-2xl ${definition.tone}`}
+                >
+                  <definition.icon className="size-6" />
+                </span>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-red-300">
+                      {definition.group}
                     </p>
+                    <SessionBadge status={session.status} />
                   </div>
+                  <h2 className="mt-1 font-display text-2xl font-bold">
+                    {session.title}
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-400">
+                    {definition.description}
+                  </p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex flex-wrap gap-1.5">
-                    {(["scheduled", "active", "completed"] as const).map(
-                      (st) => (
-                        <button
-                          key={st}
-                          onClick={() => updateSessionStatus(st)}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                            session.status === st
-                              ? "bg-red-600 text-white"
-                              : "bg-white/10 text-slate-300 hover:bg-white/20"
-                          }`}
-                        >
-                          {st === "scheduled"
-                            ? "Terjadwal"
-                            : st === "active"
-                              ? "Aktif"
-                              : "Selesai"}
-                        </button>
-                      ),
-                    )}
-                    <button
-                      onClick={deleteCurrentSession}
-                      className="rounded-lg bg-white/10 px-2 py-1 text-xs text-red-300 transition hover:bg-red-600 hover:text-white"
-                      title="Hapus sesi ini"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  </div>
-                  <div className="grid gap-1 text-xs text-slate-300">
-                    <span className="flex items-center gap-2">
-                      <CalendarDays className="size-3.5" /> {session.date} ·{" "}
-                      {session.time}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <MapPin className="size-3.5" /> {session.location} ·{" "}
-                      {session.coach}
-                    </span>
-                  </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {(["scheduled", "active", "completed"] as const).map(
+                    (st) => (
+                      <button
+                        key={st}
+                        onClick={() => updateSessionStatus(st)}
+                        className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                          session.status === st
+                            ? "bg-red-600 text-white"
+                            : "bg-white/10 text-slate-300 hover:bg-white/20"
+                        }`}
+                      >
+                        {st === "scheduled"
+                          ? "Terjadwal"
+                          : st === "active"
+                            ? "Aktif"
+                            : "Selesai"}
+                      </button>
+                    ),
+                  )}
+                  <button
+                    onClick={deleteCurrentSession}
+                    className="rounded-lg bg-white/10 px-2 py-1 text-xs text-red-300 transition hover:bg-red-600 hover:text-white"
+                    title="Hapus sesi ini"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
+                <div className="grid gap-1 text-xs text-slate-300">
+                  <span className="flex items-center gap-2">
+                    <CalendarDays className="size-3.5" /> {session.date} ·{" "}
+                    {session.time}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <MapPin className="size-3.5" /> {session.location} ·{" "}
+                    {session.coach}
+                  </span>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Middle Section: Parameter & Standar Sesi (Mengisi ruang kartu dengan informasi relevan & terstruktur) */}
+          <div className="flex-1 bg-white p-5 sm:p-6 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="flex size-6 items-center justify-center rounded-lg bg-red-100 text-red-700">
+                  <Target className="size-3.5" />
+                </span>
+                <h3 className="font-display text-sm font-bold text-slate-900">
+                  {sessionStandards.title}
+                </h3>
+              </div>
+              <Badge tone="indigo" size="sm">
+                {sessionStandards.badge}
+              </Badge>
+            </div>
+
+            {/* Grid Kartu Target Standar */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              {sessionStandards.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-xl border border-slate-200/90 bg-slate-50/70 p-3 transition hover:border-slate-300 hover:bg-slate-50"
+                >
+                  <p className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider truncate">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 font-display text-sm sm:text-base font-bold text-emerald-600">
+                    {item.target}
+                  </p>
+                  <p className="mt-0.5 text-[0.62rem] text-slate-400 truncate">
+                    {item.sub}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Live Session Insights / Ringkasan Kesiapan */}
+            {completed > 0 ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-2.5 text-xs text-emerald-950">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span className="font-bold">
+                    {sessionPassCount} dari {completed} santri ({Math.round((sessionPassCount / completed) * 100)}%) memenuhi standar kelayakan
+                  </span>
+                </div>
+                {sessionReviewCount > 0 && (
+                  <span className="text-[0.68rem] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md">
+                    {sessionReviewCount} butuh penguatan
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs text-slate-600">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-4 text-amber-500 shrink-0" />
+                  <span className="font-medium text-[0.72rem]">
+                    {sessionStandards.guideline}
+                  </span>
+                </div>
+                <span className="text-[0.68rem] font-bold text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
+                  Menunggu input lapangan
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col justify-end bg-white border-t border-slate-100">
             <div className="grid grid-cols-3 divide-x divide-slate-100">
               {[
-                ["Peserta", candidates.length],
+                ["Peserta", sessionCandidates.length],
                 ["Sudah diinput", completed],
-                ["Belum diinput", Math.max(0, candidates.length - completed)],
+                ["Belum diinput", Math.max(0, sessionCandidates.length - completed)],
               ].map(([label, value]) => (
                 <div className="p-4 text-center" key={label}>
                   <p className="font-display text-xl font-bold text-slate-950">
@@ -1215,165 +2082,231 @@ export default function SimulationCenter() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-slate-100 px-5 py-3">
-              <div className="flex items-center justify-between text-[0.68rem] font-semibold text-slate-500">
-                <span>Progres input peserta</span>
-                <span>
-                  {completed}/{candidates.length}
+            <div className="border-t border-slate-100 px-5 py-3.5 bg-slate-50/50">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
+                <span>Progres penilaian sesi</span>
+                <span className="font-bold text-slate-900">
+                  {completed} dari {sessionCandidates.length} peserta ({Math.round(
+                    sessionCandidates.length
+                      ? (completed / sessionCandidates.length) * 100
+                      : 0,
+                  )}%)
                 </span>
               </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-emerald-500 transition-all"
                   style={{
                     width: `${
-                      candidates.length
-                        ? (completed / candidates.length) * 100
+                      sessionCandidates.length
+                        ? (completed / sessionCandidates.length) * 100
                         : 0
                     }%`,
                   }}
                 />
               </div>
             </div>
-          </Card>
+          </div>
+        </Card>
+      </div>
 
-          <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_20rem]">
-            <Card className="overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-5 sm:px-6">
+      {/* 2. BAGIAN BAWAH: Input Hasil & Survei + Profil Kandidat (2 Kolom) */}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        {/* Col 1: Input Hasil & Survei */}
+        <Card className="overflow-hidden">
+          {/* Header with Title and Desktop Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
                 <div>
-                  <h2 className="font-display text-lg font-bold text-slate-900">
+                  <h2 className="font-display text-base font-bold text-slate-900 sm:text-lg">
                     Input hasil & survei
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Tersimpan per kandidat & menyinkronkan nilai ke profil
-                    utama.
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Tersimpan per kandidat & menyinkronkan nilai ke profil utama.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <ResultBadge status={record.result} />
                   <Button
-                    className="hidden sm:inline-flex"
-                    onClick={saveRecord}
+                    variant="secondary"
+                    className="hidden sm:inline-flex !min-h-9 !py-1.5 !text-xs font-semibold"
+                    onClick={() => saveRecord(false)}
                   >
-                    <Save className="size-4" /> Simpan
+                    <Save className="size-3.5" /> Simpan
+                  </Button>
+                  <Button
+                    className="hidden sm:inline-flex !min-h-9 !py-1.5 !text-xs font-bold"
+                    onClick={() => saveRecord(true)}
+                  >
+                    <Save className="size-3.5" /> Simpan & Lanjut
+                    <ArrowRight className="size-3.5" />
                   </Button>
                 </div>
               </div>
-              <div className="flex gap-2 overflow-x-auto border-b border-slate-100 p-4 sm:px-6">
-                {candidates.map((item) => {
-                  const rec = records[`${session.id}:${item.id}`]
-                  const att = rec?.attendance ?? "hadir"
-                  const isSaved = Boolean(rec?.savedAt)
-                  return (
-                    <button
-                      key={item.id}
-                      title={`${item.name} (${att.toUpperCase()})`}
-                      onClick={() => setCandidateId(item.id)}
-                      className={`relative grid size-11 shrink-0 place-items-center rounded-xl text-xs font-bold transition ${
-                        candidate.id === item.id
-                          ? "bg-red-600 text-white ring-4 ring-red-100"
-                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
-                    >
-                      {item.avatar}
-                      {isSaved ? (
-                        att === "hadir" ? (
-                          <CheckCircle2 className="absolute -right-1 -top-1 size-4 rounded-full bg-white text-emerald-600" />
-                        ) : (
-                          <span
-                            className={`absolute -right-1 -top-1 grid size-4 place-items-center rounded-full text-[0.6rem] font-bold text-white shadow-xs ${
-                              att === "sakit"
-                                ? "bg-amber-500"
-                                : att === "izin"
-                                  ? "bg-blue-500"
-                                  : "bg-rose-500"
-                            }`}
-                          >
-                            {att === "sakit" ? "S" : att === "izin" ? "I" : "A"}
-                          </span>
-                        )
-                      ) : null}
-                    </button>
-                  )
-                })}
-              </div>
 
-              <div className="p-5 sm:p-6">
-                {/* 1. Header Profil Kandidat & Status Kehadiran Sesi */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-11 place-items-center rounded-xl bg-slate-900 text-xs font-bold text-white">
-                      {candidate.avatar}
-                    </span>
-                    <div>
-                      <p className="font-bold text-slate-900">{candidate.name}</p>
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        {candidate.number} · {candidate.school}
+              {/* Clean Unified Candidate Bar */}
+              <div className="border-b border-slate-100 bg-slate-50/70 p-3 sm:p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  {/* Left: Integrated Navigation & Candidate Info (Expanded for full name) */}
+                  <div className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0">
+                    <button
+                      type="button"
+                      disabled={!prevCandidate}
+                      onClick={() =>
+                        prevCandidate && setCandidateId(prevCandidate.id)
+                      }
+                      className="grid size-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:border-slate-300 disabled:opacity-30 disabled:hover:bg-white disabled:hover:border-slate-200 active:scale-95"
+                      title="Kandidat sebelumnya"
+                    >
+                      <ChevronLeft className="size-4" />
+                    </button>
+
+                    <CandidateAvatar
+                      name={candidate.name}
+                      avatar={candidate.avatar}
+                      photoUrl={candidate.photoUrl}
+                      className="size-14 text-sm font-bold shrink-0 border border-slate-200 shadow-xs"
+                      rounded="rounded-2xl"
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => setShowCandidatePicker(true)}
+                          className="group inline-flex items-center gap-2 text-left min-w-0"
+                          title="Klik untuk cari atau ganti kandidat"
+                        >
+                          <span className="truncate font-display text-lg sm:text-xl font-black tracking-tight text-slate-950 group-hover:text-red-600 transition">
+                            {candidate.name}
+                          </span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/90 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition shrink-0">
+                            <span>
+                              {currentCandidateIndex + 1}/{sessionCandidates.length}
+                            </span>
+                            <ChevronDown className="size-3 text-slate-500 group-hover:text-red-600 transition" />
+                          </span>
+                        </button>
+                      </div>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500 truncate">
+                        {candidate.school} · {candidate.gender}
                       </p>
                     </div>
+
+                    <button
+                      type="button"
+                      disabled={!nextCandidate}
+                      onClick={() =>
+                        nextCandidate && setCandidateId(nextCandidate.id)
+                      }
+                      className="grid size-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:border-slate-300 disabled:opacity-30 disabled:hover:bg-white disabled:hover:border-slate-200 active:scale-95"
+                      title="Kandidat berikutnya"
+                    >
+                      <ChevronRight className="size-4" />
+                    </button>
                   </div>
 
-                  {/* Status Kehadiran: Hadir / Sakit / Izin / Alpa */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500">
-                      Kehadiran:
-                    </span>
-                    <div className="inline-flex rounded-xl bg-slate-100 p-1">
-                      {[
-                        {
-                          id: "hadir",
-                          label: "Hadir",
-                          activeClass: "bg-emerald-600 text-white shadow-xs",
-                        },
-                        {
-                          id: "sakit",
-                          label: "Sakit",
-                          activeClass: "bg-amber-600 text-white shadow-xs",
-                        },
-                        {
-                          id: "izin",
-                          label: "Izin",
-                          activeClass: "bg-blue-600 text-white shadow-xs",
-                        },
-                        {
-                          id: "alpa",
-                          label: "Alpa",
-                          activeClass: "bg-rose-600 text-white shadow-xs",
-                        },
-                      ].map((item) => {
-                        const isCurrent =
-                          (record.attendance ?? "hadir") === item.id
-                        return (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => {
-                              const newAtt = item.id as AttendanceStatus
-                              patchRecord({
-                                attendance: newAtt,
-                                result:
-                                  newAtt === "hadir"
-                                    ? record.result === "review" &&
-                                      (record.attendance === "sakit" ||
-                                        record.attendance === "izin" ||
-                                        record.attendance === "alpa")
-                                      ? "pending"
-                                      : record.result
-                                    : "review",
-                              })
-                            }}
-                            className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                              isCurrent
-                                ? item.activeClass
-                                : "text-slate-600 hover:text-slate-900"
-                            }`}
-                          >
-                            {item.label}
-                          </button>
-                        )
-                      })}
-                    </div>
+                  {/* Right: Status Kehadiran (Ultra-compact segmented pills) */}
+                  <div className="inline-flex rounded-xl border border-slate-200 bg-white p-0.5 shadow-2xs shrink-0 self-start sm:self-auto">
+                    {[
+                      {
+                        id: "hadir",
+                        label: "Hadir",
+                        activeClass: "bg-emerald-600 text-white shadow-xs font-bold",
+                      },
+                      {
+                        id: "sakit",
+                        label: "Sakit",
+                        activeClass: "bg-amber-600 text-white shadow-xs font-bold",
+                      },
+                      {
+                        id: "izin",
+                        label: "Izin",
+                        activeClass: "bg-blue-600 text-white shadow-xs font-bold",
+                      },
+                      {
+                        id: "alpa",
+                        label: "Alpa",
+                        activeClass: "bg-rose-600 text-white shadow-xs font-bold",
+                      },
+                    ].map((item) => {
+                      const isCur =
+                        (record.attendance ?? "hadir") === item.id
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            const newAtt = item.id as AttendanceStatus
+                            patchRecord({
+                              attendance: newAtt,
+                              result:
+                                newAtt === "hadir"
+                                  ? record.result === "review" &&
+                                    (record.attendance === "sakit" ||
+                                      record.attendance === "izin" ||
+                                      record.attendance === "alpa")
+                                    ? "pending"
+                                    : record.result
+                                  : "review",
+                            })
+                          }}
+                          className={`min-h-8 rounded-lg px-2.5 py-1 text-xs transition active:scale-95 ${
+                            isCur
+                              ? item.activeClass
+                              : "text-slate-600 font-medium hover:text-slate-900 hover:bg-slate-50"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      )
+                    })}
                   </div>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-6">
+
+                {/* Mobile Segmented Tabs */}
+                <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 lg:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setMobileTab("scoring")}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition ${
+                      mobileTab === "scoring"
+                        ? "bg-white text-slate-900 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Target className="size-3.5 text-red-600" />
+                    <span>Nilai Sesi</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMobileTab("survey")}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition ${
+                      mobileTab === "survey"
+                        ? "bg-white text-slate-900 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <ClipboardList className="size-3.5 text-blue-600" />
+                    <span>Survei</span>
+                    {record.note.trim() && (
+                      <span className="size-1.5 rounded-full bg-blue-600" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMobileTab("profile")}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition ${
+                      mobileTab === "profile"
+                        ? "bg-white text-slate-900 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <UserRound className="size-3.5 text-emerald-600" />
+                    <span>Profil</span>
+                  </button>
                 </div>
 
                 {/* Notifikasi jika peserta Sakit / Izin / Alpa */}
@@ -1392,597 +2325,1285 @@ export default function SimulationCenter() {
                       <strong className="uppercase">
                         {record.attendance}
                       </strong>
-                      . Tes fisik dilewati pada sesi ini dan otomatis dijadwalkan
-                      tinjau / susulan.
+                      . Nilai dilewati pada sesi ini dan otomatis dijadwalkan
+                      susulan.
                     </span>
                     <button
                       type="button"
                       onClick={() => patchRecord({ attendance: "hadir" })}
                       className="ml-2 shrink-0 font-bold underline"
                     >
-                      Ubah jadi Hadir
+                      Ubah Hadir
                     </button>
                   </div>
                 ) : null}
 
-                {/* 2. Hasil Sesi (Hanya jika Hadir) */}
-                {(record.attendance ?? "hadir") === "hadir" ? (
-                  <>
-                    {session.type !== "pbb" ? (
-                      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                          Hasil sesi
-                        </p>
-                        {session.type === "fitness" ? (
-                          <div className="flex items-center gap-1.5 text-xs">
-                            <span className="text-slate-400">Filter tes:</span>
-                            {[
-                              ["all", "Semua"],
-                              ["run_only", "Hanya Lari"],
-                              ["run_shuttle", "Lari & Shuttle"],
-                              ["samapta_b", "Samapta B"],
-                            ].map(([id, label]) => {
-                              const isSelected =
-                                session.fitnessPreset === id ||
-                                (!session.fitnessPreset && id === "all")
+                {/* 2. SECTION NILAI SESI */}
+                <div
+                  className={
+                    mobileTab === "scoring" || "hidden lg:block"
+                  }
+                >
+                  {(record.attendance ?? "hadir") === "hadir" ? (
+                    <>
+                      {session.type !== "pbb" ? (
+                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Hasil Pengujian Sesi
+                          </p>
+                          {session.type === "fitness" ? (
+                            <div className="flex items-center gap-1.5 text-xs">
+                              <span className="text-slate-400">Filter tes:</span>
+                              {[
+                                ["all", "Semua"],
+                                ["run_only", "Hanya Lari"],
+                                ["run_shuttle", "Lari & Shuttle"],
+                                ["samapta_b", "Samapta B"],
+                              ].map(([id, label]) => {
+                                const isSelected =
+                                  session.fitnessPreset === id ||
+                                  (!session.fitnessPreset &&
+                                    (isIntervalSession &&
+                                    session.title.toLowerCase().includes("shuttle")
+                                      ? id === "run_shuttle"
+                                      : isIntervalSession
+                                        ? id === "run_only"
+                                        : id === "all"))
+                                return (
+                                  <button
+                                    key={id}
+                                    type="button"
+                                    onClick={() =>
+                                      setSessionFitnessPreset(id as any)
+                                    }
+                                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                                      isSelected
+                                        ? "bg-slate-900 text-white"
+                                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    }`}
+                                  >
+                                    {label}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+
+                      {/* SAMAPTA FITNESS SECTION */}
+                      {session.type === "fitness" ? (
+                        <div className="mt-3 space-y-4">
+                          {/* Lari 12 menit / Lari Interval */}
+                          {activeFitnessTests.includes("distance") ? (
+                            <div
+                              className={`rounded-2xl border p-4 transition ${
+                                record.metrics.runDnf === "yes"
+                                  ? "border-rose-300 bg-rose-50/50"
+                                  : "border-slate-200 bg-slate-50/60"
+                              }`}
+                            >
+                              {/* Header & Mode Switcher */}
+                              <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="inline-flex rounded-xl bg-slate-200/70 p-0.5">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            runMode: "test12",
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+                                        currentRunMode === "test12"
+                                          ? "bg-white text-slate-900 shadow-2xs"
+                                          : "text-slate-600 hover:text-slate-900"
+                                      }`}
+                                    >
+                                      Tes 12 Menit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            runMode: "interval",
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-lg px-3 py-1 text-xs font-bold transition ${
+                                        currentRunMode === "interval"
+                                          ? "bg-white text-slate-900 shadow-2xs"
+                                          : "text-slate-600 hover:text-slate-900"
+                                      }`}
+                                    >
+                                      Latihan Interval
+                                    </button>
+                                  </div>
+
+                                  {record.metrics.runDnf === "yes" ? (
+                                    <span className="rounded-md bg-rose-100 px-2 py-0.5 text-[0.65rem] font-bold text-rose-700">
+                                      DNF
+                                    </span>
+                                  ) : null}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-slate-400">
+                                    {currentRunMode === "interval"
+                                      ? `Target: ${currentIntervalTargetSets} Set · Total ${calcIntervalTotalDistance}m`
+                                      : "Target: 3.000m"}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const isDnf =
+                                        record.metrics.runDnf === "yes"
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          runDnf: isDnf ? "" : "yes",
+                                        },
+                                        result: !isDnf
+                                          ? "review"
+                                          : record.result,
+                                      })
+                                    }}
+                                    className={`rounded-lg px-2.5 py-1 text-xs font-bold transition active:scale-95 ${
+                                      record.metrics.runDnf === "yes"
+                                        ? "bg-rose-600 text-white shadow-xs"
+                                        : "border border-slate-200 bg-white text-slate-600 hover:border-rose-300 hover:text-rose-600"
+                                    }`}
+                                  >
+                                    {record.metrics.runDnf === "yes"
+                                      ? "✕ DNF Aktif"
+                                      : "+ DNF"}
+                                  </button>
+                                </div>
+                              </div>
+
+                              {currentRunMode === "interval" ? (
+                                <div className="space-y-3">
+                                  {/* 3 Kolom Utama Bersih Sejajar */}
+                                  <div className="grid gap-3 sm:grid-cols-3">
+                                    {/* Panjang Lintasan */}
+                                    <div className="grid gap-1">
+                                      <label className="text-xs font-semibold text-slate-600 flex items-center justify-between">
+                                        <span>Lintasan per Set (m)</span>
+                                        <span className="text-[0.65rem] text-slate-400 font-normal">Ketik bebas</span>
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          inputMode="numeric"
+                                          placeholder="400"
+                                          value={currentIntervalDist}
+                                          onChange={(e) =>
+                                            updateIntervalMetrics({
+                                              intervalDist: e.target.value,
+                                            })
+                                          }
+                                          className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 pr-8 font-display text-lg font-bold text-slate-900 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                        />
+                                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                          m
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Repetisi / Set with Stepper */}
+                                    <div className="grid gap-1">
+                                      <label className="text-xs font-semibold text-slate-600">
+                                        Repetisi Tuntas (Set)
+                                      </label>
+                                      <div className="flex items-center gap-1.5">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const cur =
+                                              parseInt(
+                                                currentIntervalTargetSets,
+                                                10,
+                                              ) || 4
+                                            updateIntervalMetrics({
+                                              intervalTargetSets: String(
+                                                Math.max(1, cur - 1),
+                                              ),
+                                            })
+                                          }}
+                                          className="grid size-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-sm font-bold text-slate-700 active:scale-95"
+                                        >
+                                          -1
+                                        </button>
+                                        <input
+                                          type="number"
+                                          inputMode="numeric"
+                                          placeholder="4"
+                                          value={currentIntervalTargetSets}
+                                          onChange={(e) =>
+                                            updateIntervalMetrics({
+                                              intervalTargetSets:
+                                                e.target.value,
+                                            })
+                                          }
+                                          className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-2 text-center font-display text-xl font-extrabold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const cur =
+                                              parseInt(
+                                                currentIntervalTargetSets,
+                                                10,
+                                              ) || 4
+                                            updateIntervalMetrics({
+                                              intervalTargetSets: String(
+                                                cur + 1,
+                                              ),
+                                            })
+                                          }}
+                                          className="grid size-12 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 text-sm font-bold text-red-600 active:scale-95"
+                                        >
+                                          +1
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Rata-rata Waktu / Lap */}
+                                    <div className="grid gap-1">
+                                      <label className="text-xs font-semibold text-slate-600 flex items-center justify-between">
+                                        <span>Rata-rata Waktu (Detik)</span>
+                                        {calcIntervalAvgSplit > 0 ? (
+                                          <span className="text-[0.65rem] text-slate-500 font-medium">
+                                            {formatSecondsToMmSs(
+                                              calcIntervalAvgSplit,
+                                            )}{" "}
+                                            / lap
+                                          </span>
+                                        ) : null}
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          step="0.1"
+                                          inputMode="decimal"
+                                          placeholder="90.0"
+                                          value={
+                                            calcIntervalAvgSplit > 0
+                                              ? calcIntervalAvgSplit.toFixed(1)
+                                              : currentIntervalTargetPace
+                                          }
+                                          onChange={(e) =>
+                                            updateIntervalMetrics({
+                                              intervalTargetPace:
+                                                e.target.value,
+                                            })
+                                          }
+                                          className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-14 font-display text-xl font-extrabold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                        />
+                                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                          detik
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Catatan Split Stopwatch per Set (Dinamis Sesuai Repetisi) */}
+                                  {(() => {
+                                    const targetSetCount = Math.min(
+                                      12,
+                                      Math.max(
+                                        1,
+                                        parseInt(
+                                          currentIntervalTargetSets,
+                                          10,
+                                        ) || 4,
+                                      ),
+                                    )
+                                    const setList = Array.from(
+                                      { length: targetSetCount },
+                                      (_, i) => i + 1,
+                                    )
+                                    const gridColsClass =
+                                      targetSetCount <= 3
+                                        ? "grid-cols-3"
+                                        : targetSetCount === 4
+                                          ? "grid-cols-2 sm:grid-cols-4"
+                                          : targetSetCount <= 6
+                                            ? "grid-cols-3 sm:grid-cols-6"
+                                            : "grid-cols-4 sm:grid-cols-8"
+
+                                    return (
+                                      <div className="pt-1">
+                                        <div className="mb-1.5 flex items-center justify-between text-xs">
+                                          <span className="font-semibold text-slate-600">
+                                            Split Stopwatch per Set ({targetSetCount} Set)
+                                          </span>
+                                          <span className="text-[0.68rem] text-slate-400">
+                                            Kotak otomatis menyesuaikan jumlah repetisi di atas
+                                          </span>
+                                        </div>
+                                        <div className={`grid gap-2 ${gridColsClass}`}>
+                                          {setList.map((setNum) => {
+                                            const fieldKey =
+                                              `intervalLap${setNum}` as const
+                                            return (
+                                              <div
+                                                key={setNum}
+                                                className="relative"
+                                              >
+                                                <input
+                                                  type="number"
+                                                  step="0.1"
+                                                  inputMode="decimal"
+                                                  placeholder={`Set ${setNum} (dtk)`}
+                                                  value={
+                                                    record.metrics[fieldKey] || ""
+                                                  }
+                                                  onChange={(e) =>
+                                                    updateLapSplit(
+                                                      setNum,
+                                                      e.target.value,
+                                                    )
+                                                  }
+                                                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-2 text-center text-xs font-bold text-slate-900 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                                                />
+                                              </div>
+                                            )
+                                          })}
+                                        </div>
+                                      </div>
+                                    )
+                                  })()}
+                                </div>
+                              ) : (
+                                /* Regular 12-Minute Run Grid */
+                                <div className="grid gap-3 sm:grid-cols-3">
+                                  {/* Panjang lintasan */}
+                                  <div className="grid gap-1">
+                                    <label className="text-xs font-semibold text-slate-600 flex items-center justify-between">
+                                      <span>Lintasan (m)</span>
+                                      <span className="text-[0.65rem] text-slate-400 font-normal">
+                                        Ketik bebas
+                                      </span>
+                                    </label>
+                                    <div className="relative">
+                                      <input
+                                        type="number"
+                                        inputMode="numeric"
+                                        placeholder="400"
+                                        value={sessionTrackLength || ""}
+                                        onChange={(e) =>
+                                          updateTrackLength(
+                                            Number(e.target.value) || 0,
+                                          )
+                                        }
+                                        className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 pr-8 font-display text-lg font-bold text-slate-900 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                      />
+                                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                        m
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Putaran with steppers */}
+                                  <div className="grid gap-1">
+                                    <label className="text-xs font-semibold text-slate-600">
+                                      Putaran (Laps)
+                                    </label>
+                                    <div className="flex items-center gap-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => stepLaps(-0.5)}
+                                        className="grid size-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-sm font-bold text-slate-700 active:scale-95"
+                                      >
+                                        -0.5
+                                      </button>
+                                      <input
+                                        type="number"
+                                        step="0.25"
+                                        inputMode="decimal"
+                                        placeholder="0"
+                                        value={record.metrics.laps ?? ""}
+                                        onChange={(e) =>
+                                          handleLapsChange(e.target.value)
+                                        }
+                                        className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-2 text-center font-display text-xl font-extrabold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => stepLaps(0.5)}
+                                        className="grid size-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-sm font-bold text-slate-700 active:scale-95"
+                                      >
+                                        +0.5
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => stepLaps(1)}
+                                        className="grid size-12 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 text-sm font-bold text-red-600 active:scale-95"
+                                      >
+                                        +1
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Total Jarak */}
+                                  <div className="grid gap-1">
+                                    <label className="text-xs font-semibold text-slate-600">
+                                      Total Jarak (Meter)
+                                    </label>
+                                    <div className="relative">
+                                      <input
+                                        type="number"
+                                        inputMode="numeric"
+                                        placeholder="0"
+                                        value={record.metrics.distance ?? ""}
+                                        onChange={(e) =>
+                                          handleDistanceDirectChange(
+                                            e.target.value,
+                                          )
+                                        }
+                                        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-14 font-display text-xl font-extrabold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                                      />
+                                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                        meter
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : null}
+
+                          {/* Samapta B: Pushup, Situp, Backup, Shuttle (Ukuran Otomatis Menyesuaikan Jumlah Tes Aktif) */}
+                          {(() => {
+                            const samaptaBCount = activeFitnessTests.filter(
+                              (k) => k !== "distance",
+                            ).length
+                            if (samaptaBCount === 0) return null
+
+                            const gridClass =
+                              samaptaBCount === 1
+                                ? "grid gap-3 sm:max-w-sm md:max-w-md"
+                                : samaptaBCount === 2
+                                  ? "grid gap-3 sm:grid-cols-2"
+                                  : samaptaBCount === 3
+                                    ? "grid gap-3 sm:grid-cols-3"
+                                    : "grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+
+                            return (
+                              <div className={gridClass}>
+                                {activeFitnessTests.includes("pushup") ? (
+                                  <NumberStepper
+                                    label="Push-up 1 Menit"
+                                    unit="kali"
+                                    value={record.metrics.pushup ?? ""}
+                                    quickAdds={[1, 5, 10]}
+                                    placeholder="0"
+                                    onChange={(val) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          pushup: val,
+                                        },
+                                      })
+                                    }
+                                  />
+                                ) : null}
+
+                                {activeFitnessTests.includes("situp") ? (
+                                  <NumberStepper
+                                    label="Sit-up 1 Menit"
+                                    unit="kali"
+                                    value={record.metrics.situp ?? ""}
+                                    quickAdds={[1, 5, 10]}
+                                    placeholder="0"
+                                    onChange={(val) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          situp: val,
+                                        },
+                                      })
+                                    }
+                                  />
+                                ) : null}
+
+                                {activeFitnessTests.includes("backup") ? (
+                                  <NumberStepper
+                                    label="Back-up 1 Menit"
+                                    unit="kali"
+                                    value={record.metrics.backup ?? ""}
+                                    quickAdds={[1, 5, 10]}
+                                    placeholder="0"
+                                    onChange={(val) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          backup: val,
+                                        },
+                                      })
+                                    }
+                                  />
+                                ) : null}
+
+                                {activeFitnessTests.includes("shuttle") ? (
+                                  <NumberStepper
+                                    label="Shuttle Run 6x10m"
+                                    unit="detik"
+                                    step={0.1}
+                                    value={record.metrics.shuttle ?? ""}
+                                    quickAdds={[0.5, 1]}
+                                    placeholder="16.0"
+                                    onChange={(val) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          shuttle: val,
+                                        },
+                                      })
+                                    }
+                                  />
+                                ) : null}
+                              </div>
+                            )
+                          })()}
+                        </div>
+                      ) : session.type === "pbb" ? (
+                        <div className="mt-5">
+                          <PbbEvaluationSection
+                            metrics={record.metrics}
+                            onUpdateMetrics={(updatedMetrics) =>
+                              patchRecord({ metrics: updatedMetrics })
+                            }
+                          />
+                        </div>
+                      ) : session.type === "parade" ? (
+                        /* PARADE SIMULATION INPUTS */
+                        <div className="mt-4 space-y-4">
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            <NumberStepper
+                              label="Tinggi Badan"
+                              unit="cm"
+                              value={record.metrics.height ?? ""}
+                              placeholder="170"
+                              quickAdds={[0.5, 1]}
+                              onChange={(val) =>
+                                patchRecord({
+                                  metrics: { ...record.metrics, height: val },
+                                })
+                              }
+                            />
+                            <NumberStepper
+                              label="Berat Badan"
+                              unit="kg"
+                              value={record.metrics.weight ?? ""}
+                              placeholder="60"
+                              quickAdds={[0.5, 1]}
+                              onChange={(val) =>
+                                patchRecord({
+                                  metrics: { ...record.metrics, weight: val },
+                                })
+                              }
+                            />
+                            {/* Live BMI badge */}
+                            {(() => {
+                              const h = parseFloat(
+                                record.metrics.height ||
+                                  String(candidate.height || 0),
+                              )
+                              const w = parseFloat(
+                                record.metrics.weight ||
+                                  String(candidate.weight || 0),
+                              )
+                              const bmiVal =
+                                h > 0 && w > 0 ? bmi(h, w) : null
                               return (
-                                <button
-                                  key={id}
-                                  type="button"
-                                  onClick={() =>
-                                    setSessionFitnessPreset(id as any)
+                                <div className="flex flex-col justify-center rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5">
+                                  <span className="text-xs font-semibold text-slate-500">
+                                    Indeks Massa Tubuh (BMI)
+                                  </span>
+                                  <div className="mt-1 flex items-baseline gap-2">
+                                    <span className="font-display text-2xl font-black text-slate-900">
+                                      {bmiVal !== null ? bmiVal.toFixed(1) : "—"}
+                                    </span>
+                                    {bmiVal !== null && (
+                                      <span
+                                        className={`rounded-md px-2 py-0.5 text-xs font-bold ${
+                                          bmiVal >= 18.5 && bmiVal <= 25
+                                            ? "bg-emerald-100 text-emerald-800"
+                                            : bmiVal < 18.5
+                                              ? "bg-amber-100 text-amber-800"
+                                              : "bg-rose-100 text-rose-800"
+                                        }`}
+                                      >
+                                        {bmiVal >= 18.5 && bmiVal <= 25
+                                          ? "Ideal / Normal"
+                                          : bmiVal < 18.5
+                                            ? "Underweight"
+                                            : "Overweight"}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })()}
+                          </div>
+
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {/* Flat foot pill selector */}
+                            <div className="grid gap-1.5 rounded-2xl border border-slate-200 bg-white p-3.5">
+                              <label className="text-xs font-bold text-slate-800">
+                                Kondisi Telapak Kaki (Flat Foot)
+                              </label>
+                              <div className="grid grid-cols-2 gap-2 mt-1">
+                                {[
+                                  { id: "Tidak", label: "Normal (Lengkung)" },
+                                  { id: "Ya", label: "Flat Foot (Datar)" },
+                                ].map((opt) => {
+                                  const isSel =
+                                    record.metrics.flatFoot === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            flatFoot: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`min-h-11 rounded-xl text-xs font-bold transition active:scale-95 ${
+                                        isSel
+                                          ? opt.id === "Tidak"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : "bg-rose-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Simetri Bahu pill selector */}
+                            <div className="grid gap-1.5 rounded-2xl border border-slate-200 bg-white p-3.5">
+                              <label className="text-xs font-bold text-slate-800">
+                                Simetri Bahu
+                              </label>
+                              <div className="grid grid-cols-2 gap-2 mt-1">
+                                {[
+                                  { id: "Simetris", label: "Simetris (Normal)" },
+                                  { id: "Review", label: "Asimetris (Review)" },
+                                ].map((opt) => {
+                                  const isSel =
+                                    record.metrics.shoulder === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            shoulder: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`min-h-11 rounded-xl text-xs font-bold transition active:scale-95 ${
+                                        isSel
+                                          ? opt.id === "Simetris"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : "bg-amber-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <NumberStepper
+                              label="Celah Kaki O/X (cm)"
+                              unit="cm"
+                              value={record.metrics.legGap ?? ""}
+                              placeholder="0"
+                              quickAdds={[0.5, 1]}
+                              hint="Target celah kaki < 5 cm"
+                              onChange={(val) =>
+                                patchRecord({
+                                  metrics: { ...record.metrics, legGap: val },
+                                })
+                              }
+                            />
+                            <NumberStepper
+                              label="Skor Postur & Antropometri"
+                              unit="poin"
+                              value={record.metrics.posture ?? ""}
+                              placeholder="85"
+                              quickAdds={[5, 10]}
+                              onChange={(val) =>
+                                patchRecord({
+                                  metrics: { ...record.metrics, posture: val },
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      ) : session.type === "pip" || session.type === "tiu" ? (
+                        /* CAT PIP & TIU INPUTS */
+                        <div className="mt-4 space-y-4">
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <NumberStepper
+                              label="Nilai CAT (0 - 100)"
+                              unit="poin"
+                              min={0}
+                              max={100}
+                              value={record.metrics.score ?? ""}
+                              placeholder="80"
+                              quickAdds={[5, 10]}
+                              onChange={(val) =>
+                                patchRecord({
+                                  metrics: { ...record.metrics, score: val },
+                                })
+                              }
+                            />
+                            <NumberStepper
+                              label="Jumlah Jawaban Benar (0 - 50)"
+                              unit="soal"
+                              min={0}
+                              max={50}
+                              value={record.metrics.correct ?? ""}
+                              placeholder="40"
+                              quickAdds={[1, 5]}
+                              onChange={(val) => {
+                                const num = parseFloat(val) || 0
+                                const calculatedScore = String(
+                                  Math.min(100, num * 2),
+                                )
+                                patchRecord({
+                                  metrics: {
+                                    ...record.metrics,
+                                    correct: val,
+                                    score:
+                                      !record.metrics.score ||
+                                      record.metrics.score === ""
+                                        ? calculatedScore
+                                        : record.metrics.score,
+                                  },
+                                })
+                              }}
+                            />
+                          </div>
+
+                          {session.type === "pip" ? (
+                            <Input
+                              label="Waktu Selesai (Durasi)"
+                              placeholder="Contoh: 38 menit"
+                              value={record.metrics.duration ?? ""}
+                              onChange={(e) =>
+                                patchRecord({
+                                  metrics: {
+                                    ...record.metrics,
+                                    duration: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          ) : (
+                            <Input
+                              label="Materi Terlemah (Opsional)"
+                              placeholder="Contoh: Silogisme / Figural"
+                              value={record.metrics.weakness ?? ""}
+                              onChange={(e) =>
+                                patchRecord({
+                                  metrics: {
+                                    ...record.metrics,
+                                    weakness: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        /* GENERIC / INTERVIEW FIELDS */
+                        <div className="mt-3 grid gap-4 md:grid-cols-3">
+                          {definition.fields.map((field) =>
+                            field.type === "number" ? (
+                              <NumberStepper
+                                key={field.key}
+                                label={field.label}
+                                value={record.metrics[field.key] ?? ""}
+                                placeholder={field.placeholder}
+                                onChange={(val) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      [field.key]: val,
+                                    },
+                                  })
+                                }
+                              />
+                            ) : (
+                              <Input
+                                key={field.key}
+                                label={field.label}
+                                placeholder={field.placeholder}
+                                value={record.metrics[field.key] ?? ""}
+                                onChange={(event) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      [field.key]: event.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            ),
+                          )}
+                        </div>
+                      )}
+
+                      {/* Sesi Administrasi Khusus */}
+                      {session.type === "administration" ? (
+                        <div className="mt-6 rounded-2xl border border-slate-200 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">
+                                Enam Berkas Pokok
+                              </p>
+                              <p className="mt-0.5 text-xs text-slate-500">
+                                Tandai setelah berkas fisik dan digital
+                                diverifikasi.
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const patched: Record<string, string> = {
+                                    ...record.metrics,
                                   }
-                                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                                    isSelected
-                                      ? "bg-slate-900 text-white"
-                                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                  administrationDocuments.forEach(
+                                    (_, i) => (patched[`document-${i}`] = "valid"),
+                                  )
+                                  patchRecord({ metrics: patched })
+                                }}
+                                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 transition active:scale-95"
+                              >
+                                ✨ Validasi Semua (6/6)
+                              </button>
+                              <Badge tone="info">
+                                {
+                                  administrationDocuments.filter(
+                                    (_, index) =>
+                                      record.metrics[`document-${index}`] ===
+                                      "valid",
+                                  ).length
+                                }
+                                /6 valid
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            {administrationDocuments.map((document, index) => {
+                              const checked =
+                                record.metrics[`document-${index}`] === "valid"
+                              return (
+                                <label
+                                  key={document.name}
+                                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                                    checked
+                                      ? "border-emerald-200 bg-emerald-50"
+                                      : "border-slate-100 hover:bg-slate-50"
                                   }`}
                                 >
-                                  {label}
-                                </button>
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={(event) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          [`document-${index}`]: event.target
+                                            .checked
+                                            ? "valid"
+                                            : "",
+                                        },
+                                      })
+                                    }
+                                    className="mt-0.5 size-4 accent-emerald-600"
+                                  />
+                                  <span>
+                                    <span className="block text-sm font-bold text-slate-800">
+                                      {document.name}
+                                    </span>
+                                    <span className="mt-1 block text-xs leading-relaxed text-slate-500">
+                                      {document.detail}
+                                    </span>
+                                  </span>
+                                </label>
                               )
                             })}
                           </div>
-                        ) : null}
-                      </div>
-                    ) : null}
+                        </div>
+                      ) : null}
 
-                    {session.type === "fitness" ? (
-                      <div className="mt-3 space-y-4">
-                        {/* Lari 12 menit: 3 Kolom Rapi */}
-                        {activeFitnessTests.includes("distance") ? (
+                      {/* Sesi Rikkes Khusus */}
+                      {session.type === "medical" ? (
+                        <div className="mt-6 rounded-2xl border border-slate-200 p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">
+                                Survei 21 Anamnesis
+                              </p>
+                              <p className="mt-1 text-xs text-slate-500">
+                                Lebih dari 5 YA atau tanda kritis memerlukan
+                                hard-lock tinjau.
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const patched: Record<string, string> = {
+                                    ...record.metrics,
+                                  }
+                                  anamnesisItems.forEach(
+                                    (_, i) => (patched[`anamnesis-${i}`] = "no"),
+                                  )
+                                  patchRecord({ metrics: patched })
+                                }}
+                                className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 transition active:scale-95"
+                              >
+                                ✨ Set Semua TIDAK (Sehat)
+                              </button>
+                              <Badge
+                                tone={
+                                  medicalCritical || medicalYesCount > 5
+                                    ? "danger"
+                                    : medicalYesCount
+                                      ? "warning"
+                                      : "success"
+                                }
+                              >
+                                {medicalYesCount} YA
+                                {medicalCritical ? " · KRITIS" : ""}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="mt-4 grid gap-2">
+                            {anamnesisItems.map(([item, detail], index) => {
+                              const checked =
+                                record.metrics[`anamnesis-${index}`] === "yes"
+                              return (
+                                <label
+                                  key={item}
+                                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
+                                    checked
+                                      ? criticalAnamnesis.has(index)
+                                        ? "border-red-200 bg-red-50"
+                                        : "border-amber-200 bg-amber-50"
+                                      : "border-slate-100 hover:bg-slate-50"
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={(event) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          [`anamnesis-${index}`]: event.target
+                                            .checked
+                                            ? "yes"
+                                            : "no",
+                                        },
+                                      })
+                                    }
+                                    className="mt-0.5 size-4 accent-red-600"
+                                  />
+                                  <span className="grid flex-1 gap-1 md:grid-cols-[1fr_1.1fr]">
+                                    <span className="text-sm font-semibold text-slate-800">
+                                      {index + 1}. {item}
+                                    </span>
+                                    <span className="text-xs leading-relaxed text-slate-500">
+                                      {detail}
+                                    </span>
+                                  </span>
+                                  {criticalAnamnesis.has(index) ? (
+                                    <Badge tone="danger">Kritis</Badge>
+                                  ) : null}
+                                </label>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {/* Konversi Otomatis Samapta Live Card */}
+                      {session.type === "fitness" ? (
+                        <div className="mt-5 rounded-2xl bg-slate-950 p-4 text-white shadow-md">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-bold">
+                                Konversi Otomatis Samapta
+                              </p>
+                              <p className="mt-0.5 text-xs text-slate-400">
+                                {testedFitnessItems.length > 0
+                                  ? `Rata-rata ${testedFitnessItems.length} tes disinkronkan ke nilai Samapta kandidat.`
+                                  : "Rata-rata tes otomatis disinkronkan ke profil kandidat saat disimpan."}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-display text-2xl font-bold">
+                                {testedFitnessItems.length > 0
+                                  ? fitnessAverage.toFixed(1)
+                                  : "—"}
+                              </p>
+                              <p className="text-[0.68rem] text-slate-400">
+                                {testedFitnessItems.length > 0
+                                  ? `rata-rata (${testedFitnessItems.length} tes)`
+                                  : "belum diisi"}
+                              </p>
+                            </div>
+                          </div>
                           <div
-                            className={`rounded-xl border p-4 transition ${
-                              record.metrics.runDnf === "yes"
-                                ? "border-rose-300 bg-rose-50/50"
-                                : "border-slate-200 bg-slate-50/60"
+                            className={`mt-3 grid gap-2 ${
+                              activeFitnessTests.length <= 2
+                                ? "grid-cols-2"
+                                : activeFitnessTests.length === 3
+                                  ? "grid-cols-3"
+                                  : activeFitnessTests.length === 4
+                                    ? "grid-cols-2 sm:grid-cols-4"
+                                    : "grid-cols-2 sm:grid-cols-5"
                             }`}
                           >
-                            <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-slate-800">
-                                  Lari 12 Menit (Samapta A)
-                                </span>
-                                {record.metrics.runDnf === "yes" ? (
-                                  <span className="rounded-md bg-rose-100 px-2 py-0.5 text-[0.65rem] font-bold text-rose-700">
-                                    DNF
-                                  </span>
-                                ) : null}
-                              </div>
-                              <div className="flex items-center gap-2.5">
-                                <span className="text-xs text-slate-400">
-                                  Target unggul: 3.000 meter
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const isDnf =
-                                      record.metrics.runDnf === "yes"
-                                    patchRecord({
-                                      metrics: {
-                                        ...record.metrics,
-                                        runDnf: isDnf ? "" : "yes",
-                                      },
-                                      result: !isDnf ? "review" : record.result,
-                                    })
-                                  }}
-                                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                                    record.metrics.runDnf === "yes"
-                                      ? "bg-rose-600 text-white shadow-xs"
-                                      : "border border-slate-200 bg-white text-slate-600 hover:border-rose-300 hover:text-rose-600"
-                                  }`}
-                                  title="Tandai DNF jika peserta berhenti sebelum 12 menit tuntas"
+                            {fitnessItemsData
+                              .filter((item) => item.isActive)
+                              .map((item) => (
+                                <div
+                                  className="rounded-xl bg-white/[0.07] p-2.5 text-center"
+                                  key={item.key}
                                 >
-                                  {record.metrics.runDnf === "yes"
-                                    ? "✕ DNF Aktif"
-                                    : "+ DNF"}
-                                </button>
-                              </div>
-                            </div>
-
-                            {record.metrics.runDnf === "yes" ? (
-                              <div className="mb-3 rounded-lg border border-rose-200 bg-white/90 px-3 py-1.5 text-xs text-rose-800">
-                                Peserta ditandai <strong>DNF (Do Not Finish)</strong> — berhenti sebelum 12 menit tuntas. Anda tetap dapat mencatat meter yang sempat ditempuh di bawah ini.
-                              </div>
-                            ) : null}
-
-                            <div className="grid gap-3 sm:grid-cols-3">
-                              <div className="grid gap-1">
-                                <label className="text-xs font-medium text-slate-500">
-                                  Panjang lintasan (m)
-                                </label>
-                                <input
-                                  type="number"
-                                  value={sessionTrackLength}
-                                  onChange={(e) =>
-                                    updateTrackLength(
-                                      Number(e.target.value) || 400,
-                                    )
-                                  }
-                                  placeholder="400"
-                                  className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
-                                />
-                              </div>
-
-                              <div className="grid gap-1">
-                                <label className="text-xs font-medium text-slate-500">
-                                  Jumlah putaran
-                                </label>
-                                <input
-                                  type="number"
-                                  step="0.25"
-                                  placeholder="Contoh: 6.5"
-                                  value={record.metrics.laps ?? ""}
-                                  onChange={(e) =>
-                                    handleLapsChange(e.target.value)
-                                  }
-                                  className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
-                                />
-                              </div>
-
-                              <div className="grid gap-1">
-                                <label className="text-xs font-medium text-slate-500">
-                                  Total jarak tempuh
-                                </label>
-                                <div className="relative">
-                                  <input
-                                    type="number"
-                                    placeholder="0"
-                                    value={record.metrics.distance ?? ""}
-                                    onChange={(e) =>
-                                      handleDistanceDirectChange(e.target.value)
-                                    }
-                                    className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-14 text-sm font-bold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
-                                  />
-                                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
-                                    meter
-                                  </span>
+                                  <p className="text-[0.65rem] text-slate-400">
+                                    {item.shortLabel}
+                                  </p>
+                                  <p className="mt-1 font-bold">
+                                    {item.isDnf ? (
+                                      <span className="font-extrabold text-rose-400">
+                                        DNF
+                                      </span>
+                                    ) : item.hasVal ? (
+                                      item.score
+                                    ) : (
+                                      "—"
+                                    )}
+                                  </p>
                                 </div>
-                              </div>
-                            </div>
+                              ))}
                           </div>
-                        ) : null}
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
 
-                        {/* Samapta B: Push-up, Sit-up, Back-up, Shuttle run */}
-                        {activeFitnessTests.some((k) => k !== "distance") ? (
-                          <div className="grid gap-3 sm:grid-cols-3">
-                            {activeFitnessTests.includes("pushup") ? (
-                              <Input
-                                label="Push-up"
-                                type="number"
-                                placeholder="kali"
-                                value={record.metrics.pushup ?? ""}
-                                onChange={(event) =>
-                                  patchRecord({
-                                    metrics: {
-                                      ...record.metrics,
-                                      pushup: event.target.value,
-                                    },
-                                  })
-                                }
-                              />
-                            ) : null}
-
-                            {activeFitnessTests.includes("situp") ? (
-                              <Input
-                                label="Sit-up"
-                                type="number"
-                                placeholder="kali"
-                                value={record.metrics.situp ?? ""}
-                                onChange={(event) =>
-                                  patchRecord({
-                                    metrics: {
-                                      ...record.metrics,
-                                      situp: event.target.value,
-                                    },
-                                  })
-                                }
-                              />
-                            ) : null}
-
-                            {activeFitnessTests.includes("backup") ? (
-                              <Input
-                                label="Back-up"
-                                type="number"
-                                placeholder="kali"
-                                value={record.metrics.backup ?? ""}
-                                onChange={(event) =>
-                                  patchRecord({
-                                    metrics: {
-                                      ...record.metrics,
-                                      backup: event.target.value,
-                                    },
-                                  })
-                                }
-                              />
-                            ) : null}
-
-                            {activeFitnessTests.includes("shuttle") ? (
-                              <Input
-                                label="Shuttle run"
-                                type="number"
-                                step="0.1"
-                                placeholder="detik"
-                                value={record.metrics.shuttle ?? ""}
-                                onChange={(event) =>
-                                  patchRecord({
-                                    metrics: {
-                                      ...record.metrics,
-                                      shuttle: event.target.value,
-                                    },
-                                  })
-                                }
-                              />
-                            ) : null}
-                          </div>
-                        ) : null}
-                      </div>
-                    ) : session.type === "pbb" ? (
-                      <div className="mt-5">
-                        <PbbEvaluationSection
-                          metrics={record.metrics}
-                          onUpdateMetrics={(updatedMetrics) =>
-                            patchRecord({ metrics: updatedMetrics })
+                  {/* 3. Keputusan / Status Tahapan Kandidat */}
+                  <fieldset className="mt-5 border-t border-slate-100 pt-5">
+                    <legend className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Keputusan / Status Hasil Kandidat
+                    </legend>
+                    <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {[
+                        ["pending", "Belum"],
+                        ["passed", "Lolos target"],
+                        ["review", "Remedial / Tinjau"],
+                        ["failed", "Belum memenuhi"],
+                      ].map(([value, label]) => (
+                        <button
+                          type="button"
+                          key={value}
+                          onClick={() =>
+                            patchRecord({ result: value as ResultStatus })
                           }
-                        />
-                      </div>
-                    ) : (
-                      <div className="mt-3 grid gap-4 md:grid-cols-3">
-                        {definition.fields.map((field) => (
-                          <Input
-                            key={field.key}
-                            label={field.label}
-                            type={field.type ?? "text"}
-                            placeholder={field.placeholder}
-                            value={record.metrics[field.key] ?? ""}
-                            onChange={(event) =>
-                              patchRecord({
-                                metrics: {
-                                  ...record.metrics,
-                                  [field.key]: event.target.value,
-                                },
-                              })
-                            }
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Sesi Administrasi Khusus */}
-                    {session.type === "administration" ? (
-                      <div className="mt-6 rounded-2xl border border-slate-200 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-bold text-slate-900">
-                              Enam berkas pokok
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500">
-                              Tandai setelah file dan isi dokumen diverifikasi.
-                            </p>
-                          </div>
-                          <Badge tone="info">
-                            {
-                              administrationDocuments.filter(
-                                (_, index) =>
-                                  record.metrics[`document-${index}`] ===
-                                  "valid",
-                              ).length
-                            }
-                            /6 valid
-                          </Badge>
-                        </div>
-                        <div className="mt-4 grid gap-3 md:grid-cols-2">
-                          {administrationDocuments.map((document, index) => {
-                            const checked =
-                              record.metrics[`document-${index}`] === "valid"
-                            return (
-                              <label
-                                key={document.name}
-                                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
-                                  checked
-                                    ? "border-emerald-200 bg-emerald-50"
-                                    : "border-slate-100 hover:bg-slate-50"
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={(event) =>
-                                    patchRecord({
-                                      metrics: {
-                                        ...record.metrics,
-                                        [`document-${index}`]: event.target
-                                          .checked
-                                          ? "valid"
-                                          : "",
-                                      },
-                                    })
-                                  }
-                                  className="mt-0.5 size-4 accent-emerald-600"
-                                />
-                                <span>
-                                  <span className="block text-sm font-bold text-slate-800">
-                                    {document.name}
-                                  </span>
-                                  <span className="mt-1 block text-xs leading-relaxed text-slate-500">
-                                    {document.detail}
-                                  </span>
-                                </span>
-                              </label>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* Sesi Rikkes Khusus */}
-                    {session.type === "medical" ? (
-                      <div className="mt-6 rounded-2xl border border-slate-200 p-4">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-bold text-slate-900">
-                              Survei 21 anamnesis
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500">
-                              Lebih dari 5 YA atau critical flag memerlukan
-                              keputusan hard-lock.
-                            </p>
-                          </div>
-                          <Badge
-                            tone={
-                              medicalCritical || medicalYesCount > 5
-                                ? "danger"
-                                : medicalYesCount
-                                  ? "warning"
-                                  : "success"
-                            }
-                          >
-                            {medicalYesCount} YA
-                            {medicalCritical ? " · KRITIS" : ""}
-                          </Badge>
-                        </div>
-                        <div className="mt-4 grid gap-2">
-                          {anamnesisItems.map(([item, detail], index) => {
-                            const checked =
-                              record.metrics[`anamnesis-${index}`] === "yes"
-                            return (
-                              <label
-                                key={item}
-                                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${
-                                  checked
-                                    ? criticalAnamnesis.has(index)
-                                      ? "border-red-200 bg-red-50"
-                                      : "border-amber-200 bg-amber-50"
-                                    : "border-slate-100 hover:bg-slate-50"
-                                }`}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={(event) =>
-                                    patchRecord({
-                                      metrics: {
-                                        ...record.metrics,
-                                        [`anamnesis-${index}`]: event.target
-                                          .checked
-                                          ? "yes"
-                                          : "no",
-                                      },
-                                    })
-                                  }
-                                  className="mt-0.5 size-4 accent-red-600"
-                                />
-                                <span className="grid flex-1 gap-1 md:grid-cols-[1fr_1.1fr]">
-                                  <span className="text-sm font-semibold text-slate-800">
-                                    {index + 1}. {item}
-                                  </span>
-                                  <span className="text-xs leading-relaxed text-slate-500">
-                                    {detail}
-                                  </span>
-                                </span>
-                                {criticalAnamnesis.has(index) ? (
-                                  <Badge tone="danger">Kritis</Badge>
-                                ) : null}
-                              </label>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* 3. Konversi Otomatis Samapta (Langsung di bawah hasil tes) */}
-                    {session.type === "fitness" ? (
-                      <div className="mt-5 rounded-2xl bg-slate-950 p-4 text-white">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-bold">
-                              Konversi otomatis Samapta
-                            </p>
-                            <p className="mt-1 text-xs text-slate-400">
-                              {testedFitnessItems.length > 0
-                                ? `Rata-rata ${testedFitnessItems.length} tes yang diisi disinkronkan ke nilai Samapta kandidat.`
-                                : "Rata-rata tes yang diisi otomatis disinkronkan ke nilai Samapta kandidat saat disimpan."}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-display text-2xl font-bold">
-                              {testedFitnessItems.length > 0
-                                ? fitnessAverage.toFixed(1)
-                                : "—"}
-                            </p>
-                            <p className="text-[0.68rem] text-slate-400">
-                              {testedFitnessItems.length > 0
-                                ? `nilai rata-rata (${testedFitnessItems.length} tes)`
-                                : "belum diisi"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                          {fitnessItemsData.map((item) => (
-                            <div
-                              className="rounded-xl bg-white/[0.07] p-3 text-center"
-                              key={item.key}
-                            >
-                              <p className="text-[0.68rem] text-slate-400">
-                                {item.shortLabel}
-                              </p>
-                              <p className="mt-1 font-bold">
-                                {item.isDnf ? (
-                                  <span className="font-extrabold text-rose-400">
-                                    DNF
-                                  </span>
-                                ) : item.hasVal ? (
-                                  item.score
-                                ) : (
-                                  "—"
-                                )}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </>
-                ) : null}
-
-                {/* 4. Keputusan / Status Tahapan Kandidat */}
-                <fieldset className="mt-5">
-                  <legend className="text-sm font-semibold text-slate-700">
-                    Keputusan / status tahapan kandidat
-                  </legend>
-                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {[
-                      ["pending", "Belum"],
-                      ["passed", "Lolos target"],
-                      ["review", "Remedial / Tinjau"],
-                      ["failed", "Belum memenuhi"],
-                    ].map(([value, label]) => (
-                      <button
-                        type="button"
-                        key={value}
-                        onClick={() =>
-                          patchRecord({ result: value as ResultStatus })
-                        }
-                        className={`min-h-11 rounded-xl border px-2 text-xs font-bold transition ${
-                          record.result === value
-                            ? value === "passed"
-                              ? "border-emerald-300 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-100"
-                              : value === "failed"
-                                ? "border-red-300 bg-red-50 text-red-800 ring-2 ring-red-100"
-                                : value === "review"
-                                  ? "border-amber-300 bg-amber-50 text-amber-800 ring-2 ring-amber-100"
-                                  : "border-slate-300 bg-slate-100 text-slate-800"
-                            : "border-slate-200 bg-white text-slate-500"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-
-                <div className="mt-7 border-t border-slate-100 pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Survei pelatih
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        Skala observasi 1–5.
-                      </p>
-                    </div>
-                    <ClipboardList className="size-5 text-red-600" />
-                  </div>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                    {[
-                      ["discipline", "Disiplin"],
-                      ["focus", "Fokus"],
-                      ["stamina", "Stamina"],
-                    ].map(([field, label]) => (
-                      <label
-                        className="grid gap-2 text-sm font-semibold text-slate-700"
-                        key={field}
-                      >
-                        {label}
-                        <select
-                          value={
-                            record[
-                              (field as "discipline" | "focus" | "stamina")
-                            ]
-                          }
-                          onChange={(event) =>
-                            patchRecord({ [field]: event.target.value })
-                          }
-                          className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                          className={`min-h-12 rounded-xl border px-3 text-xs font-bold transition active:scale-95 ${
+                            record.result === value
+                              ? value === "passed"
+                                ? "border-emerald-300 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-200"
+                                : value === "failed"
+                                  ? "border-red-300 bg-red-50 text-red-800 ring-2 ring-red-200"
+                                  : value === "review"
+                                    ? "border-amber-300 bg-amber-50 text-amber-800 ring-2 ring-amber-200"
+                                    : "border-slate-300 bg-slate-100 text-slate-800 ring-2 ring-slate-200"
+                              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                          }`}
                         >
-                          {[1, 2, 3, 4, 5].map((value) => (
-                            <option value={value} key={value}>
-                              {value} —{" "}
-                              {value === 5
-                                ? "Sangat baik"
-                                : value === 1
-                                  ? "Perlu perhatian"
-                                  : "Cukup"}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    ))}
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                </div>
+
+                {/* 3. SECTION SURVEI PELATIH */}
+                <div
+                  className={
+                    mobileTab === "survey" || "hidden lg:block"
+                  }
+                >
+                  <div className="mt-7 border-t border-slate-100 pt-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Survei Observasi Pelatih
+                        </p>
+                        <p className="mt-0.5 text-xs text-slate-400">
+                          Pilih skala observasi 1–5 (1: Perlu Perhatian, 5:
+                          Sangat Baik).
+                        </p>
+                      </div>
+                      <ClipboardList className="size-5 text-red-600" />
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      {[
+                        ["discipline", "Disiplin"],
+                        ["focus", "Fokus"],
+                        ["stamina", "Stamina"],
+                      ].map(([field, label]) => {
+                        const currentVal =
+                          record[
+                            field as "discipline" | "focus" | "stamina"
+                          ] || "4"
+                        return (
+                          <div
+                            key={field}
+                            className="rounded-2xl border border-slate-200 bg-slate-50/50 p-3"
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-bold text-slate-800">
+                                {label}
+                              </span>
+                              <span className="text-xs font-bold text-red-600">
+                                {currentVal} / 5
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-5 gap-1">
+                              {[1, 2, 3, 4, 5].map((val) => {
+                                const isSel = String(val) === currentVal
+                                return (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() =>
+                                      patchRecord({ [field]: String(val) })
+                                    }
+                                    className={`min-h-10 rounded-xl text-xs font-bold transition active:scale-95 ${
+                                      isSel
+                                        ? val >= 4
+                                          ? "bg-emerald-600 text-white shadow-xs font-extrabold"
+                                          : val === 3
+                                            ? "bg-blue-600 text-white shadow-xs font-extrabold"
+                                            : "bg-amber-500 text-white shadow-xs font-extrabold"
+                                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                                    }`}
+                                  >
+                                    {val}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <label className="mt-4 grid gap-1.5 text-xs font-bold text-slate-700">
+                      Catatan Pelatih / Petugas Sesi
+                      <textarea
+                        rows={3}
+                        value={record.note}
+                        onChange={(event) =>
+                          patchRecord({ note: event.target.value })
+                        }
+                        placeholder="Catat koreksi teknik, kendala fisik, atau instruksi khusus..."
+                        className="resize-y rounded-xl border border-slate-200 p-3 text-xs font-normal outline-none placeholder:text-slate-400 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                      />
+                    </label>
                   </div>
-                  <label className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
-                    Catatan pelatih / petugas
-                    <textarea
-                      rows={4}
-                      value={record.note}
-                      onChange={(event) =>
-                        patchRecord({ note: event.target.value })
+                </div>
+
+                {/* 4. SECTION PROFIL KANDIDAT ON MOBILE */}
+                {mobileTab === "profile" && (
+                  <div className="mt-5 border-t border-slate-100 pt-5 lg:hidden">
+                    <Profile
+                      candidate={candidate}
+                      sessionCount={
+                        sessions.filter((item) =>
+                          item.participantIds.includes(candidate.id),
+                        ).length
                       }
-                      placeholder="Catat koreksi teknik, kondisi kandidat, dan tindak lanjut..."
-                      className="resize-y rounded-xl border border-slate-200 px-3.5 py-3 text-sm font-normal outline-none placeholder:text-slate-400 focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                      recordCount={
+                        Object.entries(records).filter(
+                          ([recordKey, value]) =>
+                            recordKey.endsWith(`:${candidate.id}`) &&
+                            value.savedAt,
+                        ).length
+                      }
                     />
-                  </label>
-                  <div className="mt-5 flex items-center justify-end gap-3">
+                  </div>
+                )}
+
+                {/* Desktop Save Actions Bar at bottom of card */}
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+                  <div className="flex items-center gap-2">
                     {saved ? (
-                      <span className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 animate-in fade-in">
                         <CheckCircle2 className="size-4" /> Tersimpan &
                         Disinkronkan
                       </span>
-                    ) : null}
-                    <Button onClick={saveRecord}>
-                      <Save className="size-4" /> Simpan hasil kandidat
+                    ) : (
+                      <span className="text-xs text-slate-400">
+                        Perubahan otomatis tersinkron ke master kandidat saat
+                        disimpan.
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => saveRecord(false)}
+                    >
+                      <Save className="size-4" /> Simpan
+                    </Button>
+                    <Button onClick={() => saveRecord(true)}>
+                      <Save className="size-4" /> Simpan & Lanjut
+                      <ArrowRight className="size-4" />
                     </Button>
                   </div>
                 </div>
               </div>
             </Card>
 
-            <Card className="h-fit p-5">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display font-bold text-slate-900">
-                  Profil kandidat
-                </h2>
-                <Badge tone="info">Live</Badge>
-              </div>
+            {/* Col 2: Candidate Profile Card on Desktop (Row 2 Kanan) */}
+            <Card className="hidden h-fit p-5 xl:block">
+              <h2 className="font-display font-bold text-slate-900">
+                Profil kandidat
+              </h2>
               <div className="mt-5">
                 <Profile
                   candidate={candidate}
@@ -2001,6 +3622,62 @@ export default function SimulationCenter() {
               </div>
             </Card>
           </div>
+
+      {/* MOBILE STICKY FLOATING ACTION BAR (Touch-First) */}
+      <div className="fixed inset-x-3 bottom-20 z-30 flex items-center justify-between gap-2 rounded-2xl border border-slate-200/95 bg-white/95 p-2.5 shadow-2xl shadow-slate-950/20 backdrop-blur-xl lg:hidden">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <CandidateAvatar
+            name={candidate.name}
+            avatar={candidate.avatar}
+            photoUrl={candidate.photoUrl}
+            className="size-11 text-xs shrink-0"
+            rounded="rounded-xl"
+          />
+          <div className="min-w-0">
+            <p className="truncate text-xs font-bold text-slate-900">
+              {candidate.name}
+            </p>
+            <p className="text-[0.65rem] font-semibold text-slate-500">
+              {record.savedAt ? (
+                <span className="text-emerald-600 font-bold">
+                  ✓ Tersimpan
+                </span>
+              ) : (
+                <span className="text-amber-600 font-bold">
+                  ⏳ Belum diinput
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            disabled={!prevCandidate}
+            onClick={() => prevCandidate && setCandidateId(prevCandidate.id)}
+            className="grid size-9 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition disabled:opacity-30 active:scale-95 hover:bg-slate-200"
+            title="Kandidat sebelumnya"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <button
+            type="button"
+            disabled={!nextCandidate}
+            onClick={() => nextCandidate && setCandidateId(nextCandidate.id)}
+            className="grid size-9 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition disabled:opacity-30 active:scale-95 hover:bg-slate-200"
+            title="Kandidat berikutnya"
+          >
+            <ChevronRight className="size-4" />
+          </button>
+          <Button
+            className="!min-h-10 !px-3.5 !py-2 !text-xs font-bold shadow-md shadow-red-600/20 active:scale-95"
+            onClick={() => saveRecord(true)}
+          >
+            <Save className="size-3.5" />
+            <span>Simpan & Lanjut</span>
+            <ArrowRight className="size-3.5" />
+          </Button>
         </div>
       </div>
     </div>

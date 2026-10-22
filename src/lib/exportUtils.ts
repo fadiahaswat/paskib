@@ -172,10 +172,17 @@ export function printCandidateReport(
     <button onclick="window.print()" style="background:#dc2626;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;">Cetak / Simpan PDF</button>
   </div>
   <div class="header">
-    <div>
-      <div class="subtitle">PASKA TRACK · Sistem Pendamping Internal</div>
-      <h1 class="title">Laporan Perkembangan & Evaluasi Kandidat</h1>
-      <div style="font-size:13px;color:#475569;margin-top:4px;">Nomor Peserta: <strong>${candidate.number}</strong> · Periode Seleksi ${referenceYear}</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      ${
+        candidate.photoUrl
+          ? `<img src="${candidate.photoUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:12px;border:1px solid #cbd5e1;" alt="${candidate.name}" />`
+          : ""
+      }
+      <div>
+        <div class="subtitle">PASKA TRACK · Sistem Pendamping Internal</div>
+        <h1 class="title">Laporan Perkembangan &amp; Evaluasi Kandidat</h1>
+        <div style="font-size:13px;color:#475569;margin-top:4px;">Nomor Peserta: <strong>${candidate.number}</strong> · Periode Seleksi ${referenceYear}</div>
+      </div>
     </div>
     <span class="badge">DOKUMEN INTERNAL</span>
   </div>
@@ -298,12 +305,24 @@ export function printAdmissionCard(
       <div style="background:#dc2626;padding:6px 12px;border-radius:8px;font-weight:800;font-size:14px;">${candidate.number}</div>
     </div>
     <div class="content">
+      <div style="display:flex;gap:16px;margin-bottom:16px;align-items:center;">
+        ${
+          candidate.photoUrl
+            ? `<img src="${candidate.photoUrl}" style="width:70px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #cbd5e1;" alt="${candidate.name}" />`
+            : `<div style="width:70px;height:90px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#94a3b8;text-align:center;">Foto 3x4</div>`
+        }
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:800;color:#0f172a;">${candidate.name}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px;">${candidate.school}</div>
+          <div style="font-size:12px;color:#dc2626;font-weight:700;margin-top:2px;">${candidate.number} · ${candidate.gender}</div>
+        </div>
+      </div>
       <div class="row"><span>Nama Peserta</span><strong>${candidate.name}</strong></div>
       <div class="row"><span>Asal Sekolah</span><strong>${candidate.school}</strong></div>
       <div class="row"><span>Jenis Kelamin / Tgl Lahir</span><strong>${candidate.gender} · ${candidate.birthDate}</strong></div>
       <div class="row"><span>Status Administrasi</span><strong>${
         candidate.stageStatuses[0] === "passed"
-          ? "TERVERIFIKASI (LOLOS)"
+          ? "TERVERIFIKASI (SIAP)"
           : "DALAM PROSES"
       }</strong></div>
       <div class="row"><span>Jadwal / Sesi Terdekat</span><strong>${

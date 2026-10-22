@@ -23,6 +23,9 @@ export type AppDatabaseState = {
   users?: UserProfile[]
   auditLogs?: AuditLogEntry[]
   rankingPublished?: boolean
+  ishiharaSessions?: any[]
+  ishiharaAllowlist?: any[]
+  ishiharaResults?: any[]
   updatedAt?: string
 }
 

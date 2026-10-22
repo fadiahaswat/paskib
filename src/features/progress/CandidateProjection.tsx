@@ -15,6 +15,7 @@ import {
 import { Badge, Button, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { bmi, evaluateAnthropometry } from "../../domain/selection"
+import { LineChart } from "./LineChart"
 
 type StoredSession = {
   id: string
@@ -52,7 +53,7 @@ const metrics = [
     key: "pushup",
     label: "Push-up",
     unit: "kali",
-    target: 43,
+    target: 45,
     lowerIsBetter: false,
   },
   {
@@ -66,7 +67,7 @@ const metrics = [
     key: "backup",
     label: "Back-up",
     unit: "kali",
-    target: 45,
+    target: 50,
     lowerIsBetter: false,
   },
   {
@@ -117,58 +118,6 @@ function readHistory(candidateId: string): FitnessEntry[] {
   }
 }
 
-function Sparkline({
-  values,
-  lowerIsBetter,
-}: {
-  values: number[]
-  lowerIsBetter: boolean
-}) {
-  if (values.length < 2) {
-    return <div className="h-10 rounded-lg bg-slate-50" />
-  }
-  const adjusted = lowerIsBetter ? values.map((value) => -value) : values
-  const min = Math.min(...adjusted)
-  const max = Math.max(...adjusted)
-  const range = max - min || 1
-  const points = adjusted
-    .map((value, index) => {
-      const x = (index / (adjusted.length - 1)) * 100
-      const y = 35 - ((value - min) / range) * 28
-      return `${x},${y}`
-    })
-    .join(" ")
-  return (
-    <svg
-      viewBox="0 0 100 40"
-      preserveAspectRatio="none"
-      className="h-10 w-full overflow-visible"
-      aria-label="Grafik tren hasil latihan"
-    >
-      <polyline
-        points={points}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="text-blue-500"
-      />
-      {points.split(" ").map((point, index) => {
-        const [cx, cy] = point.split(",")
-        return (
-          <circle
-            key={`${point}-${index}`}
-            cx={cx}
-            cy={cy}
-            r="2.3"
-            className="fill-blue-600"
-          />
-        )
-      })}
-    </svg>
-  )
-}
 
 export default function CandidateProjection({
   candidateId,
@@ -411,9 +360,12 @@ export default function CandidateProjection({
                 </Badge>
               </div>
               <div className="mt-3">
-                <Sparkline
+                <LineChart
                   values={anthroLogs.map((l) => l.heightCm)}
-                  lowerIsBetter={false}
+                  target={candidate.gender === "Putra" ? 175 : 170}
+                  unit="cm"
+                  color="blue"
+                  height={28}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-[0.68rem]">
@@ -449,9 +401,12 @@ export default function CandidateProjection({
                 </Badge>
               </div>
               <div className="mt-3">
-                <Sparkline
+                <LineChart
                   values={anthroLogs.map((l) => l.weightKg)}
-                  lowerIsBetter={false}
+                  target={anthroEval.idealWeight ?? 62}
+                  unit="kg"
+                  color="emerald"
+                  height={28}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-[0.68rem]">
@@ -498,11 +453,14 @@ export default function CandidateProjection({
                 </Badge>
               </div>
               <div className="mt-3">
-                <Sparkline
+                <LineChart
                   values={anthroLogs
                     .map((l) => bmi(l.weightKg, l.heightCm)?.value ?? 0)
                     .filter((v) => v > 0)}
-                  lowerIsBetter={false}
+                  target={22}
+                  unit=""
+                  color="purple"
+                  height={28}
                 />
               </div>
               <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-[0.68rem]">
@@ -647,9 +605,13 @@ export default function CandidateProjection({
                     )}
                   </div>
                   <div className="mt-3">
-                    <Sparkline
+                    <LineChart
                       values={metric.values}
+                      target={metric.target}
+                      unit={metric.unit}
+                      color={metric.targetMet ? "emerald" : "red"}
                       lowerIsBetter={metric.lowerIsBetter}
+                      height={28}
                     />
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-200 pt-3 text-[0.68rem]">

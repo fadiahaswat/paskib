@@ -45,6 +45,13 @@ export type AnthropometryLog = {
   note?: string
 }
 
+export type CandidateDocumentFile = {
+  name: string
+  size?: string
+  url: string
+  uploadedAt: string
+}
+
 export type Candidate = {
   id: string
   number: string
@@ -59,6 +66,7 @@ export type Candidate = {
   weightKg?: number
   anthropometryHistory?: AnthropometryLog[]
   avatar: string
+  photoUrl?: string
   stage: number
   stageStatuses: StageStatus[]
   pip: number | null
@@ -67,6 +75,7 @@ export type Candidate = {
   fitness: number | null
   personality: number | null
   documents?: boolean[] // 6 administration documents
+  documentFiles?: Record<number, CandidateDocumentFile>
   attendance?: number
   trainingCompliance?: number
   coachNote?: string
@@ -167,23 +176,56 @@ export const selectionStages: SelectionStage[] = [
   },
 ]
 
-export function finalScore(candidate: Candidate): number | null {
-  if (
-    candidate.pbb === null ||
-    candidate.fitness === null ||
-    candidate.personality === null
-  ) {
-    return null
+export function provisionalScore(candidate: Candidate): number {
+  let totalWeightedScore = 0
+  let totalWeight = 0
+
+  if (candidate.fitness !== null && candidate.fitness > 0) {
+    totalWeightedScore += candidate.fitness * 0.3
+    totalWeight += 0.3
   }
-  return (
-    candidate.pbb * 0.3 + candidate.fitness * 0.3 + candidate.personality * 0.4
-  )
+  if (candidate.pbb !== null && candidate.pbb > 0) {
+    totalWeightedScore += candidate.pbb * 0.3
+    totalWeight += 0.3
+  }
+  if (candidate.personality !== null && candidate.personality > 0) {
+    totalWeightedScore += candidate.personality * 0.4
+    totalWeight += 0.4
+  }
+
+  // Jika ada nilai materi lapangan yang masuk, normalisasikan bobotnya (0 - 100)
+  if (totalWeight > 0) {
+    return Number((totalWeightedScore / totalWeight).toFixed(2))
+  }
+
+  // Jika nilai lapangan belum ada, gunakan rata-rata nilai CAT (jika sudah tryout)
+  let catScore = 0
+  let catWeight = 0
+  if (candidate.pip !== null && candidate.pip > 0) {
+    catScore += candidate.pip
+    catWeight++
+  }
+  if (candidate.tiu !== null && candidate.tiu > 0) {
+    catScore += candidate.tiu
+    catWeight++
+  }
+  if (catWeight > 0) {
+    return Number((catScore / catWeight).toFixed(2))
+  }
+
+  return 0
+}
+
+export function finalScore(candidate: Candidate): number | null {
+  // Hitung nilai kesiapan sementara secara dinamis dari data latihan yang tersedia
+  const score = provisionalScore(candidate)
+  return score > 0 ? score : null
 }
 
 export function isPhaseOnePassed(candidate: Candidate): boolean {
-  return candidate.stageStatuses
-    .slice(0, 5)
-    .every((status) => status === "passed")
+  // Dalam paradigma pembinaan: santri dapat masuk pemeringkatan latihan
+  // selama tidak ada catatan diskualifikasi/remedial fatal pada standar dasar
+  return !candidate.stageStatuses.slice(0, 5).some((status) => status === "failed")
 }
 
 export function ageOnReferenceDate(birthDate: string, referenceYear: number) {
@@ -237,22 +279,17 @@ export function evaluateAgeEligibility(
 }
 
 export function validateStageTransition(
-  statuses: StageStatus[],
+  _statuses: StageStatus[],
   stageIndex: number,
 ) {
-  if (stageIndex < 0 || stageIndex > 7) return false
-  if (stageIndex < 5) {
-    return statuses.slice(0, stageIndex).every((status) => status === "passed")
-  }
-  return statuses.slice(0, 5).every((status) => status === "passed")
+  // Dalam paradigma pembinaan: semua materi (0-7) terbuka dan dapat dinilai kapan saja
+  return stageIndex >= 0 && stageIndex <= 7
 }
 
 /**
- * Enforces the Paskibraka hard-lock state machine across 8 stages:
- * - Stages 0..4 (Tahap 1–5): sequential hard-lock.
- *   - If any stage 0..4 is set to "failed" (or anything other than "passed"), all subsequent stages become "locked".
- *   - When stage i (0..3) becomes "passed", stage i+1 is automatically unlocked to "active" if it was "locked".
- *   - When stage 4 (Parade) becomes "passed", all Phase 2 stages (5, 6, 7) are unlocked to "active" if they were "locked".
+ * Paradigma Pembinaan & Kesiapan:
+ * - Setiap materi mandiri (tidak saling mengunci / auto-lock).
+ * - Tidak ada sistem gugur paksa; penilaian tiap materi mencatat kesiapan nyata santri.
  */
 export function applyStageDecision(
   currentStatuses: StageStatus[],
@@ -260,70 +297,12 @@ export function applyStageDecision(
   nextStatus: StageStatus,
 ): { stageStatuses: StageStatus[], activeStageNumber: number } {
   const next = [...currentStatuses] as StageStatus[]
-  while (next.length < 8) next.push("locked")
+  while (next.length < 8) next.push("active")
 
   next[stageIndex] = nextStatus
 
-  if (stageIndex < 5) {
-    if (nextStatus === "passed") {
-      // Check if all stages up to stageIndex are passed
-      const allUpToHerePassed = next
-        .slice(0, stageIndex + 1)
-        .every((s) => s === "passed")
-      if (allUpToHerePassed) {
-        if (stageIndex < 4) {
-          if (next[stageIndex + 1] === "locked") {
-            next[stageIndex + 1] = "active"
-          }
-        } else if (stageIndex === 4) {
-          // Parade passed -> unlock Phase 2 (PBB, Samapta, Kepribadian)
-          for (let i = 5; i < 8; i++) {
-            if (next[i] === "locked") {
-              next[i] = "active"
-            }
-          }
-        }
-      }
-    } else if (nextStatus === "failed") {
-      // Hard-lock: if stage 1-5 failed, lock subsequent stages
-      for (let i = stageIndex + 1; i < 8; i++) {
-        next[i] = "locked"
-      }
-    }
-  } else {
-    // Di Aplikasi Latihan: jika kandidat telah berlatih di Fase 2 (PBB, Samapta, Kepribadian),
-    // berkas dan persyaratan Fase 1 otomatis terpenuhi (passed) agar tidak terjebak di Administrasi.
-    for (let i = 0; i < 5; i++) {
-      if (next[i] === "locked" || next[i] === "active") {
-        next[i] = "passed"
-      }
-    }
-  }
-
-  // Compute current active stage number (1-8)
-  let activeStageNumber = 1
-  const failedIndex = next.findIndex((s) => s === "failed")
-  if (failedIndex !== -1) {
-    activeStageNumber = failedIndex + 1
-  } else {
-    // Di aplikasi latihan, tampilkan tahap aktif berdasarkan fokus latihan tertinggi yang sedang berjalan
-    let activeOrReviewIndex = -1
-    for (let i = 7; i >= 0; i--) {
-      if (next[i] === "active" || next[i] === "review") {
-        activeOrReviewIndex = i
-        break
-      }
-    }
-    if (activeOrReviewIndex !== -1) {
-      activeStageNumber = activeOrReviewIndex + 1
-    } else {
-      const lastPassed = next.reduce(
-        (acc, s, idx) => (s === "passed" ? idx + 1 : acc),
-        1,
-      )
-      activeStageNumber = Math.min(8, lastPassed)
-    }
-  }
+  // Hitung nomor materi yang sedang difokuskan (1-8)
+  const activeStageNumber = stageIndex + 1
 
   return { stageStatuses: next, activeStageNumber }
 }
@@ -398,12 +377,13 @@ export function evaluateAnthropometry(
 }
 
 /**
- * Deterministic tie-breaker comparator for ranked candidates:
- * 1. Final Score (descending)
- * 2. Kepribadian / Personality (descending)
- * 3. PBB (descending)
- * 4. Samapta / Fitness (descending)
- * 5. Participant Number (ascending)
+ * Tie-breaker komparator untuk pemeringkatan sementara santri:
+ * 1. Nilai Sementara (descending)
+ * 2. Kehadiran latihan / Attendance (descending)
+ * 3. Samapta / Fitness (descending)
+ * 4. PBB (descending)
+ * 5. Kepribadian (descending)
+ * 6. Nomor Peserta (ascending)
  */
 export function compareRankedCandidates(
   a: { candidate: Candidate, score: number },
@@ -412,15 +392,18 @@ export function compareRankedCandidates(
   if (Math.abs(b.score - a.score) > 1e-6) {
     return b.score - a.score
   }
-  const persDiff =
-    (b.candidate.personality ?? 0) - (a.candidate.personality ?? 0)
-  if (Math.abs(persDiff) > 1e-6) return persDiff
+  const attDiff = (b.candidate.attendance ?? 0) - (a.candidate.attendance ?? 0)
+  if (Math.abs(attDiff) > 1e-6) return attDiff
+
+  const fitDiff = (b.candidate.fitness ?? 0) - (a.candidate.fitness ?? 0)
+  if (Math.abs(fitDiff) > 1e-6) return fitDiff
 
   const pbbDiff = (b.candidate.pbb ?? 0) - (a.candidate.pbb ?? 0)
   if (Math.abs(pbbDiff) > 1e-6) return pbbDiff
 
-  const fitDiff = (b.candidate.fitness ?? 0) - (a.candidate.fitness ?? 0)
-  if (Math.abs(fitDiff) > 1e-6) return fitDiff
+  const persDiff =
+    (b.candidate.personality ?? 0) - (a.candidate.personality ?? 0)
+  if (Math.abs(persDiff) > 1e-6) return persDiff
 
   return a.candidate.number.localeCompare(b.candidate.number)
 }
@@ -432,15 +415,15 @@ export function getQuotaBand(
   tone: "success" | "info" | "warning" | "neutral"
 } {
   if (rank <= 2) {
-    return { label: "Utusan Provinsi/Nasional", tone: "success" }
+    return { label: "Proyeksi Utama", tone: "success" }
   }
-  if (rank <= 30) {
-    return { label: "Pasukan Inti Kab/Kota", tone: "info" }
+  if (rank <= 6) {
+    return { label: "Proyeksi Inti", tone: "info" }
   }
-  if (rank <= 40) {
-    return { label: "Cadangan Kab/Kota", tone: "warning" }
+  if (rank <= 10) {
+    return { label: "Proyeksi Cadangan", tone: "warning" }
   }
-  return { label: "Di Luar Kuota", tone: "neutral" }
+  return { label: "Perlu Penguatan", tone: "neutral" }
 }
 
 export type SessionType =

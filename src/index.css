@@ -46,6 +46,17 @@ button {
   cursor: pointer;
 }
 
+/* Hilangkan spinner bawaan browser pada input number agar rapi dan tidak menimpa angka */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 button:focus-visible,
 input:focus-visible {
   outline: 3px solid rgb(254 202 202);

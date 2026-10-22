@@ -160,184 +160,84 @@ export default function PbbEvaluationSection({
   const completionPercent = Math.round((summary.gradedCount / summary.totalItems) * 100)
 
   return (
-    <div className="space-y-5">
-      {/* 1. Header & Live Score Dashboard */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
-        {/* Main Header Bar */}
-        <div className="p-4 sm:p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Title & Progress */}
-            <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-7 place-items-center rounded-lg bg-red-600 text-white shadow-xs">
-                    <ShieldCheck className="size-4" />
-                  </span>
-                  <h3 className="text-base font-bold text-slate-900">
-                    Lembar Penilaian PBB & Komando
-                  </h3>
-                </div>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                    summary.gradedCount === summary.totalItems
-                      ? "bg-emerald-100 text-emerald-800"
-                      : summary.gradedCount > 0
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-slate-100 text-slate-600"
-                  }`}
-                >
-                  {summary.gradedCount === summary.totalItems ? (
-                    <Check className="size-3" />
-                  ) : null}
-                  {summary.gradedCount} dari {summary.totalItems} Gerakan Dinilai ({completionPercent}%)
+    <div className="space-y-4">
+      {/* 1. Compact Header & Score */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* Left: Score & Progress */}
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-600 text-white shadow-xs">
+              <ShieldCheck className="size-5" />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-display text-xl font-black text-slate-900">
+                  {summary.finalScore !== null ? summary.finalScore.toFixed(1) : "—"}
+                  <span className="text-xs font-normal text-slate-400"> / 100</span>
                 </span>
-              </div>
-              <p className="text-xs text-slate-500">
-                Pilih predikat <strong className="text-slate-700">A (100)</strong>, <strong className="text-slate-700">B (80)</strong>, <strong className="text-slate-700">C (60)</strong>, atau <strong className="text-slate-700">D (40)</strong>. Catatan koreksi gerakan tersimpan otomatis.
-              </p>
-            </div>
-
-            {/* Scorecard Box */}
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3 sm:px-4">
-              <div className="text-right">
-                <div className="flex items-baseline justify-end gap-1">
-                  <span className="font-display text-3xl font-extrabold tracking-tight text-slate-900">
-                    {summary.finalScore !== null ? summary.finalScore.toFixed(1) : "—"}
-                  </span>
-                  <span className="text-xs font-bold text-slate-400">/ 100</span>
-                </div>
-                <p className="text-[0.68rem] font-medium text-slate-500">
-                  Nilai Akhir PBB (30%)
-                </p>
-              </div>
-
-              <div className="h-9 w-px bg-slate-200" />
-
-              <div className="min-w-[100px]">
                 {summary.predicate !== "-" ? (
                   <span
-                    className={`inline-block rounded-lg px-2.5 py-1 text-xs font-extrabold ${
+                    className={`rounded-md px-2 py-0.5 text-xs font-extrabold text-white ${
                       summary.predicate === "A"
-                        ? "bg-emerald-600 text-white shadow-xs"
+                        ? "bg-emerald-600"
                         : summary.predicate === "B"
-                          ? "bg-blue-600 text-white shadow-xs"
+                          ? "bg-blue-600"
                           : summary.predicate === "C"
-                            ? "bg-amber-500 text-white shadow-xs"
-                            : "bg-rose-600 text-white shadow-xs"
+                            ? "bg-amber-500"
+                            : "bg-rose-600"
                     }`}
                   >
                     Predikat {summary.predicate}
                   </span>
                 ) : (
-                  <span className="text-xs font-semibold text-slate-400">
+                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-500">
                     Belum Dinilai
                   </span>
                 )}
-                <p className="mt-0.5 text-[0.68rem] text-slate-400">
-                  {summary.predicate === "A"
-                    ? "Sangat Baik"
-                    : summary.predicate === "B"
-                      ? "Baik"
-                      : summary.predicate === "C"
-                        ? "Cukup"
-                        : summary.predicate === "D"
-                          ? "Kurang"
-                          : "25 Materi"}
-                </p>
               </div>
+              <p className="text-xs text-slate-500">
+                {summary.gradedCount} dari {summary.totalItems} gerakan dinilai ({completionPercent}%)
+              </p>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-            <div
-              className={`h-full transition-all duration-300 ${
-                completionPercent === 100
-                  ? "bg-emerald-500"
-                  : completionPercent > 50
-                    ? "bg-blue-600"
-                    : "bg-red-500"
-              }`}
-              style={{ width: `${completionPercent}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Toolbar: Distribution Counters, Sub-Scores & Fast Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-4 py-2.5 text-xs sm:px-5">
-          {/* Distribution Counters */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400">
-              Distribusi:
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-bold text-emerald-800">
-              <span>A</span>
-              <span className="rounded bg-emerald-200/70 px-1 text-[0.65rem]">
-                {summary.distribution.A}
-              </span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2 py-0.5 font-bold text-blue-800">
-              <span>B</span>
-              <span className="rounded bg-blue-200/70 px-1 text-[0.65rem]">
-                {summary.distribution.B}
-              </span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-0.5 font-bold text-amber-800">
-              <span>C</span>
-              <span className="rounded bg-amber-200/70 px-1 text-[0.65rem]">
-                {summary.distribution.C}
-              </span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-2 py-0.5 font-bold text-rose-800">
-              <span>D</span>
-              <span className="rounded bg-rose-200/70 px-1 text-[0.65rem]">
-                {summary.distribution.D}
-              </span>
-            </span>
-
-            {/* Sub-group averages */}
-            <div className="hidden items-center gap-2 border-l border-slate-200 pl-3 text-slate-500 sm:flex">
-              <span>
-                Statis:{" "}
-                <strong className="text-slate-800">
-                  {summary.staticScore !== null ? summary.staticScore.toFixed(1) : "—"}
-                </strong>
-              </span>
-              <span>•</span>
-              <span>
-                Dinamis:{" "}
-                <strong className="text-slate-800">
-                  {summary.dynamicScore !== null ? summary.dynamicScore.toFixed(1) : "—"}
-                </strong>
-              </span>
-              <span>•</span>
-              <span>
-                Komando:{" "}
-                <strong className="text-slate-800">
-                  {summary.commandScore !== null ? summary.commandScore.toFixed(1) : "—"}
-                </strong>
-              </span>
+          {/* Right: Filter & Quick Fill */}
+          <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
+            {/* Filter Tab */}
+            <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs">
+              {[
+                { id: "all", label: `Semua (${summary.totalItems})` },
+                { id: "unrated", label: `Belum (${unratedCount})` },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setFilterView(tab.id as FilterView)}
+                  className={`rounded-md px-2.5 py-1 text-xs font-bold transition ${
+                    filterView === tab.id
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-          </div>
 
-          {/* Bulk Tools */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[0.7rem] font-bold text-slate-400 mr-1 hidden lg:inline">
-              Aksi Cepat:
-            </span>
+            {/* Quick Fill Actions */}
             <button
               type="button"
               onClick={() => handleBulkFill("A")}
-              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition"
-              title="Isi seluruh 25 gerakan dengan nilai A (100)"
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-slate-50 transition active:scale-95"
+              title="Set semua gerakan jadi A (100)"
             >
               Semua A
             </button>
             <button
               type="button"
               onClick={() => handleBulkFill("B")}
-              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition"
-              title="Isi seluruh 25 gerakan dengan nilai B (80)"
+              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-slate-50 transition active:scale-95"
+              title="Set semua gerakan jadi B (80)"
             >
               Semua B
             </button>
@@ -345,39 +245,27 @@ export default function PbbEvaluationSection({
               <button
                 type="button"
                 onClick={handleResetAll}
-                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition"
-                title="Kosongkan seluruh nilai"
+                className="rounded-lg px-2 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50 transition active:scale-95"
+                title="Kosongkan nilai"
               >
-                <RotateCcw className="size-3" />
                 Reset
               </button>
             )}
           </div>
         </div>
 
-        {/* Filter Bar (Semua / Belum Dinilai / Ada Catatan) */}
-        <div className="flex items-center gap-2 border-t border-slate-200/80 bg-white px-4 py-2 text-xs sm:px-5">
-          <span className="text-slate-400 flex items-center gap-1 font-medium">
-            <Filter className="size-3" /> Filter:
-          </span>
-          {[
-            { id: "all", label: `Semua Gerakan (${summary.totalItems})` },
-            { id: "unrated", label: `Belum Dinilai (${unratedCount})` },
-            { id: "with_notes", label: `Ada Catatan Koreksi (${notesCount})` },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setFilterView(tab.id as FilterView)}
-              className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                filterView === tab.id
-                  ? "bg-slate-900 text-white shadow-2xs"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Thin progress bar */}
+        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-slate-100">
+          <div
+            className={`h-full transition-all duration-300 ${
+              completionPercent === 100
+                ? "bg-emerald-500"
+                : completionPercent > 50
+                  ? "bg-blue-600"
+                  : "bg-red-500"
+            }`}
+            style={{ width: `${completionPercent}%` }}
+          />
         </div>
       </div>
 

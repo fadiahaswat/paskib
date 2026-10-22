@@ -70,6 +70,16 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+  } catch (err) {
+    return createJsonResponse({
+      ok: false,
+      error: "Server Google Apps Script sedang sibuk (antrean sinkronisasi penuh). Silakan coba lagi."
+    });
+  }
+
   try {
     var contents = "";
     if (e && e.postData && e.postData.contents) {
@@ -89,10 +99,12 @@ function doPost(e) {
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    // 1. Simpan full JSON state ke sheet _DATABASE_BACKUP (agar tidak ada metadata yang hilang)
-    var rawSheet = getOrCreateSheet(ss, "_DATABASE_BACKUP", false);
-    var jsonString = JSON.stringify(state);
-    writeLargeTextToSheet(rawSheet, jsonString);
+    // 1. Simpan full JSON state ke sheet _DATABASE_BACKUP HANYA jika payload valid (ada kandidat/periode/sesi)
+    if (state && (state.candidates || state.cycles || state.sessions || state.schedules)) {
+      var rawSheet = getOrCreateSheet(ss, "_DATABASE_BACKUP", false);
+      var jsonString = JSON.stringify(state);
+      writeLargeTextToSheet(rawSheet, jsonString);
+    }
 
     // 2. Format tab-tab human-readable di Google Sheet
     if (state.candidates && Array.isArray(state.candidates)) {
@@ -127,6 +139,8 @@ function doPost(e) {
       ok: false,
       error: error.toString()
     });
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -141,9 +155,9 @@ function renderCandidatesSheet(ss, candidates) {
     "No", "ID", "Nomor Peserta", "Nama Lengkap", "Gender", 
     "Asal Sekolah", "Tanggal Lahir", "Nomor HP", 
     "Tinggi (cm)", "Berat (kg)", "BMI", "Kategori BMI", 
-    "Tahap Aktif", "Status Seleksi", 
+    "Tahap Aktif", "Status Seleksi", "Status Berkas",
     "Nilai PIP", "Nilai TIU", "Nilai PBB", "Nilai Samapta", "Nilai Kepribadian",
-    "Terakhir Diperbarui"
+    "Catatan Pelatih", "Terakhir Diperbarui"
   ];
 
   var rows = [headers];
@@ -163,6 +177,15 @@ function renderCandidatesSheet(ss, candidates) {
     }
 
     var scores = c.scores || {};
+    var docs = c.documents || [];
+    var docsCount = Array.isArray(docs) ? docs.filter(Boolean).length : 0;
+    var docsStatus = docsCount === 6 ? "Lengkap (6/6)" : (docsCount + "/6 Berkas");
+
+    var valPip = (c.pip !== undefined && c.pip !== null) ? c.pip : (scores.pip !== undefined ? scores.pip : "-");
+    var valTiu = (c.tiu !== undefined && c.tiu !== null) ? c.tiu : (scores.tiu !== undefined ? scores.tiu : "-");
+    var valPbb = (c.pbb !== undefined && c.pbb !== null) ? c.pbb : (scores.pbb !== undefined ? scores.pbb : "-");
+    var valSamapta = (c.fitness !== undefined && c.fitness !== null) ? c.fitness : (scores.samapta !== undefined ? scores.samapta : "-");
+    var valPersonality = (c.personality !== undefined && c.personality !== null) ? c.personality : (scores.personality !== undefined ? scores.personality : "-");
 
     rows.push([
       i + 1,
@@ -179,11 +202,13 @@ function renderCandidatesSheet(ss, candidates) {
       bmiStatus,
       c.stage ? ("Tahap " + c.stage) : "-",
       c.stageStatuses ? c.stageStatuses[c.stage - 1] || "aktif" : "aktif",
-      scores.pip !== undefined ? scores.pip : "-",
-      scores.tiu !== undefined ? scores.tiu : "-",
-      scores.pbb !== undefined ? scores.pbb : "-",
-      scores.samapta !== undefined ? scores.samapta : "-",
-      scores.personality !== undefined ? scores.personality : "-",
+      docsStatus,
+      valPip,
+      valTiu,
+      valPbb,
+      valSamapta,
+      valPersonality,
+      c.coachNote || "-",
       c.updatedAt || new Date().toISOString()
     ]);
   }
@@ -196,7 +221,6 @@ function renderCandidatesSheet(ss, candidates) {
   headerRange.setFontColor("#FFFFFF");
   headerRange.setFontWeight("bold");
   sheet.setFrozenRows(1);
-  sheet.autoResizeColumns(1, headers.length);
 }
 
 /**

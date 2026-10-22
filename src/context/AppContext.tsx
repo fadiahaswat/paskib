@@ -19,7 +19,15 @@ import {
   initialStandardRules,
   initialSupportingDocs,
   initialUsers,
+  initialAuthorizedAccounts,
 } from "../data/initialData"
+import type {
+  AccountRole,
+  AuthorizedAccount,
+  IshiharaScreeningResult,
+  IshiharaTestSession,
+  TestAssignment,
+} from "../features/ishihara/types"
 import { fitnessScore } from "../data/selectionGuide"
 import {
   applyStageDecision,
@@ -72,6 +80,12 @@ type AppContextValue = {
   users: UserProfile[]
   isAuthenticated: boolean
   loginAs: (userId: string) => void
+  loginAsCandidate: (candidateIdOrNumber: string) => boolean
+  loginCandidateByNik: (nik: string) => { success: boolean; candidate?: Candidate; error?: string }
+  loginCoachWithGoogle: (
+    email: string,
+    profile?: { name?: string; picture?: string },
+  ) => { success: boolean; error?: string }
   logout: () => void
   addUser: (user: Omit<UserProfile, "id">) => void
   toggleUserActive: (userId: string) => void
@@ -125,6 +139,7 @@ type AppContextValue = {
   addQuestion: (question: Omit<CatQuestion, "id">) => void
   updateQuestion: (id: string, patch: Partial<CatQuestion>) => void
   deleteQuestion: (id: string) => void
+  restoreStandardQuestions: () => number
 
   // Supporting Documents & Announcements
   supportingDocs: SupportingDoc[]
@@ -180,6 +195,20 @@ type AppContextValue = {
     silent?: boolean,
   ) => Promise<{ ok: boolean, message: string }>
   testGoogleSheet: (customUrl?: string) => Promise<{ ok: boolean, message: string }>
+
+  // Ishihara Screening System (PRD Version 1.1)
+  ishiharaSessions: IshiharaTestSession[]
+  ishiharaAllowlist: AuthorizedAccount[]
+  ishiharaResults: IshiharaScreeningResult[]
+  addAuthorizedAccount: (acc: Omit<AuthorizedAccount, "id" | "createdAt" | "approvedAt">) => void
+  toggleAuthorizedAccount: (id: string) => void
+  updateAuthorizedAccountRole: (id: string, role: AccountRole) => void
+  deleteAuthorizedAccount: (id: string) => void
+  addIshiharaSession: (session: Omit<IshiharaTestSession, "id" | "createdAt">) => void
+  updateIshiharaSession: (id: string, patch: Partial<IshiharaTestSession>) => void
+  deleteIshiharaSession: (id: string) => void
+  updateSessionAssignment: (sessionId: string, assignmentId: string, patch: Partial<TestAssignment>) => void
+  saveIshiharaScreeningResult: (result: IshiharaScreeningResult) => void
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
@@ -225,6 +254,18 @@ function makeAvatar(name: string): string {
   if (parts.length === 0) return "PK"
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+}
+
+function mergeWithStandardQuestions(loaded: CatQuestion[] | null | undefined): CatQuestion[] {
+  if (!Array.isArray(loaded) || loaded.length === 0) {
+    return initialQuestions
+  }
+  const standardIds = new Set(initialQuestions.map((q) => q.id))
+  // Preserve custom user-added questions (e.g. id starting with "q-")
+  const customQuestions = loaded.filter(
+    (q) => q && q.id && !standardIds.has(q.id) && !/^(pip|tiu)-\d{3}$/.test(q.id),
+  )
+  return [...customQuestions, ...initialQuestions]
 }
 
 const defaultChecklists: Record<number, boolean[]> = {
@@ -275,6 +316,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadStorage("paska-clean-auth", true),
   )
   const [allCandidates, setAllCandidates] = useState<Candidate[]>(() => {
+    const isFirstSamaptaClean = typeof window !== "undefined" && !localStorage.getItem("paska-samapta-purged-v2")
+    if (isFirstSamaptaClean) {
+      try {
+        localStorage.setItem("paska-samapta-purged-v2", "true")
+      } catch {}
+    }
+
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
     const baseList = !loaded || loaded.length === 0 ? seededCandidates : loaded
     // Ensure all 13 seeded candidates are always present
@@ -289,19 +337,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const merged = Array.from(candidateMap.values())
     const sanitized = merged.map((c) => {
       const match = seededCandidates.find((sc) => sc.id === c.id || sc.number === c.number)
+      let metrics = Array.isArray(c.physicalMetrics)
+        ? c.physicalMetrics
+        : (match?.physicalMetrics ?? [])
+
+      // If migrating from previous dummy state, keep only tests actually conducted (e.g. Lari)
+      if (isFirstSamaptaClean) {
+        metrics = metrics.filter((m) => m.label.toLowerCase().includes("lari"))
+      }
+
       return {
         ...c,
         cycleId: c.cycleId === "cycle-2026-kab" ? "cycle-2027-kab" : (c.cycleId || "cycle-2027-kab"),
-        pip: null,
-        tiu: null,
-        pbb: null,
-        personality: null,
-        documents: [true, true, true, true, true, true],
-        stage: match ? match.stage : c.stage,
-        stageStatuses: match ? match.stageStatuses : c.stageStatuses,
-        fitness: match ? match.fitness : c.fitness,
-        coachNote: match ? match.coachNote : c.coachNote,
-        physicalMetrics: match?.physicalMetrics ?? (c.physicalMetrics ?? []).filter((m) => m.label.toLowerCase().includes("lari")),
+        pip: c.pip ?? null,
+        tiu: c.tiu ?? null,
+        pbb: c.pbb ?? null,
+        fitness: c.fitness ?? match?.fitness ?? null,
+        personality: c.personality ?? null,
+        documents:
+          Array.isArray(c.documents) && c.documents.length === 6 && c.documents.some(Boolean)
+            ? c.documents
+            : match?.documents ?? [true, true, true, true, true, true],
+        stage: typeof c.stage === "number" ? c.stage : (match ? match.stage : 1),
+        stageStatuses:
+          Array.isArray(c.stageStatuses) && c.stageStatuses.length === 8
+            ? c.stageStatuses
+            : match?.stageStatuses ?? ["active", "locked", "locked", "locked", "locked", "locked", "locked", "locked"],
+        coachNote: c.coachNote ?? match?.coachNote ?? "",
+        physicalMetrics: metrics,
       }
     })
     try {
@@ -316,9 +379,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [schedules, setSchedules] = useState<SelectionSchedule[]>(() =>
     loadStorage("paska-clean-schedules", initialSchedules),
   )
-  const [questions, setQuestions] = useState<CatQuestion[]>(() =>
-    loadStorage("paska-clean-questions", initialQuestions),
-  )
+  const [questions, setQuestions] = useState<CatQuestion[]>(() => {
+    const loaded = loadStorage<CatQuestion[]>("paska-clean-questions", initialQuestions)
+    const merged = mergeWithStandardQuestions(loaded)
+    try {
+      localStorage.setItem("paska-clean-questions", JSON.stringify(merged))
+    } catch {}
+    return merged
+  })
   const [supportingDocs, setSupportingDocs] = useState<SupportingDoc[]>(() =>
     loadStorage("paska-clean-supporting-docs", initialSupportingDocs),
   )
@@ -330,6 +398,78 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
   const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>(() =>
     loadStorage("paska-clean-audit", initialAuditLogs),
+  )
+
+  // Ishihara Screening System State (PRD Version 1.1)
+  const defaultIshiharaSessions = useMemo<IshiharaTestSession[]>(() => [
+    {
+      id: "session-ish-01",
+      name: "Skrining Rikkes Tahap 4 — Angkatan 2027 (Gelombang 1)",
+      code: "ISH-2027-01",
+      mode: "scheduled",
+      protocolVersion: "BPIP-ISH-24-V1",
+      startsAt: "2026-10-22T08:00:00Z",
+      endsAt: "2026-10-22T17:00:00Z",
+      status: "open",
+      maxAttempts: 1,
+      allowResume: true,
+      resultVisibility: "staff_only",
+      operatorName: "dr. Hendra (Tim Medis)",
+      secondsPerPlate: 5,
+      plateCount: 24,
+      assignments: seededCandidates.map((c) => ({
+        id: `asg-${c.id}`,
+        sessionId: "session-ish-01",
+        participantId: c.id,
+        participantName: c.name,
+        participantNumber: c.number,
+        school: c.school,
+        assignedBy: "Coach Andi",
+        status: "assigned",
+        assignedAt: "2026-10-20T08:00:00Z",
+      })),
+      createdBy: "Coach Andi",
+      createdAt: "2026-10-20T08:00:00Z",
+    },
+    {
+      id: "session-ish-02",
+      name: "Uji Mandiri Penglihatan Warna (Tautan Terbatas)",
+      code: "ISH-SELF-2027",
+      mode: "self_service",
+      protocolVersion: "BPIP-ISH-10-V1",
+      startsAt: "2026-10-22T00:00:00Z",
+      endsAt: "2026-10-25T23:59:59Z",
+      status: "published",
+      maxAttempts: 2,
+      allowResume: true,
+      resultVisibility: "participant_and_staff",
+      secondsPerPlate: 5,
+      plateCount: 10,
+      shareableToken: "ish-token-self-muallimin-2027",
+      assignments: seededCandidates.slice(0, 5).map((c) => ({
+        id: `asg-self-${c.id}`,
+        sessionId: "session-ish-02",
+        participantId: c.id,
+        participantName: c.name,
+        participantNumber: c.number,
+        school: c.school,
+        assignedBy: "Coach Andi",
+        status: "assigned",
+        assignedAt: "2026-10-21T09:00:00Z",
+      })),
+      createdBy: "Coach Andi",
+      createdAt: "2026-10-21T09:00:00Z",
+    },
+  ], [])
+
+  const [ishiharaSessions, setIshiharaSessions] = useState<IshiharaTestSession[]>(() =>
+    loadStorage("paska-clean-ishihara-sessions", defaultIshiharaSessions),
+  )
+  const [ishiharaAllowlist, setIshiharaAllowlist] = useState<AuthorizedAccount[]>(() =>
+    loadStorage("paska-clean-ishihara-allowlist", initialAuthorizedAccounts),
+  )
+  const [ishiharaResults, setIshiharaResults] = useState<IshiharaScreeningResult[]>(() =>
+    loadStorage("paska-clean-ishihara-results", []),
   )
   const [sessions, setSessions] = useState<Session[]>(() => {
     const loaded = loadStorage<Session[]>("paska-clean-sessions", initialSessions)
@@ -481,6 +621,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("paska-clean-records", JSON.stringify(records))
   }, [records])
 
+  useEffect(() => {
+    localStorage.setItem(
+      "paska-clean-ishihara-sessions",
+      JSON.stringify(ishiharaSessions),
+    )
+  }, [ishiharaSessions])
+
+  useEffect(() => {
+    localStorage.setItem(
+      "paska-clean-ishihara-allowlist",
+      JSON.stringify(ishiharaAllowlist),
+    )
+  }, [ishiharaAllowlist])
+
+  useEffect(() => {
+    localStorage.setItem(
+      "paska-clean-ishihara-results",
+      JSON.stringify(ishiharaResults),
+    )
+  }, [ishiharaResults])
+
   const showToast = useCallback(
     (
       message: string,
@@ -501,6 +662,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const isSyncingRef = useRef<boolean>(false)
   const isSavingRef = useRef<boolean>(false)
   const saveQueueRef = useRef<Partial<AppDatabaseState> | null>(null)
+  const saveDebounceTimerRef = useRef<number | null>(null)
+  const pendingSaveOverrideRef = useRef<Partial<AppDatabaseState>>({})
   const initialMountDone = useRef<boolean>(false)
 
   const stateRef = useRef({
@@ -517,6 +680,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     users,
     auditLogs,
     rankingPublished,
+    ishiharaSessions,
+    ishiharaAllowlist,
+    ishiharaResults,
   })
   stateRef.current = {
     allCandidates,
@@ -532,6 +698,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     users,
     auditLogs,
     rankingPublished,
+    ishiharaSessions,
+    ishiharaAllowlist,
+    ishiharaResults,
   }
 
   const computeDataHash = useCallback(() => {
@@ -545,10 +714,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       d: s.supportingDocs,
       st: s.standardRules,
       ch: s.stageChecklists,
+      ish: s.ishiharaSessions || [],
+      alw: s.ishiharaAllowlist || [],
+      res: s.ishiharaResults || [],
     })
   }, [])
 
-  const saveToCloud = useCallback(
+  const executePushToCloud = useCallback(
     async (
       override?: Partial<AppDatabaseState>,
     ): Promise<{ ok: boolean, message: string }> => {
@@ -584,6 +756,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           users: override?.users ?? s.users,
           auditLogs: override?.auditLogs ?? s.auditLogs,
           rankingPublished: override?.rankingPublished ?? s.rankingPublished,
+          ishiharaSessions: override?.ishiharaSessions ?? s.ishiharaSessions,
+          ishiharaAllowlist: override?.ishiharaAllowlist ?? s.ishiharaAllowlist,
+          ishiharaResults: override?.ishiharaResults ?? s.ishiharaResults,
         }
 
         const res = await pushStateToGoogleSheet(stateToPush, targetUrl)
@@ -597,6 +772,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             d: stateToPush.supportingDocs,
             st: stateToPush.standardRules,
             ch: stateToPush.stageChecklists,
+            is: stateToPush.ishiharaSessions,
+            ia: stateToPush.ishiharaAllowlist,
+            ir: stateToPush.ishiharaResults,
           })
           setCloudSyncStatus("synced")
           setLastCloudSync(new Date().toISOString())
@@ -615,11 +793,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (saveQueueRef.current) {
           const nextOverride = saveQueueRef.current
           saveQueueRef.current = null
-          saveToCloud(nextOverride)
+          executePushToCloud(nextOverride)
         }
       }
     },
     [googleSheetUrl],
+  )
+
+  const saveToCloud = useCallback(
+    (override?: Partial<AppDatabaseState>): Promise<{ ok: boolean, message: string }> => {
+      if (override) {
+        pendingSaveOverrideRef.current = {
+          ...pendingSaveOverrideRef.current,
+          ...override,
+        }
+      }
+      if (saveDebounceTimerRef.current) {
+        window.clearTimeout(saveDebounceTimerRef.current)
+      }
+      return new Promise((resolve) => {
+        saveDebounceTimerRef.current = window.setTimeout(async () => {
+          const toSave = { ...pendingSaveOverrideRef.current }
+          pendingSaveOverrideRef.current = {}
+          const res = await executePushToCloud(toSave)
+          resolve(res)
+        }, 350)
+      })
+    },
+    [executePushToCloud],
   )
 
   const logAudit = useCallback(
@@ -663,11 +864,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateCycle = useCallback(
     (id: string, patch: Partial<SelectionCycle>) => {
-      let nextCycles: SelectionCycle[] = []
-      setCycles((prev) => {
-        nextCycles = prev.map((c) => (c.id === id ? { ...c, ...patch } : c))
-        return nextCycles
-      })
+      const nextCycles = stateRef.current.cycles.map((c) => (c.id === id ? { ...c, ...patch } : c))
+      setCycles(nextCycles)
       logAudit("UPDATE_CYCLE", id, "Memperbarui konfigurasi periode seleksi")
       showToast("Periode seleksi berhasil diperbarui.")
       saveToCloud({ cycles: nextCycles })
@@ -725,6 +923,149 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [users, showToast],
   )
 
+  const loginAsCandidate = useCallback(
+    (candidateIdOrNumber: string): boolean => {
+      const clean = candidateIdOrNumber.trim().toLowerCase()
+      const cand = allCandidates.find(
+        (c) =>
+          c.id.toLowerCase() === clean ||
+          c.number.toLowerCase() === clean ||
+          (c.nik && c.nik.toLowerCase() === clean),
+      )
+      if (!cand) {
+        showToast(
+          `Kandidat dengan nomor/ID "${candidateIdOrNumber}" tidak ditemukan.`,
+          "danger",
+        )
+        return false
+      }
+
+      const candidateUserId = `user-cand-${cand.id}`
+      const existingUser = users.find(
+        (u) => u.candidateId === cand.id || u.id === candidateUserId,
+      )
+
+      if (existingUser) {
+        setCurrentUserId(existingUser.id)
+      } else {
+        const candidateUser: UserProfile = {
+          id: candidateUserId,
+          name: cand.name,
+          email: `${cand.number.toLowerCase()}@paskibraka.internal`,
+          role: "candidate",
+          avatar: cand.avatar || cand.name.slice(0, 2).toUpperCase(),
+          title: `Peserta No. ${cand.number}`,
+          active: true,
+          candidateId: cand.id,
+        }
+        setUsers((prev) => [
+          candidateUser,
+          ...prev.filter((u) => u.id !== candidateUser.id),
+        ])
+        setCurrentUserId(candidateUser.id)
+      }
+
+      setIsAuthenticated(true)
+      showToast(`Berhasil masuk sebagai ${cand.name} (${cand.number})`, "success")
+      logAudit(
+        "Login Mandiri Santri",
+        cand.name,
+        `Masuk ke sistem CAT dengan nomor peserta ${cand.number}`,
+      )
+      return true
+    },
+    [allCandidates, users, showToast, logAudit],
+  )
+
+  const loginCandidateByNik = useCallback(
+    (nikInput: string): { success: boolean; candidate?: Candidate; error?: string } => {
+      const clean = nikInput.replace(/\s+/g, "").trim()
+      if (!clean) {
+        const errMsg = "Silakan masukkan 16 digit NIK santri."
+        showToast(errMsg, "warning")
+        return { success: false, error: errMsg }
+      }
+
+      const cand = allCandidates.find(
+        (c) =>
+          (c.nik && c.nik.replace(/\s+/g, "") === clean) ||
+          c.number.toLowerCase() === clean.toLowerCase() ||
+          c.id.toLowerCase() === clean.toLowerCase(),
+      )
+
+      if (!cand) {
+        const errMsg = `NIK "${clean}" tidak terdaftar dalam basis data calon Paskibraka.`
+        showToast(errMsg, "danger")
+        logAudit("Gagal Login Santri", clean, "NIK tidak ditemukan dalam database")
+        return { success: false, error: errMsg }
+      }
+
+      loginAsCandidate(cand.id)
+      return { success: true, candidate: cand }
+    },
+    [allCandidates, loginAsCandidate, showToast, logAudit],
+  )
+
+  const loginCoachWithGoogle = useCallback(
+    (
+      emailInput: string,
+      googleProfile?: { name?: string; picture?: string },
+    ): { success: boolean; error?: string } => {
+      const cleanEmail = emailInput.trim().toLowerCase()
+      const allowedEmails = [
+        "andiaqillahfadiahaswat@gmail.com",
+        "andiaqillah@muallimin.sch.id",
+      ]
+
+      if (!allowedEmails.includes(cleanEmail)) {
+        const errMsg = `Akses Ditolak: Email "${cleanEmail}" bukan akun Google Pelatih resmi terdaftar.`
+        showToast(errMsg, "danger")
+        logAudit(
+          "Gagal Login Google Pelatih",
+          cleanEmail,
+          "Email Google tidak terdaftar dalam whitelist pelatih",
+        )
+        return { success: false, error: errMsg }
+      }
+
+      const coachUserId = "user-coach-andi"
+      const existingUser = users.find(
+        (u) =>
+          u.email.toLowerCase() === cleanEmail ||
+          u.id === coachUserId ||
+          u.role === "admin",
+      )
+
+      const coachProfile: UserProfile = {
+        id: existingUser?.id || coachUserId,
+        name: googleProfile?.name || existingUser?.name || "Coach Andi Aqillah",
+        email: cleanEmail,
+        role: "admin",
+        avatar: googleProfile?.picture || existingUser?.avatar || "CA",
+        title: "Pelatih Kepala MA Mu'allimin",
+        active: true,
+      }
+
+      setUsers((prev) => [
+        coachProfile,
+        ...prev.filter((u) => u.id !== coachProfile.id),
+      ])
+      setCurrentUserId(coachProfile.id)
+      setIsAuthenticated(true)
+      showToast(
+        `Login Google Berhasil sebagai ${coachProfile.name} (${cleanEmail})`,
+        "success",
+      )
+      logAudit(
+        "Login Google Pelatih",
+        coachProfile.name,
+        `Terautentikasi melalui Google Identity Service (${cleanEmail})`,
+      )
+      return { success: true }
+    },
+    [users, showToast, logAudit],
+  )
+
   const logout = useCallback(() => {
     setIsAuthenticated(false)
     showToast(
@@ -775,13 +1116,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `KAB-${String(activeCycle.year).slice(-2)}-${String(nextIndex).padStart(3, "0")}`
       const defaultStatuses: StageStatus[] = data.stageStatuses ?? [
         "active",
-        "locked",
-        "locked",
-        "locked",
-        "locked",
-        "locked",
-        "locked",
-        "locked",
+        "active",
+        "active",
+        "active",
+        "active",
+        "active",
+        "active",
+        "active",
       ]
       const todayStr = new Date().toISOString().slice(0, 10)
       const initialAnthro =
@@ -833,20 +1174,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateCandidate = useCallback(
     (id: string, patch: Partial<Candidate>) => {
-      let nextCandidates: Candidate[] = []
-      setAllCandidates((prev) => {
-        nextCandidates = prev.map((item) => {
-          if (item.id !== id) return item
-          const updatedName = patch.name ?? item.name
-          return {
-            ...item,
-            ...patch,
-            avatar: patch.name ? makeAvatar(updatedName) : item.avatar,
-            updatedAt: "Baru saja",
-          }
-        })
-        return nextCandidates
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((item) => {
+        if (item.id !== id) return item
+        const updatedName = patch.name ?? item.name
+        return {
+          ...item,
+          ...patch,
+          avatar: patch.name ? makeAvatar(updatedName) : item.avatar,
+          updatedAt: "Baru saja",
+        }
       })
+      setAllCandidates(nextCandidates)
       logAudit("UPDATE_CANDIDATE", id, "Memperbarui data/profil kandidat")
       showToast("Data kandidat berhasil diperbarui.")
       saveToCloud({ candidates: nextCandidates })
@@ -896,31 +1235,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       status: StageStatus,
       reason?: string,
     ) => {
-      let nextCandidates: Candidate[] = []
-      setAllCandidates((prev) => {
-        nextCandidates = prev.map((cand) => {
-          if (cand.id !== candidateId) return cand
-          const { stageStatuses, activeStageNumber } = applyStageDecision(
-            cand.stageStatuses,
-            stageIndex,
-            status,
-          )
-          return {
-            ...cand,
-            stageStatuses,
-            stage: activeStageNumber,
-            eliminationReason:
-              status === "failed"
-                ? reason || `Gugur pada Tahap ${stageIndex + 1}`
-                : status === "passed"
-                  ? undefined
-                  : cand.eliminationReason,
-            updatedAt: "Baru saja",
-          }
-        })
-        return nextCandidates
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const { stageStatuses, activeStageNumber } = applyStageDecision(
+          cand.stageStatuses,
+          stageIndex,
+          status,
+        )
+        return {
+          ...cand,
+          stageStatuses,
+          stage: activeStageNumber,
+          eliminationReason:
+            status === "failed"
+              ? reason || `Gugur pada Tahap ${stageIndex + 1}`
+              : status === "passed"
+                ? undefined
+                : cand.eliminationReason,
+          updatedAt: "Baru saja",
+        }
       })
-      const cand = allCandidates.find((c) => c.id === candidateId)
+      setAllCandidates(nextCandidates)
+      const cand = currentList.find((c) => c.id === candidateId)
       if (cand) {
         logAudit(
           "STAGE_DECISION",
@@ -933,42 +1270,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast(`Status Tahap ${stageIndex + 1} diperbarui menjadi ${status}.`)
       saveToCloud({ candidates: nextCandidates })
     },
-    [allCandidates, logAudit, showToast, saveToCloud],
+    [logAudit, showToast, saveToCloud],
   )
 
   const toggleCandidateDocument = useCallback(
     (candidateId: string, docIndex: number) => {
-      let nextCandidates: Candidate[] = []
-      setAllCandidates((prev) => {
-        nextCandidates = prev.map((cand) => {
-          if (cand.id !== candidateId) return cand
-          const docs = [
-            ...(cand.documents ?? [false, false, false, false, false, false]),
-          ]
-          docs[docIndex] = !docs[docIndex]
-          const allValid = docs.every(Boolean)
-          let nextStageStatuses = cand.stageStatuses
-          let nextStage = cand.stage
-          // If candidate is in stage 1 and all 6 docs become valid, can mark stage 1 passed or ready
-          if (
-            cand.stage === 1 &&
-            allValid &&
-            (cand.stageStatuses[0] === "review" || cand.stageStatuses[0] === "active")
-          ) {
-            const applied = applyStageDecision(cand.stageStatuses, 0, "passed")
-            nextStageStatuses = applied.stageStatuses
-            nextStage = applied.activeStageNumber
-          }
-          return {
-            ...cand,
-            documents: docs,
-            stageStatuses: nextStageStatuses,
-            stage: nextStage,
-            updatedAt: "Baru saja",
-          }
-        })
-        return nextCandidates
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const docs = [
+          ...(cand.documents ?? [false, false, false, false, false, false]),
+        ]
+        docs[docIndex] = !docs[docIndex]
+        const allValid = docs.every(Boolean)
+        let nextStageStatuses = cand.stageStatuses
+        let nextStage = cand.stage
+        // If candidate is in stage 1 and all 6 docs become valid, can mark stage 1 passed or ready
+        if (
+          cand.stage === 1 &&
+          allValid &&
+          (cand.stageStatuses[0] === "review" || cand.stageStatuses[0] === "active")
+        ) {
+          const applied = applyStageDecision(cand.stageStatuses, 0, "passed")
+          nextStageStatuses = applied.stageStatuses
+          nextStage = applied.activeStageNumber
+        }
+        return {
+          ...cand,
+          documents: docs,
+          stageStatuses: nextStageStatuses,
+          stage: nextStage,
+          updatedAt: "Baru saja",
+        }
       })
+      setAllCandidates(nextCandidates)
       saveToCloud({ candidates: nextCandidates })
     },
     [saveToCloud],
@@ -979,31 +1314,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       candidateId: string,
       entry: { date: string, heightCm: number, weightKg: number, note?: string },
     ) => {
-      let nextCandidates: Candidate[] = []
-      setAllCandidates((prev) => {
-        nextCandidates = prev.map((cand) => {
-          if (cand.id !== candidateId) return cand
-          const newLog = {
-            id: `anthro-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
-            date: entry.date,
-            heightCm: entry.heightCm,
-            weightKg: entry.weightKg,
-            note: entry.note?.trim() || undefined,
-          }
-          const history = [...(cand.anthropometryHistory ?? []), newLog].sort(
-            (a, b) => a.date.localeCompare(b.date),
-          )
-          const latest = history.at(-1) ?? newLog
-          return {
-            ...cand,
-            heightCm: latest.heightCm,
-            weightKg: latest.weightKg,
-            anthropometryHistory: history,
-            updatedAt: "Baru saja",
-          }
-        })
-        return nextCandidates
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const newLog = {
+          id: `anthro-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+          date: entry.date,
+          heightCm: entry.heightCm,
+          weightKg: entry.weightKg,
+          note: entry.note?.trim() || undefined,
+        }
+        const history = [...(cand.anthropometryHistory ?? []), newLog].sort(
+          (a, b) => a.date.localeCompare(b.date),
+        )
+        const latest = history.at(-1) ?? newLog
+        return {
+          ...cand,
+          heightCm: latest.heightCm,
+          weightKg: latest.weightKg,
+          anthropometryHistory: history,
+          updatedAt: "Baru saja",
+        }
       })
+      setAllCandidates(nextCandidates)
       logAudit(
         "LOG_ANTHROPOMETRY",
         candidateId,
@@ -1017,24 +1350,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteAnthropometryLog = useCallback(
     (candidateId: string, logId: string) => {
-      let nextCandidates: Candidate[] = []
-      setAllCandidates((prev) => {
-        nextCandidates = prev.map((cand) => {
-          if (cand.id !== candidateId) return cand
-          const history = (cand.anthropometryHistory ?? []).filter(
-            (item) => item.id !== logId,
-          )
-          const latest = history.at(-1)
-          return {
-            ...cand,
-            heightCm: latest ? latest.heightCm : cand.heightCm,
-            weightKg: latest ? latest.weightKg : cand.weightKg,
-            anthropometryHistory: history,
-            updatedAt: "Baru saja",
-          }
-        })
-        return nextCandidates
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const history = (cand.anthropometryHistory ?? []).filter(
+          (item) => item.id !== logId,
+        )
+        const latest = history.at(-1)
+        return {
+          ...cand,
+          heightCm: latest ? latest.heightCm : cand.heightCm,
+          weightKg: latest ? latest.weightKg : cand.weightKg,
+          anthropometryHistory: history,
+          updatedAt: "Baru saja",
+        }
       })
+      setAllCandidates(nextCandidates)
       showToast("Riwayat pengukuran tinggi & berat badan dihapus.", "warning")
       saveToCloud({ candidates: nextCandidates })
     },
@@ -1057,28 +1388,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
       note: string
       attendance?: "hadir" | "sakit" | "izin" | "alpa"
     }) => {
-      let nextCandidates: Candidate[] = []
-      setAllCandidates((prev) => {
-        nextCandidates = prev.map((cand) => {
-          if (cand.id !== candidateId) return cand
-          const patch: Partial<Candidate> = {
-            updatedAt: "Baru saja",
-          }
-          if (note.trim()) {
-            patch.coachNote = note.trim()
-          } else if (attendance && attendance !== "hadir") {
-            patch.coachNote = `Status sesi: ${attendance.toUpperCase()}`
-          }
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const patch: Partial<Candidate> = {
+          updatedAt: "Baru saja",
+        }
+        if (note.trim()) {
+          patch.coachNote = note.trim()
+        } else if (attendance && attendance !== "hadir") {
+          patch.coachNote = `Status sesi: ${attendance.toUpperCase()}`
+        }
 
           let stageIndex: number | null = null
 
           if (sessionType === "administration") {
             stageIndex = 0
-            const docs = [0, 1, 2, 3, 4, 5].map(
-              (idx) => metrics[`document-${idx}`] === "valid",
-            )
-            if (docs.some(Boolean)) {
-              patch.documents = docs
+            const hasAnyDocKey = [0, 1, 2, 3, 4, 5].some((idx) => `document-${idx}` in metrics)
+            if (hasAnyDocKey) {
+              patch.documents = [0, 1, 2, 3, 4, 5].map(
+                (idx) => metrics[`document-${idx}`] === "valid",
+              )
             }
           } else if (sessionType === "pip") {
             stageIndex = 1
@@ -1137,13 +1467,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
           } else if (sessionType === "pbb") {
             stageIndex = 5
             const pbbScore = Number(metrics.pbbScore)
-            if (Number.isFinite(pbbScore) && pbbScore > 0) {
+            if (Number.isFinite(pbbScore) && pbbScore >= 0) {
               patch.pbb = Number(pbbScore.toFixed(1))
             } else {
               const s = Number(metrics.static)
               const d = Number(metrics.dynamic)
               const c = Number(metrics.command)
-              const vals = [s, d, c].filter((v) => Number.isFinite(v) && v > 0)
+              const vals = [s, d, c].filter((v) => Number.isFinite(v) && v >= 0)
               if (vals.length > 0) {
                 patch.pbb = Number(
                   (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1),
@@ -1223,8 +1553,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   ? {
                       label: "Push-up",
                       current: `${pushup} kali`,
-                      target: "43 kali",
-                      percent: Math.min(100, Math.round((pushup / 43) * 100)),
+                      target: "45 kali",
+                      percent: Math.min(100, Math.round((pushup / 45) * 100)),
                     }
                   : getExisting("Push-up"),
                 hasSitup
@@ -1235,6 +1565,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
                       percent: Math.min(100, Math.round((situp / 40) * 100)),
                     }
                   : getExisting("Sit-up"),
+                hasBackup
+                  ? {
+                      label: "Back-up",
+                      current: `${backup} kali`,
+                      target: "50 kali",
+                      percent: Math.min(100, Math.round((backup / 50) * 100)),
+                    }
+                  : getExisting("Back-up"),
                 hasShuttle
                   ? {
                       label: "Shuttle run",
@@ -1280,7 +1618,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 effectiveResult = "review"
               }
             } else if (sessionType === "pbb") {
-              if (patch.pbb !== undefined && patch.pbb > 0) {
+              if (patch.pbb !== undefined && patch.pbb >= 0) {
                 effectiveResult = "passed"
               }
             }
@@ -1301,8 +1639,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ...patch,
           }
         })
-        return nextCandidates
-      })
+      setAllCandidates(nextCandidates)
       logAudit(
         "SESSION_RECORD_SAVED",
         candidateId,
@@ -1317,14 +1654,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const toggleStageChecklist = useCallback(
     (stageIndex: number, itemIndex: number) => {
-      let nextChecklists: Record<number, boolean[]> = {}
-      setStageChecklists((prev) => {
-        const current = prev[stageIndex] ?? [false, false, false, false]
-        const next = [...current]
-        next[itemIndex] = !next[itemIndex]
-        nextChecklists = { ...prev, [stageIndex]: next }
-        return nextChecklists
-      })
+      const current = stateRef.current.stageChecklists[stageIndex] ?? [false, false, false, false]
+      const next = [...current]
+      next[itemIndex] = !next[itemIndex]
+      const nextChecklists = { ...stateRef.current.stageChecklists, [stageIndex]: next }
+      setStageChecklists(nextChecklists)
       saveToCloud({ stageChecklists: nextChecklists })
     },
     [saveToCloud],
@@ -1352,13 +1686,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSchedule = useCallback(
     (id: string, patch: Partial<SelectionSchedule>) => {
-      let nextSchedules: SelectionSchedule[] = []
-      setSchedules((prev) => {
-        nextSchedules = prev.map((item) =>
-          item.id === id ? { ...item, ...patch } : item,
-        )
-        return nextSchedules
-      })
+      const currentList = stateRef.current.schedules
+      const nextSchedules = currentList.map((item) =>
+        item.id === id ? { ...item, ...patch } : item,
+      )
+      setSchedules(nextSchedules)
       showToast("Jadwal seleksi berhasil diperbarui.")
       saveToCloud({ schedules: nextSchedules })
     },
@@ -1377,7 +1709,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const toggleCandidateSchedule = useCallback(
     (scheduleId: string, candidateId: string): boolean => {
-      const target = schedules.find((s) => s.id === scheduleId)
+      const currentList = stateRef.current.schedules
+      const target = currentList.find((s) => s.id === scheduleId)
       if (!target) return false
       const exists = target.assignedCandidateIds.includes(candidateId)
       if (!exists && target.assignedCandidateIds.length >= target.capacity) {
@@ -1387,21 +1720,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
         )
         return false
       }
-      let nextSchedules: SelectionSchedule[] = []
-      setSchedules((prev) => {
-        nextSchedules = prev.map((s) => {
-          if (s.id !== scheduleId) return s
-          const nextIds = exists
-            ? s.assignedCandidateIds.filter((id) => id !== candidateId)
-            : [...s.assignedCandidateIds, candidateId]
-          return { ...s, assignedCandidateIds: nextIds }
-        })
-        return nextSchedules
+      const nextSchedules = currentList.map((s) => {
+        if (s.id !== scheduleId) return s
+        const nextIds = exists
+          ? s.assignedCandidateIds.filter((id) => id !== candidateId)
+          : [...s.assignedCandidateIds, candidateId]
+        return { ...s, assignedCandidateIds: nextIds }
       })
+      setSchedules(nextSchedules)
       saveToCloud({ schedules: nextSchedules })
       return true
     },
-    [schedules, showToast, saveToCloud],
+    [showToast, saveToCloud],
   )
 
   // CAT Questions CRUD
@@ -1426,11 +1756,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateQuestion = useCallback(
     (id: string, patch: Partial<CatQuestion>) => {
-      let nextQuestions: CatQuestion[] = []
-      setQuestions((prev) => {
-        nextQuestions = prev.map((q) => (q.id === id ? { ...q, ...patch } : q))
-        return nextQuestions
-      })
+      const currentList = stateRef.current.questions
+      const nextQuestions = currentList.map((q) =>
+        q.id === id ? { ...q, ...patch } : q,
+      )
+      setQuestions(nextQuestions)
       showToast("Butir soal berhasil diperbarui.")
       saveToCloud({ questions: nextQuestions })
     },
@@ -1446,6 +1776,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     [questions, showToast, saveToCloud],
   )
+
+  const restoreStandardQuestions = useCallback(() => {
+    const currentList = stateRef.current.questions
+    const existingIds = new Set(currentList.map((q) => q.id))
+    const missing = initialQuestions.filter((q) => !existingIds.has(q.id))
+    const merged = mergeWithStandardQuestions(currentList)
+    setQuestions(merged)
+    try {
+      localStorage.setItem("paska-clean-questions", JSON.stringify(merged))
+    } catch {}
+    saveToCloud({ questions: merged })
+    return missing.length
+  }, [saveToCloud])
 
   // Supporting Docs CRUD
   const addSupportingDoc = useCallback(
@@ -1466,13 +1809,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSupportingDoc = useCallback(
     (id: string, patch: Partial<SupportingDoc>) => {
-      let nextDocs: SupportingDoc[] = []
-      setSupportingDocs((prev) => {
-        nextDocs = prev.map((d) =>
-          d.id === id ? { ...d, ...patch, updatedAt: "Baru saja" } : d,
-        )
-        return nextDocs
-      })
+      const currentList = stateRef.current.supportingDocs
+      const nextDocs = currentList.map((d) =>
+        d.id === id ? { ...d, ...patch, updatedAt: "Baru saja" } : d,
+      )
+      setSupportingDocs(nextDocs)
       showToast("Dokumen pendukung berhasil diperbarui.")
       saveToCloud({ supportingDocs: nextDocs })
     },
@@ -1492,13 +1833,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Standards Governance
   const updateStandardRule = useCallback(
     (id: string, patch: Partial<StandardRuleItem>) => {
-      let nextRules: StandardRuleItem[] = []
-      setStandardRules((prev) => {
-        nextRules = prev.map((rule) =>
-          rule.id === id ? { ...rule, ...patch, updatedAt: "Baru saja" } : rule,
-        )
-        return nextRules
-      })
+      const currentList = stateRef.current.standardRules
+      const nextRules = currentList.map((rule) =>
+        rule.id === id ? { ...rule, ...patch, updatedAt: "Baru saja" } : rule,
+      )
+      setStandardRules(nextRules)
       logAudit(
         "UPDATE_STANDARD_RULE",
         id,
@@ -1529,6 +1868,172 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveToCloud({ rankingPublished: value })
     },
     [activeCycle.name, logAudit, showToast, saveToCloud],
+  )
+
+  // Ishihara Screening Actions (PRD Version 1.1)
+  const addAuthorizedAccount = useCallback(
+    (acc: Omit<AuthorizedAccount, "id" | "createdAt" | "approvedAt">) => {
+      const now = new Date().toISOString()
+      const newAcc: AuthorizedAccount = {
+        ...acc,
+        id: `auth-${Date.now()}`,
+        approvedAt: now,
+        createdAt: now,
+      }
+      setIshiharaAllowlist((prev) => [newAcc, ...prev])
+      logAudit("ADD_ALLOWLIST", acc.emailNormalized, `Mengizinkan akun ${acc.fullName} (${acc.role})`)
+      showToast(`Akun ${acc.emailNormalized} berhasil diizinkan.`, "success")
+      saveToCloud({ ishiharaAllowlist: [newAcc, ...ishiharaAllowlist] })
+    },
+    [ishiharaAllowlist, logAudit, showToast, saveToCloud],
+  )
+
+  const toggleAuthorizedAccount = useCallback(
+    (id: string) => {
+      let updated: AuthorizedAccount[] = []
+      setIshiharaAllowlist((prev) => {
+        updated = prev.map((a) => (a.id === id ? { ...a, isAllowed: !a.isAllowed } : a))
+        return updated
+      })
+      const target = ishiharaAllowlist.find((a) => a.id === id)
+      logAudit(
+        "TOGGLE_ALLOWLIST",
+        target?.emailNormalized ?? id,
+        `Mengubah status izin akun menjadi ${target?.isAllowed ? "Nonaktif" : "Aktif"}`,
+      )
+      showToast(`Status izin akun ${target?.emailNormalized} diperbarui.`)
+      saveToCloud({ ishiharaAllowlist: updated })
+    },
+    [ishiharaAllowlist, logAudit, showToast, saveToCloud],
+  )
+
+  const updateAuthorizedAccountRole = useCallback(
+    (id: string, role: AccountRole) => {
+      let updated: AuthorizedAccount[] = []
+      setIshiharaAllowlist((prev) => {
+        updated = prev.map((a) => (a.id === id ? { ...a, role } : a))
+        return updated
+      })
+      const target = ishiharaAllowlist.find((a) => a.id === id)
+      logAudit("UPDATE_ROLE", target?.emailNormalized ?? id, `Mengubah peran menjadi ${role}`)
+      showToast(`Peran akun ${target?.emailNormalized} diubah menjadi ${role}.`)
+      saveToCloud({ ishiharaAllowlist: updated })
+    },
+    [ishiharaAllowlist, logAudit, showToast, saveToCloud],
+  )
+
+  const deleteAuthorizedAccount = useCallback(
+    (id: string) => {
+      const target = ishiharaAllowlist.find((a) => a.id === id)
+      const remaining = ishiharaAllowlist.filter((a) => a.id !== id)
+      setIshiharaAllowlist(remaining)
+      logAudit("DELETE_ALLOWLIST", target?.emailNormalized ?? id, `Mencabut izin akun ${target?.fullName}`)
+      showToast(`Izin akun ${target?.emailNormalized} telah dicabut.`, "warning")
+      saveToCloud({ ishiharaAllowlist: remaining })
+    },
+    [ishiharaAllowlist, logAudit, showToast, saveToCloud],
+  )
+
+  const addIshiharaSession = useCallback(
+    (session: Omit<IshiharaTestSession, "id" | "createdAt">) => {
+      const now = new Date().toISOString()
+      const newSession: IshiharaTestSession = {
+        ...session,
+        id: `session-ish-${Date.now()}`,
+        createdAt: now,
+      }
+      const updated = [newSession, ...ishiharaSessions]
+      setIshiharaSessions(updated)
+      logAudit("CREATE_SESSION", newSession.code, `Membuat sesi skrining ${newSession.name} (${newSession.mode})`)
+      showToast(`Sesi "${newSession.name}" (${newSession.code}) berhasil dibuat.`, "success")
+      saveToCloud({ ishiharaSessions: updated })
+    },
+    [ishiharaSessions, logAudit, showToast, saveToCloud],
+  )
+
+  const updateIshiharaSession = useCallback(
+    (id: string, patch: Partial<IshiharaTestSession>) => {
+      let updated: IshiharaTestSession[] = []
+      setIshiharaSessions((prev) => {
+        updated = prev.map((s) => (s.id === id ? { ...s, ...patch } : s))
+        return updated
+      })
+      showToast("Sesi skrining berhasil diperbarui.")
+      saveToCloud({ ishiharaSessions: updated })
+    },
+    [showToast, saveToCloud],
+  )
+
+  const deleteIshiharaSession = useCallback(
+    (id: string) => {
+      const target = ishiharaSessions.find((s) => s.id === id)
+      const remaining = ishiharaSessions.filter((s) => s.id !== id)
+      setIshiharaSessions(remaining)
+      logAudit("DELETE_SESSION", target?.code ?? id, `Menghapus sesi ${target?.name}`)
+      showToast(`Sesi "${target?.name}" berhasil dihapus.`, "warning")
+      saveToCloud({ ishiharaSessions: remaining })
+    },
+    [ishiharaSessions, logAudit, showToast, saveToCloud],
+  )
+
+  const updateSessionAssignment = useCallback(
+    (sessionId: string, assignmentId: string, patch: Partial<TestAssignment>) => {
+      let updated: IshiharaTestSession[] = []
+      setIshiharaSessions((prev) => {
+        updated = prev.map((sess) => {
+          if (sess.id !== sessionId) return sess
+          return {
+            ...sess,
+            assignments: sess.assignments.map((asg) =>
+              asg.id === assignmentId ? { ...asg, ...patch } : asg,
+            ),
+          }
+        })
+        return updated
+      })
+      saveToCloud({ ishiharaSessions: updated })
+    },
+    [saveToCloud],
+  )
+
+  const saveIshiharaScreeningResult = useCallback(
+    (result: IshiharaScreeningResult) => {
+      const updated = [result, ...ishiharaResults]
+      setIshiharaResults(updated)
+      updateSessionAssignment(result.sessionId, `asg-${result.participantId}`, {
+        status: result.completionStatus === "completed" ? "completed" : "in_progress",
+        completedAt: result.createdAt,
+        accuracy: result.accuracy,
+        correctCount: result.correctCount,
+        totalPlates: result.totalPlates,
+        avgTimeSec: result.avgTimeSec,
+        interpretationCode: result.screeningInterpretation,
+      })
+      updateCandidateStage(
+        result.participantId,
+        3,
+        result.screeningInterpretation === "normal" ? "passed" : "review",
+        `Skrining Ishihara (${result.sessionName}): Akurasi ${result.accuracy}%. ${result.interpretationLabel}`,
+      )
+      logAudit(
+        "SAVE_ISHIHARA_RESULT",
+        result.participantName,
+        `Hasil Ishihara: ${result.interpretationLabel} (${result.accuracy}%)`,
+      )
+      showToast(
+        `Hasil skrining ${result.participantName} (${result.accuracy}%) tersimpan & disinkronkan ke Rikkes.`,
+        "success",
+      )
+      saveToCloud({ ishiharaResults: updated })
+    },
+    [
+      ishiharaResults,
+      updateSessionAssignment,
+      updateCandidateStage,
+      logAudit,
+      showToast,
+      saveToCloud,
+    ],
   )
 
   // Cloud Sync with Supabase Edge Function (with automatic local fallback)
@@ -1655,6 +2160,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             users: s.users,
             auditLogs: s.auditLogs,
             rankingPublished: s.rankingPublished,
+            ishiharaSessions: s.ishiharaSessions,
+            ishiharaAllowlist: s.ishiharaAllowlist,
+            ishiharaResults: s.ishiharaResults,
           }
           await pushStateToGoogleSheet(stateToPush, targetUrl)
         }
@@ -1664,19 +2172,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (res.ok && res.data) {
           const d = res.data
           let sanitizedCandidates = s.allCandidates
-          if (Array.isArray(d.candidates)) {
+          if (Array.isArray(d.candidates) && d.candidates.length > 0) {
             sanitizedCandidates = d.candidates.map((c: Candidate) => {
-              if (
-                c.stage === 1 &&
-                c.stageStatuses?.[0] === "active" &&
-                (!c.documents || c.documents.every((doc) => !doc))
-              ) {
-                const matched = seededCandidates.find(
-                  (sc) => sc.number === c.number || sc.name === c.name,
-                )
-                if (matched) return { ...c, ...matched }
+              return {
+                ...c,
+                documents:
+                  Array.isArray(c.documents) && c.documents.length === 6
+                    ? c.documents
+                    : (c.documents ?? [false, false, false, false, false, false]),
               }
-              return c
             })
             setAllCandidates(sanitizedCandidates)
           }
@@ -1685,7 +2189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(d.sessions)) setSessions(d.sessions)
           if (d.records && typeof d.records === "object") setRecords(d.records)
           if (Array.isArray(d.schedules)) setSchedules(d.schedules)
-          if (Array.isArray(d.questions)) setQuestions(d.questions)
+          if (Array.isArray(d.questions)) setQuestions(mergeWithStandardQuestions(d.questions))
           if (Array.isArray(d.supportingDocs)) setSupportingDocs(d.supportingDocs)
           if (Array.isArray(d.standardRules)) setStandardRules(d.standardRules)
           if (d.stageChecklists && typeof d.stageChecklists === "object")
@@ -1694,6 +2198,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(d.auditLogs)) setAuditLogs(d.auditLogs)
           if (d.rankingPublished !== undefined)
             setRankingPublishedState(d.rankingPublished)
+          if (Array.isArray(d.ishiharaSessions)) setIshiharaSessions(d.ishiharaSessions)
+          if (Array.isArray(d.ishiharaAllowlist)) setIshiharaAllowlist(d.ishiharaAllowlist)
+          if (Array.isArray(d.ishiharaResults)) setIshiharaResults(d.ishiharaResults)
 
           lastSyncedHash.current = JSON.stringify({
             c: sanitizedCandidates,
@@ -1704,6 +2211,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             d: d.supportingDocs || [],
             st: d.standardRules || [],
             ch: d.stageChecklists || defaultChecklists,
+            is: d.ishiharaSessions || [],
+            ia: d.ishiharaAllowlist || [],
+            ir: d.ishiharaResults || [],
           })
 
           setCloudSyncStatus("synced")
@@ -1719,7 +2229,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         } else if (res.ok && !res.data) {
           // Google Sheet kosong tapi lokal ada data
-          if (s.allCandidates.length > 0 || s.sessions.length > 0) {
+          if (s.allCandidates.length > 0 || s.sessions.length > 0 || s.ishiharaSessions.length > 0) {
             const stateToPush: AppDatabaseState = {
               candidates: s.allCandidates,
               cycles: s.cycles,
@@ -1734,6 +2244,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
               users: s.users,
               auditLogs: s.auditLogs,
               rankingPublished: s.rankingPublished,
+              ishiharaSessions: s.ishiharaSessions,
+              ishiharaAllowlist: s.ishiharaAllowlist,
+              ishiharaResults: s.ishiharaResults,
             }
             await pushStateToGoogleSheet(stateToPush, targetUrl)
             lastSyncedHash.current = currentHash
@@ -1858,6 +2371,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       users,
       isAuthenticated,
       loginAs,
+      loginAsCandidate,
+      loginCandidateByNik,
+      loginCoachWithGoogle,
       logout,
       addUser,
       toggleUserActive,
@@ -1883,6 +2399,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addQuestion,
       updateQuestion,
       deleteQuestion,
+      restoreStandardQuestions,
       supportingDocs,
       addSupportingDoc,
       updateSupportingDoc,
@@ -1915,6 +2432,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveToCloud,
       refreshAndSync,
       hasUnsavedChanges,
+      ishiharaSessions,
+      setIshiharaSessions,
+      ishiharaAllowlist,
+      setIshiharaAllowlist,
+      ishiharaResults,
+      setIshiharaResults,
+      addAuthorizedAccount,
+      toggleAuthorizedAccount,
+      updateAuthorizedAccountRole,
+      deleteAuthorizedAccount,
+      addIshiharaSession,
+      updateIshiharaSession,
+      deleteIshiharaSession,
+      updateSessionAssignment,
+      saveIshiharaScreeningResult,
     }),
     [
       cycles,
@@ -1926,6 +2458,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       users,
       isAuthenticated,
       loginAs,
+      loginAsCandidate,
+      loginCandidateByNik,
+      loginCoachWithGoogle,
       logout,
       addUser,
       toggleUserActive,
@@ -1951,6 +2486,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addQuestion,
       updateQuestion,
       deleteQuestion,
+      restoreStandardQuestions,
       supportingDocs,
       addSupportingDoc,
       updateSupportingDoc,
@@ -1981,6 +2517,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveToCloud,
       refreshAndSync,
       hasUnsavedChanges,
+      ishiharaSessions,
+      ishiharaAllowlist,
+      ishiharaResults,
+      addAuthorizedAccount,
+      toggleAuthorizedAccount,
+      updateAuthorizedAccountRole,
+      deleteAuthorizedAccount,
+      addIshiharaSession,
+      updateIshiharaSession,
+      deleteIshiharaSession,
+      updateSessionAssignment,
+      saveIshiharaScreeningResult,
     ],
   )
 
