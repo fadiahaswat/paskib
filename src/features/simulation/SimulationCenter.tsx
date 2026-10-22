@@ -50,7 +50,7 @@ import {
   type Candidate,
 } from "../../domain/selection"
 
-type SessionType = "administration" | "pip" | "tiu" | "medical" | "parade" | "pbb" | "fitness" | "interview"
+type SessionType = "cat" | "administration" | "pip" | "tiu" | "medical" | "parade" | "pbb" | "fitness" | "interview"
 type SessionStatus = "scheduled" | "active" | "completed"
 type ResultStatus = "pending" | "passed" | "review" | "failed"
 
@@ -143,6 +143,17 @@ const definitions: globalThis.Record<SessionType, {
   tone: string
   fields: { key: string, label: string, placeholder: string, type?: string }[]
 }> = {
+  cat: {
+    label: "CAT PIP & TIU",
+    group: "CAT",
+    description: "Jadwal terpusat tryout CAT PIP dan TIU untuk kandidat terpilih.",
+    icon: BookOpenCheck,
+    tone: "bg-red-50 text-red-700",
+    fields: [
+      { key: "score", label: "Nilai CAT", placeholder: "Diisi otomatis dari tryout", type: "number" },
+      { key: "duration", label: "Durasi", placeholder: "PIP 45 menit · TIU 30 menit" },
+    ],
+  },
   administration: {
     label: "Verifikasi Administrasi",
     group: "Seleksi",
@@ -759,7 +770,7 @@ export default function SimulationCenter() {
   const [candidateSearch, setCandidateSearch] = useState("")
   const [showMobileSessionList, setShowMobileSessionList] = useState(false)
   const [draft, setDraft] = useState({
-    type: "pip" as SessionType,
+    type: "cat" as SessionType,
     title: "",
     date: "2026-10-24",
     time: "14:00",
@@ -943,7 +954,7 @@ export default function SimulationCenter() {
             }}
             className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
           >
-            {Object.entries(definitions).map(([value, item]) => (
+            {Object.entries(definitions).filter(([value]) => value !== "pip" && value !== "tiu").map(([value, item]) => (
               <option value={value} key={value}>
                 {item.label}
               </option>
@@ -1459,6 +1470,7 @@ export default function SimulationCenter() {
       candidateId: candidate.id,
       sessionType: session.type,
       metrics: nextRecord.metrics,
+      records: nextRecords,
       result: nextRecord.result,
       note: nextRecord.note,
       attendance: nextRecord.attendance,

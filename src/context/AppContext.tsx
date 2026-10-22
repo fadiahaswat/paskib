@@ -69,6 +69,7 @@ type SyncStatus = "local" | "syncing" | "synced" | "error"
 
 // Percobaan demo bawaan versi lama pernah tersimpan ke localStorage.
 const legacyDemoCatAttemptIds = new Set(["att-001", "att-002", "att-003"])
+const standardQuestionSetVersion = `${initialQuestions.length}:${initialQuestions[initialQuestions.length - 1]?.id ?? "empty"}`
 
 type AppContextValue = {
   // Cycles
@@ -125,6 +126,7 @@ type AppContextValue = {
     candidateId: string
     sessionType: string
     metrics: Record<string, string>
+    records: Record<string, SessionRecord>
     result: "pending" | "passed" | "review" | "failed"
     note: string
     attendance?: "hadir" | "sakit" | "izin" | "alpa"
@@ -263,16 +265,45 @@ function makeAvatar(name: string): string {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
 }
 
-function mergeWithStandardQuestions(loaded: CatQuestion[] | null | undefined): CatQuestion[] {
-  if (!Array.isArray(loaded) || loaded.length === 0) {
-    return initialQuestions
+const semanticTiuCategories = new Set([
+  "Sinonim & Antonim",
+  "Analogi Kata",
+  "Pemahaman Bacaan",
+  "Silogisme",
+  "Penalaran Analitis",
+])
+
+function questionIdentity(question: CatQuestion): string {
+  const correctAnswer = question.options[question.correctIndex] ?? ""
+  if (question.type === "tiu" && semanticTiuCategories.has(question.category)) {
+    return `${question.type}|${question.category}|${correctAnswer}|${question.explanation}`
+      .normalize("NFKC")
+      .toLocaleLowerCase()
+      .replace(/\s+/g, " ")
+      .trim()
   }
+  const stem = question.question
+    .replace(/^(Pilih jawaban yang tepat\. |Cermati pertanyaan berikut\. |Manakah jawaban yang benar\? |Jawablah pertanyaan ini\. |Dalam pengetahuan umum, |Informasi yang tepat untuk pertanyaan berikut adalah: |Tentukan jawaban yang sesuai\. |Pertanyaan: |Pilih satu jawaban paling tepat\. )/i, "")
+    .normalize("NFKC")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+  return `${question.type}|${question.category}|${stem}|${correctAnswer.toLocaleLowerCase()}`
+}
+
+function mergeWithStandardQuestions(loaded: CatQuestion[] | null | undefined): CatQuestion[] {
   const standardIds = new Set(initialQuestions.map((q) => q.id))
   // Preserve custom user-added questions (e.g. id starting with "q-")
-  const customQuestions = loaded.filter(
-    (q) => q && q.id && !standardIds.has(q.id) && !/^(pip|tiu)-\d{3}$/.test(q.id),
+  const customQuestions = (Array.isArray(loaded) ? loaded : []).filter(
+    (q) => q && q.id && !standardIds.has(q.id) && !/^(pip|tiu)-\d+$/.test(q.id),
   )
-  return [...customQuestions, ...initialQuestions]
+  const seen = new Set<string>()
+  return [...customQuestions, ...initialQuestions].filter((question) => {
+    const identity = questionIdentity(question)
+    if (seen.has(identity)) return false
+    seen.add(identity)
+    return true
+  })
 }
 
 const defaultChecklists: Record<number, boolean[]> = {
@@ -854,6 +885,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     [executePushToCloud],
   )
+
+  useEffect(() => {
+    const currentQuestions = stateRef.current.questions
+    const migratedQuestions = mergeWithStandardQuestions(currentQuestions)
+    if (JSON.stringify(currentQuestions) === JSON.stringify(migratedQuestions)) return
+    stateRef.current = { ...stateRef.current, questions: migratedQuestions }
+    setQuestions(migratedQuestions)
+    try {
+      localStorage.setItem("paska-clean-questions", JSON.stringify(migratedQuestions))
+    } catch {}
+    void saveToCloud({ questions: migratedQuestions })
+  }, [saveToCloud, standardQuestionSetVersion])
 
   const saveCatTryoutAttempt = useCallback(
     (attempt: CatTryoutAttempt) => {
@@ -1469,6 +1512,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       candidateId,
       sessionType,
       metrics,
+      records,
       result,
       note,
       attendance,
@@ -1476,11 +1520,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
       candidateId: string
       sessionType: string
       metrics: Record<string, string>
+      records: Record<string, SessionRecord>
       result: "pending" | "passed" | "review" | "failed"
       note: string
       attendance?: "hadir" | "sakit" | "izin" | "alpa"
     }) => {
       const currentList = stateRef.current.allCandidates
+      const candidateSessionRecords = stateRef.current.sessions
+        .filter((session) => session.type === sessionType)
+        .map((session) => ({
+          savedAt: records[`${session.id}:${candidateId}`]?.savedAt ?? "",
+          metrics: records[`${session.id}:${candidateId}`]?.metrics ?? {},
+        }))
+        .filter((record) => record.savedAt)
+        .sort((a, b) => a.savedAt.localeCompare(b.savedAt))
+      const latestMetrics = (keys: string[]) => {
+        const latest: Record<string, number> = {}
+        for (const record of candidateSessionRecords) {
+          for (const key of keys) {
+            const raw = record.metrics[key]
+            if (raw === undefined || raw.trim() === "") continue
+            const value = Number(raw)
+            if (Number.isFinite(value) && value >= 0) latest[key] = value
+          }
+        }
+        return latest
+      }
       const nextCandidates = currentList.map((cand) => {
         if (cand.id !== candidateId) return cand
         const patch: Partial<Candidate> = {
@@ -1558,19 +1623,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           } else if (sessionType === "pbb") {
             stageIndex = 5
-            const pbbScore = Number(metrics.pbbScore)
-            if (Number.isFinite(pbbScore) && pbbScore >= 0) {
-              patch.pbb = Number(pbbScore.toFixed(1))
-            } else {
-              const s = Number(metrics.static)
-              const d = Number(metrics.dynamic)
-              const c = Number(metrics.command)
-              const vals = [s, d, c].filter((v) => Number.isFinite(v) && v >= 0)
-              if (vals.length > 0) {
-                patch.pbb = Number(
-                  (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1),
-                )
-              }
+            const latest = latestMetrics(["static", "dynamic", "command", "pbbScore"])
+            for (const key of ["static", "dynamic", "command", "pbbScore"]) {
+              const raw = metrics[key]
+              if (raw !== undefined && raw.trim() !== "" && Number.isFinite(Number(raw)) && Number(raw) >= 0) latest[key] = Number(raw)
+            }
+            const components = [latest.static, latest.dynamic, latest.command].filter(
+              (value): value is number => value !== undefined,
+            )
+            if (components.length > 0) {
+              patch.pbb = Number((components.reduce((a, b) => a + b, 0) / components.length).toFixed(1))
+            } else if (latest.pbbScore !== undefined) {
+              patch.pbb = Number(latest.pbbScore.toFixed(1))
             }
           } else if (sessionType === "fitness") {
             stageIndex = 6
@@ -1603,20 +1667,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const backup = hasBackup ? Number(metrics.backup) : 0
             const shuttle = hasShuttle ? Number(metrics.shuttle) : 0
 
-            const scores: number[] = []
-            if (hasDistance) {
-              scores.push(isRunDnf ? 0 : fitnessScore("run", distance))
-            }
-            if (hasPushup) scores.push(fitnessScore("pushup", pushup))
-            if (hasSitup) scores.push(fitnessScore("situp", situp))
-            if (hasBackup) scores.push(fitnessScore("backup", backup))
-            if (hasShuttle) scores.push(fitnessScore("shuttle", shuttle))
-
-            if (scores.length > 0) {
-              const avg =
-                scores.reduce((acc, val) => acc + val, 0) / scores.length
-              patch.fitness = Number(avg.toFixed(1))
-
+            {
               const existing = cand.physicalMetrics ?? []
               const getExisting = (lbl: string) =>
                 existing.find((m) =>
@@ -1681,14 +1732,72 @@ export function AppProvider({ children }: { children: ReactNode }) {
               if (updatedMetrics.length > 0) {
                 patch.physicalMetrics = updatedMetrics
               }
+
+              const latest = latestMetrics([
+                "distance",
+                "pushup",
+                "situp",
+                "backup",
+                "shuttle",
+              ])
+              for (const record of candidateSessionRecords) {
+                if (record.metrics.runDnf === "yes") {
+                  latest.distance = 0
+                  latest.runDnf = 1
+                } else if (
+                  record.metrics.distance?.trim() &&
+                  Number.isFinite(Number(record.metrics.distance))
+                ) {
+                  latest.distance = Number(record.metrics.distance)
+                  latest.runDnf = 0
+                }
+              }
+              if (hasDistance) {
+                latest.distance = distance
+                latest.runDnf = isRunDnf ? 1 : 0
+              }
+              if (hasPushup) latest.pushup = pushup
+              if (hasSitup) latest.situp = situp
+              if (hasBackup) latest.backup = backup
+              if (hasShuttle) latest.shuttle = shuttle
+              const scores: number[] = []
+              if (latest.distance !== undefined) {
+                scores.push(
+                  latest.runDnf === 1 ? 0 : fitnessScore("run", latest.distance),
+                )
+              }
+              if (latest.pushup !== undefined) {
+                scores.push(fitnessScore("pushup", latest.pushup))
+              }
+              if (latest.situp !== undefined) {
+                scores.push(fitnessScore("situp", latest.situp))
+              }
+              if (latest.backup !== undefined) {
+                scores.push(fitnessScore("backup", latest.backup))
+              }
+              if (latest.shuttle !== undefined) {
+                scores.push(fitnessScore("shuttle", latest.shuttle))
+              }
+              if (scores.length > 0) {
+                patch.fitness = Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1))
+              }
             }
           } else if (sessionType === "interview") {
             stageIndex = 7
-            const star = Number(metrics.star)
-            const integ = Number(metrics.integrity)
-            const comm = Number(metrics.communication)
-            const vals = [star, integ, comm].filter(
-              (v) => Number.isFinite(v) && v > 0,
+            const latest = latestMetrics(["star", "integrity", "communication"])
+            for (const key of ["star", "integrity", "communication"]) {
+              const raw = metrics[key]
+              if (
+                raw !== undefined &&
+                raw.trim() !== "" &&
+                Number.isFinite(Number(raw)) &&
+                Number(raw) >= 0
+              ) {
+                latest[key] = Number(raw)
+              }
+            }
+            const vals = [latest.star, latest.integrity, latest.communication].filter(
+              (v): v is number => v !== undefined,
             )
             if (vals.length > 0) {
               patch.personality = Number(
@@ -1871,15 +1980,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const restoreStandardQuestions = useCallback(() => {
     const currentList = stateRef.current.questions
-    const existingIds = new Set(currentList.map((q) => q.id))
-    const missing = initialQuestions.filter((q) => !existingIds.has(q.id))
     const merged = mergeWithStandardQuestions(currentList)
+    const changed = JSON.stringify(currentList) !== JSON.stringify(merged)
     setQuestions(merged)
     try {
       localStorage.setItem("paska-clean-questions", JSON.stringify(merged))
     } catch {}
     saveToCloud({ questions: merged })
-    return missing.length
+    return changed ? 1 : 0
   }, [saveToCloud])
 
   // Supporting Docs CRUD

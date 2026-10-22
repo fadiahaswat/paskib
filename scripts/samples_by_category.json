@@ -1,0 +1,954 @@
+{
+  "Sejarah & Filosofi Pancasila": [
+    {
+      "id": "pip-0001",
+      "type": "pip",
+      "category": "Sejarah & Filosofi Pancasila",
+      "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)\" adalah...",
+      "options": [
+        "A.M. Dasaad",
+        "K.R.M.T.H. Woerjaningrat",
+        "Mohammad Yamin",
+        "R.A.A. Wiranatakoesoema",
+        "Soesanto Tirtoprodjo"
+      ],
+      "correctIndex": 2,
+      "explanation": "Dalam notulensi rapat sidang BPUPK 29 Mei 1945, Mohammad Yamin mengemukakan tiga dasar: permusyawaratan (Quran)-mufakat (adat), perwakilan (adat), dan kebijaksanaan (rationalism). (Buku Pendidikan Pancasila Kelas X Bab 1, Tabel 1.1 hlm. 6–8).",
+      "status": "active"
+    },
+    {
+      "id": "pip-0002",
+      "type": "pip",
+      "category": "Sejarah & Filosofi Pancasila",
+      "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, Mohammad Yamin menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Mohammad Yamin adalah...",
+      "options": [
+        "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
+        "Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'",
+        "Kemerdekaan harus bersendi kekeluargaan bangsa Indonesia",
+        "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
+        "Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai"
+      ],
+      "correctIndex": 3,
+      "explanation": "Dalam notulensi rapat sidang BPUPK 29 Mei 1945, Mohammad Yamin mengemukakan tiga dasar: permusyawaratan (Quran)-mufakat (adat), perwakilan (adat), dan kebijaksanaan (rationalism). (Buku Pendidikan Pancasila Kelas X Bab 1, Tabel 1.1 hlm. 6–8).",
+      "status": "active"
+    }
+  ],
+  "Nilai & Pengamalan Sila": [
+    {
+      "id": "pip-0142",
+      "type": "pip",
+      "category": "Nilai & Pengamalan Sila",
+      "question": "Di Provinsi Bali terdapat tradisi memberikan makanan kepada tetangga yang berbeda agama (antara pemeluk Islam dan Hindu) pada hari raya keagamaan untuk mempererat keharmonisan. Tradisi kearifan lokal tersebut dikenal dengan nama...",
+      "options": [
+        "Sambatan",
+        "Sa'aelant",
+        "Pela Gandong",
+        "Ngejot",
+        "Bakar Batu"
+      ],
+      "correctIndex": 3,
+      "explanation": "Di Bali, tradisi memberikan makanan kepada tetangga yang mengharmoniskan pemeluk Islam dan Hindu disebut tradisi ngejot (hlm. 47).",
+      "status": "active"
+    },
+    {
+      "id": "pip-0143",
+      "type": "pip",
+      "category": "Nilai & Pengamalan Sila",
+      "question": "Di daerah Maluku terdapat tradisi perjanjian persaudaraan antardaerah/negeri yang mewajibkan warganya saling menolong dan membantu meskipun berbeda agama. Tradisi ini disebut...",
+      "options": [
+        "Bakar Batu",
+        "Arisan Tenaga",
+        "Ngejot",
+        "Mapalus",
+        "Pela Gandong"
+      ],
+      "correctIndex": 4,
+      "explanation": "Di Maluku, tradisi perjanjian persaudaraan antardaerah untuk saling menolong lintas agama disebut pela gandong (hlm. 47).",
+      "status": "active"
+    }
+  ],
+  "UUD NRI 1945 & Konstitusi": [
+    {
+      "id": "pip-0154",
+      "type": "pip",
+      "category": "UUD NRI 1945 & Konstitusi",
+      "question": "Filsuf Romawi kuno Cicero (106–43 SM) menyatakan sebuah adagium hukum yang terkenal yakni 'ubi societas ibi ius', yang memiliki arti...",
+      "options": [
+        "Peraturan yang lebih tinggi mengesampingkan peraturan yang lebih rendah",
+        "Ketidaktahuan terhadap hukum tidak dapat dimaafkan",
+        "Hukum yang bersifat khusus mengesampingkan hukum yang bersifat umum",
+        "Setiap orang dianggap telah mengetahui hukum yang berlaku",
+        "Di mana ada masyarakat maka di situ ada hukum"
+      ],
+      "correctIndex": 4,
+      "explanation": "Adagium Cicero (106–43 SM) 'ubi societas ibi ius' berarti di mana ada masyarakat maka di situ ada hukum (hlm. 65).",
+      "status": "active"
+    },
+    {
+      "id": "pip-0155",
+      "type": "pip",
+      "category": "UUD NRI 1945 & Konstitusi",
+      "question": "Untuk menjamin keberlangsungan dan keseimbangan dalam hubungan antarwarga masyarakat, penyusunan peraturan hukum harus memenuhi empat unsur utama hukum, yaitu...",
+      "options": [
+        "(1) Bersumber dari tradisi lokal, (2) Tidak dapat diubah selamanya, (3) Tanpa sanksi tegas, dan (4) Mengatur keyakinan batiniah",
+        "(1) Peraturan mengenai tingkah laku manusia, (2) Ditetapkan oleh lembaga resmi yang berwenang/sah, (3) Bersifat memaksa, dan (4) Adanya sanksi bagi pelanggarnya",
+        "(1) Dibuat secara tidak tertulis, (2) Bersifat sukarela, (3) Hanya berlaku bagi pejabat negara, dan (4) Sanksinya berupa teguran batin",
+        "(1) Disusun oleh organisasi swasta, (2) Berlaku surut, (3) Bebas ditafsirkan setiap warga, dan (4) Mengutamakan keuntungan ekonomi",
+        "(1) Mengatur hubungan ibadah ritual, (2) Ditetapkan oleh tokoh adat, (3) Bersifat anjuran, dan (4) Sanksi dosa di akhirat"
+      ],
+      "correctIndex": 1,
+      "explanation": "Empat unsur peraturan hukum (hlm. 65–66): 1) peraturan mengenai tingkah laku manusia, 2) ditetapkan oleh lembaga resmi yang berwenang/sah, 3) bersifat memaksa, 4) adanya sanksi bagi pelanggarnya.",
+      "status": "active"
+    }
+  ],
+  "NKRI, Wasantara & Moderasi": [
+    {
+      "id": "pip-0220",
+      "type": "pip",
+      "category": "NKRI, Wasantara & Moderasi",
+      "question": "Semboyan 'Bhinneka Tunggal Ika' diambil dari Kakawin Sutasoma yang memiliki judul resmi 'Purusadha'. Kitab tersebut ditulis oleh seorang pujangga sastra Kerajaan Majapahit pada masa pemerintahan Raja Hayam Wuruk, yaitu...",
+      "options": [
+        "Mpu Kanwa",
+        "Mpu Sedah",
+        "Mpu Tantular",
+        "Mpu Panuluh",
+        "Mpu Prapanca"
+      ],
+      "correctIndex": 2,
+      "explanation": "Mpu Tantular adalah pujangga sastra Majapahit pada masa Raja Hayam Wuruk yang menulis Kakawin Arjunawiwaha dan Kakawin Sutasoma (Purusadha) (hlm. 131–132).",
+      "status": "active"
+    },
+    {
+      "id": "pip-0221",
+      "type": "pip",
+      "category": "NKRI, Wasantara & Moderasi",
+      "question": "Meskipun Mpu Tantular merupakan seorang penganut agama Buddha, melalui Kakawin Sutasoma beliau menunjukkan sikap sangat inklusif dan toleran dalam merespons keberagaman masyarakat Majapahit. Kutipan lengkap bait tempat kalimat Bhinneka Tunggal Ika berada adalah...",
+      "options": [
+        "Amukti palapa lamun huwus kalah nusantara isun amukti palapa; lamun kalah ring Gurun, ring Seran, Tanjung Pura, ring Haru, ring Pahang, Dompo, ring Bali, Sunda, Palembang, Tumasik",
+        "Sura dira jayaningrat lebur dening pangastuti; memayu hayuning bawana; sepi ing pamrih rame ing gawe",
+        "Ing ngarsa sung tuladha, ing madya mangun karsa, tut wuri handayani; crah agawe bubrah, rukun agawe santosa",
+        "Mitreka satata karana suka duka; sabuk mangir ketawang puspakrama; dharma bakti praja utama nusantara jaya",
+        "Hyang Buddha tanpahi Civa rajadeva; Rwaneka dhatu vinuvus vara Buddha Visva; Bhimukti rakva ring apan kena parvvanosn; Mangka ng Jinatva kalavan Civatatva tunggal; Bhinneka tunggal ika tan hana dharma mangrwa"
+      ],
+      "correctIndex": 4,
+      "explanation": "Kutipan lengkap bait dalam Kitab Sutasoma (Purusadha) karya Mpu Tantular diuraikan pada halaman 132: 'Hyang Buddha tanpahi Civa rajadeva... Bhinneka tunggal ika tan hana dharma mangrwa'.",
+      "status": "active"
+    }
+  ],
+  "Sinonim & Antonim": [
+    {
+      "id": "tiu-0001",
+      "type": "tiu",
+      "category": "Sinonim & Antonim",
+      "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: INKLUSIF",
+      "options": [
+        "Terbuka dan merangkul semua kalangan",
+        "Tertutup",
+        "Sempit",
+        "Sepihak",
+        "Eksklusif"
+      ],
+      "correctIndex": 0,
+      "explanation": "Dalam Bab 3 (hlm. 131 & 146), sikap inklusif berarti terbuka dalam menerima perbedaan dan merangkul semua kalangan.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0002",
+      "type": "tiu",
+      "category": "Sinonim & Antonim",
+      "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: OTENTIK / AUTENTIK",
+      "options": [
+        "Tiruan",
+        "Asli, sah, dan dapat dipercaya kebenarannya",
+        "Rekayasa",
+        "Fiktif",
+        "Palsu"
+      ],
+      "correctIndex": 1,
+      "explanation": "Pada Kata Pengantar (hlm. vi), fakta dan sejarah yang autentik berarti asli, sah, dan dapat dipercaya.",
+      "status": "active"
+    }
+  ],
+  "Analogi Kata": [
+    {
+      "id": "tiu-0016",
+      "type": "tiu",
+      "category": "Analogi Kata",
+      "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nPANCASILA : GRUNDNORM = UUD NRI TAHUN 1945 : ...",
+      "options": [
+        "Konstitusi / Hukum Dasar Tertulis Tertinggi",
+        "Peraturan Daerah",
+        "Traktat Bilateral",
+        "Keputusan Menteri",
+        "Hukum Adat"
+      ],
+      "correctIndex": 0,
+      "explanation": "Pancasila berkedudukan sebagai Grundnorm (norma dasar), sedangkan UUD NRI Tahun 1945 berkedudukan sebagai Konstitusi (hukum dasar tertulis tertinggi).",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0017",
+      "type": "tiu",
+      "category": "Analogi Kata",
+      "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nMPU TANTULAR : SUTASOMA = MPU PRAPANCA : ...",
+      "options": [
+        "Bharatayuddha",
+        "Pararaton",
+        "Arjunawiwaha",
+        "Smaradahana",
+        "Negarakertagama"
+      ],
+      "correctIndex": 4,
+      "explanation": "Mpu Tantular adalah pujangga penulis Kitab Sutasoma, sebagaimana Mpu Prapanca adalah pujangga penulis Kitab Negarakertagama.",
+      "status": "active"
+    }
+  ],
+  "Pemahaman Bacaan": [
+    {
+      "id": "tiu-0031",
+      "type": "tiu",
+      "category": "Pemahaman Bacaan",
+      "question": "Bacalah kutipan berikut!\n'Media sosial itu bermata dua; ia bisa menjadi alat untuk menebar kebaikan pada satu sisi, seperti penggalangan dana (crowdfunding) bagi warga yang sakit, namun dapat pula menjadi alat pengrusakan sosial pada sisi lain melalui penyebaran hoaks, ujaran kebencian, dan radikalisme.' (hlm. 48).\nSimpulan utama dari kutipan bacaan di atas adalah...",
+      "options": [
+        "Media sosial hanya memberikan dampak negatif bagi generasi muda",
+        "Seluruh informasi yang beredar di media sosial pasti merupakan berita bohong",
+        "Dampak media sosial sangat bergantung pada etika dan cara penggunanya dalam memanfaatkannya untuk kebaikan dan keadilan",
+        "Media sosial harus dilarang penggunaannya di seluruh wilayah Indonesia",
+        "Penggalangan dana melalui media sosial merupakan tindakan melanggar hukum"
+      ],
+      "correctIndex": 2,
+      "explanation": "Kutipan pada halaman 48 menekankan bahwa media sosial bermata dua, sehingga kata kuncinya adalah menggunakannya secara bijak untuk menebar kebaikan dan keadilan.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0032",
+      "type": "tiu",
+      "category": "Pemahaman Bacaan",
+      "question": "Bacalah kutipan berikut!\n'Berlaku adil dalam pemerolehan hak warga negara berorientasi pada kepantasan (equity), bukan semata kesamaan rata (equality). Ketika seorang kakak yang bersekolah di SMA dan adiknya yang masih di SD meminta uang saku, orang tua memberikan uang saku lebih besar kepada kakak dengan mempertimbangkan jarak sekolah, lamanya belajar, dan kebutuhan transportasi.' (hlm. 86).\nIde pokok dari paragraf tersebut adalah...",
+      "options": [
+        "Keadilan hanya dapat tercapai apabila setiap orang menerima jumlah uang yang sama rata",
+        "Pelajar SD memiliki kebutuhan transportasi dan belajar yang lebih besar daripada pelajar SMA",
+        "Uang saku pelajar harus ditetapkan melalui peraturan daerah setempat",
+        "Orang tua bersikap pilih kasih apabila tidak memberikan uang saku yang sama persis",
+        "Keadilan berdasarkan Pancasila diwujudkan secara proporsional sesuai tingkat kebutuhan masing-masing individu (equity)"
+      ],
+      "correctIndex": 4,
+      "explanation": "Paragraf pada halaman 86 menjelaskan konsep keadilan proporsional (equity) berdasarkan tingkat kebutuhan individu.",
+      "status": "active"
+    }
+  ],
+  "Aritmatika & Hitung Cepat": [
+    {
+      "id": "tiu-0046",
+      "type": "tiu",
+      "category": "Aritmatika & Hitung Cepat",
+      "question": "Dalam daftar keanggotaan BPUPK secara keseluruhan tercatat 76 orang, yang terdiri atas 1 Ketua, 2 Wakil Ketua, 60 Anggota biasa, 6 Anggota tambahan, dan 7 Anggota istimewa Jepang. Berapakah persentase Anggota biasa (60 orang) terhadap total 75 anggota di luar Ketua?",
+      "options": [
+        "82%",
+        "75%",
+        "80%",
+        "85%",
+        "78%"
+      ],
+      "correctIndex": 2,
+      "explanation": "60 / 75 x 100% = (4/5) x 100% = 80%.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0047",
+      "type": "tiu",
+      "category": "Aritmatika & Hitung Cepat",
+      "question": "Pada Sidang Pertama BPUPK (29 Mei–1 Juni 1945), tercatat jumlah pembicara berturut-turut: hari ke-1 sebanyak 12 orang, hari ke-2 sebanyak 9 orang, hari ke-3 sebanyak 14 orang, dan hari ke-4 sebanyak 6 orang. Berapakah rata-rata jumlah pembicara per hari selama 4 hari sidang tersebut?",
+      "options": [
+        "10,25 orang",
+        "10,00 orang",
+        "11,25 orang",
+        "10,50 orang",
+        "9,75 orang"
+      ],
+      "correctIndex": 0,
+      "explanation": "Total pembicara = 12 + 9 + 14 + 6 = 41 pembicara. Rata-rata per hari = 41 / 4 = 10,25 orang.",
+      "status": "active"
+    }
+  ],
+  "Perbandingan Nilai": [
+    {
+      "id": "tiu-0061",
+      "type": "tiu",
+      "category": "Perbandingan Nilai",
+      "question": "Perbandingan jumlah anggota PPKI awal (21 orang) dengan jumlah anggota Panitia Sembilan (9 orang) dalam bentuk paling sederhana adalah...",
+      "options": [
+        "7 : 2",
+        "5 : 2",
+        "7 : 3",
+        "9 : 4",
+        "3 : 7"
+      ],
+      "correctIndex": 2,
+      "explanation": "21 : 9, kedua ruas dibagi 3 menghasilkan 7 : 3.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0062",
+      "type": "tiu",
+      "category": "Perbandingan Nilai",
+      "question": "Sebuah proyek kerja bakti perbaikan jalan kampung dapat diselesaikan oleh 24 warga dalam waktu 15 hari. Jika warga yang bergotong royong ditambah menjadi 36 orang dengan kecepatan kerja yang sama, dalam berapa hari pekerjaan tersebut selesai?",
+      "options": [
+        "8 hari",
+        "14 hari",
+        "10 hari",
+        "9 hari",
+        "12 hari"
+      ],
+      "correctIndex": 2,
+      "explanation": "Perbandingan berbalik nilai: 24 x 15 = 36 x h -> 360 = 36h -> h = 10 hari.",
+      "status": "active"
+    }
+  ],
+  "Kecepatan, Jarak & Waktu": [
+    {
+      "id": "tiu-0076",
+      "type": "tiu",
+      "category": "Kecepatan, Jarak & Waktu",
+      "question": "Dalam tes kesamaptaan jasmani Paskibraka (Lari 12 menit), Devga berhasil menempuh jarak 2.880 meter dalam waktu 12 menit. Berapakah kecepatan rata-rata lari Devga dalam satuan meter per detik (m/s)?",
+      "options": [
+        "4,5 m/s",
+        "3,5 m/s",
+        "5 m/s",
+        "3 m/s",
+        "4 m/s"
+      ],
+      "correctIndex": 4,
+      "explanation": "Waktu 12 menit = 12 x 60 = 720 detik. Kecepatan = 2.880 meter / 720 detik = 4 m/s.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0077",
+      "type": "tiu",
+      "category": "Kecepatan, Jarak & Waktu",
+      "question": "Pada peristiwa Rengasdengklok (16 Agustus 1945), apabila jarak Jakarta ke Rengasdengklok adalah sekitar 75 km dan rombongan menempuhnya dengan kecepatan rata-rata 50 km/jam, berapa lama waktu perjalanan yang dibutuhkan?",
+      "options": [
+        "1 jam 20 menit",
+        "1 jam 30 menit",
+        "1 jam 15 menit",
+        "2 jam",
+        "1 jam 45 menit"
+      ],
+      "correctIndex": 1,
+      "explanation": "Waktu = Jarak / Kecepatan = 75 km / 50 km/jam = 1,5 jam = 1 jam 30 menit.",
+      "status": "active"
+    }
+  ],
+  "Aritmatika Sosial": [
+    {
+      "id": "tiu-0091",
+      "type": "tiu",
+      "category": "Aritmatika Sosial",
+      "question": "Koperasi Siswa membeli 5 lusin atribut lencana Garuda dengan harga total Rp450.000. Jika koperasi menjual lencana tersebut seharga Rp9.000 per buah kepada anggota, berapakah persentase keuntungan yang diperoleh koperasi?",
+      "options": [
+        "22%",
+        "25%",
+        "18%",
+        "15%",
+        "20%"
+      ],
+      "correctIndex": 4,
+      "explanation": "5 lusin = 60 buah. Harga beli per buah = Rp450.000 / 60 = Rp7.500. Untung per buah = Rp9.000 - Rp7.500 = Rp1.500. Persentase untung = (1.500 / 7.500) x 100% = 20%.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0092",
+      "type": "tiu",
+      "category": "Aritmatika Sosial",
+      "question": "Sebuah toko buku memberikan diskon 15% untuk pembelian buku sejarah nasional. Jika harga label buku tersebut adalah Rp120.000, berapakah harga yang harus dibayar setelah diskon?",
+      "options": [
+        "Rp108.000",
+        "Rp105.000",
+        "Rp100.000",
+        "Rp102.000",
+        "Rp98.000"
+      ],
+      "correctIndex": 3,
+      "explanation": "Diskon = 15% x Rp120.000 = Rp18.000. Harga bayar = Rp120.000 - Rp18.000 = Rp102.000.",
+      "status": "active"
+    }
+  ],
+  "Deret Angka & Huruf": [
+    {
+      "id": "tiu-0106",
+      "type": "tiu",
+      "category": "Deret Angka & Huruf",
+      "question": "Tentukan suku berikutnya dari deret angka: 3, 7, 15, 31, 63, ...",
+      "options": [
+        "129",
+        "125",
+        "95",
+        "127",
+        "115"
+      ],
+      "correctIndex": 3,
+      "explanation": "Pola: dikali 2 ditambah 1 (atau +4, +8, +16, +32, +64). Maka 63 + 64 = 127.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0107",
+      "type": "tiu",
+      "category": "Deret Angka & Huruf",
+      "question": "Tentukan suku berikutnya dari deret angka: 2, 6, 12, 20, 30, 42, ...",
+      "options": [
+        "60",
+        "52",
+        "58",
+        "56",
+        "54"
+      ],
+      "correctIndex": 3,
+      "explanation": "Pola selisih bertingkat: +4, +6, +8, +10, +12, maka berikutnya +14. 42 + 14 = 56.",
+      "status": "active"
+    }
+  ],
+  "Silogisme": [
+    {
+      "id": "tiu-0121",
+      "type": "tiu",
+      "category": "Silogisme",
+      "question": "Premis 1: Semua peraturan perundang-undangan di Indonesia tidak boleh bertentangan dengan Pancasila.\nPremis 2: Undang-Undang Nomor 12 Tahun 2006 adalah peraturan perundang-undangan di Indonesia.\nKesimpulan yang sah adalah...",
+      "options": [
+        "Undang-Undang Nomor 12 Tahun 2006 berkedudukan di atas UUD 1945",
+        "Pancasila hanya berlaku bagi Undang-Undang Nomor 12 Tahun 2006",
+        "Tidak dapat ditarik kesimpulan",
+        "Undang-Undang Nomor 12 Tahun 2006 tidak boleh bertentangan dengan Pancasila",
+        "Beberapa peraturan perundang-undangan boleh bertentangan dengan Pancasila"
+      ],
+      "correctIndex": 3,
+      "explanation": "Penalaran silogisme kategoris: Semua A adalah B; C adalah A; maka C adalah B.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0122",
+      "type": "tiu",
+      "category": "Silogisme",
+      "question": "Premis 1: Jika seorang pengendara motor belum berusia 17 tahun, maka ia belum berhak memperoleh SIM C.\nPremis 2: Roni adalah pelajar kelas X yang berusia 15 tahun.\nKesimpulan yang tepat adalah...",
+      "options": [
+        "Roni sudah boleh mengendarai motor ke sekolah tanpa SIM",
+        "Roni berhak memperoleh SIM A",
+        "Usia tidak memengaruhi penerbitan SIM",
+        "Roni belum berhak memperoleh SIM C",
+        "Semua pelajar SMA sudah berusia 17 tahun"
+      ],
+      "correctIndex": 3,
+      "explanation": "Modus Ponens: Roni berusia 15 tahun (< 17 tahun), sehingga memenuhi anteseden dan menghasilkan kesimpulan bahwa Roni belum berhak memperoleh SIM C.",
+      "status": "active"
+    }
+  ],
+  "Penalaran Analitis": [
+    {
+      "id": "tiu-0136",
+      "type": "tiu",
+      "category": "Penalaran Analitis",
+      "question": "Dalam sebuah barisan kehormatan Paskibraka terdapat 5 kandidat: Aldi, Bima, Citra, Dinda, dan Eka yang berdiri berjajar dari kiri ke kanan (posisi 1 sampai 5).\n- Citra berdiri tepat di tengah barisan.\n- Aldi berdiri di sebelah kiri Bima.\n- Eka berdiri di ujung paling kanan.\n- Dinda berdiri di antara Citra dan Eka.\nSiapakah yang berdiri pada posisi ke-2 dari kiri?",
+      "options": [
+        "Citra",
+        "Bima",
+        "Dinda",
+        "Aldi",
+        "Eka"
+      ],
+      "correctIndex": 1,
+      "explanation": "Urutan dari kiri ke kanan (1–5): Citra di posisi 3, Eka di posisi 5, Dinda di antara Citra dan Eka (posisi 4). Tersisa posisi 1 dan 2 untuk Aldi dan Bima. Karena Aldi di kiri Bima, maka posisi 1 = Aldi dan posisi 2 = Bima.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-0137",
+      "type": "tiu",
+      "category": "Penalaran Analitis",
+      "question": "Lima peraturan perundang-undangan (A, B, C, D, E) disusun berdasarkan tata urutan hierarki dari tertinggi ke terendah:\n- Peraturan A lebih tinggi daripada Peraturan C, tetapi lebih rendah daripada Peraturan B.\n- Peraturan D lebih rendah daripada Peraturan C.\n- Peraturan E lebih tinggi daripada Peraturan B.\nManakah peraturan yang memiliki kedudukan tertinggi?",
+      "options": [
+        "Peraturan E",
+        "Peraturan C",
+        "Peraturan B",
+        "Peraturan A",
+        "Peraturan D"
+      ],
+      "correctIndex": 0,
+      "explanation": "Urutan dari tertinggi ke terendah: E > B > A > C > D. Maka yang tertinggi adalah Peraturan E.",
+      "status": "active"
+    }
+  ],
+  "Sejarah & Kepaskibrakaan": [
+    {
+      "id": "tiu-2151",
+      "type": "tiu",
+      "category": "Sejarah & Kepaskibrakaan",
+      "question": "Pada tanggal berapakah Proklamasi Kemerdekaan Indonesia dibacakan?",
+      "options": [
+        "17 Agustus 1945",
+        "Sayuti Melik",
+        "Tiga orang",
+        "2 meter",
+        "Purna Paskibraka Indonesia"
+      ],
+      "correctIndex": 0,
+      "explanation": "Proklamasi Kemerdekaan Indonesia dibacakan pada 17 Agustus 1945.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2152",
+      "type": "tiu",
+      "category": "Sejarah & Kepaskibrakaan",
+      "question": "Siapakah yang membacakan teks Proklamasi Kemerdekaan Indonesia?",
+      "options": [
+        "Laksamana Tadashi Maeda",
+        "Ir. Sukarno",
+        "Dua orang",
+        "2 : 3",
+        "Bunga teratai"
+      ],
+      "correctIndex": 1,
+      "explanation": "Teks proklamasi dibacakan oleh Ir. Sukarno.",
+      "status": "active"
+    }
+  ],
+  "Geografi & Pemerintahan": [
+    {
+      "id": "tiu-2181",
+      "type": "tiu",
+      "category": "Geografi & Pemerintahan",
+      "question": "Apakah ibu kota Provinsi Aceh?",
+      "options": [
+        "Banda Aceh",
+        "Nabire",
+        "Palembang",
+        "Semarang",
+        "Pontianak"
+      ],
+      "correctIndex": 0,
+      "explanation": "Ibu kota Provinsi Aceh adalah Banda Aceh.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2182",
+      "type": "tiu",
+      "category": "Geografi & Pemerintahan",
+      "question": "Apakah ibu kota Provinsi Sumatera Utara?",
+      "options": [
+        "Wamena",
+        "Medan",
+        "Bengkulu",
+        "Yogyakarta",
+        "Palangka Raya"
+      ],
+      "correctIndex": 1,
+      "explanation": "Ibu kota Provinsi Sumatera Utara adalah Medan.",
+      "status": "active"
+    }
+  ],
+  "Wawasan Global & Kerja Sama Internasional": [
+    {
+      "id": "tiu-2241",
+      "type": "tiu",
+      "category": "Wawasan Global & Kerja Sama Internasional",
+      "question": "Di kota manakah Konferensi Asia Afrika tahun 1955 diselenggarakan?",
+      "options": [
+        "Bandung",
+        "Nonintervensi",
+        "Ali Sastroamidjojo",
+        "Indonesia",
+        "Bali"
+      ],
+      "correctIndex": 0,
+      "explanation": "Konferensi Asia Afrika diselenggarakan di Bandung pada 18–24 April 1955.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2242",
+      "type": "tiu",
+      "category": "Wawasan Global & Kerja Sama Internasional",
+      "question": "Pada tahun berapakah Konferensi Asia Afrika berlangsung di Bandung?",
+      "options": [
+        "Bandung",
+        "1955",
+        "ASEAN",
+        "Perserikatan Bangsa-Bangsa",
+        "Deklarasi Bangkok"
+      ],
+      "correctIndex": 1,
+      "explanation": "Konferensi Asia Afrika berlangsung pada tahun 1955.",
+      "status": "active"
+    }
+  ],
+  "Penemu & Tokoh Dunia": [
+    {
+      "id": "tiu-2271",
+      "type": "tiu",
+      "category": "Penemu & Tokoh Dunia",
+      "question": "Tokoh yang dikenal atas kontribusi pada induksi elektromagnetik adalah ....",
+      "options": [
+        "Michael Faraday",
+        "Wright bersaudara",
+        "Tim Berners-Lee",
+        "Robert Koch",
+        "Alexander Graham Bell"
+      ],
+      "correctIndex": 0,
+      "explanation": "Michael Faraday dikenal atas kontribusi pentingnya pada induksi elektromagnetik.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2272",
+      "type": "tiu",
+      "category": "Penemu & Tokoh Dunia",
+      "question": "Tokoh yang dikenal atas kontribusi pada telepon adalah ....",
+      "options": [
+        "Nikola Tesla",
+        "Alexander Graham Bell",
+        "Johannes Kepler",
+        "Edward Jenner",
+        "Thomas Alva Edison"
+      ],
+      "correctIndex": 1,
+      "explanation": "Alexander Graham Bell dikenal atas kontribusi pentingnya pada telepon.",
+      "status": "active"
+    }
+  ],
+  "Ibu Kota Negara": [
+    {
+      "id": "tiu-2301",
+      "type": "tiu",
+      "category": "Ibu Kota Negara",
+      "question": "Apakah ibu kota negara Vietnam?",
+      "options": [
+        "Hanoi",
+        "Washington, D.C.",
+        "Seoul",
+        "Wellington",
+        "Naypyidaw"
+      ],
+      "correctIndex": 0,
+      "explanation": "Ibu kota Vietnam adalah Hanoi.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2302",
+      "type": "tiu",
+      "category": "Ibu Kota Negara",
+      "question": "Apakah ibu kota negara Filipina?",
+      "options": [
+        "Canberra",
+        "Manila",
+        "Islamabad",
+        "Paris",
+        "Bangkok"
+      ],
+      "correctIndex": 1,
+      "explanation": "Ibu kota Filipina adalah Manila.",
+      "status": "active"
+    }
+  ],
+  "Organisasi Internasional": [
+    {
+      "id": "tiu-2331",
+      "type": "tiu",
+      "category": "Organisasi Internasional",
+      "question": "Organisasi apakah yang bergerak dalam bidang pendidikan, ilmu pengetahuan, dan kebudayaan?",
+      "options": [
+        "UNESCO",
+        "IAEA",
+        "UNIDO",
+        "Interpol",
+        "UNHCR"
+      ],
+      "correctIndex": 0,
+      "explanation": "UNESCO bekerja di bidang pendidikan, ilmu pengetahuan, dan kebudayaan.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2332",
+      "type": "tiu",
+      "category": "Organisasi Internasional",
+      "question": "Di kota manakah kantor pusat UNESCO berada?",
+      "options": [
+        "Montreal",
+        "Paris",
+        "Den Haag",
+        "London",
+        "Lyon"
+      ],
+      "correctIndex": 1,
+      "explanation": "Kantor pusat UNESCO berada di Paris.",
+      "status": "active"
+    }
+  ],
+  "Flora, Fauna & Simbol Nasional": [
+    {
+      "id": "tiu-2391",
+      "type": "tiu",
+      "category": "Flora, Fauna & Simbol Nasional",
+      "question": "Bunga apakah yang ditetapkan sebagai Puspa Bangsa Indonesia?",
+      "options": [
+        "Melati putih",
+        "Jalak Bali",
+        "Aktif, disiplin, dan gembira",
+        "Pohon aras",
+        "Ikan siluk merah"
+      ],
+      "correctIndex": 0,
+      "explanation": "Melati putih ditetapkan sebagai Puspa Bangsa.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2392",
+      "type": "tiu",
+      "category": "Flora, Fauna & Simbol Nasional",
+      "question": "Bunga apakah yang ditetapkan sebagai Puspa Pesona Indonesia?",
+      "options": [
+        "Badak Jawa",
+        "Anggrek bulan",
+        "Persaudaraan antaranggota dari berbagai daerah",
+        "Elang botak",
+        "Elang Jawa"
+      ],
+      "correctIndex": 1,
+      "explanation": "Anggrek bulan ditetapkan sebagai Puspa Pesona.",
+      "status": "active"
+    }
+  ],
+  "Geografi RPUL": [
+    {
+      "id": "tiu-2421",
+      "type": "tiu",
+      "category": "Geografi RPUL",
+      "question": "Sungai apakah yang dikenal sebagai sungai terpanjang di Indonesia?",
+      "options": [
+        "Kapuas",
+        "Legenda",
+        "Bangkok",
+        "Puncak Jaya",
+        "Selat Karimata"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sungai Kapuas di Kalimantan dikenal sebagai sungai terpanjang di Indonesia.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2422",
+      "type": "tiu",
+      "category": "Geografi RPUL",
+      "question": "Di provinsi manakah Danau Toba berada?",
+      "options": [
+        "Garis kontur",
+        "Sumatera Utara",
+        "Seoul",
+        "Danau Maninjau",
+        "Asia"
+      ],
+      "correctIndex": 1,
+      "explanation": "Danau Toba berada di Provinsi Sumatera Utara.",
+      "status": "active"
+    }
+  ],
+  "Sejarah Indonesia & Dunia": [
+    {
+      "id": "tiu-2451",
+      "type": "tiu",
+      "category": "Sejarah Indonesia & Dunia",
+      "question": "Kerajaan maritim besar yang berkembang di Sumatra pada masa lampau adalah kerajaan apa?",
+      "options": [
+        "Sriwijaya",
+        "Raden Wijaya",
+        "Gajah Mada",
+        "Kutai",
+        "Mpu Prapanca"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sriwijaya berkembang sebagai kerajaan maritim di Sumatra.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2452",
+      "type": "tiu",
+      "category": "Sejarah Indonesia & Dunia",
+      "question": "Kerajaan Majapahit didirikan oleh tokoh siapa?",
+      "options": [
+        "Mpu Prapanca",
+        "Raden Wijaya",
+        "Samudra Pasai",
+        "Sriwijaya",
+        "Gajah Mada"
+      ],
+      "correctIndex": 1,
+      "explanation": "Raden Wijaya mendirikan Majapahit pada akhir abad ke-13.",
+      "status": "active"
+    }
+  ],
+  "Ilmu Pengetahuan Alam": [
+    {
+      "id": "tiu-2481",
+      "type": "tiu",
+      "category": "Ilmu Pengetahuan Alam",
+      "question": "Planet terbesar dalam tata surya adalah planet apa?",
+      "options": [
+        "Jupiter",
+        "Karbon dioksida",
+        "Gelombang seismik",
+        "Bulan",
+        "Joule"
+      ],
+      "correctIndex": 0,
+      "explanation": "Jupiter merupakan planet terbesar dalam tata surya.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2482",
+      "type": "tiu",
+      "category": "Ilmu Pengetahuan Alam",
+      "question": "Planet yang paling dekat dengan Matahari adalah planet apa?",
+      "options": [
+        "Herbivor",
+        "Merkurius",
+        "Termometer",
+        "Matahari",
+        "Konduktor"
+      ],
+      "correctIndex": 1,
+      "explanation": "Merkurius merupakan planet terdekat dari Matahari.",
+      "status": "active"
+    }
+  ],
+  "Matematika & Pengukuran": [
+    {
+      "id": "tiu-2511",
+      "type": "tiu",
+      "category": "Matematika & Pengukuran",
+      "question": "Berapakah hasil 125 + 275?",
+      "options": [
+        "400",
+        "Kubus",
+        "Rp20.000",
+        "0,75",
+        "3.600 detik"
+      ],
+      "correctIndex": 0,
+      "explanation": "125 ditambah 275 sama dengan 400.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2512",
+      "type": "tiu",
+      "category": "Matematika & Pengukuran",
+      "question": "Berapakah hasil 900 − 365?",
+      "options": [
+        "64 cm³",
+        "535",
+        "8",
+        "24",
+        "32 cm"
+      ],
+      "correctIndex": 1,
+      "explanation": "900 dikurangi 365 sama dengan 535.",
+      "status": "active"
+    }
+  ],
+  "Organisasi & Kerja Sama Dunia": [
+    {
+      "id": "tiu-2541",
+      "type": "tiu",
+      "category": "Organisasi & Kerja Sama Dunia",
+      "question": "Kepanjangan ASEAN adalah apa?",
+      "options": [
+        "Association of Southeast Asian Nations",
+        "IAEA",
+        "United Nations Educational, Scientific and Cultural Organization",
+        "Kesehatan",
+        "Jenewa"
+      ],
+      "correctIndex": 0,
+      "explanation": "ASEAN adalah Association of Southeast Asian Nations.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2542",
+      "type": "tiu",
+      "category": "Organisasi & Kerja Sama Dunia",
+      "question": "Di kota manakah Sekretariat ASEAN berada?",
+      "options": [
+        "Den Haag",
+        "Jakarta",
+        "Brussels",
+        "Addis Ababa",
+        "New York"
+      ],
+      "correctIndex": 1,
+      "explanation": "Sekretariat ASEAN berkedudukan di Jakarta.",
+      "status": "active"
+    }
+  ],
+  "Seni, Budaya & Bahasa": [
+    {
+      "id": "tiu-2571",
+      "type": "tiu",
+      "category": "Seni, Budaya & Bahasa",
+      "question": "Rumah Gadang merupakan rumah adat dari suku apa?",
+      "options": [
+        "Minangkabau",
+        "Sulawesi Selatan",
+        "Sumatera Selatan",
+        "Jawa",
+        "Papua"
+      ],
+      "correctIndex": 0,
+      "explanation": "Rumah Gadang merupakan rumah adat Minangkabau di Sumatera Barat.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2572",
+      "type": "tiu",
+      "category": "Seni, Budaya & Bahasa",
+      "question": "Tongkonan merupakan rumah adat masyarakat dari provinsi mana?",
+      "options": [
+        "Papua",
+        "Sulawesi Selatan",
+        "Minangkabau",
+        "Sumatera Selatan",
+        "Jawa"
+      ],
+      "correctIndex": 1,
+      "explanation": "Tongkonan merupakan rumah adat masyarakat Toraja di Sulawesi Selatan.",
+      "status": "active"
+    }
+  ],
+  "Olahraga & Pengetahuan Umum": [
+    {
+      "id": "tiu-2601",
+      "type": "tiu",
+      "category": "Olahraga & Pengetahuan Umum",
+      "question": "Induk organisasi sepak bola dunia adalah apa?",
+      "options": [
+        "FIFA",
+        "World Aquatics",
+        "Pilihan 16",
+        "Pilihan 17",
+        "Pilihan 18"
+      ],
+      "correctIndex": 0,
+      "explanation": "FIFA merupakan badan pengatur sepak bola internasional.",
+      "status": "active"
+    },
+    {
+      "id": "tiu-2602",
+      "type": "tiu",
+      "category": "Olahraga & Pengetahuan Umum",
+      "question": "Induk organisasi sepak bola Indonesia adalah apa?",
+      "options": [
+        "FIFA",
+        "PSSI",
+        "Pilihan 16",
+        "Pilihan 17",
+        "Pilihan 18"
+      ],
+      "correctIndex": 1,
+      "explanation": "PSSI merupakan Persatuan Sepak Bola Seluruh Indonesia.",
+      "status": "active"
+    }
+  ]
+}

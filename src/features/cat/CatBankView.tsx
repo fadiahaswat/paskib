@@ -5,6 +5,7 @@ import {
   ArrowRight,
   BookOpenCheck,
   Calculator,
+  CalendarDays,
   Check,
   CheckCircle2,
   Clock,
@@ -65,6 +66,20 @@ const tiuCategories = [
   "Deret Angka & Huruf",
   "Silogisme",
   "Penalaran Analitis",
+  "Sejarah & Kepaskibrakaan",
+  "Geografi & Pemerintahan",
+  "Wawasan Global & Kerja Sama Internasional",
+  "Penemu & Tokoh Dunia",
+  "Ibu Kota Negara",
+  "Organisasi & Kerja Sama Dunia",
+  "Flora, Fauna & Simbol Nasional",
+  "Geografi RPUL",
+  "Sejarah Indonesia & Dunia",
+  "Ilmu Pengetahuan Alam",
+  "Matematika & Pengukuran",
+  "Organisasi Internasional",
+  "Seni, Budaya & Bahasa",
+  "Olahraga & Pengetahuan Umum",
 ]
 
 // ============================================================================
@@ -80,6 +95,7 @@ export default function CatBankView() {
     sessions,
     records,
     currentUser,
+    setSessions,
     catTryoutAttempts: attempts,
     saveCatTryoutAttempt,
     deleteCatTryoutAttempt,
@@ -169,6 +185,26 @@ export default function CatBankView() {
   const [isSavingAnswer, setIsSavingAnswer] = useState(false)
   const [showConfirmSubmitModal, setShowConfirmSubmitModal] = useState(false)
   const [tryoutStartTime, setTryoutStartTime] = useState<string>("")
+  const [, refreshScheduleClock] = useState(0)
+
+  useEffect(() => {
+    const timer = window.setInterval(() => refreshScheduleClock((value) => value + 1), 30_000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const visibleCatSchedules = sessions.filter((session) =>
+    session.type === "cat" && session.participantIds.includes(
+      currentUser.role === "candidate" ? currentUser.candidateId || "" : selectedCandidateId,
+    ),
+  )
+  const now = Date.now()
+  const activeCatSchedule = visibleCatSchedules.find((schedule) => {
+    const start = new Date(`${schedule.date}T${schedule.time}`).getTime()
+    return schedule.status !== "completed" && now >= start && now <= start + 75 * 60 * 1000
+  })
+  const displayedCatSchedule = activeCatSchedule ?? [...visibleCatSchedules]
+    .filter((schedule) => schedule.status !== "completed" && new Date(`${schedule.date}T${schedule.time}`).getTime() > now)
+    .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())[0]
 
   // Review & Explanation Modal / Tab
   const [reviewTab, setReviewTab] = useState<"pip" | "tiu">("pip")
@@ -267,7 +303,18 @@ export default function CatBankView() {
   // PREPARE QUESTIONS HELPER (FISHER-YATES SHUFFLE)
   // --------------------------------------------------------------------------
   function prepareExamQuestions(type: "pip" | "tiu", targetCount: number) {
-    const pool = questions.filter((q) => q.type === type && q.status === "active")
+    const seenQuestions = new Set<string>()
+    const pool = questions.filter((q) => {
+      if (q.type !== type || q.status !== "active") return false
+      const canonicalQuestion = q.question
+        .replace(/^(Pilih jawaban yang tepat\. |Cermati pertanyaan berikut\. |Manakah jawaban yang benar\? |Jawablah pertanyaan ini\. |Dalam pengetahuan umum, |Informasi yang tepat untuk pertanyaan berikut adalah: |Tentukan jawaban yang sesuai\. |Pertanyaan: |Pilih satu jawaban paling tepat\. )/i, "")
+        .toLocaleLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, " ")
+        .trim()
+      if (seenQuestions.has(canonicalQuestion)) return false
+      seenQuestions.add(canonicalQuestion)
+      return true
+    })
     const selected = [...pool]
     if (packageConfig.shuffleQuestions) {
       for (let i = selected.length - 1; i > 0; i--) {
@@ -284,6 +331,10 @@ export default function CatBankView() {
   // START SESSION 1: PIP
   // --------------------------------------------------------------------------
   function startPipSession() {
+    if (!activeCatSchedule) {
+      showToast("CAT hanya dapat dimulai pada jadwal yang ditetapkan admin/pelatih.", "warning")
+      return
+    }
     const qs = prepareExamQuestions("pip", packageConfig.pipQuestionCount)
     if (qs.length === 0) {
       showToast("Tidak ada butir soal PIP aktif untuk memulai ujian.", "danger")
@@ -296,6 +347,7 @@ export default function CatBankView() {
     setSecondsLeft(packageConfig.pipDurationSec)
     setIsTimerRunning(true)
     setSessionPhase("pip")
+    if (activeCatSchedule) setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "active" } : session))
     setTryoutStartTime(new Date().toISOString().replace("T", " ").substring(0, 19))
     showToast("Sesi 1: CAT PIP dimulai. Waktu 45 menit berjalan.", "info")
   }
@@ -336,6 +388,7 @@ export default function CatBankView() {
     setIsTimerRunning(false)
     setShowConfirmSubmitModal(false)
     setSessionPhase("completed")
+    if (activeCatSchedule) setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "completed" } : session))
 
     // Calculate final scores according to PRD 4.3 formulas:
     // PIP: S_pip = 2 * C_pip (Max 100)
@@ -655,17 +708,19 @@ export default function CatBankView() {
   }
 
   function handleRestoreStandardQuestions() {
+    const standardPipCount = standardCatQuestions.filter((question) => question.type === "pip").length
+    const standardTiuCount = standardCatQuestions.filter((question) => question.type === "tiu").length
     if (
       confirm(
-        `Sinkronkan ${standardCatQuestions.length} butir soal standar resmi Buku Pendidikan Pancasila Kelas X & BPIP (1.039 PIP + 150 TIU)? Butir soal yang belum ada akan ditambahkan.`,
+        `Terapkan bank standar terbaru: ${standardPipCount} PIP dan ${standardTiuCount} TIU? Soal standar lama yang berulang akan dibersihkan; soal buatan sendiri tetap dipertahankan.`,
       )
     ) {
-      const addedCount = restoreStandardQuestions()
+      const changed = restoreStandardQuestions()
       showToast(
-        addedCount > 0
-          ? `${addedCount} butir soal standar berhasil disinkronkan (Total: ${standardCatQuestions.length} soal).`
-          : `Seluruh ${standardCatQuestions.length} butir soal standar sudah tersinkronisasi.`,
-        "success",
+        changed > 0
+          ? `Bank standar diperbarui. Soal standar lama yang berulang dibersihkan; ${standardPipCount} PIP dan ${standardTiuCount} TIU tersedia.`
+          : `Bank standar sudah terbaru (${standardPipCount} PIP dan ${standardTiuCount} TIU).`,
+        changed > 0 ? "success" : "info",
       )
     }
   }
@@ -911,8 +966,8 @@ export default function CatBankView() {
         <div className="grid gap-6">
           {/* -------------------- 1. IDLE LOBBY -------------------- */}
           {sessionPhase === "idle" && (
-            <div className="grid gap-6 lg:grid-cols-3">
-              <Card className="p-6 border-slate-200 lg:col-span-2">
+            <div className="grid gap-5 lg:grid-cols-3">
+              <Card className="p-5 sm:p-6 border-slate-200 lg:col-span-2">
                 <div className="flex items-center gap-3">
                   <div className="grid size-12 place-items-center rounded-2xl bg-red-100 text-red-600">
                     <GraduationCap className="size-6" />
@@ -927,7 +982,7 @@ export default function CatBankView() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid min-w-0 gap-4 sm:grid-cols-2">
+                <div className="mt-5 grid min-w-0 gap-3 sm:grid-cols-2">
                   {currentUser.role === "candidate" ? (
                     <div className="flex min-h-16 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
                       <CheckCircle2 className="size-5 shrink-0 text-emerald-600" />
@@ -938,7 +993,7 @@ export default function CatBankView() {
                     </div>
                   ) : (
                     <label className="grid min-w-0 gap-1.5 text-xs font-bold text-slate-700">
-                      1. Pilih peserta
+                      Peserta
                       <select
                         value={selectedCandidateId}
                         onChange={(e) => setSelectedCandidateId(e.target.value)}
@@ -953,24 +1008,46 @@ export default function CatBankView() {
                     </label>
                   )}
 
-                  <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3">
-                    <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
-                      Paket aktif
+                  <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+                    <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                      Paket CAT aktif
                     </p>
-                    <p className="mt-1 text-xs font-bold text-slate-900 truncate">
+                    <p className="mt-1 text-sm font-bold leading-snug text-slate-900">
                       {packageConfig.packageName}
                     </p>
-                    <p className="text-[0.68rem] text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500">
                       Maks. {packageConfig.maxAttempts} kali percobaan · Acak butir aktif
                     </p>
                   </div>
                 </div>
 
+                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3.5">
+                  <div className="flex items-start gap-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white text-slate-600 ring-1 ring-slate-200">
+                      <CalendarDays className="size-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h3 className="text-sm font-bold text-slate-900">Jadwal CAT</h3>
+                        <Badge tone={activeCatSchedule ? "success" : "neutral"}>{activeCatSchedule ? "Sedang berlangsung" : displayedCatSchedule ? "Terjadwal" : "Belum terjadwal"}</Badge>
+                      </div>
+                      {displayedCatSchedule ? (
+                        <>
+                          <p className="mt-1 text-xs font-semibold text-slate-700">{displayedCatSchedule.title}</p>
+                          <p className="mt-0.5 text-xs text-slate-500">{displayedCatSchedule.date} · {displayedCatSchedule.time} · {displayedCatSchedule.location}</p>
+                        </>
+                      ) : (
+                        <p className="mt-1 text-xs leading-relaxed text-slate-500">Belum ada jadwal untuk peserta ini. Admin/pelatih mengaturnya melalui Sesi seleksi & latihan.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 {/* TWO SEQUENTIAL SESSIONS TIMELINE */}
                 <details className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
-                  <summary className="cursor-pointer list-none text-xs font-bold uppercase tracking-wider text-slate-600 marker:hidden">
-                    2. Ketentuan ujian · PIP 45 menit → TIU 30 menit
-                    <span className="ml-2 text-[0.65rem] font-medium normal-case tracking-normal text-slate-400">Lihat rincian</span>
+                  <summary className="cursor-pointer list-none text-xs font-bold uppercase tracking-wider text-slate-700 marker:hidden">
+                    Ketentuan ujian · 75 menit total
+                    <span className="ml-2 text-[0.65rem] font-medium normal-case tracking-normal text-slate-500">PIP 45 menit → TIU 30 menit · Lihat rincian</span>
                   </summary>
 
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -1026,9 +1103,10 @@ export default function CatBankView() {
 
                   <Button
                     onClick={startPipSession}
-                    className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700"
+                    disabled={!activeCatSchedule}
+                    className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    <Play className="size-4" /> Mulai sesi 1 · PIP
+                    <Play className="size-4" /> {activeCatSchedule ? "Mulai sesi 1 · PIP" : "Menunggu jadwal CAT"}
                   </Button>
                 </div>
               </Card>
@@ -1748,7 +1826,7 @@ export default function CatBankView() {
                   variant="secondary"
                   onClick={handleRestoreStandardQuestions}
                   className="!px-2.5 !py-1.5 !text-xs text-slate-600"
-                  title="Sinkronkan butir soal standar BPIP"
+                  title="Sinkronkan seluruh soal standar PIP dan TIU"
                 >
                   <RefreshCw className="size-3.5" /> Standar
                 </Button>

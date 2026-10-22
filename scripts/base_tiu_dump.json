@@ -1,0 +1,2402 @@
+[
+  {
+    "id": "tiu-0001",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: INKLUSIF",
+    "options": [
+      "Terbuka dan merangkul semua kalangan",
+      "Tertutup",
+      "Sempit",
+      "Sepihak",
+      "Eksklusif"
+    ],
+    "correctIndex": 0,
+    "explanation": "Dalam Bab 3 (hlm. 131 & 146), sikap inklusif berarti terbuka dalam menerima perbedaan dan merangkul semua kalangan.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0002",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: OTENTIK / AUTENTIK",
+    "options": [
+      "Tiruan",
+      "Asli, sah, dan dapat dipercaya kebenarannya",
+      "Rekayasa",
+      "Fiktif",
+      "Palsu"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pada Kata Pengantar (hlm. vi), fakta dan sejarah yang autentik berarti asli, sah, dan dapat dipercaya.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0003",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: KONSENSUS",
+    "options": [
+      "Pemaksaan",
+      "Penolakan",
+      "Pertikaian",
+      "Kesepakatan atau permufakatan bersama",
+      "Perdebatan"
+    ],
+    "correctIndex": 3,
+    "explanation": "Konsensus berarti kesepakatan bersama yang dicapai melalui musyawarah.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0004",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: HETEROGEN",
+    "options": [
+      "Tunggal",
+      "Sejenis",
+      "Homogen",
+      "Beraneka ragam atau terdiri atas berbagai unsur yang berbeda",
+      "Seragam"
+    ],
+    "correctIndex": 3,
+    "explanation": "Pada Bab 3 (hlm. 133–134), masyarakat heterogen berarti penduduk yang beraneka ragam.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0005",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: FUNDAMENTAL",
+    "options": [
+      "Permukaan",
+      "Tambahan",
+      "Pelengkap",
+      "Bersifat mendasar, pokok, atau hakiki",
+      "Sementara"
+    ],
+    "correctIndex": 3,
+    "explanation": "Dasar fundamental negara (hlm. 7 & 220) berarti bersifat mendasar atau pokok.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0006",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: HARMONISASI",
+    "options": [
+      "Penyelarasan atau penyerasian",
+      "Penghapusan",
+      "Pembatalan",
+      "Pertentangan",
+      "Perpecahan"
+    ],
+    "correctIndex": 0,
+    "explanation": "Menurut Glosarium (hlm. 217), harmonisasi adalah penyelarasan atau penyerasian.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0007",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: RATIFIKASI",
+    "options": [
+      "Pengesahan dokumen atau perjanjian negara/internasional",
+      "Penolakan",
+      "Penundaan",
+      "Perundingan",
+      "Pembatalan"
+    ],
+    "correctIndex": 0,
+    "explanation": "Menurut Glosarium (hlm. 219), ratifikasi adalah pengesahan perjanjian internasional.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0008",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: KONvENSI",
+    "options": [
+      "Kesepakatan atau kebiasaan ketatanegaraan tidak tertulis",
+      "Gugatan",
+      "Pembangkangan",
+      "Sanksi pidana",
+      "Pelanggaran"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pada Bab 2 (hlm. 79), konvensi adalah kebiasaan ketatanegaraan yang tidak tertulis.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0009",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: HETEROGEN",
+    "options": [
+      "Beragam",
+      "Majemuk",
+      "Bhinneka",
+      "Homogen (seragam / sejenis)",
+      "Plural"
+    ],
+    "correctIndex": 3,
+    "explanation": "Antonim (lawan kata) dari heterogen (beragam) adalah homogen (seragam/sama) sebagaimana dibahas pada halaman 134.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0010",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: OTONOM",
+    "options": [
+      "Independen",
+      "Bebas",
+      "Mandiri",
+      "Berdaulat",
+      "Terikat / Bergantung pada intervensi pihak lain"
+    ],
+    "correctIndex": 4,
+    "explanation": "Otonom berarti mandiri/independen (hlm. 76), sehingga lawan katanya adalah terikat atau bergantung pada pihak lain.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0011",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: PROGRESIF",
+    "options": [
+      "Maju",
+      "Berkembang",
+      "Regresif / Kemunduran",
+      "Dinamis",
+      "Inovatif"
+    ],
+    "correctIndex": 2,
+    "explanation": "Progresif berarti bergerak maju, sehingga antonimnya adalah regresif (mengalami kemunduran).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0012",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: INKLUSIF",
+    "options": [
+      "Toleran",
+      "Eksklusif (tertutup / memisahkan diri dari yang lain)",
+      "Egaliter",
+      "Terbuka",
+      "Merangkul"
+    ],
+    "correctIndex": 1,
+    "explanation": "Lawan kata dari inklusif (terbuka) adalah eksklusif (tertutup/merasa spesial sendiri, hlm. 94).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0013",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: DESTRUKTIF",
+    "options": [
+      "Konstruktif (membangun / memperbaiki)",
+      "Merugikan",
+      "Menghancurkan",
+      "Merusak",
+      "Membinasakan"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pada halaman 141 disebutkan perilaku destruktif (merusak), yang berlawanan kata dengan konstruktif (membangun).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0014",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: SENTRALISME",
+    "options": [
+      "Monopoli",
+      "Desentralisme (pelimpahan wewenang ke daerah)",
+      "Absolutisme",
+      "Pemusatan",
+      "Otoritarian"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pada halaman 138 disebutkan imbangan antara sentralisme (pemusatan) dan desentralisme (penyerahan urusan ke daerah).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0015",
+    "type": "tiu",
+    "category": "Sinonim & Antonim",
+    "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata:  KOOPERATIF",
+    "options": [
+      "Kolaboratif",
+      "Bahu-membahu",
+      "Gotong royong",
+      "Individualistis / Enggan bekerja sama",
+      "Tolong-menolong"
+    ],
+    "correctIndex": 3,
+    "explanation": "Kooperatif berarti bersifat kerja sama (hlm. 139), sehingga antonimnya adalah individualistis atau enggan bekerja sama.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0016",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nPANCASILA : GRUNDNORM = UUD NRI TAHUN 1945 : ...",
+    "options": [
+      "Konstitusi / Hukum Dasar Tertulis Tertinggi",
+      "Peraturan Daerah",
+      "Traktat Bilateral",
+      "Keputusan Menteri",
+      "Hukum Adat"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pancasila berkedudukan sebagai Grundnorm (norma dasar), sedangkan UUD NRI Tahun 1945 berkedudukan sebagai Konstitusi (hukum dasar tertulis tertinggi).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0017",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nMPU TANTULAR : SUTASOMA = MPU PRAPANCA : ...",
+    "options": [
+      "Bharatayuddha",
+      "Pararaton",
+      "Arjunawiwaha",
+      "Smaradahana",
+      "Negarakertagama"
+    ],
+    "correctIndex": 4,
+    "explanation": "Mpu Tantular adalah pujangga penulis Kitab Sutasoma, sebagaimana Mpu Prapanca adalah pujangga penulis Kitab Negarakertagama.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0018",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nTNI : PERTAHANAN NEGARA = POLRI : ...",
+    "options": [
+      "Peradilan Konstitusi",
+      "Pemeriksaan Keuangan",
+      "Keamanan dan Ketertiban Masyarakat",
+      "Kebijakan Moneter",
+      "Pembuatan Undang-Undang"
+    ],
+    "correctIndex": 2,
+    "explanation": "Sesuai Pasal 30 UUD 1945 dan Tap MPR No. VI/2000, TNI berperan dalam pertahanan negara, sedangkan Polri berperan dalam keamanan dan ketertiban masyarakat.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0019",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nUNDANG-UNDANG : MAHKAMAH KONSTITUSI = PERATURAN PEMERINTAH : ...",
+    "options": [
+      "Mahkamah Agung",
+      "Komisi Yudisial",
+      "Badan Pemeriksa Keuangan",
+      "Kementerian Hukum",
+      "Dewan Perwakilan Rakyat"
+    ],
+    "correctIndex": 0,
+    "explanation": "Uji materi (judicial review) Undang-Undang terhadap UUD diajukan ke Mahkamah Konstitusi, sedangkan uji materi Peraturan Pemerintah terhadap UU diajukan ke Mahkamah Agung.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0020",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nIUS SANGUINIS : KETURUNAN = IUS SOLI : ...",
+    "options": [
+      "Pengabdian",
+      "Tempat Kelahiran",
+      "Perjanjian",
+      "Perkawinan",
+      "Permohonan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Asas ius sanguinis menentukan kewarganegaraan berdasarkan keturunan, sedangkan asas ius soli berdasarkan tempat kelahiran.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0021",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nBALI : NGEJOT = MALUKU : ...",
+    "options": [
+      "Sa'aelant",
+      "Bakar Batu",
+      "Sambatan",
+      "Arisan Tenaga",
+      "Pela Gandong"
+    ],
+    "correctIndex": 4,
+    "explanation": "Ngejot adalah tradisi kearifan lokal kerukunan di Bali, sebagaimana Pela Gandong adalah tradisi persaudaraan di Maluku.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0022",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nTORAJA : ARISAN TENAGA = DAYAK KALIMANTAN : ...",
+    "options": [
+      "Sambatan",
+      "Pela Gandong",
+      "Ngejot",
+      "Bakar Batu",
+      "Sa'aelant"
+    ],
+    "correctIndex": 4,
+    "explanation": "Tradisi gotong royong menggarap ladang/sawah di Toraja disebut Arisan Tenaga, sedangkan pada Suku Dayak di Kalimantan disebut Sa'aelant.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0023",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nBINTANG : SILA PERTAMA = KEPALA BANTENG : ...",
+    "options": [
+      "Sila Ketiga",
+      "Sila Keempat",
+      "Sila Kedua",
+      "Sila Kelima",
+      "Bhinneka Tunggal Ika"
+    ],
+    "correctIndex": 1,
+    "explanation": "Lambang Bintang melambangkan Sila Pertama, sedangkan Kepala Banteng melambangkan Sila Keempat.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0024",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nRANTAI EMAS : KEMANUSIAAN = POHON BERINGIN : ...",
+    "options": [
+      "Kerakyatan",
+      "Persatuan Indonesia",
+      "Keadilan Sosial",
+      "Kemakmuran",
+      "Ketuhanan Yang Maha Esa"
+    ],
+    "correctIndex": 1,
+    "explanation": "Lambang Rantai Emas melambangkan Kemanusiaan yang Adil dan Beradab (Sila 2), sedangkan Pohon Beringin melambangkan Persatuan Indonesia (Sila 3).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0025",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nJAKSA : PENUNTUT UMUM = HAKIM : ...",
+    "options": [
+      "Penyelidik Kejahatan",
+      "Pembuat Undang-Undang",
+      "Pemutus Perkara di Pengadilan",
+      "Pengatur Lalu Lintas",
+      "Pengawas Anggaran"
+    ],
+    "correctIndex": 2,
+    "explanation": "Dalam sistem peradilan (hlm. 68), Jaksa bertugas sebagai penuntut perkara pidana, sedangkan Hakim bertugas sebagai pemutus perkara di pengadilan.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0026",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nNORMA KESUSILAAN : HATI NURANI = NORMA AGAMA : ...",
+    "options": [
+      "Kebiasaan Lokal",
+      "Undang-Undang",
+      "Adat Istiadat",
+      "Peraturan Daerah",
+      "Kitab Suci / Wahyu Tuhan YME"
+    ],
+    "correctIndex": 4,
+    "explanation": "Norma kesusilaan bersumber dari hati nurani manusia, sedangkan norma agama bersumber dari kitab suci/ajaran Tuhan YME (Tabel 2.1 hlm. 70).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0027",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nBUNG HATTA : KOPERASI = KI HADJAR DEWANTARA : ...",
+    "options": [
+      "Pendidikan Nasional (Taman Siswa)",
+      "Arsitektur Sipil",
+      "Perbankan Pusat",
+      "Diplomasi PBB",
+      "Militer Nasional"
+    ],
+    "correctIndex": 0,
+    "explanation": "Bung Hatta dikenal sebagai Bapak Koperasi Indonesia, sebagaimana Ki Hadjar Dewantara dikenal sebagai Bapak Pendidikan Nasional.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0028",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nPROVINSI : GUBERNUR = KABUPATEN : ...",
+    "options": [
+      "Bupati",
+      "Kepala Desa",
+      "Ketua DPRD",
+      "Camat",
+      "Walikota"
+    ],
+    "correctIndex": 0,
+    "explanation": "Kepala pemerintahan daerah Provinsi adalah Gubernur, sedangkan kepala pemerintahan daerah Kabupaten adalah Bupati.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0029",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nIUS CONSTITUTUM : SEKARANG = IUS CONSTITUENDUM : ...",
+    "options": [
+      "Masa Prasejarah",
+      "Masa yang Akan Datang",
+      "Luar Negeri",
+      "Hukum Adat",
+      "Masa Penjajahan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ius constitutum adalah hukum positif yang berlaku sekarang, sedangkan ius constituendum adalah hukum yang dicita-citakan berlaku pada masa yang akan datang.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0030",
+    "type": "tiu",
+    "category": "Analogi Kata",
+    "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut:\nBIPATRIDE : DUA KEWARGANEGARAAN = APATRIDE : ...",
+    "options": [
+      "Satu Kewarganegaraan",
+      "Warga Negara Kehormatan",
+      "Kewarganegaraan Ganda",
+      "Tanpa Kewarganegaraan",
+      "Tiga Kewarganegaraan"
+    ],
+    "correctIndex": 3,
+    "explanation": "Bipatride berarti memiliki dua kewarganegaraan, sedangkan apatride berarti tidak memiliki kewarganegaraan (tanpa kewarganegaraan).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0031",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Media sosial itu bermata dua; ia bisa menjadi alat untuk menebar kebaikan pada satu sisi, seperti penggalangan dana (crowdfunding) bagi warga yang sakit, namun dapat pula menjadi alat pengrusakan sosial pada sisi lain melalui penyebaran hoaks, ujaran kebencian, dan radikalisme.' (hlm. 48).\nSimpulan utama dari kutipan bacaan di atas adalah...",
+    "options": [
+      "Media sosial hanya memberikan dampak negatif bagi generasi muda",
+      "Seluruh informasi yang beredar di media sosial pasti merupakan berita bohong",
+      "Dampak media sosial sangat bergantung pada etika dan cara penggunanya dalam memanfaatkannya untuk kebaikan dan keadilan",
+      "Media sosial harus dilarang penggunaannya di seluruh wilayah Indonesia",
+      "Penggalangan dana melalui media sosial merupakan tindakan melanggar hukum"
+    ],
+    "correctIndex": 2,
+    "explanation": "Kutipan pada halaman 48 menekankan bahwa media sosial bermata dua, sehingga kata kuncinya adalah menggunakannya secara bijak untuk menebar kebaikan dan keadilan.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0032",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Berlaku adil dalam pemerolehan hak warga negara berorientasi pada kepantasan (equity), bukan semata kesamaan rata (equality). Ketika seorang kakak yang bersekolah di SMA dan adiknya yang masih di SD meminta uang saku, orang tua memberikan uang saku lebih besar kepada kakak dengan mempertimbangkan jarak sekolah, lamanya belajar, dan kebutuhan transportasi.' (hlm. 86).\nIde pokok dari paragraf tersebut adalah...",
+    "options": [
+      "Keadilan hanya dapat tercapai apabila setiap orang menerima jumlah uang yang sama rata",
+      "Pelajar SD memiliki kebutuhan transportasi dan belajar yang lebih besar daripada pelajar SMA",
+      "Uang saku pelajar harus ditetapkan melalui peraturan daerah setempat",
+      "Orang tua bersikap pilih kasih apabila tidak memberikan uang saku yang sama persis",
+      "Keadilan berdasarkan Pancasila diwujudkan secara proporsional sesuai tingkat kebutuhan masing-masing individu (equity)"
+    ],
+    "correctIndex": 4,
+    "explanation": "Paragraf pada halaman 86 menjelaskan konsep keadilan proporsional (equity) berdasarkan tingkat kebutuhan individu.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0033",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Dalam sistem perekonomian yang bersifat gotong royong berdasarkan Pasal 33 UUD NRI Tahun 1945, hak milik perorangan tetap diakui, tetapi penggunaannya dibatasi oleh kepentingan bersama. Dengan kata lain, hak milik perseorangan memiliki fungsi sosial.' (hlm. 137).\nPernyataan yang SESUAI dengan isi kutipan di atas adalah...",
+    "options": [
+      "Negara Indonesia mengakui hak milik pribadi warga negara namun penggunaannya tidak boleh merugikan kepentingan umum karena berfungsi sosial",
+      "Pasal 33 UUD 1945 menganut sistem persaingan bebas (free fight liberalism)",
+      "Hak milik perseorangan berada di atas kepentingan bangsa dan negara",
+      "Pemilik modal bebas memonopoli sumber daya alam tanpa batas demi keuntungan pribadi",
+      "Sistem ekonomi Pancasila menghapuskan seluruh hak milik pribadi warga negara"
+    ],
+    "correctIndex": 0,
+    "explanation": "Kutipan halaman 137 menegaskan bahwa dalam ekonomi Pancasila, hak milik perorangan tetap diakui namun memiliki fungsi sosial.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0034",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Pada tahun 2018 ditemukan bangkai paus sperma di perairan Wakatobi. Di dalam perut paus tersebut ditemukan berbagai macam sampah plastik seberat 5,9 kg, meliputi 115 gelas plastik, 25 kantong plastik, 19 plastik keras, 4 botol plastik, 2 sandal jepit, dan tali rafia.' (hlm. 169).\nMasalah utama yang disoroti melalui fakta dalam bacaan tersebut adalah...",
+    "options": [
+      "Paus sperma di perairan Wakatobi gemar mengonsumsi sandal jepit dan tali rafia",
+      "Pencemaran laut hanya berdampak pada wilayah daratan pegunungan",
+      "Sampah plastik di lautan dapat terurai dengan sangat cepat secara alami",
+      "Pengingkaran kewajiban masyarakat yang membuang sampah plastik sembarangan telah mencemari laut dan mengancam ekosistem biota laut",
+      "Menjaga kebersihan sungai dan laut hanya menjadi kewajiban petugas kebersihan"
+    ],
+    "correctIndex": 3,
+    "explanation": "Fakta pada Gambar 4.4 (hlm. 169) menunjukkan dampak serius pengingkaran kewajiban terhadap lingkungan berupa pencemaran limbah plastik di laut.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0035",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Jika negara diibaratkan sebuah rumah, yang membangun, mengisi, dan memperindah rumah tersebut ialah warganya. Maju, berkembang, atau mundurnya sebuah negara sangat bergantung pada kepribadian, pengetahuan, dan keterampilan warga negaranya.' (hlm. 175).\nMakna kiasan 'rumah' dan 'penghuninya' dalam kutipan di atas menegaskan bahwa...",
+    "options": [
+      "Hanya pejabat tinggi negara yang berkewajiban menjaga keutuhan negara",
+      "Kemajuan suatu negara semata-mata ditentukan oleh bantuan pinjaman luar negeri",
+      "Negara hanya membutuhkan bangunan fisik gedung pemerintahan tanpa penduduk",
+      "Warga negara merupakan subjek/aktor utama penentu kemajuan dan keberlangsungan hidup suatu negara",
+      "Warga negara bersifat pasif dan tidak memiliki pengaruh terhadap kemajuan bangsa"
+    ],
+    "correctIndex": 3,
+    "explanation": "Kutipan pada kolom Tahukah Kalian (hlm. 175) menegaskan bahwa warga negara adalah unsur pokok sekaligus subjek pelaku yang menentukan maju-mundurnya negara.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0036",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Pertahanan negara Indonesia bersifat semesta (Sishankamrata), yang melibatkan seluruh warga negara, wilayah, dan sumber daya nasional lainnya. Sistem ini dipersiapkan secara dini oleh pemerintah dan diselenggarakan secara total, terpadu, terarah, dan berlanjut.' (hlm. 193–194).\nKata 'semesta' dalam bacaan di atas mengandung arti bahwa...",
+    "options": [
+      "Usaha pertahanan negara melibatkan seluruh komponen bangsa (TNI-Polri sebagai kekuatan utama dan seluruh rakyat serta sumber daya nasional sebagai pendukung)",
+      "Sistem pertahanan baru disiapkan setelah negara diserang oleh pihak asing",
+      "Pertahanan negara Indonesia mencakup seluruh planet di tata surya",
+      "Pertahanan negara diserahkan kepada pakta pertahanan militer asing",
+      "Hanya prajurit militer aktif yang boleh berpartisipasi dalam bela negara"
+    ],
+    "correctIndex": 0,
+    "explanation": "Kata 'semesta' dalam Sishankamrata berarti melibatkan seluruh komponen bangsa, wilayah, dan sumber daya nasional (hlm. 193–194).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0037",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Fiksi hukum adalah asas dalam hukum yang berpandangan bahwa semua orang dianggap sudah tahu hukum (presumptio iures de jure). Meskipun demikian, pemerintah tetap berkewajiban memberikan informasi adanya hukum atau peraturan tertentu kepada masyarakat melalui sosialisasi, diseminasi, atau penyuluhan hukum.' (hlm. 80).\nHubungan dua gagasan dalam kutipan di atas menunjukkan bahwa...",
+    "options": [
+      "Asas fiksi hukum membebaskan aparat penegak hukum dari kewajiban edukasi masyarakat",
+      "Pemerintah tidak perlu mengumumkan undang-undang baru karena warga otomatis mengetahuinya",
+      "Warga negara bebas melanggar undang-undang apabila belum pernah mengikuti penyuluhan hukum",
+      "Hukum hanya berlaku bagi sarjana hukum yang telah membaca lembaran negara",
+      "Di satu sisi warga negara tidak bisa beralasan tidak tahu hukum saat melanggar, dan di sisi lain negara wajib aktif menyosialisasikan peraturan hukum kepada masyarakat"
+    ],
+    "correctIndex": 4,
+    "explanation": "Kutipan halaman 80 menjelaskan keseimbangan antara asas fiksi hukum bagi warga dan kewajiban sosialisasi/penyuluhan hukum oleh pemerintah.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0038",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Dalam rapat tanggal 22 Juni 1945 yang tidak dihadiri satu pun wakil pemerintah Jepang, R. Abikoesno Tjokrosoejoso dengan tegas mengemukakan bahwa kemerdekaan Indonesia harus dilahirkan oleh bangsa Indonesia sendiri sehingga bukan dianggap sebagai pemberian hadiah dari Jepang atau dari mana pun.' (hlm. 19).\nSikap tokoh bangsa dalam kutipan tersebut mencerminkan prinsip...",
+    "options": [
+      "Keinginan untuk menunda kemerdekaan hingga perang dunia selesai",
+      "Kesediaan menjadi negara bagian di bawah kekaisaran Jepang",
+      "Kemandirian dan kedaulatan bangsa untuk menentukan nasibnya sendiri di atas kekuatan bangsa sendiri",
+      "Ketergantungan penuh pada janji kemerdekaan Perdana Menteri Koiso",
+      "Penolakan terhadap seluruh bentuk musyawarah antaranggota BPUPK"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pernyataan Abikoesno dalam rapat 22 Juni 1945 (hlm. 19) menegaskan prinsip kemandirian bahwa kemerdekaan Indonesia adalah hasil perjuangan bangsa sendiri, bukan hadiah Jepang.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0039",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Perbedaan adalah kenyataan. Kemajuan akan kita capai saat kita lebih mengutamakan faktor pendorong kesatuan, yakni kesamaan, daripada faktor penghambat kesatuan, yakni perbedaan.' (hlm. 131).\nBerdasarkan kutipan di atas, kunci utama mencapai kemajuan di tengah masyarakat yang majemuk adalah...",
+    "options": [
+      "Mengedepankan titik temu kesamaan sebagai sesama bangsa Indonesia dan mengelola perbedaan secara harmonis",
+      "Menonjolkan perbedaan suku dan golongan masing-masing di ruang publik",
+      "Memaksa seluruh warga negara memiliki hobi dan kebiasaan yang persis sama",
+      "Menghindari pergaulan dengan teman yang berbeda latar belakang daerah",
+      "Menjadikan perbedaan sebagai alasan untuk memisahkan diri dari bangsa"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pelajaran pada Aktivitas Belajar 3.1 (hlm. 131) menegaskan bahwa kemajuan dicapai dengan mengutamakan faktor pendorong kesatuan (kesamaan cita-cita dan nilai) di atas perbedaan.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0040",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Ketergantungan pada utang luar negeri bagi sebuah negara dapat menjadikan kebijakan ekonomi negara tersebut didikte oleh negara lain maupun kekuatan ekonomi asing. Apabila hal ini terjadi, kemakmuran yang berkeadilan semakin jauh untuk diwujudkan.' (hlm. 140).\nSolusi yang ditawarkan dalam Bab 3 Buku Pendidikan Pancasila Kelas X untuk mencegah kondisi pada kutipan tersebut adalah...",
+    "options": [
+      "Menutup seluruh sekolah dan universitas agar menghemat anggaran negara",
+      "Mewujudkan kemandirian ekonomi (berdikari), mengutamakan penggunaan produksi dalam negeri secara masif, dan memperkuat koperasi serta UMKM",
+      "Mencetak uang sebanyak-banyaknya tanpa batas setiap hari",
+      "Menyerahkan pengelolaan seluruh BUMN kepada perusahaan multinasional asing",
+      "Menghentikan seluruh kegiatan perdagangan ekspor ke luar negeri"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pada halaman 140–141 dijelaskan bahwa solusi mencegah ketergantungan ekonomi asing adalah berdikari dalam perekonomian, mencintai produk dalam negeri, dan memperkuat koperasi/UMKM.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0041",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Seseorang tidak diperbolehkan menuntut haknya terus-menerus, tetapi tidak melaksanakan kewajiban. Hal tersebut dapat menjadi penyebab terjadinya kasus-kasus pelanggaran hak dan pengingkaran kewajiban.' (hlm. 92).\nPerilaku negatif yang digambarkan dalam kutipan di atas disebabkan oleh faktor...",
+    "options": [
+      "Kebijaksanaan dalam menggunakan wewenang dan kekuasaan",
+      "Sikap egois yang hanya mementingkan diri sendiri dan mengabaikan tanggung jawab sosial",
+      "Kesadaran diri yang tinggi sebagai bagian dari bangsa Indonesia",
+      "Kepatuhan hukum yang didasari nilai-nilai moral Pancasila",
+      "Sikap toleran yang menghargai keberadaan orang lain"
+    ],
+    "correctIndex": 1,
+    "explanation": "Menuntut hak terus-menerus sambil mengabaikan kewajiban merupakan wujud sikap egois (hlm. 92–93).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0042",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Dalam menyelenggarakan hubungan internasional, Indonesia mengembangkan politik luar negeri bebas aktif. Indonesia memberikan sumbangan dalam bentuk gagasan maupun partisipasi aktif dalam menyelesaikan konflik antarnegara, seperti mengirimkan Pasukan Garuda dalam misi pemeliharaan perdamaian PBB.' (hlm. 201 & 204).\nTindakan Indonesia tersebut merupakan pengamalan amanat Pembukaan UUD NRI Tahun 1945, khususnya...",
+    "options": [
+      "Alinea Pertama, yakni pernyataan bahwa kemerdekaan ialah hak segala bangsa",
+      "Alinea Keempat, yakni ikut melaksanakan ketertiban dunia yang berdasarkan kemerdekaan, perdamaian abadi, dan keadilan sosial",
+      "Alinea Ketiga, yakni pernyataan kemerdekaan atas berkat rahmat Allah Yang Maha Kuasa",
+      "Aturan Tambahan Pasal II UUD NRI Tahun 1945",
+      "Alinea Kedua, yakni perjuangan pergerakan kemerdekaan telah sampai ke pintu gerbang kemerdekaan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pengiriman misi perdamaian dan partisipasi aktif dalam hubungan internasional merupakan pelaksanaan tujuan nasional pada Alinea IV Pembukaan UUD 1945 (hlm. 200–201).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0043",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Di Jawa dikenal tradisi sambatan, yaitu meminta pertolongan warga masyarakat untuk membantu keluarga yang sedang membangun rumah atau mengadakan hajatan. Tanpa diminta bayaran, warga bekerja bersama-sama (nyengkuyung) dengan memegang prinsip loss sathak, bathi sanak.' (hlm. 153–154).\nNilai filosofis yang terkandung dalam prinsip 'loss sathak, bathi sanak' adalah...",
+    "options": [
+      "Kehilangan saudara lebih baik daripada kehilangan harta benda sedikit pun",
+      "Kegiatan gotong royong hanya boleh dilakukan oleh warga yang memiliki hubungan darah",
+      "Setiap bantuan fisik kepada tetangga harus dibayar dengan uang tunai dua kali lipat",
+      "Warga yang tidak memiliki harta dilarang mengikuti kegiatan kemasyarakatan",
+      "Persaudaraan dan kerukunan sosial jauh lebih berharga daripada sekadar perhitungan untung-rugi materi"
+    ],
+    "correctIndex": 4,
+    "explanation": "Pada halaman 154 dijelaskan bahwa 'loss sathak, bathi sanak' berarti lebih baik kehilangan materi daripada kehilangan saudara, sehingga warga membantu tanpa pamrih.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0044",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Peraturan daerah (Perda) tidak boleh bertentangan dengan peraturan perundang-undangan di atasnya sehingga tidak menjadi kendala dalam percepatan pembangunan, tidak menghambat pertumbuhan ekonomi daerah dan nasional, tidak memperpanjang jalur birokrasi, serta tidak menghambat investasi dan kemudahan berusaha.' (hlm. 109).\nUrgensi dilakukannya sinkronisasi vertikal terhadap Peraturan Daerah berdasarkan kutipan tersebut adalah...",
+    "options": [
+      "Memperpanjang tahapan perizinan birokrasi agar masyarakat sulit membuka usaha",
+      "Menjadikan Peraturan Daerah berkedudukan lebih tinggi daripada Undang-Undang",
+      "Menghapuskan seluruh kewenangan otonomi daerah provinsi dan kabupaten/kota",
+      "Memastikan Perda selaras dengan UU/PP di atasnya agar mendukung pelayanan publik, kepastian hukum, dan kemajuan ekonomi",
+      "Memberikan kewenangan kepada daerah untuk membuat aturan yang menyimpang dari UUD 1945"
+    ],
+    "correctIndex": 3,
+    "explanation": "Pada halaman 109 dijelaskan pentingnya keselarasan Perda dengan peraturan di atasnya agar tidak menghambat pembangunan dan pelayanan masyarakat.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0045",
+    "type": "tiu",
+    "category": "Pemahaman Bacaan",
+    "question": "Bacalah kutipan berikut!\n'Pada masa Pandemi Covid-19, kompleksitas persoalan menyulut krisis kemanusiaan. Padahal, pandemi semestinya justru mengasah kepekaan dan naluri kemanusiaan kita sekaligus menguatkan ikatan solidaritas sosial karena manusia pada dasarnya saling membutuhkan satu sama lain.' (hlm. 49–50).\nSikap yang selaras dengan pesan Sila Kedua Pancasila dalam menghadapi situasi krisis tersebut adalah...",
+    "options": [
+      "Menunjukkan empati, kepedulian sosial, dan saling membantu sesama warga yang terdampak kesulitan",
+      "Menimbun bahan makanan dan obat-obatan untuk dijual kembali dengan harga berlipat ganda",
+      "Menolak bekerja sama dengan warga lain dalam menjaga kesehatan lingkungan",
+      "Mengutamakan keselamatan kelompok sendiri dengan mengabaikan penderitaan tetangga sekitar",
+      "Menyebarkan kabar bohong tentang pandemi untuk menimbulkan kepanikan masyarakat"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pada halaman 49–50 ditekankan bahwa di tengah krisis seperti pandemi, implementasi Sila Kedua diwujudkan melalui empati, kepedulian sosial, dan solidaritas antarsesama.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0046",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Dalam daftar keanggotaan BPUPK secara keseluruhan tercatat 76 orang, yang terdiri atas 1 Ketua, 2 Wakil Ketua, 60 Anggota biasa, 6 Anggota tambahan, dan 7 Anggota istimewa Jepang. Berapakah persentase Anggota biasa (60 orang) terhadap total 75 anggota di luar Ketua?",
+    "options": [
+      "82%",
+      "75%",
+      "80%",
+      "85%",
+      "78%"
+    ],
+    "correctIndex": 2,
+    "explanation": "60 / 75 x 100% = (4/5) x 100% = 80%.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0047",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Pada Sidang Pertama BPUPK (29 Mei–1 Juni 1945), tercatat jumlah pembicara berturut-turut: hari ke-1 sebanyak 12 orang, hari ke-2 sebanyak 9 orang, hari ke-3 sebanyak 14 orang, dan hari ke-4 sebanyak 6 orang. Berapakah rata-rata jumlah pembicara per hari selama 4 hari sidang tersebut?",
+    "options": [
+      "10,25 orang",
+      "10,00 orang",
+      "11,25 orang",
+      "10,50 orang",
+      "9,75 orang"
+    ],
+    "correctIndex": 0,
+    "explanation": "Total pembicara = 12 + 9 + 14 + 6 = 41 pembicara. Rata-rata per hari = 41 / 4 = 10,25 orang.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0048",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Untuk rapat tanggal 22 Juni 1945, Sukarno mengundang 32 anggota BPUPK yang juga anggota Chuo Sangi In ditambah 15 anggota BPUPK lain di Jakarta (total 47 orang), namun yang hadir adalah 38 orang. Berapa orangkah yang berhalangan hadir?",
+    "options": [
+      "10 orang",
+      "9 orang",
+      "11 orang",
+      "7 orang",
+      "8 orang"
+    ],
+    "correctIndex": 1,
+    "explanation": "Total diundang = 32 + 15 = 47 orang. Yang hadir = 38 orang. Yang berhalangan hadir = 47 - 38 = 9 orang.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0049",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Keanggotaan PPKI pada tanggal 12 Agustus 1945 berjumlah 21 orang, kemudian ditambah 6 orang tokoh nasional menjadi 27 orang. Berapakah rasio (perbandingan paling sederhana) antara anggota tambahan terhadap jumlah total anggota PPKI?",
+    "options": [
+      "2 : 9",
+      "3 : 9",
+      "1 : 3",
+      "1 : 4",
+      "2 : 7"
+    ],
+    "correctIndex": 0,
+    "explanation": "Rasio anggota tambahan (6) terhadap total anggota PPKI (27) adalah 6 : 27, disederhanakan dengan dibagi 3 menjadi 2 : 9.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0050",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Berdasarkan Pasal 31 ayat (4) UUD NRI Tahun 1945, negara memprioritaskan anggaran pendidikan sekurang-kurangnya 20% dari APBN. Jika total APBN suatu tahun adalah Rp3.200 triliun, berapakah nilai minimal anggaran pendidikan yang wajib dialokasikan?",
+    "options": [
+      "Rp640 triliun",
+      "Rp720 triliun",
+      "Rp560 triliun",
+      "Rp480 triliun",
+      "Rp320 triliun"
+    ],
+    "correctIndex": 0,
+    "explanation": "20% x Rp3.200 triliun = 0,20 x 3.200 = Rp640 triliun.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0051",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Hasil dari (48 x 25) + (52 x 25) - 500 adalah...",
+    "options": [
+      "2.500",
+      "1.500",
+      "2.000",
+      "1.800",
+      "2.200"
+    ],
+    "correctIndex": 2,
+    "explanation": "Gunakan sifat distributif: (48 + 52) x 25 - 500 = 100 x 25 - 500 = 2.500 - 500 = 2.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0052",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Nilai dari (175^2 - 125^2) / 50 adalah...",
+    "options": [
+      "300",
+      "400",
+      "350",
+      "200",
+      "250"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ingat a^2 - b^2 = (a + b)(a - b). Maka (175 + 125)(175 - 125) / 50 = (300 x 50) / 50 = 300.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0053",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Jika 35% dari suatu anggaran kegiatan latihan Paskibraka adalah Rp14.000.000, berapakah 75% dari anggaran tersebut?",
+    "options": [
+      "Rp40.000.000",
+      "Rp28.000.000",
+      "Rp32.000.000",
+      "Rp25.000.000",
+      "Rp30.000.000"
+    ],
+    "correctIndex": 4,
+    "explanation": "Total anggaran = Rp14.000.000 / 0,35 = Rp40.000.000. Maka 75% x Rp40.000.000 = Rp30.000.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0054",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Nilai dari akar(625) + akar(196) - akar(81) adalah...",
+    "options": [
+      "34",
+      "26",
+      "32",
+      "30",
+      "28"
+    ],
+    "correctIndex": 3,
+    "explanation": "akar(625) = 25, akar(196) = 14, akar(81) = 9. Maka 25 + 14 - 9 = 30.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0055",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Hasil dari 3/4 + 5/6 - 7/12 adalah...",
+    "options": [
+      "7/6",
+      "1",
+      "3/2",
+      "11/12",
+      "5/6"
+    ],
+    "correctIndex": 1,
+    "explanation": "Samakan penyebut menjadi 12: (9 + 10 - 7) / 12 = 12 / 12 = 1.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0056",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Berdasarkan data Global Firepower 2022 (hlm. 192), estimasi personel militer Indonesia terdiri atas 400.000 personel aktif, 400.000 personel cadangan, dan 280.000 paramiliter. Berapakah jumlah total ketiga komponen personel tersebut?",
+    "options": [
+      "1.080.000 personel",
+      "980.000 personel",
+      "1.020.000 personel",
+      "1.200.000 personel",
+      "1.120.000 personel"
+    ],
+    "correctIndex": 0,
+    "explanation": "400.000 + 400.000 + 280.000 = 1.080.000 personel.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0057",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Dalam data alutsista Kekuatan Laut Indonesia (Gambar 4.14 hlm. 192), tercatat 7 kapal fregat, 24 kapal korvet, 4 kapal selam, 181 kapal patroli, dan 11 kapal ranjau. Berapakah jumlah keseluruhan kapal tersebut?",
+    "options": [
+      "237 kapal",
+      "227 kapal",
+      "231 kapal",
+      "217 kapal",
+      "225 kapal"
+    ],
+    "correctIndex": 1,
+    "explanation": "7 + 24 + 4 + 181 + 11 = 227 kapal.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0058",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Dalam seleksi CAT PIP yang terdiri atas 50 butir soal (skor +2 per jawaban benar), batas lulus (passing grade) adalah 70. Jika seorang peserta menjawab benar 41 soal, berapa poin selisih nilai peserta tersebut di atas batas lulus?",
+    "options": [
+      "12 poin",
+      "16 poin",
+      "14 poin",
+      "8 poin",
+      "10 poin"
+    ],
+    "correctIndex": 0,
+    "explanation": "Skor peserta = 41 x 2 = 82. Selisih di atas passing grade (70) = 82 - 70 = 12 poin.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0059",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Hasil operasi hitung dari 12,5% x 640 + 0,25 x 160 adalah...",
+    "options": [
+      "110",
+      "120",
+      "130",
+      "100",
+      "140"
+    ],
+    "correctIndex": 1,
+    "explanation": "12,5% = 1/8, sehingga (1/8) x 640 = 80. Sedangkan 0,25 x 160 = 40. Maka 80 + 40 = 120.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0060",
+    "type": "tiu",
+    "category": "Aritmatika & Hitung Cepat",
+    "question": "Jika rata-rata nilai CAT dari 8 peserta adalah 81,5 dan setelah ditambah nilai 2 peserta baru rata-ratanya menjadi 83,0, berapakah rata-rata nilai dari 2 peserta baru tersebut?",
+    "options": [
+      "89,0",
+      "90,5",
+      "87,5",
+      "86,5",
+      "88,0"
+    ],
+    "correctIndex": 0,
+    "explanation": "Total 8 peserta = 8 x 81,5 = 652. Total 10 peserta = 10 x 83,0 = 830. Jumlah nilai 2 peserta baru = 830 - 652 = 178. Rata-rata keduanya = 178 / 2 = 89,0.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0061",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Perbandingan jumlah anggota PPKI awal (21 orang) dengan jumlah anggota Panitia Sembilan (9 orang) dalam bentuk paling sederhana adalah...",
+    "options": [
+      "7 : 2",
+      "5 : 2",
+      "7 : 3",
+      "9 : 4",
+      "3 : 7"
+    ],
+    "correctIndex": 2,
+    "explanation": "21 : 9, kedua ruas dibagi 3 menghasilkan 7 : 3.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0062",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Sebuah proyek kerja bakti perbaikan jalan kampung dapat diselesaikan oleh 24 warga dalam waktu 15 hari. Jika warga yang bergotong royong ditambah menjadi 36 orang dengan kecepatan kerja yang sama, dalam berapa hari pekerjaan tersebut selesai?",
+    "options": [
+      "8 hari",
+      "14 hari",
+      "10 hari",
+      "9 hari",
+      "12 hari"
+    ],
+    "correctIndex": 2,
+    "explanation": "Perbandingan berbalik nilai: 24 x 15 = 36 x h -> 360 = 36h -> h = 10 hari.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0063",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Suatu lapangan upacara berukuran panjang 120 m dan lebar 80 m digambar pada peta dengan skala 1 : 2.000. Berapakah ukuran panjang dan lebar lapangan tersebut pada gambar?",
+    "options": [
+      "6 cm dan 4 cm",
+      "12 cm dan 8 cm",
+      "10 cm dan 5 cm",
+      "8 cm dan 6 cm",
+      "3 cm dan 2 cm"
+    ],
+    "correctIndex": 0,
+    "explanation": "Panjang pada peta = 12.000 cm / 2.000 = 6 cm. Lebar pada peta = 8.000 cm / 2.000 = 4 cm.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0064",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Perbandingan jumlah peserta seleksi Putra dan Putri adalah 5 : 4. Jika selisih jumlah peserta Putra dan Putri adalah 18 orang, berapakah jumlah keseluruhan peserta seleksi?",
+    "options": [
+      "180 orang",
+      "150 orang",
+      "198 orang",
+      "144 orang",
+      "162 orang"
+    ],
+    "correctIndex": 4,
+    "explanation": "Selisih rasio = 5 - 4 = 1 bagian = 18 orang. Total rasio = 5 + 4 = 9 bagian = 9 x 18 = 162 orang.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0065",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Untuk menjahit 60 bendera Merah Putih diperlukan waktu 12 hari oleh 5 orang penjahit. Berapa hari yang diperlukan oleh 10 orang penjahit untuk menjahit 90 bendera yang sama?",
+    "options": [
+      "12 hari",
+      "9 hari",
+      "8 hari",
+      "6 hari",
+      "10 hari"
+    ],
+    "correctIndex": 1,
+    "explanation": "(5 penjahit x 12 hari) / 60 bendera = (10 penjahit x h hari) / 90 bendera -> 60/60 = 10h/90 -> 1 = h/9 -> h = 9 hari.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0066",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Jika x = 3/5 dari 150 dan y = 45% dari 200, maka hubungan yang tepat antara x dan y adalah...",
+    "options": [
+      "2x = y",
+      "x = 2y",
+      "x > y",
+      "x = y",
+      "x < y"
+    ],
+    "correctIndex": 3,
+    "explanation": "x = (3/5) x 150 = 90. y = 0,45 x 200 = 90. Maka x = y.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0067",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Perbandingan uang saku kakak (SMA) dan adik (SD) yang diberikan secara proporsional oleh orang tuanya adalah 7 : 3. Jika jumlah uang saku keduanya Rp50.000, berapakah uang saku kakak?",
+    "options": [
+      "Rp30.000",
+      "Rp35.000",
+      "Rp15.000",
+      "Rp25.000",
+      "Rp40.000"
+    ],
+    "correctIndex": 1,
+    "explanation": "Uang saku kakak = (7 / (7+3)) x Rp50.000 = (7/10) x Rp50.000 = Rp35.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0068",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Persediaan logistik perkemahan cukup untuk 40 anggota Paskibraka selama 6 hari. Jika hadir tambahan 8 anggota lagi, berapa hari persediaan logistik tersebut akan habis?",
+    "options": [
+      "4 hari",
+      "6 hari",
+      "4,5 hari",
+      "5,5 hari",
+      "5 hari"
+    ],
+    "correctIndex": 4,
+    "explanation": "Total anggota menjadi 40 + 8 = 48 orang. 40 x 6 = 48 x h -> 240 = 48h -> h = 5 hari.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0069",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Sebuah mesin cetak di koperasi mampu mencetak 360 eksemplar modul Pancasila dalam waktu 45 menit. Berapa eksemplar modul yang dapat dicetak dalam waktu 2 jam?",
+    "options": [
+      "960 eksemplar",
+      "840 eksemplar",
+      "1.080 eksemplar",
+      "720 eksemplar",
+      "900 eksemplar"
+    ],
+    "correctIndex": 0,
+    "explanation": "2 jam = 120 menit. Kecepatan cetak = 360 / 45 = 8 eksemplar/menit. Dalam 120 menit = 8 x 120 = 960 eksemplar.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0070",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Usia Budi dibanding usia ayahnya adalah 2 : 5. Jika jumlah usia mereka saat ini adalah 63 tahun, berapakah usia Budi 5 tahun yang akan datang?",
+    "options": [
+      "18 tahun",
+      "21 tahun",
+      "25 tahun",
+      "23 tahun",
+      "27 tahun"
+    ],
+    "correctIndex": 3,
+    "explanation": "Usia Budi sekarang = (2/7) x 63 = 18 tahun. Usia Budi 5 tahun lagi = 18 + 5 = 23 tahun.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0071",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Jika 4 kg beras dapat mencukupi konsumsi 20 peserta latihan dalam sehari, berapa kg beras yang dibutuhkan untuk 75 peserta dalam sehari?",
+    "options": [
+      "18 kg",
+      "12 kg",
+      "14 kg",
+      "15 kg",
+      "16 kg"
+    ],
+    "correctIndex": 3,
+    "explanation": "(4 / 20) x 75 = (1 / 5) x 75 = 15 kg.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0072",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Pembangunan gedung perpustakaan sekolah direncanakan selesai dalam 40 hari oleh 18 pekerja. Setelah bekerja 10 hari, pekerjaan terhenti selama 6 hari karena cuaca. Agar gedung tetap selesai tepat waktu, berapa pekerja tambahan yang diperlukan?",
+    "options": [
+      "8 pekerja",
+      "2 pekerja",
+      "4,5 -> minimal 5 pekerja (atau jika 16 pekerja awal selama 40 hari: 18 x 6 / 24 -> 5 pekerja)",
+      "10 pekerja",
+      "3 pekerja"
+    ],
+    "correctIndex": 2,
+    "explanation": "Sisa hari kerja efektif = 40 - 10 - 6 = 24 hari. Beban tertunda = 18 x 6 = 108 orang-hari. Tambahan pekerja = 108 / 24 = 4,5 (dibulatkan 5 pekerja).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0073",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Dalam sebuah koperasi siswa, perbandingan modal simpanan pokok, simpanan wajib, dan simpanan sukarela adalah 3 : 5 : 2. Jika simpanan wajib berjumlah Rp12.500.000, berapakah total seluruh simpanan koperasi tersebut?",
+    "options": [
+      "Rp22.500.000",
+      "Rp27.500.000",
+      "Rp20.000.000",
+      "Rp25.000.000",
+      "Rp30.000.000"
+    ],
+    "correctIndex": 3,
+    "explanation": "5 bagian = Rp12.500.000 -> 1 bagian = Rp2.500.000. Total 10 bagian (3+5+2) = 10 x Rp2.500.000 = Rp25.000.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0074",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Jika p = 12^2 - 8^2 dan q = 20 x 4, maka hubungan antara p dan q adalah...",
+    "options": [
+      "p < q",
+      "p + q = 100",
+      "p = q",
+      "p = 2q",
+      "p > q"
+    ],
+    "correctIndex": 2,
+    "explanation": "p = 144 - 64 = 80. q = 20 x 4 = 80. Maka p = q.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0075",
+    "type": "tiu",
+    "category": "Perbandingan Nilai",
+    "question": "Perbandingan tinggi tiang bendera dan panjang bayangannya pada pagi hari adalah 5 : 3. Jika panjang bayangan tiang bendera pada saat itu adalah 10,2 meter, berapakah tinggi tiang bendera sebenarnya?",
+    "options": [
+      "18 meter",
+      "20,4 meter",
+      "16,5 meter",
+      "15 meter",
+      "17 meter"
+    ],
+    "correctIndex": 4,
+    "explanation": "Tinggi tiang = (5 / 3) x 10,2 meter = 5 x 3,4 = 17 meter.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0076",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Dalam tes kesamaptaan jasmani Paskibraka (Lari 12 menit), Devga berhasil menempuh jarak 2.880 meter dalam waktu 12 menit. Berapakah kecepatan rata-rata lari Devga dalam satuan meter per detik (m/s)?",
+    "options": [
+      "4,5 m/s",
+      "3,5 m/s",
+      "5 m/s",
+      "3 m/s",
+      "4 m/s"
+    ],
+    "correctIndex": 4,
+    "explanation": "Waktu 12 menit = 12 x 60 = 720 detik. Kecepatan = 2.880 meter / 720 detik = 4 m/s.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0077",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Pada peristiwa Rengasdengklok (16 Agustus 1945), apabila jarak Jakarta ke Rengasdengklok adalah sekitar 75 km dan rombongan menempuhnya dengan kecepatan rata-rata 50 km/jam, berapa lama waktu perjalanan yang dibutuhkan?",
+    "options": [
+      "1 jam 20 menit",
+      "1 jam 30 menit",
+      "1 jam 15 menit",
+      "2 jam",
+      "1 jam 45 menit"
+    ],
+    "correctIndex": 1,
+    "explanation": "Waktu = Jarak / Kecepatan = 75 km / 50 km/jam = 1,5 jam = 1 jam 30 menit.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0078",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Ki Hadjar Dewantara bersepeda mengelilingi kampung di Yogyakarta untuk menyebarkan kabar Proklamasi dengan kecepatan rata-rata 15 km/jam selama 1 jam 20 menit. Berapakah jarak yang beliau tempuh?",
+    "options": [
+      "24 km",
+      "16 km",
+      "22 km",
+      "18 km",
+      "20 km"
+    ],
+    "correctIndex": 4,
+    "explanation": "1 jam 20 menit = 4/3 jam. Jarak = 15 km/jam x (4/3) jam = 20 km.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0079",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Sebuah bus rombongan peserta seleksi Paskibraka berangkat dari kota A pukul 06.15 WIB menuju kota B yang berjarak 180 km dengan kecepatan rata-rata 60 km/jam. Jika di tengah perjalanan bus beristirahat selama 20 menit, pukul berapakah bus tiba di kota B?",
+    "options": [
+      "09.35 WIB",
+      "09.45 WIB",
+      "09.15 WIB",
+      "09.25 WIB",
+      "10.05 WIB"
+    ],
+    "correctIndex": 0,
+    "explanation": "Waktu tempuh jalan = 180 / 60 = 3 jam. Ditambah istirahat 20 menit = 3 jam 20 menit. Pukul 06.15 + 3 jam 20 menit = 09.35 WIB.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0080",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Dua orang pelari, Raka dan Dimas, berlari dari titik yang sama mengelilingi lintasan stadion sepanjang 400 meter. Raka menyelesaikan 1 putaran setiap 80 detik, sedangkan Dimas setiap 100 detik. Setelah berapa detik mereka akan bertemu kembali tepat di garis awal secara bersamaan?",
+    "options": [
+      "200 detik",
+      "320 detik",
+      "360 detik",
+      "400 detik",
+      "800 detik"
+    ],
+    "correctIndex": 3,
+    "explanation": "KPK dari 80 dan 100 adalah 400 detik.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0081",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Kapal patroli TNI AL berlayar menjaga perairan Natuna Utara dengan kecepatan 25 knot (mil laut per jam). Berapa mil laut jarak yang ditempuh kapal tersebut dalam waktu 3 jam 36 menit?",
+    "options": [
+      "85 mil laut",
+      "75 mil laut",
+      "80 mil laut",
+      "90 mil laut",
+      "95 mil laut"
+    ],
+    "correctIndex": 3,
+    "explanation": "3 jam 36 menit = 3 + (36/60) = 3,6 jam. Jarak = 25 x 3,6 = 90 mil laut.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0082",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Arman berangkat ke sekolah yang berjarak 6 km menggunakan sepeda pada pukul 06.20 WIB. Jika gerbang sekolah ditutup pukul 06.45 WIB dan Arman ingin tiba 5 menit sebelum gerbang ditutup, berapakah kecepatan rata-rata sepeda Arman?",
+    "options": [
+      "20 km/jam",
+      "18 km/jam",
+      "24 km/jam",
+      "15 km/jam",
+      "16 km/jam"
+    ],
+    "correctIndex": 1,
+    "explanation": "Target tiba pukul 06.40 WIB -> waktu tempuh = 20 menit = 1/3 jam. Kecepatan = 6 km / (1/3 jam) = 18 km/jam.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0083",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Mobil A berangkat dari Yogyakarta menuju Semarang (jarak 120 km) pukul 07.00 dengan kecepatan 55 km/jam. Pada waktu yang sama, Mobil B berangkat dari Semarang menuju Yogyakarta dengan kecepatan 65 km/jam. Pada pukul berapakah kedua mobil tersebut berpapasan?",
+    "options": [
+      "08.00 WIB",
+      "08.10 WIB",
+      "08.15 WIB",
+      "07.50 WIB",
+      "07.45 WIB"
+    ],
+    "correctIndex": 0,
+    "explanation": "Waktu berpapasan = Jarak total / (vA + vB) = 120 / (55 + 65) = 120 / 120 = 1 jam. Pukul 07.00 + 1 jam = 08.00 WIB.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0084",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Sebuah pompa air bersih di desa mampu mengalirkan air dengan debit 40 liter per menit. Berapa waktu yang dibutuhkan untuk mengisi penuh bak penampungan air warga yang berkapasitas 3,6 meter kubik (3.600 liter)?",
+    "options": [
+      "1 jam 45 menit",
+      "1 jam 15 menit",
+      "1 jam",
+      "1 jam 30 menit",
+      "2 jam"
+    ],
+    "correctIndex": 3,
+    "explanation": "Waktu = 3.600 liter / 40 liter/menit = 90 menit = 1 jam 30 menit.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0085",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Pesawat angkut TNI AU terbang dari Jakarta (WIB) pukul 08.00 WIB menuju Makassar (WITA) dengan lama penerbangan 2 jam 15 menit. Pada pukul berapakah pesawat tersebut mendarat menurut waktu setempat di Makassar (WITA)?",
+    "options": [
+      "12.15 WITA",
+      "10.15 WITA",
+      "11.15 WITA",
+      "10.45 WITA",
+      "11.00 WITA"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pukul 08.00 WIB + 2 jam 15 menit = 10.15 WIB. Karena WITA 1 jam lebih cepat dari WIB, maka 10.15 + 1 jam = 11.15 WITA.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0086",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Seorang peserta berlari mengelilingi lapangan berbentuk persegi panjang berukuran panjang 90 m dan lebar 60 m sebanyak 6 putaran dalam waktu 15 menit. Berapakah kecepatan rata-rata pelari tersebut dalam satuan meter per menit?",
+    "options": [
+      "150 meter/menit",
+      "125 meter/menit",
+      "100 meter/menit",
+      "110 meter/menit",
+      "120 meter/menit"
+    ],
+    "correctIndex": 4,
+    "explanation": "Keliling lapangan = 2 x (90 + 60) = 300 m. Jarak 6 putaran = 6 x 300 = 1.800 m. Kecepatan = 1.800 m / 15 menit = 120 meter/menit.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0087",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Jika kecepatan jalan cepat pasukan saat latihan baris-berbaris adalah 5 km/jam, berapa meter jarak yang ditempuh pasukan tersebut dalam waktu 18 menit?",
+    "options": [
+      "1.500 meter",
+      "1.600 meter",
+      "1.800 meter",
+      "1.200 meter",
+      "1.350 meter"
+    ],
+    "correctIndex": 0,
+    "explanation": "18 menit = 18/60 jam = 0,3 jam. Jarak = 5 km/jam x 0,3 jam = 1,5 km = 1.500 meter.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0088",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Kereta api menempuh jarak 210 km dengan kecepatan 70 km/jam, kemudian melanjutkan perjalanan sejauh 160 km dengan kecepatan 80 km/jam. Berapakah kecepatan rata-rata kereta api untuk seluruh perjalanan tersebut?",
+    "options": [
+      "78 km/jam",
+      "76 km/jam",
+      "75 km/jam",
+      "72 km/jam",
+      "74 km/jam"
+    ],
+    "correctIndex": 4,
+    "explanation": "Total jarak = 210 + 160 = 370 km. Total waktu = (210/70) + (160/80) = 3 jam + 2 jam = 5 jam. Kecepatan rata-rata = 370 / 5 = 74 km/jam.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0089",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Dalam tes Shuttle Run (lari angka 8), seorang kandidat menyelesaikan 3 putaran dalam waktu 15,6 detik. Berapakah rata-rata waktu yang dibutuhkan kandidat tersebut untuk setiap putarannya?",
+    "options": [
+      "5,0 detik",
+      "4,8 detik",
+      "5,2 detik",
+      "5,6 detik",
+      "5,4 detik"
+    ],
+    "correctIndex": 2,
+    "explanation": "15,6 detik / 3 putaran = 5,2 detik per putaran.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0090",
+    "type": "tiu",
+    "category": "Kecepatan, Jarak & Waktu",
+    "question": "Rudi bersepeda dari rumah ke perpustakaan daerah dengan kecepatan 12 km/jam dan tiba dalam waktu 25 menit. Saat pulang melalui jalan yang sama, ia memacu sepedanya dengan kecepatan 15 km/jam. Berapa menit waktu yang dibutuhkan Rudi untuk perjalanan pulang?",
+    "options": [
+      "19 menit",
+      "21 menit",
+      "20 menit",
+      "22 menit",
+      "18 menit"
+    ],
+    "correctIndex": 2,
+    "explanation": "Jarak = 12 km/jam x (25/60) jam = 5 km. Waktu pulang = (5 km / 15 km/jam) x 60 menit = 20 menit.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0091",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Koperasi Siswa membeli 5 lusin atribut lencana Garuda dengan harga total Rp450.000. Jika koperasi menjual lencana tersebut seharga Rp9.000 per buah kepada anggota, berapakah persentase keuntungan yang diperoleh koperasi?",
+    "options": [
+      "22%",
+      "25%",
+      "18%",
+      "15%",
+      "20%"
+    ],
+    "correctIndex": 4,
+    "explanation": "5 lusin = 60 buah. Harga beli per buah = Rp450.000 / 60 = Rp7.500. Untung per buah = Rp9.000 - Rp7.500 = Rp1.500. Persentase untung = (1.500 / 7.500) x 100% = 20%.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0092",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Sebuah toko buku memberikan diskon 15% untuk pembelian buku sejarah nasional. Jika harga label buku tersebut adalah Rp120.000, berapakah harga yang harus dibayar setelah diskon?",
+    "options": [
+      "Rp108.000",
+      "Rp105.000",
+      "Rp100.000",
+      "Rp102.000",
+      "Rp98.000"
+    ],
+    "correctIndex": 3,
+    "explanation": "Diskon = 15% x Rp120.000 = Rp18.000. Harga bayar = Rp120.000 - Rp18.000 = Rp102.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0093",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Seorang pelaku UMKM kuliner menjual produknya seharga Rp46.000 per paket dan telah memperoleh keuntungan sebesar 15%. Berapakah modal (harga pokok) per paket produk UMKM tersebut?",
+    "options": [
+      "Rp39.100",
+      "Rp41.000",
+      "Rp38.000",
+      "Rp40.000",
+      "Rp42.000"
+    ],
+    "correctIndex": 3,
+    "explanation": "Modal = Harga Jual / (1 + 0,15) = Rp46.000 / 1,15 = Rp40.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0094",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Dina menyimpan tabungan di koperasi simpan pinjam sebesar Rp2.400.000 dengan jasa simpanan tunggal 8% per tahun. Berapakah total tabungan Dina setelah disimpan selama 9 bulan?",
+    "options": [
+      "Rp2.592.000",
+      "Rp2.560.000",
+      "Rp2.544.000",
+      "Rp2.520.000",
+      "Rp2.496.000"
+    ],
+    "correctIndex": 2,
+    "explanation": "Jasa 9 bulan = (9/12) x 8% x Rp2.400.000 = 6% x Rp2.400.000 = Rp144.000. Total tabungan = Rp2.400.000 + Rp144.000 = Rp2.544.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0095",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Pada kemasan sekarung beras tertulis bruto = 50 kg dan tara = 2%. Jika harga beli beras bersih (netto) adalah Rp13.000 per kg, berapakah harga total beras bersih dalam karung tersebut?",
+    "options": [
+      "Rp640.000",
+      "Rp637.000",
+      "Rp630.000",
+      "Rp650.000",
+      "Rp624.000"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tara = 2% x 50 kg = 1 kg. Netto = 50 - 1 = 49 kg. Harga total = 49 x Rp13.000 = Rp637.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0096",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Seorang wajib pajak memiliki penghasilan kena pajak yang dikenai tarif pajak 5%. Jika pajak yang harus dibayarkan adalah Rp1.750.000, berapakah nilai penghasilan kena pajak orang tersebut?",
+    "options": [
+      "Rp35.000.000",
+      "Rp25.000.000",
+      "Rp40.000.000",
+      "Rp32.500.000",
+      "Rp30.000.000"
+    ],
+    "correctIndex": 0,
+    "explanation": "Penghasilan kena pajak = Rp1.750.000 / 0,05 = Rp35.000.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0097",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Koperasi Desa membagikan Sisa Hasil Usaha (SHU) sebesar Rp36.000.000. Sebanyak 25% dialokasikan untuk dana cadangan, 40% untuk jasa anggota, dan sisanya untuk dana pendidikan serta sosial. Berapakah nominal yang dialokasikan untuk dana pendidikan serta sosial?",
+    "options": [
+      "Rp13.200.000",
+      "Rp11.400.000",
+      "Rp12.600.000",
+      "Rp10.800.000",
+      "Rp14.400.000"
+    ],
+    "correctIndex": 2,
+    "explanation": "Persentase pendidikan & sosial = 100% - (25% + 40%) = 35%. Nominal = 35% x Rp36.000.000 = Rp12.600.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0098",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Sepasang sepatu latihan PBB diberi diskon berturut-turut sebesar 20% + 10%. Jika harga awal sepatu adalah Rp300.000, berapakah harga akhir sepatu tersebut?",
+    "options": [
+      "Rp216.000",
+      "Rp210.000",
+      "Rp240.000",
+      "Rp220.000",
+      "Rp225.000"
+    ],
+    "correctIndex": 0,
+    "explanation": "Setelah diskon pertama 20%: 80% x Rp300.000 = Rp240.000. Setelah diskon kedua 10%: 90% x Rp240.000 = Rp216.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0099",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Penggalangan dana kemanusiaan (crowdfunding) di sekolah berhasil mengumpulkan Rp18.500.000 pada minggu pertama dan meningkat 20% pada minggu kedua. Berapakah total seluruh dana yang terkumpul selama dua minggu tersebut?",
+    "options": [
+      "Rp42.200.000",
+      "Rp37.000.000",
+      "Rp40.700.000",
+      "Rp39.200.000",
+      "Rp41.500.000"
+    ],
+    "correctIndex": 2,
+    "explanation": "Minggu ke-2 = 120% x Rp18.500.000 = Rp22.200.000. Total 2 minggu = Rp18.500.000 + Rp22.200.000 = Rp40.700.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0100",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Seorang pedagang membeli 40 kg jeruk lokal seharga Rp600.000. Sebanyak 30 kg dijual dengan harga Rp18.000/kg, dan sisanya dijual dengan harga Rp14.000/kg. Berapakah keuntungan total pedagang tersebut?",
+    "options": [
+      "Rp60.000",
+      "Rp70.000",
+      "Rp90.000",
+      "Rp80.000",
+      "Rp100.000"
+    ],
+    "correctIndex": 3,
+    "explanation": "Hasil penjualan = (30 x Rp18.000) + (10 x Rp14.000) = Rp540.000 + Rp140.000 = Rp680.000. Keuntungan = Rp680.000 - Rp600.000 = Rp80.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0101",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Gaji bulanan seorang karyawan adalah Rp6.500.000. Sesuai prinsip hidup hemat (tidak besar pasak daripada tiang), ia menabung 18% dari gajinya setiap bulan. Berapa jumlah tabungannya setelah 5 bulan?",
+    "options": [
+      "Rp4.850.000",
+      "Rp5.850.000",
+      "Rp5.250.000",
+      "Rp5.500.000",
+      "Rp6.150.000"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tabungan per bulan = 18% x Rp6.500.000 = Rp1.170.000. Selama 5 bulan = 5 x Rp1.170.000 = Rp5.850.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0102",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Harga sebuah laptop untuk menunjang pembelajaran digital mengalami penurunan harga dari Rp8.000.000 menjadi Rp6.800.000 saat pameran pendidikan. Berapa persenkah penurunan harga laptop tersebut?",
+    "options": [
+      "16%",
+      "15%",
+      "12,5%",
+      "18%",
+      "12%"
+    ],
+    "correctIndex": 1,
+    "explanation": "Selisih turun = Rp8.000.000 - Rp6.800.000 = Rp1.200.000. Persentase = (1.200.000 / 8.000.000) x 100% = 15%.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0103",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Sebuah usaha kerajinan batik lokal memproduksi 80 potong kain batik dengan biaya bahan Rp5.600.000 dan biaya operasional Rp1.600.000. Jika perajin menghendaki keuntungan total Rp1.600.000, berapakah harga jual per potong kain batik?",
+    "options": [
+      "Rp115.000",
+      "Rp100.000",
+      "Rp110.000",
+      "Rp90.000",
+      "Rp105.000"
+    ],
+    "correctIndex": 2,
+    "explanation": "Total modal = Rp5.600.000 + Rp1.600.000 = Rp7.200.000. Target pendapatan = Rp7.200.000 + Rp1.600.000 = Rp8.800.000. Harga per potong = Rp8.800.000 / 80 = Rp110.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0104",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Pak Rahmat meminjam modal usaha UMKM di koperasi sebesar Rp12.000.000 yang akan diangsur sama besar selama 10 bulan dengan jasa pinjaman total 5% selama masa pinjaman. Berapakah besar angsuran per bulan yang harus dibayar Pak Rahmat?",
+    "options": [
+      "Rp1.250.000",
+      "Rp1.240.000",
+      "Rp1.300.000",
+      "Rp1.200.000",
+      "Rp1.260.000"
+    ],
+    "correctIndex": 4,
+    "explanation": "Total pengembalian = Rp12.000.000 + (5% x Rp12.000.000) = Rp12.600.000. Angsuran per bulan = Rp12.600.000 / 10 = Rp1.260.000.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0105",
+    "type": "tiu",
+    "category": "Aritmatika Sosial",
+    "question": "Restoran nusantara mengenakan Pajak Pertambahan Nilai (PPN) sebesar 11% atas setiap transaksi. Jika total harga makanan sebelum pajak adalah Rp250.000, berapakah total tagihan yang harus dibayar pelanggan?",
+    "options": [
+      "Rp272.500",
+      "Rp275.000",
+      "Rp277.500",
+      "Rp280.000",
+      "Rp261.000"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pajak = 11% x Rp250.000 = Rp27.500. Total bayar = Rp250.000 + Rp27.500 = Rp277.500.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0106",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan suku berikutnya dari deret angka: 3, 7, 15, 31, 63, ...",
+    "options": [
+      "129",
+      "125",
+      "95",
+      "127",
+      "115"
+    ],
+    "correctIndex": 3,
+    "explanation": "Pola: dikali 2 ditambah 1 (atau +4, +8, +16, +32, +64). Maka 63 + 64 = 127.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0107",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan suku berikutnya dari deret angka: 2, 6, 12, 20, 30, 42, ...",
+    "options": [
+      "60",
+      "52",
+      "58",
+      "56",
+      "54"
+    ],
+    "correctIndex": 3,
+    "explanation": "Pola selisih bertingkat: +4, +6, +8, +10, +12, maka berikutnya +14. 42 + 14 = 56.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0108",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan suku berikutnya dari deret angka: 100, 95, 85, 70, 50, ...",
+    "options": [
+      "35",
+      "15",
+      "30",
+      "20",
+      "25"
+    ],
+    "correctIndex": 4,
+    "explanation": "Pola pengurangan bertingkat: -5, -10, -15, -20, maka berikutnya -25. 50 - 25 = 25.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0109",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan suku berikutnya dari deret angka: 1, 4, 9, 16, 25, 36, ...",
+    "options": [
+      "48",
+      "45",
+      "64",
+      "42",
+      "49"
+    ],
+    "correctIndex": 4,
+    "explanation": "Deret bilangan kuadrat sempurna: 1^2, 2^2, 3^2, 4^2, 5^2, 6^2, maka berikutnya 7^2 = 49.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0110",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan suku berikutnya dari deret Fibonacci: 2, 3, 5, 8, 13, 21, ...",
+    "options": [
+      "34",
+      "32",
+      "31",
+      "29",
+      "35"
+    ],
+    "correctIndex": 0,
+    "explanation": "Setiap suku merupakan jumlah dua suku sebelumnya: 13 + 21 = 34.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0111",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan dua suku berikutnya dari deret larik ganda: 4, 10, 6, 13, 8, 16, 10, ..., ...",
+    "options": [
+      "17, 12",
+      "18, 12",
+      "19, 12",
+      "19, 14",
+      "20, 12"
+    ],
+    "correctIndex": 2,
+    "explanation": "Larik ganjil: 4, 6, 8, 10, 12 (+2). Larik genap: 10, 13, 16, 19 (+3). Maka dua suku berikutnya adalah 19, 12.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0112",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan huruf berikutnya dari deret: B, E, H, K, N, ...",
+    "options": [
+      "Q",
+      "O",
+      "S",
+      "P",
+      "R"
+    ],
+    "correctIndex": 0,
+    "explanation": "Urutan alfabet: B(2), E(5), H(8), K(11), N(14) -> selisih +3. Maka 14 + 3 = 17 yaitu huruf Q.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0113",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan huruf berikutnya dari deret: A, C, F, J, O, ...",
+    "options": [
+      "V",
+      "U",
+      "W",
+      "S",
+      "T"
+    ],
+    "correctIndex": 1,
+    "explanation": "Urutan alfabet: A(1), C(3), F(6), J(10), O(15) -> selisih +2, +3, +4, +5, maka berikutnya +6 -> 15 + 6 = 21 yaitu huruf U.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0114",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan angka berikutnya dari deret: 8, 16, 13, 26, 23, 46, ...",
+    "options": [
+      "44",
+      "40",
+      "92",
+      "43",
+      "42"
+    ],
+    "correctIndex": 3,
+    "explanation": "Pola bergantian: x2, -3, x2, -3, x2, maka berikutnya -3. 46 - 3 = 43.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0115",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan angka berikutnya dari deret: 5, 11, 23, 47, 95, ...",
+    "options": [
+      "189",
+      "195",
+      "191",
+      "192",
+      "190"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pola: dikali 2 ditambah 1 (5x2+1=11, 11x2+1=23, ..., 95x2+1=191).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0116",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan angka berikutnya dari deret: 240, 120, 60, 30, 15, ...",
+    "options": [
+      "5",
+      "7",
+      "7,5",
+      "8",
+      "6"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pola dibagi 2 pada setiap langkah: 15 / 2 = 7,5.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0117",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan huruf berikutnya dari deret: Z, W, T, Q, N, ...",
+    "options": [
+      "M",
+      "I",
+      "L",
+      "K",
+      "J"
+    ],
+    "correctIndex": 3,
+    "explanation": "Urutan alfabet mundur -3: Z(26), W(23), T(20), Q(17), N(14), maka 14 - 3 = 11 yaitu huruf K.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0118",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan angka berikutnya dari deret: 1, 3, 7, 13, 21, 31, ...",
+    "options": [
+      "47",
+      "43",
+      "45",
+      "42",
+      "41"
+    ],
+    "correctIndex": 1,
+    "explanation": "Selisih: +2, +4, +6, +8, +10, maka berikutnya +12. 31 + 12 = 43.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0119",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan angka berikutnya dari deret: 2, 5, 10, 17, 26, 37, ...",
+    "options": [
+      "51",
+      "49",
+      "50",
+      "48",
+      "52"
+    ],
+    "correctIndex": 2,
+    "explanation": "Selisih bilangan ganjil berurutan: +3, +5, +7, +9, +11, maka berikutnya +13. 37 + 13 = 50.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0120",
+    "type": "tiu",
+    "category": "Deret Angka & Huruf",
+    "question": "Tentukan kombinasi huruf berikutnya dari deret: AB, DE, GH, JK, ...",
+    "options": [
+      "MN",
+      "NO",
+      "OP",
+      "LM",
+      "KL"
+    ],
+    "correctIndex": 0,
+    "explanation": "Melompati satu huruf di antara pasangan: AB (c) DE (f) GH (i) JK (l) MN.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0121",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Semua peraturan perundang-undangan di Indonesia tidak boleh bertentangan dengan Pancasila.\nPremis 2: Undang-Undang Nomor 12 Tahun 2006 adalah peraturan perundang-undangan di Indonesia.\nKesimpulan yang sah adalah...",
+    "options": [
+      "Undang-Undang Nomor 12 Tahun 2006 berkedudukan di atas UUD 1945",
+      "Pancasila hanya berlaku bagi Undang-Undang Nomor 12 Tahun 2006",
+      "Tidak dapat ditarik kesimpulan",
+      "Undang-Undang Nomor 12 Tahun 2006 tidak boleh bertentangan dengan Pancasila",
+      "Beberapa peraturan perundang-undangan boleh bertentangan dengan Pancasila"
+    ],
+    "correctIndex": 3,
+    "explanation": "Penalaran silogisme kategoris: Semua A adalah B; C adalah A; maka C adalah B.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0122",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Jika seorang pengendara motor belum berusia 17 tahun, maka ia belum berhak memperoleh SIM C.\nPremis 2: Roni adalah pelajar kelas X yang berusia 15 tahun.\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Roni sudah boleh mengendarai motor ke sekolah tanpa SIM",
+      "Roni berhak memperoleh SIM A",
+      "Usia tidak memengaruhi penerbitan SIM",
+      "Roni belum berhak memperoleh SIM C",
+      "Semua pelajar SMA sudah berusia 17 tahun"
+    ],
+    "correctIndex": 3,
+    "explanation": "Modus Ponens: Roni berusia 15 tahun (< 17 tahun), sehingga memenuhi anteseden dan menghasilkan kesimpulan bahwa Roni belum berhak memperoleh SIM C.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0123",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Jika suatu undang-undang bertentangan dengan UUD NRI Tahun 1945, maka undang-undang tersebut dapat dibatalkan oleh Mahkamah Konstitusi.\nPremis 2: Undang-Undang X tidak dapat dibatalkan oleh Mahkamah Konstitusi (konstitusional).\nKesimpulan yang sah menurut Modus Tollens adalah...",
+    "options": [
+      "Mahkamah Konstitusi tidak berwenang menguji undang-undang",
+      "Undang-Undang X bertentangan dengan Peraturan Pemerintah",
+      "Semua undang-undang pasti dibatalkan oleh Mahkamah Konstitusi",
+      "Undang-Undang X tidak bertentangan dengan UUD NRI Tahun 1945",
+      "Undang-Undang X dibuat oleh Mahkamah Agung"
+    ],
+    "correctIndex": 3,
+    "explanation": "Modus Tollens: Jika P maka Q; ~Q; maka ~P (Undang-Undang X tidak bertentangan dengan UUD NRI Tahun 1945).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0124",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Semua anggota Paskibraka memiliki sikap disiplin dan cinta tanah air.\nPremis 2: Sebagian siswa kelas X adalah anggota Paskibraka.\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Sebagian siswa kelas X memiliki sikap disiplin dan cinta tanah air",
+      "Semua yang disiplin pasti siswa kelas X",
+      "Semua siswa kelas X adalah anggota Paskibraka",
+      "Siswa kelas X yang bukan Paskibraka tidak disiplin",
+      "Tidak ada siswa kelas X yang cinta tanah air"
+    ],
+    "correctIndex": 0,
+    "explanation": "Silogisme partikular: Semua P adalah Q; Sebagian S adalah P; maka Sebagian S adalah Q.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0125",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Jika masyarakat menerapkan prinsip saring sebelum sharing, maka penyebaran berita hoaks akan menurun.\nPremis 2: Jika penyebaran berita hoaks menurun, maka kerukunan warga akan terjaga.\nKesimpulan yang sah dari kedua premis tersebut adalah...",
+    "options": [
+      "Jika kerukunan warga terjaga, maka berita hoaks meningkat",
+      "Penyebaran berita hoaks tidak berkaitan dengan kerukunan warga",
+      "Masyarakat tidak perlu menyaring informasi di media sosial",
+      "Jika masyarakat menerapkan prinsip saring sebelum sharing, maka kerukunan warga akan terjaga",
+      "Semua informasi di media sosial adalah fakta"
+    ],
+    "correctIndex": 3,
+    "explanation": "Silogisme Hipotetis: Jika P maka Q; Jika Q maka R; maka Jika P maka R.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0126",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Setiap warga negara yang baik selalu taat membayar pajak dan menjaga fasilitas umum.\nPremis 2: Pak Budi tidak mau menjaga fasilitas umum (merusak rambu jalan).\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Pak Budi belum mencerminkan perilaku warga negara yang baik",
+      "Merusak fasilitas umum diperbolehkan bagi wajib pajak",
+      "Semua warga negara merusak fasilitas umum",
+      "Fasilitas umum tidak perlu dijaga oleh warga",
+      "Pak Budi adalah warga negara yang baik karena rajin membayar pajak"
+    ],
+    "correctIndex": 0,
+    "explanation": "Negasi dari konjungsi kewajiban: karena salah satu syarat mutlak dilanggar (~Q), maka subjek tidak memenuhi predikat warga negara yang baik (~P).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0127",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Semua anggota Panitia Sembilan adalah anggota BPUPK.\nPremis 2: H. Agoes Salim adalah anggota Panitia Sembilan.\nKesimpulan yang benar adalah...",
+    "options": [
+      "H. Agoes Salim adalah anggota BPUPK",
+      "Panitia Sembilan beranggotakan seluruh anggota BPUPK",
+      "Semua anggota BPUPK adalah anggota Panitia Sembilan",
+      "Hanya H. Agoes Salim yang menjadi anggota Panitia Sembilan",
+      "H. Agoes Salim bukan anggota BPUPK"
+    ],
+    "correctIndex": 0,
+    "explanation": "Semua A adalah B; x adalah A; maka x adalah B (H. Agoes Salim adalah anggota BPUPK).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0128",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Tidak ada tindakan perundungan (bullying) yang dibenarkan oleh nilai kemanusiaan Pancasila.\nPremis 2: Mengejek fisik teman di media sosial (cyberbullying) termasuk tindakan perundungan.\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Sebagian tindakan perundungan sesuai dengan nilai Pancasila",
+      "Perundungan di media sosial diperbolehkan jika hanya bercanda",
+      "Nilai kemanusiaan hanya mengatur pergaulan tatap muka",
+      "Media sosial bebas dari norma kesopanan dan hukum",
+      "Mengejek fisik teman di media sosial tidak dibenarkan oleh nilai kemanusiaan Pancasila"
+    ],
+    "correctIndex": 4,
+    "explanation": "Tidak ada A yang B; C adalah A; maka C tidak B.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0129",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Jika suatu negara menganut asas ius soli, maka setiap anak yang lahir di wilayahnya memperoleh kewarganegaraan negara tersebut.\nPremis 2: Negara Y menganut asas ius soli.\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Anak yang lahir di Negara Y otomatis berstatus apatride",
+      "Tidak ada warga asing yang boleh tinggal di Negara Y",
+      "Negara Y hanya memberikan kewarganegaraan berdasarkan keturunan darah",
+      "Setiap anak yang lahir di wilayah Negara Y memperoleh kewarganegaraan Negara Y",
+      "Negara Y melarang seluruh proses naturalisasi"
+    ],
+    "correctIndex": 3,
+    "explanation": "Modus Ponens langsung dari definisi asas ius soli.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0130",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Semua produk koperasi disusun berdasarkan asas kekeluargaan.\nPremis 2: Sebagian unit usaha di sekolah adalah koperasi siswa.\nKesimpulan yang sah adalah...",
+    "options": [
+      "Tidak ada unit usaha di sekolah yang berasaskan kekeluargaan",
+      "Sebagian unit usaha di sekolah disusun berdasarkan asas kekeluargaan",
+      "Semua unit usaha di dunia adalah koperasi siswa",
+      "Koperasi siswa menganut sistem persaingan bebas",
+      "Asas kekeluargaan hanya berlaku bagi perusahaan asing"
+    ],
+    "correctIndex": 1,
+    "explanation": "Semua K adalah A; Sebagian U adalah K; maka Sebagian U adalah A.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0131",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Ingkaran (negasi) yang tepat dari pernyataan majemuk: 'Semua peserta seleksi hadir tepat waktu dan mengenakan seragam lengkap' adalah...",
+    "options": [
+      "Semua peserta seleksi hadir tepat waktu tetapi tidak mengenakan seragam",
+      "Tidak ada peserta seleksi yang terlambat datang",
+      "Semua peserta seleksi tidak hadir tepat waktu dan tidak mengenakan seragam lengkap",
+      "Ada peserta seleksi yang hadir tepat waktu dan berseragam lengkap",
+      "Ada (beberapa) peserta seleksi yang tidak hadir tepat waktu atau tidak mengenakan seragam lengkap"
+    ],
+    "correctIndex": 4,
+    "explanation": "Negasi dari 'Semua x (P dan Q)' menurut hukum De Morgan adalah 'Ada/Beberapa x (~P atau ~Q)'.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0132",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Jika nilai PIP >= 70 dan nilai TIU >= 70, maka kandidat dinyatakan lulus ambang batas CAT.\nPremis 2: Kandidat A memperoleh nilai PIP = 84 dan nilai TIU = 68.\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Ambang batas CAT hanya melihat nilai PIP saja",
+      "Kandidat A lulus karena rata-rata nilainya 76",
+      "Kandidat A lulus karena nilai PIP di atas 80",
+      "Kandidat A mendapat nilai sempurna",
+      "Kandidat A belum dinyatakan lulus ambang batas CAT karena nilai TIU di bawah 70"
+    ],
+    "correctIndex": 4,
+    "explanation": "Karena syarat kelulusan menggunakan konjungsi 'DAN' (kedua sesi harus >= 70), maka nilai TIU 68 (< 70) menyebabkan syarat konjungsi belum terpenuhi.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0133",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Semua komponen utama Sishankamrata adalah TNI dan Polri.\nPremis 2: Pelajar SMA bukan anggota TNI maupun Polri.\nKesimpulan yang tepat dalam kerangka Sishankamrata adalah...",
+    "options": [
+      "Sistem pertahanan negara tidak melibatkan warga negara sipil",
+      "Pelajar SMA tidak memiliki hak dan kewajiban dalam usaha pertahanan negara",
+      "Pelajar SMA bukan komponen utama, melainkan bagian dari rakyat sebagai komponen pendukung Sishankamrata",
+      "Pelajar SMA merupakan kekuatan utama pertahanan militer",
+      "Polri merupakan komponen pendukung pertahanan"
+    ],
+    "correctIndex": 2,
+    "explanation": "Sesuai Pasal 30 ayat (2) UUD 1945, TNI-Polri adalah komponen utama, sedangkan rakyat (termasuk pelajar) adalah komponen pendukung.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0134",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Apabila pembangunan infrastruktur dilakukan secara merata dari Sabang sampai Merauke, maka keadilan sosial semakin terwujud.\nPremis 2: Apabila keadilan sosial semakin terwujud, maka persatuan nasional semakin kokoh.\nKesimpulan yang sah adalah...",
+    "options": [
+      "Persatuan nasional tidak dipengaruhi oleh pemerataan pembangunan",
+      "Kemakmuran harus dicapai dengan mengorbankan keadilan",
+      "Keadilan sosial menghambat pembangunan infrastruktur daerah",
+      "Pembangunan infrastruktur hanya diperlukan di ibu kota negara",
+      "Apabila pembangunan infrastruktur dilakukan secara merata dari Sabang sampai Merauke, maka persatuan nasional semakin kokoh"
+    ],
+    "correctIndex": 4,
+    "explanation": "Silogisme hipotetis berantai: P -> Q, Q -> R, maka P -> R.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0135",
+    "type": "tiu",
+    "category": "Silogisme",
+    "question": "Premis 1: Setiap perjanjian internasional yang telah disepakati mengikat para pihak yang membuatnya (pacta sunt servanda).\nPremis 2: Perjanjian batas wilayah maritim antara Negara A dan Negara B telah disepakati secara sah.\nKesimpulan yang tepat adalah...",
+    "options": [
+      "Perjanjian tersebut hanya mengikat negara-negara yang tidak menandatanganinya",
+      "Perjanjian batas wilayah maritim tersebut mengikat dan wajib dipatuhi oleh Negara A dan Negara B",
+      "Negara A bebas melanggar perjanjian tersebut kapan saja",
+      "Hukum internasional tidak mengakui perjanjian batas wilayah",
+      "Perjanjian bilateral tidak memiliki kekuatan hukum"
+    ],
+    "correctIndex": 1,
+    "explanation": "Penerapan langsung asas Pacta Sunt Servanda dalam silogisme deduktif.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0136",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Dalam sebuah barisan kehormatan Paskibraka terdapat 5 kandidat: Aldi, Bima, Citra, Dinda, dan Eka yang berdiri berjajar dari kiri ke kanan (posisi 1 sampai 5).\n- Citra berdiri tepat di tengah barisan.\n- Aldi berdiri di sebelah kiri Bima.\n- Eka berdiri di ujung paling kanan.\n- Dinda berdiri di antara Citra dan Eka.\nSiapakah yang berdiri pada posisi ke-2 dari kiri?",
+    "options": [
+      "Citra",
+      "Bima",
+      "Dinda",
+      "Aldi",
+      "Eka"
+    ],
+    "correctIndex": 1,
+    "explanation": "Urutan dari kiri ke kanan (1–5): Citra di posisi 3, Eka di posisi 5, Dinda di antara Citra dan Eka (posisi 4). Tersisa posisi 1 dan 2 untuk Aldi dan Bima. Karena Aldi di kiri Bima, maka posisi 1 = Aldi dan posisi 2 = Bima.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0137",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Lima peraturan perundang-undangan (A, B, C, D, E) disusun berdasarkan tata urutan hierarki dari tertinggi ke terendah:\n- Peraturan A lebih tinggi daripada Peraturan C, tetapi lebih rendah daripada Peraturan B.\n- Peraturan D lebih rendah daripada Peraturan C.\n- Peraturan E lebih tinggi daripada Peraturan B.\nManakah peraturan yang memiliki kedudukan tertinggi?",
+    "options": [
+      "Peraturan E",
+      "Peraturan C",
+      "Peraturan B",
+      "Peraturan A",
+      "Peraturan D"
+    ],
+    "correctIndex": 0,
+    "explanation": "Urutan dari tertinggi ke terendah: E > B > A > C > D. Maka yang tertinggi adalah Peraturan E.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0138",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Pada Sidang Pertama BPUPK, tercatat jadwal berpidato 4 tokoh sebagai berikut:\n- Tokoh P berpidato sehari sebelum Tokoh Q.\n- Tokoh R berpidato pada tanggal 31 Mei 1945 (hari ketiga).\n- Tokoh S berpidato sehari setelah Tokoh R.\n- Tokoh Q berpidato sehari sebelum Tokoh R.\nPada tanggal berapakah Tokoh P dan Tokoh S masing-masing berpidato?",
+    "options": [
+      "Tokoh P pada 29 Mei 1945 dan Tokoh S pada 30 Mei 1945",
+      "Tokoh P pada 30 Mei 1945 dan Tokoh S pada 31 Mei 1945",
+      "Tokoh P pada 29 Mei 1945 dan Tokoh S pada 1 Juni 1945",
+      "Tokoh P pada 1 Juni 1945 dan Tokoh S pada 29 Mei 1945",
+      "Tokoh P pada 31 Mei 1945 dan Tokoh S pada 1 Juni 1945"
+    ],
+    "correctIndex": 2,
+    "explanation": "R = 31 Mei. S sehari setelah R = 1 Juni. Q sehari sebelum R = 30 Mei. P sehari sebelum Q = 29 Mei.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0139",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Enam kelompok diskusi kelas X (Kelompok 1 s.d. 6) mempresentasikan proyek Observasi Gotong Royong secara berurutan:\n- Kelompok 4 tampil tepat setelah Kelompok 2.\n- Kelompok 1 tampil paling awal (urutan ke-1).\n- Kelompok 5 tampil sebelum Kelompok 2, tetapi setelah Kelompok 3.\nKelompok manakah yang tampil pada urutan ke-5?",
+    "options": [
+      "Kelompok 6",
+      "Kelompok 4",
+      "Kelompok 3",
+      "Kelompok 5",
+      "Kelompok 2"
+    ],
+    "correctIndex": 1,
+    "explanation": "Urutan 1 = Kelompok 1. Karena 3 -> 5 -> 2 -> 4, maka urutan 2, 3, 4, 5 dapat ditempati 3, 5, 2, 4 (dan Kelompok 6 di akhir), atau jika 4 tepat setelah 2, urutan 1-3-5-2-4-6 menempatkan Kelompok 4 pada urutan ke-5.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0140",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Lima peserta seleksi (Fajar, Gilang, Hana, Indah, Joko) membandingkan skor gabungan Tryout CAT mereka:\n- Skor Gilang lebih tinggi daripada Fajar, tetapi lebih rendah daripada Hana.\n- Skor Indah lebih tinggi daripada Hana.\n- Skor Joko lebih rendah daripada Fajar.\nSiapakah peserta yang memperoleh skor tertinggi kedua?",
+    "options": [
+      "Joko",
+      "Fajar",
+      "Gilang",
+      "Hana",
+      "Indah"
+    ],
+    "correctIndex": 3,
+    "explanation": "Urutan skor dari tertinggi ke terendah: Indah > Hana > Gilang > Fajar > Joko. Maka tertinggi kedua adalah Hana.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0141",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Dalam pembagian tugas piket kebersihan kelas dari hari Senin sampai Jumat untuk 5 siswa (K, L, M, N, O):\n- M bertugas pada hari Rabu.\n- K bertugas dua hari sebelum M.\n- O bertugas sehari setelah M.\n- L tidak bertugas pada hari Jumat.\nSiapakah yang bertugas pada hari Selasa dan Jumat?",
+    "options": [
+      "Selasa: L, dan Jumat: N",
+      "Selasa: L, dan Jumat: K",
+      "Selasa: K, dan Jumat: O",
+      "Selasa: N, dan Jumat: L",
+      "Selasa: O, dan Jumat: N"
+    ],
+    "correctIndex": 0,
+    "explanation": "M = Rabu. K dua hari sebelum Rabu = Senin. O sehari setelah Rabu = Kamis. Tersisa Selasa dan Jumat untuk L dan N. Karena L tidak hari Jumat, maka Selasa = L dan Jumat = N.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0142",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Sebuah delegasi pelajar Indonesia terdiri atas 4 orang yang akan dipilih dari 4 putra (A, B, C, D) dan 3 putri (P, Q, R) dengan ketentuan:\n- Minimal harus ada 2 putri dalam delegasi.\n- A dan B tidak dapat dipilih bersamaan.\n- Jika P dipilih, maka C juga harus dipilih.\nJika P dan Q terpilih, maka susunan 4 anggota delegasi yang memenuhi syarat adalah...",
+    "options": [
+      "P, Q, C, dan A (atau P, Q, C, dan D)",
+      "P, Q, B, dan D (tanpa C)",
+      "P, Q, A, dan B",
+      "A, B, C, dan P",
+      "A, C, D, dan Q"
+    ],
+    "correctIndex": 0,
+    "explanation": "Karena P terpilih, maka C wajib terpilih (sudah ada P, Q, C). Anggota ke-4 tidak boleh menyebabkan A dan B bersama, sehingga P, Q, C, dan A memenuhi seluruh syarat.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0143",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Dari hasil pemeriksaan tinggi badan 5 calon Paskibraka putri (Sari, Tika, Ulfa, Vina, Wulan):\n- Tinggi badan Tika lebih tinggi dari Sari, namun lebih pendek dari Vina.\n- Ulfa lebih tinggi dari Vina.\n- Wulan lebih pendek dari Sari.\nUrutan kandidat dari yang paling pendek ke paling tinggi adalah...",
+    "options": [
+      "Wulan – Tika – Sari – Vina – Ulfa",
+      "Wulan – Sari – Vina – Tika – Ulfa",
+      "Ulfa – Vina – Tika – Sari – Wulan",
+      "Sari – Wulan – Tika – Vina – Ulfa",
+      "Wulan – Sari – Tika – Vina – Ulfa"
+    ],
+    "correctIndex": 4,
+    "explanation": "Dari petunjuk: Wulan < Sari < Tika < Vina < Ulfa.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0144",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Empat daerah (Desa Makmur, Desa Sentosa, Desa Damai, Desa Jaya) dihubungkan oleh jalur jalan raya:\n- Jarak Desa Makmur ke Desa Sentosa adalah 12 km ke arah timur.\n- Desa Damai terletak tepat di tengah-tengah antara Desa Makmur dan Desa Sentosa.\n- Desa Jaya terletak 8 km di sebelah utara Desa Damai.\nBerapakah jarak terpendek (garis lurus) antara Desa Makmur dan Desa Jaya?",
+    "options": [
+      "10 km",
+      "9 km",
+      "14 km",
+      "8 km",
+      "12 km"
+    ],
+    "correctIndex": 0,
+    "explanation": "Jarak Desa Makmur ke Desa Damai = 12 / 2 = 6 km (timur). Desa Jaya 8 km ke utara dari Desa Damai. Dengan teorema Pythagoras: akar(6^2 + 8^2) = akar(36 + 64) = akar(100) = 10 km.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0145",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Dalam suatu musyawarah OSIS, 6 pengurus (A, B, C, D, E, F) duduk mengelilingi meja bundar:\n- A duduk berhadapan tepat dengan D.\n- B duduk di sebelah kanan A.\n- C duduk di sebelah kiri A.\n- E duduk di sebelah kanan D.\nSiapakah yang duduk berhadapan tepat dengan B?",
+    "options": [
+      "E",
+      "F",
+      "A",
+      "C",
+      "D"
+    ],
+    "correctIndex": 0,
+    "explanation": "Susunan melingkar (6 kursi): A di kursi 1, D di kursi 4 (berhadapan). B di kanan A (kursi 2), C di kiri A (kursi 6). E di kanan D (kursi 5, berseberangan dengan kursi 2). Maka B (kursi 2) berhadapan dengan E (kursi 5).",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0146",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Panitia menyiapkan 5 loket verifikasi berkas administrasi Paskibraka (Loket 1 s.d. 5):\n- Loket 1 khusus berkas Surat Izin Orang Tua.\n- Loket Rapor terletak tepat di sebelah kanan Loket Kesehatan.\n- Loket Biodata terletak di ujung paling kanan (Loket 5).\n- Loket Pasfoto terletak di antara Loket 1 dan Loket Kesehatan.\nBerada pada nomor berapakah Loket Rapor?",
+    "options": [
+      "Loket 4",
+      "Loket 1",
+      "Loket 3",
+      "Loket 5",
+      "Loket 2"
+    ],
+    "correctIndex": 0,
+    "explanation": "Loket 1 = Surat Izin. Loket 5 = Biodata. Pasfoto di antara Loket 1 dan Kesehatan -> Loket 2 = Pasfoto, Loket 3 = Kesehatan. Loket Rapor di kanan Kesehatan -> Loket 4 = Rapor.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0147",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Dari 50 peserta pelatihan kepemimpinan:\n- 32 orang menguasai Bahasa Inggris.\n- 28 orang menguasai Bahasa Arab.\n- 15 orang menguasai kedua bahasa tersebut.\nBerapa orang peserta yang TIDAK menguasai Bahasa Inggris maupun Bahasa Arab?",
+    "options": [
+      "3 orang",
+      "8 orang",
+      "5 orang",
+      "4 orang",
+      "6 orang"
+    ],
+    "correctIndex": 2,
+    "explanation": "Jumlah yang menguasai minimal satu bahasa = 32 + 28 - 15 = 45 orang. Yang tidak menguasai keduanya = 50 - 45 = 5 orang.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0148",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Tiga tim debat Pancasila (Tim Merah, Tim Putih, Tim Garuda) berasal dari 3 sekolah berbeda (SMA 1, SMK 2, MA 3) dan meraih juara 1, 2, dan 3:\n- Tim Merah bukan berasal dari SMA 1 dan bukan juara 2.\n- Tim dari SMK 2 berhasil meraih juara 1.\n- Tim Putih berasal dari SMA 1.\nTim manakah yang meraih juara 3 dan berasal dari sekolah mana?",
+    "options": [
+      "Tim Putih dari SMA 1",
+      "Tim Merah dari MA 3",
+      "Tim Merah dari SMK 2",
+      "Tim Garuda dari MA 3",
+      "Tim Garuda dari SMK 2"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tim Putih = SMA 1. Karena SMK 2 = Juara 1, dan Tim Merah bukan SMA 1 serta jika Tim Garuda = SMK 2 (Juara 1), maka Tim Merah = MA 3. Karena Tim Merah bukan juara 2 dan bukan juara 1, maka Tim Merah (MA 3) meraih Juara 3, sedangkan Tim Putih (SMA 1) Juara 2.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0149",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Setiap kandidat yang lolos ke tahap Provinsi harus lulus tes PIP, tes TIU, tes Kesehatan, dan tes PBB.\n- Kandidat P lulus PIP, TIU, dan PBB, namun terkendala pada tes Kesehatan.\n- Kandidat Q lulus semua keempat tes tersebut.\n- Kandidat R lulus Kesehatan dan PBB, namun nilai TIU di bawah ambang batas.\nSiapakah kandidat yang memenuhi syarat lolos ke tahap Provinsi?",
+    "options": [
+      "Kandidat P dan Q",
+      "Hanya Kandidat Q",
+      "Ketiga kandidat (P, Q, dan R)",
+      "Tidak ada yang lolos",
+      "Kandidat Q dan R"
+    ],
+    "correctIndex": 1,
+    "explanation": "Karena seluruh 4 syarat wajib lulus tanpa terkecuali, hanya Kandidat Q yang memenuhi keempat syarat tersebut.",
+    "status": "active"
+  },
+  {
+    "id": "tiu-0150",
+    "type": "tiu",
+    "category": "Penalaran Analitis",
+    "question": "Lima buku referensi (Sejarah, Hukum, Ekonomi, Budaya, Diplomasi) ditumpuk secara vertikal dari bawah ke atas (posisi 1 paling bawah s.d. posisi 5 paling atas):\n- Buku Hukum berada tepat di atas Buku Sejarah.\n- Buku Ekonomi berada di posisi paling atas (posisi 5).\n- Buku Budaya berada di bawah Buku Sejarah, tetapi bukan di posisi paling bawah.\nBuku apakah yang berada di posisi paling bawah (posisi 1)?",
+    "options": [
+      "Buku Ekonomi",
+      "Buku Diplomasi",
+      "Buku Budaya",
+      "Buku Sejarah",
+      "Buku Hukum"
+    ],
+    "correctIndex": 1,
+    "explanation": "Posisi 5 = Ekonomi. Karena Hukum tepat di atas Sejarah, dan Budaya di bawah Sejarah namun bukan posisi 1, maka posisi 4 = Hukum, posisi 3 = Sejarah, posisi 2 = Budaya, dan posisi 1 (paling bawah) = Buku Diplomasi.",
+    "status": "active"
+  }
+]

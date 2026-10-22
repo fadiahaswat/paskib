@@ -2,7 +2,6 @@ import {
   ageOnReferenceDate,
   bmi,
   finalScore,
-  getQuotaBand,
   isPhaseOnePassed,
   selectionStages,
   type Candidate,
@@ -101,11 +100,9 @@ export function exportRankingCsv(
     "Samapta (30%)",
     "Kepribadian (40%)",
     "Nilai Akhir",
-    "Band Kuota Simulasi",
   ]
 
   const rows = ranked.map(({ candidate, score }, index) => {
-    const band = getQuotaBand(index + 1)
     return [
       index + 1,
       candidate.number,
@@ -116,7 +113,6 @@ export function exportRankingCsv(
       candidate.fitness?.toFixed(1) ?? "",
       candidate.personality?.toFixed(1) ?? "",
       score.toFixed(2),
-      band.label,
     ]
   })
 

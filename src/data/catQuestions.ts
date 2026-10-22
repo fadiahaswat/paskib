@@ -1,11 +1,15 @@
 import type { CatQuestion } from "../domain/selection"
+import { expandedTiuQuestions } from "./tiuExpansion"
+import { tiuWawasanQuestions } from "./tiuWawasan"
+import { tiuRpulQuestions } from "./tiuRpul"
+import { pipExpansionQuestions } from "./pipExpansion"
 
-export const standardCatQuestions: CatQuestion[] = [
+const baseCatQuestions: CatQuestion[] = [
   {
     "id": "pip-0001",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)\" adalah...",
     "options": [
       "A.M. Dasaad",
       "K.R.M.T.H. Woerjaningrat",
@@ -21,7 +25,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0002",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, Mohammad Yamin menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Mohammad Yamin sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, Mohammad Yamin menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Mohammad Yamin adalah...",
     "options": [
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
       "Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'",
@@ -53,7 +57,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0004",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai\" adalah...",
     "options": [
       "K.R.M.T.H. Woerjaningrat",
       "R.A.A. Wiranatakoesoema",
@@ -69,7 +73,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0005",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, R.A.A. Wiranatakoesoema menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh R.A.A. Wiranatakoesoema sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, R.A.A. Wiranatakoesoema menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh R.A.A. Wiranatakoesoema adalah...",
     "options": [
       "Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai",
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
@@ -101,7 +105,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0007",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Kemerdekaan harus bersendi kekeluargaan bangsa Indonesia\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Kemerdekaan harus bersendi kekeluargaan bangsa Indonesia\" adalah...",
     "options": [
       "R.A.A. Wiranatakoesoema",
       "K.R.M.T.H. Woerjaningrat",
@@ -117,7 +121,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0008",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, K.R.M.T.H. Woerjaningrat menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh K.R.M.T.H. Woerjaningrat sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, K.R.M.T.H. Woerjaningrat menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh K.R.M.T.H. Woerjaningrat adalah...",
     "options": [
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
       "Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'",
@@ -149,7 +153,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0010",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan\" adalah...",
     "options": [
       "R.A.A. Wiranatakoesoema",
       "K.R.M.T.H. Woerjaningrat",
@@ -165,7 +169,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0011",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, Soesanto Tirtoprodjo menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Soesanto Tirtoprodjo sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, Soesanto Tirtoprodjo menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Soesanto Tirtoprodjo adalah...",
     "options": [
       "Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'",
       "Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai",
@@ -197,7 +201,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0013",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 29 Mei 1945 mengemukakan gagasan bahwa \"Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'\" adalah...",
     "options": [
       "A.M. Dasaad",
       "R.A.A. Wiranatakoesoema",
@@ -213,7 +217,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0014",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, A.M. Dasaad menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh A.M. Dasaad sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, A.M. Dasaad menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh A.M. Dasaad adalah...",
     "options": [
       "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
       "Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai",
@@ -245,7 +249,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0016",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 30 Mei 1945 mengemukakan gagasan bahwa \"Dasar ketuhanan harus diwujudkan dengan memisahkan urusan agama dari urusan negara\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 30 Mei 1945 mengemukakan gagasan bahwa \"Dasar ketuhanan harus diwujudkan dengan memisahkan urusan agama dari urusan negara\" adalah...",
     "options": [
       "Mohammad Yamin",
       "Moh. Hatta",
@@ -261,7 +265,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0017",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 30 Mei 1945, Moh. Hatta menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Moh. Hatta sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 30 Mei 1945, Moh. Hatta menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Moh. Hatta adalah...",
     "options": [
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
       "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
@@ -293,7 +297,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0019",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 30 Mei 1945 mengemukakan gagasan bahwa \"Dasar negara yaitu (1) persatuan rakyat, dan (2) agama Islam dengan kemerdekaan seluas-luasnya bagi pemeluk agama yang bukan Islam\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 30 Mei 1945 mengemukakan gagasan bahwa \"Dasar negara yaitu (1) persatuan rakyat, dan (2) agama Islam dengan kemerdekaan seluas-luasnya bagi pemeluk agama yang bukan Islam\" adalah...",
     "options": [
       "R. Abdoelrahim Pratalykrama",
       "Mohammad Yamin",
@@ -309,7 +313,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0020",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 30 Mei 1945, R. Abdoelrahim Pratalykrama menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh R. Abdoelrahim Pratalykrama sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 30 Mei 1945, R. Abdoelrahim Pratalykrama menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh R. Abdoelrahim Pratalykrama adalah...",
     "options": [
       "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
@@ -341,7 +345,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0022",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 31 Mei 1945 mengemukakan gagasan bahwa \"Dasar persatuan, semangat kekeluargaan, dan semangat gotong royong sangat relevan dengan corak masyarakat Indonesia serta negara memelihara budi pekerti kemanusiaan yang luhur\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 31 Mei 1945 mengemukakan gagasan bahwa \"Dasar persatuan, semangat kekeluargaan, dan semangat gotong royong sangat relevan dengan corak masyarakat Indonesia serta negara memelihara budi pekerti kemanusiaan yang luhur\" adalah...",
     "options": [
       "R.A.A. Wiranatakoesoema",
       "Mohammad Yamin",
@@ -357,7 +361,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0023",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 31 Mei 1945, Soepomo menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Soepomo sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 31 Mei 1945, Soepomo menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Soepomo adalah...",
     "options": [
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
       "Kemerdekaan harus bersendi kekeluargaan bangsa Indonesia",
@@ -389,7 +393,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0025",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 31 Mei 1945 mengemukakan gagasan bahwa \"Meminta agar Islam dijadikan dasar dan sendi negara\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 31 Mei 1945 mengemukakan gagasan bahwa \"Meminta agar Islam dijadikan dasar dan sendi negara\" adalah...",
     "options": [
       "Soesanto Tirtoprodjo",
       "Ki Bagoes Hadikoesoemo",
@@ -405,7 +409,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0026",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 31 Mei 1945, Ki Bagoes Hadikoesoemo menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Ki Bagoes Hadikoesoemo sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 31 Mei 1945, Ki Bagoes Hadikoesoemo menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Ki Bagoes Hadikoesoemo adalah...",
     "options": [
       "Meminta agar Islam dijadikan dasar dan sendi negara",
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
@@ -437,7 +441,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0028",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.1 Buku Pendidikan Pancasila Kelas X (hlm. 6–8), tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 1 Juni 1945 mengemukakan gagasan bahwa \"Lima dasar negara yang dinamai Pancasila: (1) Kebangsaan, (2) Internasionalisme/Perikemanusiaan, (3) Mufakat/Demokrasi, (4) Kesejahteraan Sosial, dan (5) Ketuhanan\" adalah...",
+    "question": "Tokoh pendiri bangsa yang dalam pidatonya pada sidang pertama BPUPK tanggal 1 Juni 1945 mengemukakan gagasan bahwa \"Lima dasar negara yang dinamai Pancasila: (1) Kebangsaan, (2) Internasionalisme/Perikemanusiaan, (3) Mufakat/Demokrasi, (4) Kesejahteraan Sosial, dan (5) Ketuhanan\" adalah...",
     "options": [
       "R.A.A. Wiranatakoesoema",
       "Sukarno",
@@ -453,7 +457,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0029",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam persidangan pertama BPUPK pada tanggal 1 Juni 1945, Sukarno menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Sukarno sebagaimana tercatat dalam Tabel 1.1 Buku Pendidikan Pancasila Kelas X adalah...",
+    "question": "Dalam persidangan pertama BPUPK pada tanggal 1 Juni 1945, Sukarno menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh Sukarno adalah...",
     "options": [
       "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
       "Kemerdekaan harus bersendi kekeluargaan bangsa Indonesia",
@@ -485,7 +489,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0031",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.2 Susunan Pembicara pada Sidang Pertama BPUPK (hlm. 17–18) yang merujuk catatan Ananda B. Kusuma (2004), jumlah pembicara yang menyampaikan pandangan pada hari Selasa, 29 Mei 1945 adalah sebanyak...",
+    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Selasa, 29 Mei 1945 adalah sebanyak...",
     "options": [
       "9 pembicara",
       "12 pembicara",
@@ -501,7 +505,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0032",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Mohammad Yamin tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Mohammad Yamin tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -517,7 +521,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0033",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R.M. Margono Djojohadikoesoemo tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R.M. Margono Djojohadikoesoemo tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -533,7 +537,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0034",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Drs. K.R.M.A. Sosrodiningrat tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Drs. K.R.M.A. Sosrodiningrat tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Rabu, 30 Mei 1945",
@@ -549,7 +553,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0035",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R.A.A. Soemitro Kolopaking Poerbonegoro tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R.A.A. Soemitro Kolopaking Poerbonegoro tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -565,7 +569,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0036",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R.A.A. Wiranatakoesoema tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R.A.A. Wiranatakoesoema tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -581,7 +585,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0037",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh K.R.M.T.H. Woerjaningrat tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh K.R.M.T.H. Woerjaningrat tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Rabu, 30 Mei 1945",
@@ -597,7 +601,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0038",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R.M.T.A. Soerjo tercatat sebagai pembicara urutan ke-7 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R.M.T.A. Soerjo tercatat sebagai pembicara urutan ke-7 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Selasa, 29 Mei 1945",
@@ -613,7 +617,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0039",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Mr. Soesanto tercatat sebagai pembicara urutan ke-8 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Mr. Soesanto tercatat sebagai pembicara urutan ke-8 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Selasa, 29 Mei 1945",
@@ -629,7 +633,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0040",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R. Soedirman tercatat sebagai pembicara urutan ke-9 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R. Soedirman tercatat sebagai pembicara urutan ke-9 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Sabtu, 2 Juni 1945",
       "Kamis, 31 Mei 1945",
@@ -645,7 +649,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0041",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh A.M. Dasaad tercatat sebagai pembicara urutan ke-10 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh A.M. Dasaad tercatat sebagai pembicara urutan ke-10 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Selasa, 29 Mei 1945",
@@ -661,7 +665,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0042",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Prof. Ir. R. Rooseno tercatat sebagai pembicara urutan ke-11 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Prof. Ir. R. Rooseno tercatat sebagai pembicara urutan ke-11 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -677,7 +681,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0043",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh M. Aris tercatat sebagai pembicara urutan ke-12 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh M. Aris tercatat sebagai pembicara urutan ke-12 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Kamis, 31 Mei 1945",
@@ -693,7 +697,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0044",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.2 Susunan Pembicara pada Sidang Pertama BPUPK (hlm. 17–18) yang merujuk catatan Ananda B. Kusuma (2004), jumlah pembicara yang menyampaikan pandangan pada hari Rabu, 30 Mei 1945 adalah sebanyak...",
+    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Rabu, 30 Mei 1945 adalah sebanyak...",
     "options": [
       "8 pembicara",
       "6 pembicara",
@@ -709,7 +713,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0045",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Drs. Mohammad Hatta tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Drs. Mohammad Hatta tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Sabtu, 2 Juni 1945",
@@ -725,7 +729,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0046",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh H. Agoes Salim tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh H. Agoes Salim tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Rabu, 30 Mei 1945",
@@ -741,7 +745,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0047",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Samsoedin tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Samsoedin tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Sabtu, 2 Juni 1945",
@@ -757,7 +761,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0048",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Wongsonagoro tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Wongsonagoro tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Selasa, 29 Mei 1945",
@@ -773,7 +777,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0049",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Ir. Soerachman tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Ir. Soerachman tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -789,7 +793,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0050",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Soewandi tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Soewandi tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -805,7 +809,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0051",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R. Abdoelrahim Pratalykrama tercatat sebagai pembicara urutan ke-7 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R. Abdoelrahim Pratalykrama tercatat sebagai pembicara urutan ke-7 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Sabtu, 2 Juni 1945",
       "Rabu, 30 Mei 1945",
@@ -821,7 +825,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0052",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Dr. Soekiman tercatat sebagai pembicara urutan ke-8 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Dr. Soekiman tercatat sebagai pembicara urutan ke-8 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Sabtu, 2 Juni 1945",
       "Jumat, 1 Juni 1945",
@@ -837,7 +841,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0053",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh M. Soetardjo Kartahadikoesoemo tercatat sebagai pembicara urutan ke-9 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh M. Soetardjo Kartahadikoesoemo tercatat sebagai pembicara urutan ke-9 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Selasa, 29 Mei 1945",
@@ -853,7 +857,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0054",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.2 Susunan Pembicara pada Sidang Pertama BPUPK (hlm. 17–18) yang merujuk catatan Ananda B. Kusuma (2004), jumlah pembicara yang menyampaikan pandangan pada hari Kamis, 31 Mei 1945 adalah sebanyak...",
+    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Kamis, 31 Mei 1945 adalah sebanyak...",
     "options": [
       "14 pembicara",
       "10 pembicara",
@@ -869,7 +873,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0055",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R. Abdoel Kadir tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R. Abdoel Kadir tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Kamis, 31 Mei 1945",
@@ -885,7 +889,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0056",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Prof. Mr. Dr. Soepomo tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Prof. Mr. Dr. Soepomo tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Selasa, 29 Mei 1945",
@@ -901,7 +905,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0057",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Mr. R. Hindromartono tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Mr. R. Hindromartono tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -917,7 +921,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0058",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Mr. Mohammad Yamin tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Mr. Mohammad Yamin tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Sabtu, 2 Juni 1945",
       "Kamis, 31 Mei 1945",
@@ -933,7 +937,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0059",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh H.A. Sanoesi tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh H.A. Sanoesi tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Sabtu, 2 Juni 1945",
@@ -949,7 +953,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0060",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Liem Koen Hian tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Liem Koen Hian tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -965,7 +969,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0061",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Moenandar tercatat sebagai pembicara urutan ke-7 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Moenandar tercatat sebagai pembicara urutan ke-7 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Kamis, 31 Mei 1945",
@@ -981,7 +985,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0062",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh P.F. Dahler tercatat sebagai pembicara urutan ke-8 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh P.F. Dahler tercatat sebagai pembicara urutan ke-8 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Rabu, 30 Mei 1945",
@@ -997,7 +1001,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0063",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Sukarno tercatat sebagai pembicara urutan ke-9 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Sukarno tercatat sebagai pembicara urutan ke-9 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -1013,7 +1017,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0064",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Ki Bagoes Hadikoesoemo tercatat sebagai pembicara urutan ke-10 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Ki Bagoes Hadikoesoemo tercatat sebagai pembicara urutan ke-10 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Kamis, 31 Mei 1945",
@@ -1029,7 +1033,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0065",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Mr. Dr. R. Koesoema Atmadja tercatat sebagai pembicara urutan ke-11 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Mr. Dr. R. Koesoema Atmadja tercatat sebagai pembicara urutan ke-11 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Selasa, 29 Mei 1945",
@@ -1045,7 +1049,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0066",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Oei Tjong Hauw tercatat sebagai pembicara urutan ke-12 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Oei Tjong Hauw tercatat sebagai pembicara urutan ke-12 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Sabtu, 2 Juni 1945",
@@ -1061,7 +1065,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0067",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Parada Harahap tercatat sebagai pembicara urutan ke-13 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Parada Harahap tercatat sebagai pembicara urutan ke-13 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Sabtu, 2 Juni 1945",
@@ -1077,7 +1081,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0068",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Dr. R. Boentaran Martoatmodjo tercatat sebagai pembicara urutan ke-14 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Dr. R. Boentaran Martoatmodjo tercatat sebagai pembicara urutan ke-14 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Selasa, 29 Mei 1945",
@@ -1093,7 +1097,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0069",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Tabel 1.2 Susunan Pembicara pada Sidang Pertama BPUPK (hlm. 17–18) yang merujuk catatan Ananda B. Kusuma (2004), jumlah pembicara yang menyampaikan pandangan pada hari Jumat, 1 Juni 1945 adalah sebanyak...",
+    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Jumat, 1 Juni 1945 adalah sebanyak...",
     "options": [
       "10 pembicara",
       "9 pembicara",
@@ -1109,7 +1113,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0070",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh A.R. Baswedan tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh A.R. Baswedan tercatat sebagai pembicara urutan ke-1 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Selasa, 29 Mei 1945",
@@ -1125,7 +1129,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0071",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh A.K. Moezakir tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh A.K. Moezakir tercatat sebagai pembicara urutan ke-2 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Rabu, 30 Mei 1945",
       "Kamis, 31 Mei 1945",
@@ -1141,7 +1145,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0072",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R. Otto Iskandar Dinata tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R. Otto Iskandar Dinata tercatat sebagai pembicara urutan ke-3 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Jumat, 1 Juni 1945",
       "Kamis, 31 Mei 1945",
@@ -1157,7 +1161,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0073",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Sukarno (Pidato Lahirnya Pancasila) tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Sukarno (Pidato Lahirnya Pancasila) tercatat sebagai pembicara urutan ke-4 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Selasa, 29 Mei 1945",
       "Sabtu, 2 Juni 1945",
@@ -1173,7 +1177,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0074",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh Mr. J. Latuharhary tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh Mr. J. Latuharhary tercatat sebagai pembicara urutan ke-5 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Sabtu, 2 Juni 1945",
       "Jumat, 1 Juni 1945",
@@ -1189,7 +1193,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0075",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Menurut catatan sejarah dalam Tabel 1.2 Buku Pendidikan Pancasila Kelas X (hlm. 17–18), tokoh R. Soekardjo Wirjopranoto tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
+    "question": "Tokoh R. Soekardjo Wirjopranoto tercatat sebagai pembicara urutan ke-6 pada Sidang Pertama BPUPK yang berlangsung pada hari dan tanggal...",
     "options": [
       "Kamis, 31 Mei 1945",
       "Jumat, 1 Juni 1945",
@@ -1205,7 +1209,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0076",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Sebagaimana dicatat oleh A.B. Kusuma dalam buku 'Lahirnya Undang-Undang Dasar 1945' (dikutip pada hlm. 13–14), terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
+    "question": "Terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
     "options": [
       "K.H. Abdul Fatah Hasan",
       "Mr. R.P. Singgih",
@@ -1221,7 +1225,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0077",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Sebagaimana dicatat oleh A.B. Kusuma dalam buku 'Lahirnya Undang-Undang Dasar 1945' (dikutip pada hlm. 13–14), terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
+    "question": "Terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
     "options": [
       "R. Asikin Natanegara",
       "Mr. R.P. Singgih",
@@ -1237,7 +1241,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0078",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Sebagaimana dicatat oleh A.B. Kusuma dalam buku 'Lahirnya Undang-Undang Dasar 1945' (dikutip pada hlm. 13–14), terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
+    "question": "Terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
     "options": [
       "B.P.K.A. Soerjo Hamidjojo",
       "Mr. R.P. Singgih",
@@ -1253,7 +1257,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0079",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Sebagaimana dicatat oleh A.B. Kusuma dalam buku 'Lahirnya Undang-Undang Dasar 1945' (dikutip pada hlm. 13–14), terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
+    "question": "Terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
     "options": [
       "Ir. Pangeran M. Noor",
       "Mr. R.P. Singgih",
@@ -1269,7 +1273,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0080",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Sebagaimana dicatat oleh A.B. Kusuma dalam buku 'Lahirnya Undang-Undang Dasar 1945' (dikutip pada hlm. 13–14), terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
+    "question": "Terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
     "options": [
       "Mr. M. Besar",
       "Mr. R.P. Singgih",
@@ -1285,7 +1289,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0081",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Sebagaimana dicatat oleh A.B. Kusuma dalam buku 'Lahirnya Undang-Undang Dasar 1945' (dikutip pada hlm. 13–14), terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
+    "question": "Terdapat 6 orang Anggota Tambahan BPUPK yang baru bergabung pada masa sidang kedua (10–17 Juli 1945). Salah satu tokoh Anggota Tambahan tersebut adalah...",
     "options": [
       "Abdul Kaffar",
       "Mr. R.P. Singgih",
@@ -1973,7 +1977,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0124",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Berdasarkan Denah Tempat Duduk Sidang BPUPK (Gambar 1.2 hlm. 15) dari buku A.B. Kusuma (2004), anggota BPUPK yang menempati kursi nomor 1 dan nomor 2 adalah...",
+    "question": "anggota BPUPK yang menempati kursi nomor 1 dan nomor 2 adalah...",
     "options": [
       "Kursi nomor 1: Achmad Soebardjo, dan Kursi nomor 2: A.A. Maramis",
       "Kursi nomor 1: Mohammad Hatta, dan Kursi nomor 2: Soepomo",
@@ -2341,7 +2345,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0147",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-1 adalah...",
+    "question": "Bunyi impian urutan ke-1 adalah...",
     "options": [
       "Sumber daya manusia Indonesia yang kecerdasannya mengungguli bangsa-bangsa lain di dunia",
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
@@ -2357,7 +2361,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0148",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-2 adalah...",
+    "question": "Bunyi impian urutan ke-2 adalah...",
     "options": [
       "Masyarakat dan aparatur pemerintah yang bebas dari perilaku korupsi",
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
@@ -2373,7 +2377,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0149",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-3 adalah...",
+    "question": "Bunyi impian urutan ke-3 adalah...",
     "options": [
       "Masyarakat dan aparatur pemerintah yang bebas dari perilaku korupsi",
       "Masyarakat Indonesia yang menjunjung tinggi pluralisme, berbudaya, religius, dan nilai-nilai etika",
@@ -2389,7 +2393,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0150",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-4 adalah...",
+    "question": "Bunyi impian urutan ke-4 adalah...",
     "options": [
       "Indonesia menjadi pusat pendidikan, teknologi, dan peradaban dunia",
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
@@ -2405,7 +2409,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0151",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-5 adalah...",
+    "question": "Bunyi impian urutan ke-5 adalah...",
     "options": [
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
       "Indonesia menjadi pusat pendidikan, teknologi, dan peradaban dunia",
@@ -2421,7 +2425,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0152",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-6 adalah...",
+    "question": "Bunyi impian urutan ke-6 adalah...",
     "options": [
       "Sumber daya manusia Indonesia yang kecerdasannya mengungguli bangsa-bangsa lain di dunia",
       "Indonesia menjadi negara yang mandiri dan paling berpengaruh di Asia Pasifik",
@@ -2437,7 +2441,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0153",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Infografik '7 Impian Indonesia 2015–2085' pada Bab 1 Buku Pendidikan Pancasila Kelas X (Gambar 1.8 hlm. 38), bunyi impian urutan ke-7 adalah...",
+    "question": "Bunyi impian urutan ke-7 adalah...",
     "options": [
       "Indonesia menjadi pusat pendidikan, teknologi, dan peradaban dunia",
       "Indonesia menjadi barometer pertumbuhan ekonomi dunia",
@@ -2565,7 +2569,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0161",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan Tabel 2.1 Jenis dan Sumber Norma (hlm. 70), norma yang bersumber dari hati nurani manusia dan menghasilkan sanksi berupa rasa penyesalan atau kegelisahan batin apabila dilanggar adalah...",
+    "question": "Norma yang bersumber dari hati nurani manusia dan menghasilkan sanksi berupa rasa penyesalan atau kegelisahan batin apabila dilanggar adalah...",
     "options": [
       "Norma Hukum",
       "Norma Kesopanan",
@@ -3253,7 +3257,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0204",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh PPKI pada tanggal 18 Agustus 1945, sedangkan perubahan (amandemen) ditetapkan oleh MPR (terdiri atas anggota DPR dan DPD)' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh PPKI pada tanggal 18 Agustus 1945, sedangkan perubahan (amandemen) ditetapkan oleh MPR (terdiri atas anggota DPR dan DPD)' adalah...",
     "options": [
       "Ketetapan MPR (Tap MPR)",
       "UUD NRI Tahun 1945",
@@ -3269,7 +3273,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0205",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Jaminan hak asasi manusia, hak dan kewajiban warga negara, dasar dan bentuk negara, tujuan bernegara, dan sebagainya' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Jaminan hak asasi manusia, hak dan kewajiban warga negara, dasar dan bentuk negara, tujuan bernegara, dan sebagainya' adalah...",
     "options": [
       "Ketetapan MPR (Tap MPR)",
       "UUD NRI Tahun 1945",
@@ -3285,7 +3289,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0206",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Majelis Permusyawaratan Rakyat (MPR)' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Majelis Permusyawaratan Rakyat (MPR)' adalah...",
     "options": [
       "Undang-Undang (UU)",
       "UUD NRI Tahun 1945",
@@ -3301,7 +3305,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0207",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Ketetapan MPR Sementara dan Ketetapan MPR yang masih berlaku sebagaimana dimaksud dalam Pasal 2 dan Pasal 4 Tap MPR No. I/MPR/2003' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Ketetapan MPR Sementara dan Ketetapan MPR yang masih berlaku sebagaimana dimaksud dalam Pasal 2 dan Pasal 4 Tap MPR No. I/MPR/2003' adalah...",
     "options": [
       "Peraturan Pemerintah (PP)",
       "Undang-Undang (UU)",
@@ -3317,7 +3321,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0208",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Disetujui bersama oleh DPR dan Presiden, lalu disahkan oleh Presiden dalam jangka waktu paling lama 7 hari sejak tanggal persetujuan bersama' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Disetujui bersama oleh DPR dan Presiden, lalu disahkan oleh Presiden dalam jangka waktu paling lama 7 hari sejak tanggal persetujuan bersama' adalah...",
     "options": [
       "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)",
       "Peraturan Pemerintah (PP)",
@@ -3333,7 +3337,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0209",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Pengaturan lebih lanjut ketentuan UUD 1945, perintah suatu UU untuk diatur dengan UU, pengesahan perjanjian internasional tertentu, dan pemenuhan kebutuhan hukum dalam masyarakat' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Pengaturan lebih lanjut ketentuan UUD 1945, perintah suatu UU untuk diatur dengan UU, pengesahan perjanjian internasional tertentu, dan pemenuhan kebutuhan hukum dalam masyarakat' adalah...",
     "options": [
       "Undang-Undang (UU)",
       "UUD NRI Tahun 1945",
@@ -3349,7 +3353,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0210",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden dalam hal ihwal kegentingan yang memaksa karena belum ada payung hukumnya' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden dalam hal ihwal kegentingan yang memaksa karena belum ada payung hukumnya' adalah...",
     "options": [
       "Peraturan Pemerintah (PP)",
       "UUD NRI Tahun 1945",
@@ -3365,7 +3369,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0211",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi muatannya sama dengan materi muatan Undang-Undang (UU)' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi muatannya sama dengan materi muatan Undang-Undang (UU)' adalah...",
     "options": [
       "Peraturan Pemerintah (PP)",
       "Undang-Undang (UU)",
@@ -3381,7 +3385,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0212",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden untuk menjalankan Undang-Undang sebagaimana mestinya' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden untuk menjalankan Undang-Undang sebagaimana mestinya' adalah...",
     "options": [
       "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)",
       "Peraturan Pemerintah (PP)",
@@ -3397,7 +3401,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0213",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi untuk menjalankan Undang-Undang (UU) sebagaimana mestinya' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi untuk menjalankan Undang-Undang (UU) sebagaimana mestinya' adalah...",
     "options": [
       "UUD NRI Tahun 1945",
       "Peraturan Pemerintah (PP)",
@@ -3413,7 +3417,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0214",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden untuk menjalankan perintah peraturan perundang-undangan yang lebih tinggi atau dalam menyelenggarakan kekuasaan pemerintahan' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden untuk menjalankan perintah peraturan perundang-undangan yang lebih tinggi atau dalam menyelenggarakan kekuasaan pemerintahan' adalah...",
     "options": [
       "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)",
       "Undang-Undang (UU)",
@@ -3429,7 +3433,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0215",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi yang diperintahkan oleh UU, materi untuk melaksanakan PP, atau materi untuk melaksanakan penyelenggaraan kekuasaan pemerintahan' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi yang diperintahkan oleh UU, materi untuk melaksanakan PP, atau materi untuk melaksanakan penyelenggaraan kekuasaan pemerintahan' adalah...",
     "options": [
       "Peraturan Presiden (Perpres)",
       "Undang-Undang (UU)",
@@ -3445,7 +3449,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0216",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Disetujui bersama oleh DPRD Provinsi dan Gubernur, kemudian ditetapkan oleh Gubernur' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Disetujui bersama oleh DPRD Provinsi dan Gubernur, kemudian ditetapkan oleh Gubernur' adalah...",
     "options": [
       "Ketetapan MPR (Tap MPR)",
       "Undang-Undang (UU)",
@@ -3461,7 +3465,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0217",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Penyelenggaraan otonomi daerah provinsi dan tugas pembantuan serta menampung kondisi khusus daerah dan/atau penjabaran lebih lanjut peraturan yang lebih tinggi' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Penyelenggaraan otonomi daerah provinsi dan tugas pembantuan serta menampung kondisi khusus daerah dan/atau penjabaran lebih lanjut peraturan yang lebih tinggi' adalah...",
     "options": [
       "UUD NRI Tahun 1945",
       "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)",
@@ -3477,7 +3481,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0218",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Jenis Peraturan Perundang-undangan (hlm. 104–105), jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Disetujui bersama oleh DPRD Kabupaten/Kota dan Bupati/Walikota, kemudian ditetapkan oleh Bupati/Walikota' adalah...",
+    "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Disetujui bersama oleh DPRD Kabupaten/Kota dan Bupati/Walikota, kemudian ditetapkan oleh Bupati/Walikota' adalah...",
     "options": [
       "UUD NRI Tahun 1945",
       "Peraturan Daerah (Perda) Kabupaten/Kota",
@@ -3493,7 +3497,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0219",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Berdasarkan Tabel 2.3 Buku Pendidikan Pancasila Kelas X (hlm. 104–105), peraturan perundang-undangan yang memiliki materi muatan berupa 'Penyelenggaraan otonomi daerah kabupaten/kota dan tugas pembantuan serta menampung kondisi khusus daerah dan/atau penjabaran lebih lanjut peraturan yang lebih tinggi' adalah...",
+    "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Penyelenggaraan otonomi daerah kabupaten/kota dan tugas pembantuan serta menampung kondisi khusus daerah dan/atau penjabaran lebih lanjut peraturan yang lebih tinggi' adalah...",
     "options": [
       "Ketetapan MPR (Tap MPR)",
       "Undang-Undang (UU)",
@@ -6517,7 +6521,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0408",
     "type": "pip",
     "category": "NKRI, Wasantara & Moderasi",
-    "question": "Berdasarkan Tabel 4.1 Peran Indonesia dalam Organisasi Internasional (hlm. 203–204), Indonesia resmi menjadi anggota Perserikatan Bangsa-Bangsa (PBB) yang ke-60 pada tanggal 28 September 1950. Indonesia sempat keluar dari PBB dan kemudian masuk kembali pada tanggal...",
+    "question": "Indonesia resmi menjadi anggota Perserikatan Bangsa-Bangsa (PBB) yang ke-60 pada tanggal 28 September 1950. Indonesia sempat keluar dari PBB dan kemudian masuk kembali pada tanggal...",
     "options": [
       "Keluar pada 1 Januari 1962 dan masuk kembali pada 17 Agustus 1968",
       "Keluar pada 10 November 1955 dan masuk kembali pada 20 Mei 1967",
@@ -6533,7 +6537,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0409",
     "type": "pip",
     "category": "NKRI, Wasantara & Moderasi",
-    "question": "Berdasarkan Tabel 4.1 (hlm. 204), Indonesia beberapa kali terpilih menjadi anggota tidak tetap Dewan Keamanan (DK) PBB dan anggota Dewan HAM PBB. Periode terbaru keanggotaan Indonesia yang tercatat dalam buku tersebut adalah...",
+    "question": "Indonesia beberapa kali terpilih menjadi anggota tidak tetap Dewan Keamanan (DK) PBB dan anggota Dewan HAM PBB. Periode terbaru keanggotaan Indonesia yang tercatat dalam buku tersebut adalah...",
     "options": [
       "Anggota tetap DK PBB sejak 1950 dan ketua Mahkamah Internasional 2020",
       "Anggota tetap Dewan Perwalian PBB periode 2015–2020",
@@ -6549,7 +6553,7 @@ export const standardCatQuestions: CatQuestion[] = [
     "id": "pip-0410",
     "type": "pip",
     "category": "NKRI, Wasantara & Moderasi",
-    "question": "Berdasarkan Tabel 4.1 (hlm. 204), peran bersejarah Indonesia dalam Organisasi Kerja Sama Islam (OKI / OIC) yang dibentuk di Rabat, Maroko pada 25 September 1969 antara lain adalah...",
+    "question": "Peran bersejarah Indonesia dalam Organisasi Kerja Sama Islam (OKI / OIC) yang dibentuk di Rabat, Maroko pada 25 September 1969 antara lain adalah...",
     "options": [
       "Menetapkan mata uang tunggal bagi seluruh negara anggota OKI",
       "Menjadi Ketua OIC Peace Committee for Southern Philippines (OIC PCSP) tahun 1993 yang memfasilitasi perundingan damai antara Pemerintah Filipina dengan Moro National Liberation Front (MNLF)",
@@ -19026,3 +19030,5 @@ export const standardCatQuestions: CatQuestion[] = [
     "status": "active"
   }
 ]
+
+export const standardCatQuestions: CatQuestion[] = [...baseCatQuestions, ...pipExpansionQuestions, ...expandedTiuQuestions, ...tiuWawasanQuestions, ...tiuRpulQuestions]

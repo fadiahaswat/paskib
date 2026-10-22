@@ -57,9 +57,8 @@ import {
   bmi,
   compareRankedCandidates,
   evaluateAnthropometry,
+  evaluateRankingAnthropometry,
   finalScore,
-  getQuotaBand,
-  isPhaseOnePassed,
   selectionStages,
   type Candidate,
   type CatTryoutAttempt,
@@ -4242,6 +4241,7 @@ function RankingView({
     () =>
       candidates
         .filter((c) => genderFilter === "all" || c.gender === genderFilter)
+        .filter((candidate) => evaluateRankingAnthropometry(candidate).status === "eligible")
         .map((candidate) => ({ candidate, score: finalScore(candidate) }))
         .filter(
           (item): item is { candidate: Candidate, score: number } =>
@@ -4267,7 +4267,9 @@ function RankingView({
       candidates.filter(
         (c) =>
           (genderFilter === "all" || c.gender === genderFilter) &&
-          (finalScore(c) === null || (finalScore(c) ?? 0) <= 0),
+          (evaluateRankingAnthropometry(c).status !== "eligible" ||
+            finalScore(c) === null ||
+            (finalScore(c) ?? 0) <= 0),
       ),
     [candidates, genderFilter],
   )
@@ -4364,8 +4366,6 @@ function RankingView({
             filteredRanked.map(({ candidate, score }) => {
               const actualRank =
                 ranked.findIndex((r) => r.candidate.id === candidate.id) + 1
-              const band = getQuotaBand(actualRank)
-
               return (
                 <button
                   type="button"
@@ -4398,14 +4398,14 @@ function RankingView({
                       <p className="mt-0.5 text-xs text-slate-500">
                         {candidate.number} · {candidate.gender}
                         {candidate.heightCm ? ` · ${candidate.heightCm} cm` : ""}
+                        {candidate.heightCm && candidate.weightKg
+                          ? ` · BMI ${bmi(candidate.weightKg, candidate.heightCm)?.value ?? "—"}`
+                          : ""}
                       </p>
                     </div>
                     <p className="font-display text-lg font-bold tabular-nums text-emerald-600">
                       {score.toFixed(2)}
                     </p>
-                  </div>
-                  <div className="mt-2 pl-12">
-                    <Badge tone={band.tone}>{band.label}</Badge>
                   </div>
                 </button>
               )
@@ -4424,14 +4424,13 @@ function RankingView({
                 <th className="px-4 py-3.5">PBB · 30%</th>
                 <th className="px-4 py-3.5">Samapta · 30%</th>
                 <th className="px-4 py-3.5">Kepribadian · 40%</th>
-                <th className="px-4 py-3.5">Kategori Proyeksi</th>
                 <th className="px-6 py-3.5 text-right">Nilai Sementara</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredRanked.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500 text-sm">
+                  <td colSpan={7} className="py-12 text-center text-slate-500 text-sm">
                     Tidak ada santri yang sesuai dengan filter pencarian "{searchQuery}".
                   </td>
                 </tr>
@@ -4439,8 +4438,6 @@ function RankingView({
                 filteredRanked.map(({ candidate, score }) => {
                   const actualRank =
                     ranked.findIndex((r) => r.candidate.id === candidate.id) + 1
-                  const band = getQuotaBand(actualRank)
-
                   return (
                     <tr
                       key={candidate.id}
@@ -4483,12 +4480,15 @@ function RankingView({
 
                       {/* Postur: Simpel & Bersih */}
                       <td className="px-4 py-4 text-xs font-medium text-slate-700 tabular-nums">
-                        {candidate.heightCm ? (
+                        {candidate.heightCm && candidate.weightKg ? (
                           <span>
-                            {candidate.heightCm} cm / {candidate.weightKg ?? "—"} kg
+                            {candidate.heightCm} cm / {candidate.weightKg} kg
+                            <span className="mt-1 block text-[0.68rem] text-slate-500">
+                              BMI {bmi(candidate.weightKg, candidate.heightCm)?.value ?? "—"}
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-slate-400">Belum diukur</span>
                         )}
                       </td>
 
@@ -4497,7 +4497,7 @@ function RankingView({
                         {candidate.pbb !== null ? (
                           candidate.pbb.toFixed(1)
                         ) : (
-                          <span className="text-slate-400 font-normal">—</span>
+                          <span className="text-xs font-normal text-slate-400">Belum diisi</span>
                         )}
                       </td>
 
@@ -4506,7 +4506,7 @@ function RankingView({
                         {candidate.fitness !== null ? (
                           candidate.fitness.toFixed(1)
                         ) : (
-                          <span className="text-slate-400 font-normal">—</span>
+                          <span className="text-xs font-normal text-slate-400">Belum diisi</span>
                         )}
                       </td>
 
@@ -4515,13 +4515,8 @@ function RankingView({
                         {candidate.personality !== null ? (
                           candidate.personality.toFixed(1)
                         ) : (
-                          <span className="text-slate-400 font-normal">—</span>
+                          <span className="text-xs font-normal text-slate-400">Belum diisi</span>
                         )}
-                      </td>
-
-                      {/* Kategori Proyeksi */}
-                      <td className="px-4 py-4">
-                        <Badge tone={band.tone}>{band.label}</Badge>
                       </td>
 
                       {/* Nilai Akhir */}
@@ -4543,17 +4538,18 @@ function RankingView({
         <Card className="overflow-hidden">
           <div className="border-b border-slate-100 px-6 py-4">
             <h3 className="font-display text-base font-bold text-slate-900">
-              Santri menunggu penilaian susulan ({unranked.length})
+              Santri belum masuk pemeringkatan ({unranked.length})
             </h3>
             <p className="text-xs text-slate-500">
-              Santri yang berhalangan hadir pada sesi sebelumnya (izin/sakit/alpa) dan belum memiliki data nilai latihan.
+              Peringkat hanya menampilkan santri dengan tinggi minimal 170 cm, BMI normal (18,5–24,9), dan nilai latihan tercatat.
             </p>
           </div>
           <div className="divide-y divide-slate-100">
             {unranked.map((cand) => {
-              const reason =
-                cand.coachNote ||
-                "Belum ada catatan nilai dari sesi latihan sebelumnya"
+              const anthropometry = evaluateRankingAnthropometry(cand)
+              const reason = anthropometry.status !== "eligible"
+                ? anthropometry.reason
+                : cand.coachNote || "Belum ada catatan nilai dari sesi latihan sebelumnya"
 
               return (
                 <button
@@ -4577,8 +4573,8 @@ function RankingView({
                       <p className="text-xs text-slate-500">{reason}</p>
                     </div>
                   </div>
-                  <Badge tone="warning">
-                    Perlu Sesi Susulan
+                  <Badge tone={anthropometry.status === "failed" ? "danger" : "warning"}>
+                    {anthropometry.status === "failed" ? "Tidak memenuhi syarat" : "Perlu data/nilai"}
                   </Badge>
                 </button>
               )

@@ -205,15 +205,15 @@ export function provisionalScore(candidate: Candidate): number {
   let totalWeightedScore = 0
   let totalWeight = 0
 
-  if (candidate.fitness !== null && candidate.fitness > 0) {
+  if (candidate.fitness !== null) {
     totalWeightedScore += candidate.fitness * 0.3
     totalWeight += 0.3
   }
-  if (candidate.pbb !== null && candidate.pbb > 0) {
+  if (candidate.pbb !== null) {
     totalWeightedScore += candidate.pbb * 0.3
     totalWeight += 0.3
   }
-  if (candidate.personality !== null && candidate.personality > 0) {
+  if (candidate.personality !== null) {
     totalWeightedScore += candidate.personality * 0.4
     totalWeight += 0.4
   }
@@ -346,6 +346,23 @@ export function bmi(weightKg: number, heightCm: number) {
   return { value: Number(value.toFixed(1)), category }
 }
 
+export function evaluateRankingAnthropometry(candidate: Pick<Candidate, "heightCm" | "weightKg">) {
+  if (candidate.heightCm === undefined || candidate.weightKg === undefined) {
+    return { status: "pending" as const, reason: "Data tinggi atau berat belum lengkap" }
+  }
+  if (candidate.heightCm < 170) {
+    return { status: "failed" as const, reason: `Tinggi ${candidate.heightCm} cm, di bawah syarat 170 cm` }
+  }
+  const result = bmi(candidate.weightKg, candidate.heightCm)
+  if (!result) {
+    return { status: "pending" as const, reason: "Data BMI belum dapat dihitung" }
+  }
+  if (result.category !== "Normal") {
+    return { status: "failed" as const, reason: `BMI ${result.value} (${result.category}), di luar rentang ideal 18,5–24,9` }
+  }
+  return { status: "eligible" as const, reason: `Memenuhi syarat · BMI ${result.value}` }
+}
+
 export function evaluateAnthropometry(
   gender: "Putra" | "Putri",
   heightCm?: number,
@@ -433,25 +450,8 @@ export function compareRankedCandidates(
   return a.candidate.number.localeCompare(b.candidate.number)
 }
 
-export function getQuotaBand(
-  rank: number,
-): {
-  label: string
-  tone: "success" | "info" | "warning" | "neutral"
-} {
-  if (rank <= 2) {
-    return { label: "Proyeksi Utama", tone: "success" }
-  }
-  if (rank <= 6) {
-    return { label: "Proyeksi Inti", tone: "info" }
-  }
-  if (rank <= 10) {
-    return { label: "Proyeksi Cadangan", tone: "warning" }
-  }
-  return { label: "Perlu Penguatan", tone: "neutral" }
-}
-
 export type SessionType =
+  | "cat"
   | "administration"
   | "pip"
   | "tiu"
