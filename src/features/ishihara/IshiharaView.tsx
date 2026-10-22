@@ -236,12 +236,18 @@ type TestResultItem = {
 
 export default function IshiharaView() {
   const {
-    candidates,
+    candidates: allCandidates,
+    currentUser,
     updateCandidateStage,
     showToast,
     ishiharaSessions,
     saveIshiharaScreeningResult,
   } = useApp()
+  const isCandidate = currentUser.role === "candidate"
+  const candidates = useMemo(
+    () => isCandidate ? allCandidates.filter((candidate) => candidate.id === currentUser.candidateId) : allCandidates,
+    [allCandidates, currentUser.candidateId, isCandidate],
+  )
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
@@ -251,8 +257,15 @@ export default function IshiharaView() {
 
   // State Konfigurasi Tes
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>(
-    candidates[0]?.id ?? "",
+    currentUser.candidateId ?? candidates[0]?.id ?? "",
   )
+
+  useEffect(() => {
+    if (isCandidate && currentUser.candidateId) {
+      setSelectedCandidateId(currentUser.candidateId)
+      setActiveTab("runner")
+    }
+  }, [currentUser.candidateId, isCandidate])
   const [mode, setMode] = useState<TestMode>("quick")
   const [timerEnabled, setTimerEnabled] = useState(true)
   const [secondsPerPlate, setSecondsPerPlate] = useState(5)
@@ -707,7 +720,7 @@ export default function IshiharaView() {
           </p>
         </div>
 
-        {activeTab === "runner" && (
+        {activeTab === "runner" && !isCandidate && (
           /* Pemilihan Santri yang Dites */
           <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
             <span className="text-xs font-semibold text-slate-500 pl-2">Santri yang dites:</span>
@@ -728,7 +741,7 @@ export default function IshiharaView() {
       </div>
 
       {/* Tab Navigasi Modul Ishihara */}
-      <div className="flex border-b border-slate-200 gap-1 overflow-x-auto pb-px">
+      {!isCandidate ? <div className="flex border-b border-slate-200 gap-1 overflow-x-auto pb-px">
         <button
           onClick={() => setActiveTab("runner")}
           className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 transition-all whitespace-nowrap cursor-pointer ${
@@ -778,7 +791,7 @@ export default function IshiharaView() {
         >
           <FileSpreadsheet className="size-3.5" /> Rekap & Laporan Seleksi
         </button>
-      </div>
+      </div> : <p className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">Tes ini hanya menggunakan profil Anda. Hasil seleksi akan terlihat pada ringkasan tahapan setelah dicatat.</p>}
 
       {/* Tab Content */}
       {activeTab === "sessions" && (

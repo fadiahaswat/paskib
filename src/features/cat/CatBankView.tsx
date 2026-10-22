@@ -42,7 +42,7 @@ import {
 import { Badge, Button, CandidateAvatar, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { standardCatQuestions } from "../../data/catQuestions"
-import type { Candidate, CatQuestion } from "../../domain/selection"
+import type { Candidate, CatQuestion, CatTryoutAttempt } from "../../domain/selection"
 
 // ============================================================================
 // CATEGORY DEFINITIONS
@@ -70,35 +70,19 @@ const tiuCategories = [
 // ============================================================================
 // PRD DATA TYPES
 // ============================================================================
-export type CatTryoutAttempt = {
-  id: string
-  candidateId: string
-  candidateName: string
-  candidateGroup: string
-  packageName: string
-  attemptNumber: number
-  pipAnswers: Record<string, number>
-  tiuAnswers: Record<string, number>
-  pipCorrect: number
-  pipScore: number // 0-100 (2 * C_pip)
-  pipStatus: "passed" | "failed"
-  tiuCorrect: number
-  tiuScoreRaw: number // 0-50 (1 * C_tiu)
-  tiuScoreScaled: number // 0-100 (C_tiu * 2)
-  tiuStatus: "passed" | "failed"
-  combinedScore: number // (pipScore + tiuScoreScaled) / 2
-  startedAt: string
-  finalizedAt: string
-}
-
-type MainTab = "tryout" | "pip-bank" | "tiu-bank" | "rekap" | "settings"
+type MainTab = "tryout" | "pip-bank" | "tiu-bank" | "rekap" | "history" | "settings"
 type SessionPhase = "idle" | "pip" | "pip-final" | "tiu" | "completed"
 
 export default function CatBankView() {
   const {
     questions,
     candidates,
+    sessions,
+    records,
     currentUser,
+    catTryoutAttempts: attempts,
+    saveCatTryoutAttempt,
+    deleteCatTryoutAttempt,
     addQuestion,
     updateQuestion,
     deleteQuestion,
@@ -113,6 +97,7 @@ export default function CatBankView() {
   // NAVIGATION & TAB STATE
   // --------------------------------------------------------------------------
   const [activeTab, setActiveTab] = useState<MainTab>("tryout")
+  const [editingAttempt, setEditingAttempt] = useState<CatTryoutAttempt | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [search, setSearch] = useState("")
   const [bankPage, setBankPage] = useState<number>(1)
@@ -160,8 +145,10 @@ export default function CatBankView() {
     }
   }, [currentUser])
   const selectedCandidate = useMemo(
-    () => candidates.find((c) => c.id === selectedCandidateId) ?? candidates[0],
-    [candidates, selectedCandidateId],
+    () => currentUser.role === "candidate"
+      ? candidates.find((c) => c.id === currentUser.candidateId)!
+      : candidates.find((c) => c.id === selectedCandidateId) ?? candidates[0],
+    [candidates, currentUser.role, currentUser.candidateId, selectedCandidateId],
   )
 
   // Question orders per attempt (maintains shuffle stability across session recovery)
@@ -187,87 +174,63 @@ export default function CatBankView() {
   const [reviewTab, setReviewTab] = useState<"pip" | "tiu">("pip")
 
   // --------------------------------------------------------------------------
-  // ATTEMPTS HISTORY (Persistent in LocalStorage)
-  // --------------------------------------------------------------------------
-  const [attempts, setAttempts] = useState<CatTryoutAttempt[]>(() => {
-    try {
-      const saved = localStorage.getItem("paska-cat-tryout-attempts")
-      if (saved) return JSON.parse(saved)
-    } catch {
-      // ignore
+  // Riwayat CAT dikelola AppContext agar tersimpan di profil lokal dan Google Sheet.
+  const latestAttemptByCandidate = useMemo(() => {
+    const latest = new Map<string, CatTryoutAttempt>()
+    for (const attempt of attempts) {
+      const candidate = candidates.find((item) => item.id === attempt.candidateId) ??
+        candidates.find((item) => item.name.trim().toLocaleLowerCase() === attempt.candidateName.trim().toLocaleLowerCase())
+      if (!candidate) continue
+      const current = latest.get(candidate.id)
+      if (!current || attempt.finalizedAt > current.finalizedAt) {
+        latest.set(candidate.id, attempt)
+      }
     }
-    // Seed initial mock attempts matching initial data
-    return [
-      {
-        id: "att-001",
-        candidateId: "cand-001",
-        candidateName: "Ahmad Fauzan Pratama",
-        candidateGroup: "MA Nurul Falah",
-        packageName: "Paket Tryout CAT BPIP (PIP & TIU) 2026",
-        attemptNumber: 1,
-        pipAnswers: {},
-        tiuAnswers: {},
-        pipCorrect: 39,
-        pipScore: 78,
-        pipStatus: "passed",
-        tiuCorrect: 41,
-        tiuScoreRaw: 41,
-        tiuScoreScaled: 82,
-        tiuStatus: "passed",
-        combinedScore: 80,
-        startedAt: "2026-10-21 08:00:00",
-        finalizedAt: "2026-10-21 09:12:30",
-      },
-      {
-        id: "att-002",
-        candidateId: "cand-002",
-        candidateName: "Dewi Sekar Arum",
-        candidateGroup: "SMA Darul Ulum",
-        packageName: "Paket Tryout CAT BPIP (PIP & TIU) 2026",
-        attemptNumber: 1,
-        pipAnswers: {},
-        tiuAnswers: {},
-        pipCorrect: 44,
-        pipScore: 88,
-        pipStatus: "passed",
-        tiuCorrect: 38,
-        tiuScoreRaw: 38,
-        tiuScoreScaled: 76,
-        tiuStatus: "passed",
-        combinedScore: 82,
-        startedAt: "2026-10-21 08:00:00",
-        finalizedAt: "2026-10-21 09:08:15",
-      },
-      {
-        id: "att-003",
-        candidateId: "cand-003",
-        candidateName: "Muhammad Rizky Pratama",
-        candidateGroup: "SMK Al-Ikhlas",
-        packageName: "Paket Tryout CAT BPIP (PIP & TIU) 2026",
-        attemptNumber: 1,
-        pipAnswers: {},
-        tiuAnswers: {},
-        pipCorrect: 31,
-        pipScore: 62,
-        pipStatus: "failed",
-        tiuCorrect: 29,
-        tiuScoreRaw: 29,
-        tiuScoreScaled: 58,
-        tiuStatus: "failed",
-        combinedScore: 60,
-        startedAt: "2026-10-21 08:00:00",
-        finalizedAt: "2026-10-21 09:14:50",
-      },
-    ]
-  })
+    return latest
+  }, [attempts, candidates])
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("paska-cat-tryout-attempts", JSON.stringify(attempts))
-    } catch {
-      // ignore
-    }
-  }, [attempts])
+  const recapCandidates = useMemo(() => {
+    const visibleCandidates = currentUser.role === "candidate" && currentUser.candidateId
+      ? candidates.filter((candidate) => candidate.id === currentUser.candidateId)
+      : candidates
+    return [...visibleCandidates].sort((a, b) => {
+      const attemptA = latestAttemptByCandidate.get(a.id)
+      const attemptB = latestAttemptByCandidate.get(b.id)
+      const pipA = attemptA?.pipScore ?? a.pip
+      const tiuA = attemptA?.tiuScoreScaled ?? a.tiu
+      const pipB = attemptB?.pipScore ?? b.pip
+      const tiuB = attemptB?.tiuScoreScaled ?? b.tiu
+      const combinedA = pipA !== null && tiuA !== null ? (pipA + tiuA) / 2 : null
+      const combinedB = pipB !== null && tiuB !== null ? (pipB + tiuB) / 2 : null
+      if (combinedA === null || combinedB === null) {
+        if (combinedA === null && combinedB !== null) return 1
+        if (combinedA !== null && combinedB === null) return -1
+        return a.name.localeCompare(b.name)
+      }
+      return combinedB - combinedA
+    })
+  }, [candidates, currentUser.role, currentUser.candidateId, latestAttemptByCandidate])
+
+  const getLatestSessionScore = (type: "pip" | "tiu") => sessions
+    .filter((session) => session.type === type)
+    .map((session) => {
+      const record = records[`${session.id}:${selectedCandidate.id}`]
+      if (!record?.savedAt) return null
+      const score = record.metrics.score !== undefined && record.metrics.score !== ""
+        ? Number(record.metrics.score)
+        : record.metrics.correct !== undefined && record.metrics.correct !== ""
+          ? Number(record.metrics.correct) * 2
+          : null
+      return score !== null && Number.isFinite(score)
+        ? { score, time: Date.parse(record.savedAt) || 0 }
+        : null
+    })
+    .filter((entry): entry is { score: number; time: number } => entry !== null)
+    .sort((a, b) => b.time - a.time)[0]?.score
+
+  const latestSelectedAttempt = latestAttemptByCandidate.get(selectedCandidate.id)
+  const currentPipScore = latestSelectedAttempt?.pipScore ?? selectedCandidate.pip ?? getLatestSessionScore("pip")
+  const currentTiuScore = latestSelectedAttempt?.tiuScoreScaled ?? selectedCandidate.tiu ?? getLatestSessionScore("tiu")
 
   // --------------------------------------------------------------------------
   // TIMER TICK ENGINE
@@ -418,7 +381,29 @@ export default function CatBankView() {
       finalizedAt: nowStr,
     }
 
-    setAttempts((prev) => [newAttempt, ...prev])
+    saveCatTryoutAttempt(newAttempt)
+
+    // Auto-sync ke profil kandidat (nilai PIP/TIU + status tahap) agar tampil di dasbor
+    // pelatih dan terkirim ke Google Sheet tanpa perlu klik manual.
+    if (selectedCandidate) {
+      updateCandidate(selectedCandidate.id, { pip: pipScore, tiu: tiuScoreScaled })
+      updateCandidateStage(
+        selectedCandidate.id,
+        1,
+        pipPassed ? "passed" : "review",
+        pipPassed
+          ? `Lolos Tryout CAT PIP (${pipScore}/100) melampaui PG ${packageConfig.pipPassingGrade}`
+          : `Nilai CAT PIP (${pipScore}/100) di bawah PG ${packageConfig.pipPassingGrade}`,
+      )
+      updateCandidateStage(
+        selectedCandidate.id,
+        2,
+        tiuPassed ? "passed" : "review",
+        tiuPassed
+          ? `Lolos Tryout CAT TIU (${tiuScoreScaled}/100) melampaui PG ${packageConfig.tiuPassingGrade}`
+          : `Nilai CAT TIU (${tiuScoreScaled}/100) di bawah PG ${packageConfig.tiuPassingGrade}`,
+      )
+    }
     logAudit(
       "Tryout CAT Selesai",
       selectedCandidate?.name ?? "Peserta",
@@ -481,7 +466,7 @@ export default function CatBankView() {
 
     updateCandidateStage(
       selectedCandidate.id,
-      2,
+      1,
       pipPass ? "passed" : "review",
       pipPass
         ? `Lolos Tryout CAT PIP (${currentPipResults.score}/100) melampaui PG ${packageConfig.pipPassingGrade}`
@@ -490,7 +475,7 @@ export default function CatBankView() {
 
     updateCandidateStage(
       selectedCandidate.id,
-      3,
+      2,
       tiuPass ? "passed" : "review",
       tiuPass
         ? `Lolos Tryout CAT TIU (${currentTiuResults.scaled}/100) melampaui PG ${packageConfig.tiuPassingGrade}`
@@ -685,6 +670,41 @@ export default function CatBankView() {
     }
   }
 
+  function handleSaveAttemptEdit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!editingAttempt) return
+    const pipScore = Math.max(0, Math.min(100, Number(editingAttempt.pipScore)))
+    const tiuScoreScaled = Math.max(0, Math.min(100, Number(editingAttempt.tiuScoreScaled)))
+    if (!Number.isFinite(pipScore) || !Number.isFinite(tiuScoreScaled)) {
+      showToast("Nilai PIP dan TIU harus berupa angka 0–100.", "warning")
+      return
+    }
+
+    const updatedAttempt: CatTryoutAttempt = {
+      ...editingAttempt,
+      pipCorrect: Math.round(pipScore / 2),
+      pipScore,
+      pipStatus: pipScore >= packageConfig.pipPassingGrade ? "passed" : "failed",
+      tiuCorrect: Math.round(tiuScoreScaled / 2),
+      tiuScoreRaw: Math.round(tiuScoreScaled / 2),
+      tiuScoreScaled,
+      tiuStatus: tiuScoreScaled >= packageConfig.tiuPassingGrade ? "passed" : "failed",
+      combinedScore: Number(((pipScore + tiuScoreScaled) / 2).toFixed(1)),
+    }
+    saveCatTryoutAttempt(updatedAttempt)
+
+    const candidate = candidates.find((item) => item.id === updatedAttempt.candidateId) ??
+      candidates.find((item) => item.name.trim().toLocaleLowerCase() === updatedAttempt.candidateName.trim().toLocaleLowerCase())
+    if (candidate && latestAttemptByCandidate.get(candidate.id)?.id === updatedAttempt.id) {
+      updateCandidate(candidate.id, { pip: pipScore, tiu: tiuScoreScaled })
+      updateCandidateStage(candidate.id, 1, updatedAttempt.pipStatus, `Nilai CAT PIP diperbarui menjadi ${pipScore}/100`)
+      updateCandidateStage(candidate.id, 2, updatedAttempt.tiuStatus, `Nilai CAT TIU diperbarui menjadi ${tiuScoreScaled}/100`)
+    }
+    logAudit("Perbarui Hasil CAT", updatedAttempt.candidateName, `PIP ${pipScore}, TIU ${tiuScoreScaled}, percobaan ${updatedAttempt.attemptNumber}`)
+    showToast("Hasil CAT berhasil diperbarui.", "success")
+    setEditingAttempt(null)
+  }
+
   // --------------------------------------------------------------------------
   // FILTERED QUESTIONS FOR BANK TABS
   // --------------------------------------------------------------------------
@@ -769,7 +789,7 @@ export default function CatBankView() {
   return (
     <div className="grid gap-6">
       {/* ======================= TOP NAVIGATION & BANNER ======================= */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 pb-5">
+      <div className="grid gap-5 border-b border-slate-200/80 pb-5">
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-[0.68rem] font-black uppercase tracking-wider text-red-700 ring-1 ring-red-200">
@@ -784,13 +804,19 @@ export default function CatBankView() {
             CAT Tryout PIP &amp; TIU
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-slate-600">
-            Sistem evaluasi berbasis komputer dengan timer otomatis, matriks 50 soal, penilaian
-            resmi per sesi, dan rekapitulasi nilai terpadu.
+            {currentUser.role === "candidate"
+              ? "Kerjakan ujian Anda dengan tenang. Jawaban tersimpan otomatis dan hasil dapat dilihat setelah sesi selesai."
+              : "Pilih peserta, jalankan PIP lalu TIU, kemudian tinjau hasil dan riwayat percobaan."}
           </p>
         </div>
 
-        {/* TAB SWITCHER */}
-        <div className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
+      </div>
+
+      {/* NAVIGATION GROUPED BY USER FLOW */}
+      <nav aria-label="Navigasi CAT" className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div>
+          <p className="mb-1.5 px-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-slate-400">Alur ujian</p>
+          <div className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
           <button
             type="button"
             onClick={() => setActiveTab("tryout")}
@@ -811,70 +837,72 @@ export default function CatBankView() {
             <>
               <button
                 type="button"
-                onClick={() => {
-                  setActiveTab("pip-bank")
-                  setCategoryFilter("all")
-                  setSearch("")
-                }}
+                onClick={() => setActiveTab("rekap")}
                 className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-                  activeTab === "pip-bank"
+                  activeTab === "rekap"
                     ? "bg-white text-slate-950 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <BookOpenCheck className="size-3.5 text-blue-600" />
-                <span>Bank PIP ({pipActiveCount})</span>
+                <UsersRound className="size-3.5 text-emerald-600" />
+                <span>Rekap Santri ({attempts.length})</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  setActiveTab("tiu-bank")
-                  setCategoryFilter("all")
-                  setSearch("")
-                }}
+                onClick={() => setActiveTab("history")}
                 className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-                  activeTab === "tiu-bank"
+                  activeTab === "history"
                     ? "bg-white text-slate-950 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <Calculator className="size-3.5 text-purple-600" />
-                <span>Bank TIU ({tiuActiveCount})</span>
+                <History className="size-3.5 text-indigo-600" />
+                <span>Rekap &amp; riwayat ({attempts.length})</span>
               </button>
             </>
           )}
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("rekap")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
-              activeTab === "rekap"
-                ? "bg-white text-slate-950 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <UsersRound className="size-3.5 text-emerald-600" />
-            <span>Rekap Santri ({attempts.length})</span>
-          </button>
+          </div>
+        </div>
 
           {currentUser.role !== "candidate" && (
-            <button
-              type="button"
-              onClick={() => setActiveTab("settings")}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
-                activeTab === "settings"
-                  ? "bg-white text-slate-950 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-              title="Konfigurasi Paket & Formula"
-            >
-              <Settings2 className="size-3.5 text-slate-500" />
-              <span className="hidden sm:inline">Paket</span>
-            </button>
+            <div>
+              <p className="mb-1.5 px-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-slate-400">Perangkat pelatih</p>
+              <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-slate-200 bg-white p-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("pip-bank")
+                    setCategoryFilter("all")
+                    setSearch("")
+                  }}
+                  className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${activeTab === "pip-bank" ? "bg-blue-50 text-blue-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                >
+                  <BookOpenCheck className="size-3.5 text-blue-600" /> Bank PIP ({pipActiveCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("tiu-bank")
+                    setCategoryFilter("all")
+                    setSearch("")
+                  }}
+                  className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${activeTab === "tiu-bank" ? "bg-purple-50 text-purple-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                >
+                  <Calculator className="size-3.5 text-purple-600" /> Bank TIU ({tiuActiveCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("settings")}
+                  className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${activeTab === "settings" ? "bg-slate-100 text-slate-900 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                  title="Konfigurasi paket dan formula"
+                >
+                  <Settings2 className="size-3.5 text-slate-500" /> Paket
+                </button>
+              </div>
+            </div>
           )}
-        </div>
-      </div>
+      </nav>
 
       {/* ===================================================================== */}
       {/* TAB 1: TRYOUT ENGINE (IDLE LOBBY, PIP EXAM, INTER-SESSION, TIU, RESULT) */}
@@ -891,42 +919,30 @@ export default function CatBankView() {
                   </div>
                   <div>
                     <h2 className="font-display text-xl font-bold text-slate-950">
-                      Mulai Paket Tryout CAT Terpadu
+                      Siapkan paket tryout CAT
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Sesuai spesifikasi PRD Final: Paket 2 sesi berurutan (PIP dahulu, kemudian TIU).
+                      Pastikan peserta dan alur ujian sudah benar sebelum memulai.
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="mt-6 grid min-w-0 gap-4 sm:grid-cols-2">
                   {currentUser.role === "candidate" ? (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 flex items-center gap-3">
-                      <CandidateAvatar
-                        name={selectedCandidate.name}
-                        avatar={selectedCandidate.avatar}
-                        photoUrl={selectedCandidate.photoUrl}
-                        className="size-11 text-xs shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <span className="text-[0.62rem] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                          <CheckCircle2 className="size-3 text-emerald-600" /> Santri Terverifikasi
-                        </span>
-                        <p className="truncate text-xs font-bold text-slate-900 mt-0.5">
-                          {selectedCandidate.name}
-                        </p>
-                        <p className="text-[0.68rem] text-slate-500 font-semibold">
-                          Nomor: {selectedCandidate.number} · {selectedCandidate.school}
-                        </p>
+                    <div className="flex min-h-16 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
+                      <CheckCircle2 className="size-5 shrink-0 text-emerald-600" />
+                      <div>
+                        <p className="text-xs font-bold text-emerald-900">Identitas terverifikasi</p>
+                        <p className="mt-0.5 text-[0.68rem] text-emerald-800">Hasil ujian akan tersimpan di akun Anda.</p>
                       </div>
                     </div>
                   ) : (
-                    <label className="grid gap-1.5 text-xs font-bold text-slate-700">
-                      Pilih Calon Paskibraka
+                    <label className="grid min-w-0 gap-1.5 text-xs font-bold text-slate-700">
+                      1. Pilih peserta
                       <select
                         value={selectedCandidateId}
                         onChange={(e) => setSelectedCandidateId(e.target.value)}
-                        className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                        className="min-h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200"
                       >
                         {candidates.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -937,9 +953,9 @@ export default function CatBankView() {
                     </label>
                   )}
 
-                  <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                  <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 p-3">
                     <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
-                      Paket Tryout Aktif
+                      Paket aktif
                     </p>
                     <p className="mt-1 text-xs font-bold text-slate-900 truncate">
                       {packageConfig.packageName}
@@ -951,12 +967,13 @@ export default function CatBankView() {
                 </div>
 
                 {/* TWO SEQUENTIAL SESSIONS TIMELINE */}
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">
-                    Alur Pelaksanaan Sesi Ujian (Sekuensial)
-                  </h3>
+                <details className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
+                  <summary className="cursor-pointer list-none text-xs font-bold uppercase tracking-wider text-slate-600 marker:hidden">
+                    2. Ketentuan ujian · PIP 45 menit → TIU 30 menit
+                    <span className="ml-2 text-[0.65rem] font-medium normal-case tracking-normal text-slate-400">Lihat rincian</span>
+                  </summary>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     {/* SESI 1 CARD */}
                     <div className="relative rounded-xl border border-red-200 bg-white p-4 shadow-2xs">
                       <div className="flex items-center justify-between">
@@ -999,21 +1016,19 @@ export default function CatBankView() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </details>
 
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-2 text-xs text-slate-500">
                     <Info className="size-4 text-blue-500 shrink-0" />
-                    <span>
-                      Sistem menggunakan autosave otomatis. Jawaban tersimpan setiap kali tombol opsi diklik.
-                    </span>
+                    <span>Jawaban tersimpan otomatis saat memilih opsi.</span>
                   </div>
 
                   <Button
                     onClick={startPipSession}
                     className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700"
                   >
-                    <Play className="size-4" /> Mulai Sesi 1: CAT PIP
+                    <Play className="size-4" /> Mulai sesi 1 · PIP
                   </Button>
                 </div>
               </Card>
@@ -1022,9 +1037,9 @@ export default function CatBankView() {
               <div className="grid gap-6">
                 <Card className="p-5 border-slate-200">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    Data Calon Peserta
+                    {currentUser.role === "candidate" ? "Hasil CAT terakhir" : "Ringkasan peserta terpilih"}
                   </h3>
-                  <div className="mt-3 flex items-center gap-3">
+                  {currentUser.role !== "candidate" && <div className="mt-3 flex items-center gap-3">
                     <CandidateAvatar
                       name={selectedCandidate.name}
                       avatar={selectedCandidate.avatar}
@@ -1040,23 +1055,23 @@ export default function CatBankView() {
                         Nomor: {selectedCandidate.number}
                       </p>
                     </div>
-                  </div>
+                  </div>}
 
-                  <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
+                  <div className={`${currentUser.role === "candidate" ? "mt-3" : "mt-4 border-t border-slate-100 pt-3"} grid grid-cols-2 gap-2`}>
                     <div className="rounded-lg bg-slate-50 p-2.5 text-center">
                       <span className="text-[0.65rem] font-bold uppercase text-slate-500">
-                        Nilai PIP Saat Ini
+                        {currentUser.role === "candidate" ? "Nilai PIP terakhir" : "Nilai PIP saat ini"}
                       </span>
                       <p className="mt-0.5 text-lg font-black text-slate-900">
-                        {selectedCandidate.pip !== null ? selectedCandidate.pip.toFixed(0) : "—"}
+                        {currentPipScore !== null && currentPipScore !== undefined ? currentPipScore.toFixed(0) : "Belum ada"}
                       </p>
                     </div>
                     <div className="rounded-lg bg-slate-50 p-2.5 text-center">
                       <span className="text-[0.65rem] font-bold uppercase text-slate-500">
-                        Nilai TIU Saat Ini
+                        {currentUser.role === "candidate" ? "Nilai TIU terakhir" : "Nilai TIU saat ini"}
                       </span>
                       <p className="mt-0.5 text-lg font-black text-slate-900">
-                        {selectedCandidate.tiu !== null ? selectedCandidate.tiu.toFixed(0) : "—"}
+                        {currentTiuScore !== null && currentTiuScore !== undefined ? currentTiuScore.toFixed(0) : "Belum ada"}
                       </p>
                     </div>
                   </div>
@@ -1064,10 +1079,12 @@ export default function CatBankView() {
 
                 {/* PRD SPECIFICATION MINI CARD */}
                 <Card className="p-5 border-slate-200 bg-slate-50/60">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                    <Sparkles className="size-3.5 text-amber-500" /> Ketentuan Resmi PRD 1.1
-                  </h3>
-                  <div className="mt-3 space-y-2 text-xs text-slate-600">
+                  <details open={currentUser.role !== "candidate"}>
+                    <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+                      <Sparkles className="size-3.5 text-amber-500" /> Ketentuan ujian
+                      <span className="ml-auto text-[0.65rem] font-medium normal-case tracking-normal text-slate-400">Lihat rincian</span>
+                    </summary>
+                    <div className="mt-3 space-y-2 text-xs text-slate-600">
                     <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
                       <span>Model Ujian</span>
                       <span className="font-bold text-slate-900">1 Paket, 2 Sesi</span>
@@ -1088,7 +1105,8 @@ export default function CatBankView() {
                       <span>Passing Grade TIU</span>
                       <span className="font-bold text-emerald-700">&ge; 70.0 (35 Benar)</span>
                     </div>
-                  </div>
+                    </div>
+                  </details>
                 </Card>
               </div>
             </div>
@@ -2213,12 +2231,10 @@ export default function CatBankView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {(currentUser.role === "candidate" && currentUser.candidateId
-                  ? candidates.filter((c) => c.id === currentUser.candidateId)
-                  : candidates
-                ).map((cand) => {
-                  const pipScore = cand.pip
-                  const tiuScore = cand.tiu
+                {recapCandidates.map((cand) => {
+                  const latestAttempt = latestAttemptByCandidate.get(cand.id)
+                  const pipScore = latestAttempt?.pipScore ?? cand.pip
+                  const tiuScore = latestAttempt?.tiuScoreScaled ?? cand.tiu
                   const pipPass = pipScore !== null && pipScore >= 70
                   const tiuPass = tiuScore !== null && tiuScore >= 70
                   const combined =
@@ -2317,6 +2333,147 @@ export default function CatBankView() {
             </table>
           </div>
         </Card>
+      )}
+
+      {activeTab === "history" && (
+        <Card className="overflow-hidden border-slate-200">
+          <div className="border-b border-slate-100 p-5">
+            <h3 className="font-display text-base font-bold text-slate-950">Riwayat percobaan CAT</h3>
+            <p className="mt-1 text-xs text-slate-500">
+              Daftar hasil tryout yang tersimpan, diurutkan dari aktivitas terbaru.
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[54rem] text-left text-xs">
+              <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th className="px-5 py-3.5">Santri</th>
+                  <th className="px-4 py-3.5">Paket</th>
+                  <th className="px-4 py-3.5">Percobaan</th>
+                  <th className="px-4 py-3.5">Nilai PIP</th>
+                  <th className="px-4 py-3.5">Nilai TIU</th>
+                  <th className="px-4 py-3.5">Rata-rata</th>
+                  <th className="px-5 py-3.5 text-right">Waktu selesai</th>
+                  {(currentUser.role === "admin" || currentUser.role === "coach") && (
+                    <th className="px-5 py-3.5 text-right">Aksi</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {attempts
+                  .filter((attempt) => currentUser.role !== "candidate" || attempt.candidateId === currentUser.candidateId)
+                  .slice()
+                  .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))
+                  .map((attempt) => {
+                    const candidate = candidates.find((item) => item.id === attempt.candidateId) ??
+                      candidates.find((item) => item.name.trim().toLocaleLowerCase() === attempt.candidateName.trim().toLocaleLowerCase())
+                    return (
+                      <tr key={attempt.id} className="hover:bg-slate-50/70">
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <CandidateAvatar
+                              name={candidate?.name ?? attempt.candidateName}
+                              avatar={candidate?.avatar}
+                              photoUrl={candidate?.photoUrl}
+                              className="size-8 shrink-0 text-xs"
+                            />
+                            <div>
+                              <p className="font-bold text-slate-900">{candidate?.name ?? attempt.candidateName}</p>
+                              <p className="text-[0.68rem] text-slate-400">{candidate?.number ?? attempt.candidateGroup}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-slate-600">{attempt.packageName}</td>
+                        <td className="px-4 py-3.5 font-semibold">#{attempt.attemptNumber}</td>
+                        <td className="px-4 py-3.5 font-bold tabular-nums">{attempt.pipScore.toFixed(0)}</td>
+                        <td className="px-4 py-3.5 font-bold tabular-nums">{attempt.tiuScoreScaled.toFixed(0)}</td>
+                        <td className="px-4 py-3.5 font-extrabold tabular-nums text-emerald-700">{attempt.combinedScore.toFixed(1)}</td>
+                        <td className="px-5 py-3.5 text-right text-slate-500">{new Date(attempt.finalizedAt.replace(" ", "T")).toLocaleString("id-ID")}</td>
+                        {(currentUser.role === "admin" || currentUser.role === "coach") && (
+                          <td className="px-5 py-3.5">
+                            <div className="flex justify-end gap-1">
+                              <button
+                                type="button"
+                                onClick={() => setEditingAttempt(attempt)}
+                                className="rounded-lg p-2 text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+                                title="Perbarui nilai CAT"
+                                aria-label={`Perbarui hasil CAT ${attempt.candidateName}`}
+                              >
+                                <Edit3 className="size-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm(`Hapus riwayat CAT percobaan #${attempt.attemptNumber} milik ${attempt.candidateName}?`)) {
+                                    deleteCatTryoutAttempt(attempt.id)
+                                  }
+                                }}
+                                className="rounded-lg p-2 text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+                                title="Hapus riwayat CAT"
+                                aria-label={`Hapus riwayat CAT ${attempt.candidateName}`}
+                              >
+                                <Trash2 className="size-4" />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    )
+                  })}
+                {attempts.filter((attempt) => currentUser.role !== "candidate" || attempt.candidateId === currentUser.candidateId).length === 0 && (
+                  <tr>
+                    <td colSpan={currentUser.role === "candidate" ? 7 : 8} className="py-12 text-center text-sm text-slate-500">Belum ada riwayat CAT yang tersimpan.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {editingAttempt && (currentUser.role === "admin" || currentUser.role === "coach") && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setEditingAttempt(null)
+        }}>
+          <form onSubmit={handleSaveAttemptEdit} className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="mb-5">
+              <h3 className="font-display text-lg font-bold text-slate-950">Perbarui hasil CAT</h3>
+              <p className="mt-1 text-sm text-slate-500">{editingAttempt.candidateName} · Percobaan #{editingAttempt.attemptNumber}</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                Nilai PIP (0–100)
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  required
+                  value={editingAttempt.pipScore}
+                  onChange={(event) => setEditingAttempt({ ...editingAttempt, pipScore: Number(event.target.value) })}
+                  className="h-10 rounded-xl border border-slate-200 px-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </label>
+              <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                Nilai TIU (0–100)
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  required
+                  value={editingAttempt.tiuScoreScaled}
+                  onChange={(event) => setEditingAttempt({ ...editingAttempt, tiuScoreScaled: Number(event.target.value) })}
+                  className="h-10 rounded-xl border border-slate-200 px-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </label>
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setEditingAttempt(null)}>Batal</Button>
+              <Button type="submit"><Check className="size-4" /> Simpan perubahan</Button>
+            </div>
+          </form>
+        </div>
       )}
 
       {/* ===================================================================== */}

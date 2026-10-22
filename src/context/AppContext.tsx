@@ -33,6 +33,7 @@ import {
   applyStageDecision,
   type AuditLogEntry,
   type Candidate,
+  type CatTryoutAttempt,
   type CatQuestion,
   type SelectionCycle,
   type SelectionSchedule,
@@ -65,6 +66,9 @@ type ToastMessage = {
 }
 
 type SyncStatus = "local" | "syncing" | "synced" | "error"
+
+// Percobaan demo bawaan versi lama pernah tersimpan ke localStorage.
+const legacyDemoCatAttemptIds = new Set(["att-001", "att-002", "att-003"])
 
 type AppContextValue = {
   // Cycles
@@ -100,6 +104,9 @@ type AppContextValue = {
     },
   ) => Candidate
   updateCandidate: (id: string, patch: Partial<Candidate>) => void
+  catTryoutAttempts: CatTryoutAttempt[]
+  saveCatTryoutAttempt: (attempt: CatTryoutAttempt) => void
+  deleteCatTryoutAttempt: (attemptId: string) => void
   deleteCandidate: (id: string) => void
   importCandidates: (newItems: Candidate[]) => number
   updateCandidateStage: (
@@ -348,6 +355,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       return {
         ...c,
+        // Registration identity comes from the verified roster, even when an older
+        // localStorage snapshot still contains stale values. Preserve all training data.
+        ...(match
+          ? {
+              nik: match.nik,
+              birthDate: match.birthDate,
+              origin: match.origin,
+              className: match.className,
+              studentNumber: match.studentNumber,
+            }
+          : {}),
         cycleId: c.cycleId === "cycle-2026-kab" ? "cycle-2027-kab" : (c.cycleId || "cycle-2027-kab"),
         pip: c.pip ?? null,
         tiu: c.tiu ?? null,
@@ -372,6 +390,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {}
     return sanitized
   })
+  const [catTryoutAttempts, setCatTryoutAttempts] = useState<CatTryoutAttempt[]>(() =>
+    loadStorage<CatTryoutAttempt[]>("paska-cat-tryout-attempts", []).filter(
+      (attempt) => !legacyDemoCatAttemptIds.has(attempt.id),
+    ),
+  )
   const [stageChecklists, setStageChecklists] =
     useState<Record<number, boolean[]>>(() =>
       loadStorage("paska-clean-checklists", defaultChecklists),
@@ -577,6 +600,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [allCandidates])
 
   useEffect(() => {
+    localStorage.setItem("paska-cat-tryout-attempts", JSON.stringify(catTryoutAttempts))
+  }, [catTryoutAttempts])
+
+  useEffect(() => {
     localStorage.setItem(
       "paska-clean-checklists",
       JSON.stringify(stageChecklists),
@@ -668,6 +695,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const stateRef = useRef({
     allCandidates,
+    catTryoutAttempts,
     cycles,
     activeCycleId,
     sessions,
@@ -686,6 +714,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   stateRef.current = {
     allCandidates,
+    catTryoutAttempts,
     cycles,
     activeCycleId,
     sessions,
@@ -707,6 +736,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const s = stateRef.current
     return JSON.stringify({
       c: s.allCandidates,
+      cat: s.catTryoutAttempts,
       s: s.sessions,
       r: s.records,
       sch: s.schedules,
@@ -744,6 +774,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const s = stateRef.current
         const stateToPush: AppDatabaseState = {
           candidates: override?.candidates ?? s.allCandidates,
+          catTryoutAttempts: override?.catTryoutAttempts ?? s.catTryoutAttempts,
           cycles: override?.cycles ?? s.cycles,
           activeCycleId: override?.activeCycleId ?? s.activeCycleId,
           sessions: override?.sessions ?? s.sessions,
@@ -765,6 +796,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (res.ok) {
           lastSyncedHash.current = JSON.stringify({
             c: stateToPush.candidates,
+            cat: stateToPush.catTryoutAttempts,
             s: stateToPush.sessions,
             r: stateToPush.records,
             sch: stateToPush.schedules,
@@ -772,9 +804,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             d: stateToPush.supportingDocs,
             st: stateToPush.standardRules,
             ch: stateToPush.stageChecklists,
-            is: stateToPush.ishiharaSessions,
-            ia: stateToPush.ishiharaAllowlist,
-            ir: stateToPush.ishiharaResults,
+            ish: stateToPush.ishiharaSessions || [],
+            alw: stateToPush.ishiharaAllowlist || [],
+            res: stateToPush.ishiharaResults || [],
           })
           setCloudSyncStatus("synced")
           setLastCloudSync(new Date().toISOString())
@@ -823,6 +855,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [executePushToCloud],
   )
 
+  const saveCatTryoutAttempt = useCallback(
+    (attempt: CatTryoutAttempt) => {
+      const updated = [
+        attempt,
+        ...stateRef.current.catTryoutAttempts.filter((item) => item.id !== attempt.id),
+      ]
+      stateRef.current = { ...stateRef.current, catTryoutAttempts: updated }
+      setCatTryoutAttempts(updated)
+      void saveToCloud({ catTryoutAttempts: updated })
+    },
+    [saveToCloud],
+  )
+
   const logAudit = useCallback(
     (action: string, target: string, detail: string) => {
       const now = new Date()
@@ -839,6 +884,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAuditLogs((prev) => [entry, ...prev.slice(0, 199)])
     },
     [currentUser.name, currentUser.role],
+  )
+
+  const deleteCatTryoutAttempt = useCallback(
+    (attemptId: string) => {
+      if (currentUser.role !== "admin" && currentUser.role !== "coach") {
+        showToast("Hanya admin atau pelatih yang dapat menghapus hasil CAT.", "warning")
+        return
+      }
+      const existing = stateRef.current.catTryoutAttempts.find((item) => item.id === attemptId)
+      if (!existing) return
+      const nextAttempts = stateRef.current.catTryoutAttempts.filter((item) => item.id !== attemptId)
+      const latestRemaining = nextAttempts
+        .filter((item) => item.candidateId === existing.candidateId)
+        .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))[0]
+      const nextCandidates = stateRef.current.allCandidates.map((candidate) => {
+        if (candidate.id !== existing.candidateId) return candidate
+        const stageStatuses: StageStatus[] = [
+          ...(candidate.stageStatuses ?? Array<StageStatus>(8).fill("locked")),
+        ]
+        stageStatuses[1] = latestRemaining?.pipStatus ?? "locked"
+        stageStatuses[2] = latestRemaining?.tiuStatus ?? "locked"
+        return {
+          ...candidate,
+          pip: latestRemaining?.pipScore ?? null,
+          tiu: latestRemaining?.tiuScoreScaled ?? null,
+          stageStatuses,
+          updatedAt: "Baru saja",
+        }
+      })
+      stateRef.current = {
+        ...stateRef.current,
+        catTryoutAttempts: nextAttempts,
+        allCandidates: nextCandidates,
+      }
+      setCatTryoutAttempts(nextAttempts)
+      setAllCandidates(nextCandidates)
+      logAudit(
+        "Hapus Hasil CAT",
+        existing.candidateName,
+        `Menghapus percobaan ${existing.attemptNumber} (${existing.packageName}) pada ${existing.finalizedAt}`,
+      )
+      saveToCloud({ catTryoutAttempts: nextAttempts, candidates: nextCandidates })
+      showToast("Riwayat CAT dihapus dan nilai terakhir diperbarui.", "warning")
+    },
+    [currentUser.role, logAudit, saveToCloud, showToast],
   )
 
   // Cycle actions
@@ -1185,6 +1275,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       logAudit("UPDATE_CANDIDATE", id, "Memperbarui data/profil kandidat")
       showToast("Data kandidat berhasil diperbarui.")
@@ -1256,6 +1347,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       const cand = currentList.find((c) => c.id === candidateId)
       if (cand) {
@@ -2089,6 +2181,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrentUserId(initialUsers[0].id)
     setIsAuthenticated(true)
     setAllCandidates(seededCandidates)
+    setCatTryoutAttempts([])
     setStageChecklists(defaultChecklists)
     setSchedules(initialSchedules)
     setQuestions(initialQuestions)
@@ -2148,6 +2241,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (hasLocalChanges && reason !== "initial") {
           const stateToPush: AppDatabaseState = {
             candidates: s.allCandidates,
+            catTryoutAttempts: s.catTryoutAttempts,
             cycles: s.cycles,
             activeCycleId: s.activeCycleId,
             sessions: s.sessions,
@@ -2174,8 +2268,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
           let sanitizedCandidates = s.allCandidates
           if (Array.isArray(d.candidates) && d.candidates.length > 0) {
             sanitizedCandidates = d.candidates.map((c: Candidate) => {
+              const verified = seededCandidates.find((sc) => sc.number === c.number)
               return {
                 ...c,
+                ...(verified
+                  ? {
+                      nik: verified.nik,
+                      birthDate: verified.birthDate,
+                      origin: verified.origin,
+                      className: verified.className,
+                      studentNumber: verified.studentNumber,
+                    }
+                  : {}),
                 documents:
                   Array.isArray(c.documents) && c.documents.length === 6
                     ? c.documents
@@ -2184,6 +2288,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
             })
             setAllCandidates(sanitizedCandidates)
           }
+          if (Array.isArray(d.catTryoutAttempts))
+            setCatTryoutAttempts(
+              d.catTryoutAttempts.filter(
+                (attempt: CatTryoutAttempt) => !legacyDemoCatAttemptIds.has(attempt.id),
+              ),
+            )
           if (Array.isArray(d.cycles) && d.cycles.length > 0) setCycles(d.cycles)
           if (d.activeCycleId) setActiveCycleId(d.activeCycleId)
           if (Array.isArray(d.sessions)) setSessions(d.sessions)
@@ -2204,6 +2314,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
           lastSyncedHash.current = JSON.stringify({
             c: sanitizedCandidates,
+            cat: d.catTryoutAttempts || [],
             s: d.sessions || [],
             r: d.records || {},
             sch: d.schedules || [],
@@ -2211,9 +2322,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             d: d.supportingDocs || [],
             st: d.standardRules || [],
             ch: d.stageChecklists || defaultChecklists,
-            is: d.ishiharaSessions || [],
-            ia: d.ishiharaAllowlist || [],
-            ir: d.ishiharaResults || [],
+            ish: d.ishiharaSessions || [],
+            alw: d.ishiharaAllowlist || [],
+            res: d.ishiharaResults || [],
           })
 
           setCloudSyncStatus("synced")
@@ -2232,6 +2343,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (s.allCandidates.length > 0 || s.sessions.length > 0 || s.ishiharaSessions.length > 0) {
             const stateToPush: AppDatabaseState = {
               candidates: s.allCandidates,
+              catTryoutAttempts: s.catTryoutAttempts,
               cycles: s.cycles,
               activeCycleId: s.activeCycleId,
               sessions: s.sessions,
@@ -2381,6 +2493,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       allCandidates,
       addCandidate,
       updateCandidate,
+      catTryoutAttempts,
+      saveCatTryoutAttempt,
+      deleteCatTryoutAttempt,
       deleteCandidate,
       importCandidates,
       updateCandidateStage,
@@ -2468,6 +2583,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       allCandidates,
       addCandidate,
       updateCandidate,
+      catTryoutAttempts,
+      saveCatTryoutAttempt,
+      deleteCatTryoutAttempt,
       deleteCandidate,
       importCandidates,
       updateCandidateStage,

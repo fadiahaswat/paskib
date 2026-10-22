@@ -1,6 +1,7 @@
 import type {
   AuditLogEntry,
   Candidate,
+  CatTryoutAttempt,
   CatQuestion,
   SelectionCycle,
   SelectionSchedule,
@@ -11,6 +12,7 @@ import type {
 
 export type AppDatabaseState = {
   candidates: Candidate[]
+  catTryoutAttempts?: CatTryoutAttempt[]
   cycles?: SelectionCycle[]
   activeCycleId?: string
   sessions?: any[]

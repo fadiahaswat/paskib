@@ -1,6 +1,8 @@
 import React from "react"
 import { Badge, Card } from "../../components/ui"
 import { bmi, type Candidate } from "../../domain/selection"
+import { useApp } from "../../context/AppContext"
+import { latestSessionRecord } from "./readiness"
 import { LineChart, type LineChartColor } from "./LineChart"
 
 type StoredSession = {
@@ -54,8 +56,28 @@ export function StageCards({
 }: {
   candidate: Candidate
 }) {
+  const { catTryoutAttempts, sessions, records } = useApp()
   const validDocs = (candidate.documents ?? []).filter(Boolean).length
   const bmiInfo = bmi(candidate.weightKg ?? 0, candidate.heightCm ?? 0)
+
+  const candidateAttempts = catTryoutAttempts
+    .filter((attempt) => attempt.candidateId === candidate.id)
+    .sort((a, b) => a.finalizedAt.localeCompare(b.finalizedAt))
+  const latestAttempt = candidateAttempts[candidateAttempts.length - 1]
+  const medicalRecord = latestSessionRecord(candidate.id, "medical", sessions, records)
+  const pipScore = latestAttempt?.pipScore ?? candidate.pip
+  const tiuScore = latestAttempt?.tiuScoreScaled ?? candidate.tiu
+  const pipScores = candidateAttempts.length
+    ? candidateAttempts.map((attempt) => attempt.pipScore)
+    : candidate.pip !== null ? [candidate.pip] : []
+  const tiuScores = candidateAttempts.length
+    ? candidateAttempts.map((attempt) => attempt.tiuScoreScaled)
+    : candidate.tiu !== null ? [candidate.tiu] : []
+  const paradeHeights = (candidate.anthropometryHistory ?? [])
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((entry) => entry.heightCm)
+  if (paradeHeights.length === 0 && candidate.heightCm) paradeHeights.push(candidate.heightCm)
 
   // Stage historical data
   const pipHistory = getStageHistory(candidate.id, "pip")
@@ -77,97 +99,96 @@ export function StageCards({
       tone: validDocs === 6 ? ("success" as const) : ("neutral" as const),
       dotColor: "bg-blue-500",
       color: "blue" as LineChartColor,
-      chartValues: validDocs > 0 ? [Math.max(1, validDocs - 2), validDocs] : [],
+      chartValues: validDocs > 0 ? [validDocs] : [],
     },
     {
       num: 2,
       shortLabel: "PIP",
       name: "Pancasila & PIP",
-      value: candidate.pip !== null ? `${candidate.pip.toFixed(0)}` : "—",
-      unit: candidate.pip !== null ? "/ 100" : "",
+      value: pipScore !== null ? `${pipScore.toFixed(0)}` : "—",
+      unit: pipScore !== null ? "/ 100" : "",
       target: 70,
       targetText: "≥ 70",
       status:
-        candidate.pip !== null
-          ? candidate.pip >= 70
+        pipScore !== null
+          ? pipScore >= 70
             ? "Siap"
             : "Penguatan"
           : "Belum Dinilai",
       tone:
-        candidate.pip !== null
-          ? candidate.pip >= 70
+        pipScore !== null
+          ? pipScore >= 70
             ? ("success" as const)
             : ("warning" as const)
           : ("neutral" as const),
       dotColor: "bg-red-500",
       color: "red" as LineChartColor,
-      chartValues:
-        pipHistory.length > 0
-          ? pipHistory
-          : candidate.pip !== null
-            ? [candidate.pip >= 70 ? 68 : 60, candidate.pip]
-            : [],
+      chartValues: pipScores.length > 0 ? pipScores : pipHistory,
     },
     {
       num: 3,
       shortLabel: "TIU",
       name: "Intelegensia",
-      value: candidate.tiu !== null ? `${candidate.tiu.toFixed(0)}` : "—",
-      unit: candidate.tiu !== null ? "/ 100" : "",
+      value: tiuScore !== null ? `${tiuScore.toFixed(0)}` : "—",
+      unit: tiuScore !== null ? "/ 100" : "",
       target: 70,
       targetText: "≥ 70",
       status:
-        candidate.tiu !== null
-          ? candidate.tiu >= 70
+        tiuScore !== null
+          ? tiuScore >= 70
             ? "Siap"
             : "Penguatan"
           : "Belum Dinilai",
       tone:
-        candidate.tiu !== null
-          ? candidate.tiu >= 70
+        tiuScore !== null
+          ? tiuScore >= 70
             ? ("success" as const)
             : ("warning" as const)
           : ("neutral" as const),
       dotColor: "bg-purple-500",
       color: "purple" as LineChartColor,
-      chartValues:
-        tiuHistory.length > 0
-          ? tiuHistory
-          : candidate.tiu !== null
-            ? [candidate.tiu >= 70 ? 65 : 58, candidate.tiu]
-            : [],
+      chartValues: tiuScores.length > 0 ? tiuScores : tiuHistory,
     },
     {
       num: 4,
       shortLabel: "RIK",
       name: "Kesehatan",
-      value:
-        candidate.stageStatuses[3] === "passed"
+      value: medicalRecord
+        ? medicalRecord.result === "passed"
           ? "Laik"
-          : candidate.stageStatuses[3] === "remedial"
-            ? "Remedial"
-            : "Proses",
+          : medicalRecord.result === "failed"
+            ? "Tidak Laik"
+            : medicalRecord.result === "review"
+              ? "Perlu Tinjau"
+              : "Proses"
+        : "Belum Dinilai",
       unit: "",
       target: 85,
       targetText: "Standar Laik",
-      status:
-        candidate.stageStatuses[3] === "passed"
+      status: medicalRecord
+        ? medicalRecord.result === "passed"
           ? "Memenuhi"
-          : "Evaluasi",
-      tone:
-        candidate.stageStatuses[3] === "passed"
+          : medicalRecord.result === "failed"
+            ? "Tidak Memenuhi"
+            : medicalRecord.result === "review"
+              ? "Perlu Tinjau"
+              : "Proses"
+        : "Belum Dinilai",
+      tone: medicalRecord
+        ? medicalRecord.result === "passed"
           ? ("success" as const)
-          : candidate.stageStatuses[3] === "remedial"
+          : medicalRecord.result === "failed"
             ? ("danger" as const)
-            : ("neutral" as const),
+            : ("warning" as const)
+        : ("neutral" as const),
       dotColor: "bg-emerald-500",
       color: "emerald" as LineChartColor,
-      chartValues: candidate.stageStatuses[3] === "passed" ? [78, 88] : [75],
+      chartValues: [],
     },
     {
       num: 5,
       shortLabel: "PAR",
-      name: "Antropometri",
+      name: "Parade & Postur",
       value: candidate.heightCm ? `${candidate.heightCm}` : "—",
       unit: "cm",
       target: candidate.gender === "Putra" ? 175 : 170,
@@ -181,7 +202,7 @@ export function StageCards({
             : ("neutral" as const),
       dotColor: "bg-amber-500",
       color: "amber" as LineChartColor,
-      chartValues: candidate.heightCm ? [candidate.heightCm - 0.5, candidate.heightCm] : [],
+      chartValues: paradeHeights,
     },
     {
       num: 6,
@@ -205,12 +226,7 @@ export function StageCards({
           : ("neutral" as const),
       dotColor: "bg-blue-600",
       color: "blue" as LineChartColor,
-      chartValues:
-        pbbHistory.length > 0
-          ? pbbHistory
-          : candidate.pbb !== null
-            ? [candidate.pbb >= 80 ? 76 : 70, candidate.pbb]
-            : [],
+      chartValues: pbbHistory.length > 0 ? pbbHistory : candidate.pbb !== null ? [candidate.pbb] : [],
     },
     {
       num: 7,
@@ -234,12 +250,7 @@ export function StageCards({
           : ("neutral" as const),
       dotColor: "bg-rose-500",
       color: "red" as LineChartColor,
-      chartValues:
-        fitnessHistory.length > 0
-          ? fitnessHistory
-          : candidate.fitness !== null
-            ? [candidate.fitness >= 80 ? 75 : 68, candidate.fitness]
-            : [],
+      chartValues: fitnessHistory.length > 0 ? fitnessHistory : candidate.fitness !== null ? [candidate.fitness] : [],
     },
     {
       num: 8,
@@ -266,12 +277,7 @@ export function StageCards({
           : ("neutral" as const),
       dotColor: "bg-indigo-500",
       color: "indigo" as LineChartColor,
-      chartValues:
-        personalityHistory.length > 0
-          ? personalityHistory
-          : candidate.personality !== null
-            ? [candidate.personality >= 80 ? 76 : 72, candidate.personality]
-            : [],
+      chartValues: personalityHistory.length > 0 ? personalityHistory : candidate.personality !== null ? [candidate.personality] : [],
     },
   ]
 

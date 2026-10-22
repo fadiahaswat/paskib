@@ -51,7 +51,7 @@ import {
   UserAvatar,
 } from "./components/ui"
 import { AppProvider, useApp } from "./context/AppContext"
-import { fitnessScore } from "./data/selectionGuide"
+import { administrationDocuments, fitnessScore, fitnessTables, pbbRubric, pipTopics, tiuTopics } from "./data/selectionGuide"
 import {
   ageOnReferenceDate,
   bmi,
@@ -62,6 +62,7 @@ import {
   isPhaseOnePassed,
   selectionStages,
   type Candidate,
+  type CatTryoutAttempt,
   type StageStatus,
 } from "./domain/selection"
 import {
@@ -70,6 +71,7 @@ import {
 } from "./features/candidates/CandidateModal"
 import CandidateProjection from "./features/progress/CandidateProjection"
 import { StageCards } from "./features/progress/StageCards"
+import { getProgressStageStatuses } from "./features/progress/readiness"
 import {
   CandidateLoginModal,
   LoginScreen,
@@ -95,6 +97,11 @@ const UsersAuditView = lazy(() => import("./features/users/UsersAuditView"))
 
 export type View =
   | "overview"
+  | "candidate-home"
+  | "candidate-stages"
+  | "candidate-results"
+  | "candidate-progress"
+  | "candidate-ranking"
   | "sessions"
   | "guide"
   | "stages"
@@ -160,9 +167,14 @@ const navSections: NavSection[] = [
 
 const candidateNavSections: NavSection[] = [
   {
-    title: "Ruang Ujian & Latihan",
+    title: "Portal kandidat",
     items: [
-      { id: "cat-bank", label: "CAT Tryout (PIP & TIU)", icon: GraduationCap },
+      { id: "candidate-home", label: "Beranda saya", icon: LayoutDashboard },
+      { id: "candidate-stages", label: "Tahapan seleksi", icon: CheckCircle2 },
+      { id: "candidate-progress", label: "Perkembangan saya", icon: Activity },
+      { id: "candidate-ranking", label: "Peringkat sementara", icon: Trophy },
+      { id: "cat-bank", label: "Latihan & ujian CAT", icon: GraduationCap },
+      { id: "candidate-results", label: "Hasil & riwayat", icon: Activity },
       { id: "ishihara", label: "Tes Buta Warna (Ishihara)", icon: Eye },
     ],
   },
@@ -926,12 +938,20 @@ function MobileNav({
   onView: (view: View) => void
   onMenu: () => void
 }) {
-  const items = [
-    { id: "overview" as View, label: "Beranda", icon: LayoutDashboard },
-    { id: "sessions" as View, label: "Sesi", icon: ClipboardCheck },
-    { id: "stages" as View, label: "Tahap", icon: Settings2 },
-    { id: "progress" as View, label: "Progres", icon: Activity },
-  ]
+  const { currentUser } = useApp()
+  const items = currentUser.role === "candidate"
+    ? [
+        { id: "candidate-home" as View, label: "Beranda", icon: LayoutDashboard },
+        { id: "candidate-stages" as View, label: "Tahap", icon: CheckCircle2 },
+        { id: "cat-bank" as View, label: "Ujian CAT", icon: GraduationCap },
+        { id: "candidate-progress" as View, label: "Progres", icon: Activity },
+      ]
+    : [
+        { id: "overview" as View, label: "Beranda", icon: LayoutDashboard },
+        { id: "sessions" as View, label: "Sesi", icon: ClipboardCheck },
+        { id: "stages" as View, label: "Tahap", icon: Settings2 },
+        { id: "progress" as View, label: "Progres", icon: Activity },
+      ]
   return (
     <nav
       className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-2xl shadow-slate-900/15 backdrop-blur-xl lg:hidden"
@@ -1258,7 +1278,7 @@ function CandidateTable({
   onSelectCandidate: (candidateId: string) => void
   onViewAll?: () => void
 }) {
-  const { candidates } = useApp()
+  const { candidates, catTryoutAttempts, sessions, records, auditLogs } = useApp()
   const [showFilters, setShowFilters] = useState(false)
   const [search, setSearch] = useState("")
   const [genderFilter, setGenderFilter] = useState<"all" | "Putra" | "Putri">(
@@ -1270,11 +1290,155 @@ function CandidateTable({
     "number",
   )
 
+  const progressByCandidate = useMemo(() => {
+    return new Map(candidates.map((candidate) => {
+      const statuses = getProgressStageStatuses(candidate, catTryoutAttempts, sessions, records)
+      const firstIncomplete = statuses.findIndex((status) => status !== "passed")
+      return [candidate.id, {
+        statuses,
+        stageIndex: firstIncomplete === -1 ? statuses.length - 1 : firstIncomplete,
+      }] as const
+    }))
+  }, [candidates, catTryoutAttempts, sessions, records])
+
+  const latestAttemptByCandidate = useMemo(() => {
+    const latest = new Map<string, CatTryoutAttempt>()
+    for (const attempt of catTryoutAttempts) {
+      const current = latest.get(attempt.candidateId)
+      if (!current || attempt.finalizedAt > current.finalizedAt) {
+        latest.set(attempt.candidateId, attempt)
+      }
+    }
+    return latest
+  }, [catTryoutAttempts])
+
+  const latestActivityByCandidate = useMemo(() => {
+    const latest = new Map<string, number>()
+    for (const candidate of candidates) {
+      const attemptTime = Date.parse(latestAttemptByCandidate.get(candidate.id)?.finalizedAt ?? "") || 0
+      const recordTime = sessions.reduce((maxTime, session) => {
+        const savedAt = records[`${session.id}:${candidate.id}`]?.savedAt
+        return Math.max(maxTime, Date.parse(savedAt ?? "") || 0)
+      }, 0)
+      const auditTime = auditLogs.reduce((maxTime, entry) => {
+        const belongsToCandidate =
+          entry.target.trim().toLocaleLowerCase() === candidate.name.trim().toLocaleLowerCase() ||
+          entry.target.includes(candidate.number) ||
+          entry.detail.includes(candidate.number)
+        if (!belongsToCandidate) return maxTime
+        const timestamp = Date.parse(entry.timestamp.replace(" ", "T")) || 0
+        return Math.max(maxTime, timestamp)
+      }, 0)
+      const candidateTime = Date.parse(candidate.updatedAt) || 0
+      latest.set(candidate.id, Math.max(attemptTime, recordTime, auditTime, candidateTime))
+    }
+    return latest
+  }, [candidates, latestAttemptByCandidate, sessions, records, auditLogs])
+
+  const candidateInsightsById = useMemo(() => {
+    return new Map(candidates.map((candidate) => {
+      const statuses = progressByCandidate.get(candidate.id)?.statuses ?? []
+      const completedStages = statuses.filter((status) => status === "passed").length
+      const firstActionable = statuses.findIndex((status) => status === "failed" || status === "review")
+      const focusStageIndex = firstActionable >= 0
+        ? firstActionable
+        : statuses.findIndex((status) => status === "active") >= 0
+          ? statuses.findIndex((status) => status === "active")
+          : statuses.findIndex((status) => status === "locked")
+      const overallStatus = statuses.includes("failed")
+        ? "Tidak lolos"
+        : statuses.includes("review")
+          ? "Perlu perbaikan"
+          : statuses.every((status) => status === "passed")
+            ? "Lolos"
+            : statuses.includes("active")
+              ? "Berlangsung"
+              : "Belum dimulai"
+      const overallTone = overallStatus === "Lolos"
+        ? "success"
+        : overallStatus === "Perlu perbaikan" || overallStatus === "Tidak lolos"
+          ? "warning"
+          : "info"
+      const missingDocs = 6 - (candidate.documents ?? []).filter(Boolean).length
+      const focusStage = focusStageIndex >= 0 ? selectionStages[focusStageIndex] : null
+      const focusStageStatus = focusStageIndex >= 0 ? statuses[focusStageIndex] : null
+      const followUp = missingDocs > 0
+        ? `${missingDocs} berkas administrasi belum lengkap`
+        : focusStageStatus === "failed"
+          ? `Tindak lanjuti hasil ${focusStage?.shortLabel}`
+          : focusStageStatus === "review"
+            ? `Perkuat materi ${focusStage?.shortLabel}`
+            : focusStageStatus === "active"
+              ? `Selesaikan tahap ${focusStage?.shortLabel}`
+              : focusStageStatus === "locked"
+                ? `Belum ada hasil ${focusStage?.shortLabel}`
+                : "Tidak ada tindak lanjut"
+
+      const latestAttempt = latestAttemptByCandidate.get(candidate.id)
+      let latestResult = latestAttempt
+        ? {
+            title: "CAT PIP & TIU",
+            detail: `PIP ${latestAttempt.pipScore} · TIU ${latestAttempt.tiuScoreScaled}`,
+            time: Date.parse(latestAttempt.finalizedAt) || 0,
+          }
+        : null
+      for (const session of sessions) {
+        const record = records[`${session.id}:${candidate.id}`]
+        const time = Date.parse(record?.savedAt ?? "") || 0
+        if (!record?.savedAt || (latestResult && latestResult.time >= time)) continue
+        const metricSummary = Object.entries(record.metrics ?? {})
+          .filter(([, value]) => value !== "")
+          .slice(0, 2)
+          .map(([key, value]) => {
+            const label: Record<string, string> = {
+              distance: "Lari 12 menit",
+              pushup: "Push-up",
+              situp: "Sit-up",
+              backup: "Back-up",
+              shuttle: "Shuttle run",
+              pip: "PIP",
+              tiu: "TIU",
+              score: "Nilai",
+            }
+            const unit = key === "distance" ? " m" : key === "shuttle" ? " dtk" : ""
+            return `${label[key] ?? key}: ${value}${unit}`
+          })
+          .join(" · ")
+        latestResult = {
+          title: session.title || selectionStages[session.type === "medical" ? 3 : session.type === "parade" ? 4 : session.type === "pbb" ? 5 : session.type === "fitness" ? 6 : 0]?.label || "Sesi latihan",
+          detail: metricSummary || (record.result === "passed" ? "Lulus" : record.result === "failed" ? "Tidak lulus" : record.result === "review" ? "Perlu ditinjau" : "Hasil tersimpan"),
+          time,
+        }
+      }
+      if (!latestResult && (candidate.pip !== null || candidate.tiu !== null)) {
+        latestResult = {
+          title: "CAT PIP & TIU",
+          detail: `PIP ${candidate.pip ?? "—"} · TIU ${candidate.tiu ?? "—"}`,
+          time: 0,
+        }
+      }
+
+      return [candidate.id, {
+        statuses,
+        completedStages,
+        overallStatus,
+        overallTone,
+        focusStageIndex,
+        focusStatus: focusStageStatus,
+        focusLabel: focusStage?.label ?? "Semua tahap selesai",
+        followUp,
+        latestResult,
+      }] as const
+    }))
+  }, [candidates, progressByCandidate, latestAttemptByCandidate, sessions, records])
+
   const filtered = useMemo(() => {
     const list = candidates.filter((cand) => {
+      const progress = progressByCandidate.get(cand.id)
+      const currentStageIndex = progress?.stageIndex ?? 0
       if (genderFilter !== "all" && cand.gender !== genderFilter) return false
-      if (stageFilter !== "all" && cand.stage !== stageFilter) return false
-      const currentStatus = cand.stageStatuses[cand.stage - 1]
+      if (stageFilter !== "all" && currentStageIndex + 1 !== stageFilter) return false
+      const currentStatus = progress?.statuses[currentStageIndex] ?? "locked"
       if (statusFilter !== "all" && currentStatus !== statusFilter) return false
       if (search.trim()) {
         const q = search.toLowerCase()
@@ -1289,13 +1453,20 @@ function CandidateTable({
     })
 
     return [...list].sort((a, b) => {
+      if (compact) {
+        return (latestActivityByCandidate.get(b.id) ?? 0) -
+          (latestActivityByCandidate.get(a.id) ?? 0)
+      }
       if (sortBy === "name") return a.name.localeCompare(b.name)
-      if (sortBy === "stage") return b.stage - a.stage
+      if (sortBy === "stage") {
+        return (progressByCandidate.get(b.id)?.stageIndex ?? 0) -
+          (progressByCandidate.get(a.id)?.stageIndex ?? 0)
+      }
       if (sortBy === "score")
         return (finalScore(b) ?? -1) - (finalScore(a) ?? -1)
       return a.number.localeCompare(b.number)
     })
-  }, [candidates, genderFilter, stageFilter, statusFilter, search, sortBy])
+  }, [candidates, progressByCandidate, latestActivityByCandidate, genderFilter, stageFilter, statusFilter, search, sortBy, compact])
 
   const shown = compact ? filtered.slice(0, 5) : filtered
 
@@ -1388,11 +1559,8 @@ function CandidateTable({
 
       <div className="grid divide-y divide-slate-100 md:hidden">
         {shown.map((candidate) => {
-          const current = candidate.stageStatuses[candidate.stage - 1]
-          const candBmi =
-            candidate.heightCm && candidate.weightKg
-              ? bmi(candidate.weightKg, candidate.heightCm)
-              : null
+          const insight = candidateInsightsById.get(candidate.id)
+          const completion = Math.round(((insight?.completedStages ?? 0) / 8) * 100)
           return (
             <button
               key={candidate.id}
@@ -1421,17 +1589,18 @@ function CandidateTable({
               <span className="flex items-center justify-between gap-3 pl-19">
                 <span>
                   <span className="block text-xs font-bold text-slate-700">
-                    Tahap {candidate.stage} ·{" "}
-                    {selectionStages[candidate.stage - 1]?.shortLabel}
+                    Progres seleksi · {insight?.completedStages ?? 0}/8 tahap
                   </span>
-                  <span className="mt-0.5 block text-[0.68rem] text-slate-400">
-                    TB/BB: {candidate.heightCm ?? "—"} cm /{" "}
-                    {candidate.weightKg ?? "—"} kg
-                    {candBmi ? ` (BMI ${candBmi.value})` : ""} · PIP{" "}
-                    {candidate.pip ?? "—"} · TIU {candidate.tiu ?? "—"}
+                  <span className="mt-2 block h-1.5 w-40 max-w-full overflow-hidden rounded-full bg-slate-100">
+                    <span className="block h-full rounded-full bg-blue-600" style={{ width: `${completion}%` }} />
                   </span>
                 </span>
-                <StatusBadge status={current} />
+                <Badge tone={insight?.overallTone ?? "neutral"}>{insight?.overallStatus ?? "Belum dimulai"}</Badge>
+              </span>
+              <span className="grid gap-1 pl-19 text-xs text-slate-600">
+                <span>Fokus: {insight?.focusLabel ?? "—"}</span>
+                <span>Hasil terbaru: {insight?.latestResult ? `${insight.latestResult.title} · ${insight.latestResult.detail}` : "Belum ada hasil"}</span>
+                <span>Tindak lanjut: {insight?.followUp ?? "—"}</span>
               </span>
             </button>
           )
@@ -1439,26 +1608,23 @@ function CandidateTable({
       </div>
 
       <div className="hidden overflow-x-auto md:block">
-        <table className="w-full min-w-[56rem] text-left">
+        <table className="w-full min-w-[74rem] text-left">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
               <th className="px-6 py-3.5">Kandidat</th>
-              <th className="px-4 py-3.5">TB / BB (BMI)</th>
-              <th className="px-4 py-3.5">Tahap latihan aktif</th>
-              <th className="px-4 py-3.5">PIP</th>
-              <th className="px-4 py-3.5">TIU</th>
-              <th className="px-4 py-3.5">Status</th>
+              <th className="px-4 py-3.5">Progres seleksi</th>
+              <th className="px-4 py-3.5">Status seleksi</th>
+              <th className="px-4 py-3.5">Fokus pembinaan</th>
+              <th className="px-4 py-3.5">Hasil terbaru</th>
+              <th className="px-4 py-3.5">Tindak lanjut</th>
               <th className="px-4 py-3.5">Diperbarui</th>
               <th className="px-5 py-3.5" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {shown.map((candidate) => {
-              const current = candidate.stageStatuses[candidate.stage - 1]
-              const candBmi =
-                candidate.heightCm && candidate.weightKg
-                  ? bmi(candidate.weightKg, candidate.heightCm)
-                  : null
+              const insight = candidateInsightsById.get(candidate.id)
+              const completion = Math.round(((insight?.completedStages ?? 0) / 8) * 100)
               return (
                 <tr
                   key={candidate.id}
@@ -1486,33 +1652,29 @@ function CandidateTable({
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <p className="text-sm font-bold tabular-nums text-slate-800">
-                      {candidate.heightCm ?? "—"} cm ·{" "}
-                      {candidate.weightKg ?? "—"} kg
+                    <p className="text-sm font-semibold tabular-nums text-slate-800">
+                      {insight?.completedStages ?? 0} / 8 tahap
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-400">
-                      {candBmi
-                        ? `BMI ${candBmi.value} (${candBmi.category})`
-                        : "Belum diukur"}
-                    </p>
+                    <div className="mt-2 h-1.5 w-28 overflow-hidden rounded-full bg-slate-100">
+                      <div className="h-full rounded-full bg-blue-600" style={{ width: `${completion}%` }} />
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <Badge tone={insight?.overallTone ?? "neutral"}>{insight?.overallStatus ?? "Belum dimulai"}</Badge>
                   </td>
                   <td className="px-4 py-4">
                     <p className="text-sm font-semibold text-slate-800">
-                      {selectionStages[candidate.stage - 1]?.label}
+                      {insight?.focusLabel ?? "—"}
                     </p>
-                    <p className="mt-0.5 text-xs text-slate-400">
-                      Tahap {candidate.stage} dari 8
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {insight?.focusStatus === "review" ? "Perlu penguatan" : insight?.focusStatus === "failed" ? "Tidak memenuhi standar" : insight?.focusStatus === "active" ? "Sedang berlangsung" : insight?.focusStatus === "locked" ? "Belum dimulai" : "Tuntas"}
                     </p>
-                  </td>
-                  <td className="px-4 py-4 text-sm font-bold tabular-nums text-slate-800">
-                    {candidate.pip ?? "—"}
-                  </td>
-                  <td className="px-4 py-4 text-sm font-bold tabular-nums text-slate-800">
-                    {candidate.tiu ?? "—"}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusBadge status={current} />
+                    <p className="text-sm font-semibold text-slate-800">{insight?.latestResult?.title ?? "Belum ada hasil"}</p>
+                    {insight?.latestResult ? <p className="mt-0.5 text-xs text-slate-500">{insight.latestResult.detail}</p> : null}
                   </td>
+                  <td className="max-w-56 px-4 py-4 text-sm text-slate-600">{insight?.followUp ?? "—"}</td>
                   <td className="px-4 py-4 text-xs text-slate-500">
                     {candidate.updatedAt}
                   </td>
@@ -1549,6 +1711,374 @@ function CandidateTable({
   )
 }
 
+function CandidateHome({ onNavigate }: { onNavigate: (view: View) => void }) {
+  const { currentUser, candidates, catTryoutAttempts, sessions, records, schedules } = useApp()
+  const candidate = candidates.find((item) => item.id === currentUser.candidateId)
+
+  if (!candidate) {
+    return (
+      <Card className="p-6">
+        <h1 className="font-display text-xl font-bold text-slate-950">Profil kandidat belum tersedia</h1>
+        <p className="mt-2 text-sm text-slate-600">Hubungi pelatih untuk memeriksa akun dan data peserta Anda.</p>
+      </Card>
+    )
+  }
+
+  const stageStatuses = getProgressStageStatuses(candidate, catTryoutAttempts, sessions, records)
+  const completedStages = stageStatuses.filter((status) => status === "passed").length
+  const currentStageIndex = stageStatuses.findIndex((status) => status !== "passed")
+  const currentStage = currentStageIndex >= 0 ? selectionStages[currentStageIndex] : null
+  const ownAttempts = catTryoutAttempts
+    .filter((attempt) => attempt.candidateId === candidate.id || attempt.candidateName.trim().toLocaleLowerCase() === candidate.name.trim().toLocaleLowerCase())
+    .slice()
+    .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))
+  const latestAttempt = ownAttempts[0]
+  const upcomingSchedule = schedules
+    .filter((schedule) => schedule.assignedCandidateIds?.includes(candidate.id) && schedule.status !== "completed")
+    .filter((schedule) => new Date(`${schedule.date}T${schedule.time || "00:00"}`).getTime() >= Date.now())
+    .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`))[0]
+
+  return (
+    <div className="grid gap-5">
+      <section className="flex flex-col gap-5 rounded-3xl bg-slate-950 p-6 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <div className="flex items-center gap-4">
+          <CandidateAvatar
+            name={candidate.name}
+            avatar={candidate.avatar}
+            photoUrl={candidate.photoUrl}
+            className="size-14 shrink-0 border border-white/15 text-sm shadow-sm"
+            rounded="rounded-2xl"
+          />
+          <div>
+            <p className="text-xs font-semibold text-emerald-300">Portal pribadi · {candidate.number}</p>
+            <h1 className="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              Selamat datang, {candidate.name.split(" ")[0]}
+            </h1>
+            <p className="mt-1 text-sm text-slate-300">Pantau progres dan selesaikan langkah seleksi berikutnya.</p>
+          </div>
+        </div>
+        <Button onClick={() => onNavigate("cat-bank")} className="!bg-red-600 text-white hover:!bg-red-500">
+          <GraduationCap className="size-4" /> Buka latihan CAT
+        </Button>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3" aria-label="Ringkasan progres pribadi">
+        <Card className="p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold text-slate-500">Progres seleksi</p>
+              <p className="mt-2 font-display text-2xl font-bold text-slate-950">{completedStages} dari 8 tahap</p>
+            </div>
+            <span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-700"><Activity className="size-5" /></span>
+          </div>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-blue-600 transition-all" style={{ width: `${Math.round((completedStages / selectionStages.length) * 100)}%` }} />
+          </div>
+          <p className="mt-2 text-xs text-slate-500">Tahap selesai berdasarkan hasil yang sudah tercatat.</p>
+        </Card>
+
+        <Card className="p-5">
+          <p className="text-xs font-semibold text-slate-500">Fokus berikutnya</p>
+          <p className="mt-2 font-display text-xl font-bold text-slate-950">{currentStage?.label ?? "Semua tahap selesai"}</p>
+          <div className="mt-3"><StatusBadge status={currentStage ? stageStatuses[currentStageIndex] : "passed"} /></div>
+          <p className="mt-3 text-xs text-slate-500">Jika status perlu evaluasi, ikuti arahan pelatih.</p>
+        </Card>
+
+        <Card className="p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold text-slate-500">Hasil CAT terbaru</p>
+              {latestAttempt ? (
+                <p className="mt-2 font-display text-2xl font-bold text-slate-950">{latestAttempt.combinedScore.toFixed(1)}<span className="ml-1 text-sm font-semibold text-slate-400">/100</span></p>
+              ) : (
+                <p className="mt-2 font-display text-xl font-bold text-slate-500">Belum ada hasil</p>
+              )}
+            </div>
+            <span className="grid size-10 place-items-center rounded-xl bg-indigo-50 text-indigo-700"><Target className="size-5" /></span>
+          </div>
+          <button type="button" onClick={() => onNavigate("candidate-results")} className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:text-blue-900">
+            Lihat hasil &amp; riwayat <ChevronRight className="size-3.5" />
+          </button>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        {upcomingSchedule ? (
+          <Card className="flex items-start gap-4 border-blue-200 bg-blue-50/60 p-5">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-blue-700"><CalendarDays className="size-5" /></span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-blue-800">Jadwal berikutnya</p>
+              <h2 className="mt-1 font-display text-lg font-bold text-slate-950">{upcomingSchedule.title}</h2>
+              <p className="mt-1 text-sm text-slate-600">{new Date(`${upcomingSchedule.date}T${upcomingSchedule.time || "00:00"}`).toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" })} · {upcomingSchedule.location}</p>
+            </div>
+          </Card>
+        ) : (
+          <Card className="flex items-start gap-4 p-5">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><CheckCircle2 className="size-5" /></span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Tidak ada jadwal mendatang</p>
+              <p className="mt-1 text-sm text-slate-600">Jadwal akan muncul di sini setelah pelatih menugaskan sesi untuk Anda.</p>
+            </div>
+          </Card>
+        )}
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Akses cepat</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+            <button type="button" onClick={() => onNavigate("cat-bank")} className="rounded-xl border border-slate-200 p-3 text-left transition hover:border-red-200 hover:bg-red-50/50">
+              <GraduationCap className="size-4 text-red-600" /><span className="mt-2 block text-xs font-bold text-slate-800">Latihan CAT</span>
+            </button>
+            <button type="button" onClick={() => onNavigate("candidate-stages")} className="rounded-xl border border-slate-200 p-3 text-left transition hover:border-amber-200 hover:bg-amber-50/50">
+              <CheckCircle2 className="size-4 text-amber-600" /><span className="mt-2 block text-xs font-bold text-slate-800">Semua tahapan</span>
+            </button>
+            <button type="button" onClick={() => onNavigate("ishihara")} className="rounded-xl border border-slate-200 p-3 text-left transition hover:border-blue-200 hover:bg-blue-50/50">
+              <Eye className="size-4 text-blue-600" /><span className="mt-2 block text-xs font-bold text-slate-800">Tes buta warna</span>
+            </button>
+            <button type="button" onClick={() => onNavigate("guide")} className="rounded-xl border border-slate-200 p-3 text-left transition hover:border-emerald-200 hover:bg-emerald-50/50">
+              <BookOpenCheck className="size-4 text-emerald-600" /><span className="mt-2 block text-xs font-bold text-slate-800">Buka panduan</span>
+            </button>
+            <button type="button" onClick={() => onNavigate("candidate-ranking")} className="rounded-xl border border-slate-200 p-3 text-left transition hover:border-violet-200 hover:bg-violet-50/50">
+              <Trophy className="size-4 text-violet-600" /><span className="mt-2 block text-xs font-bold text-slate-800">Peringkat saya</span>
+            </button>
+          </div>
+        </Card>
+      </section>
+    </div>
+  )
+}
+
+function CandidateStages() {
+  const { currentUser, candidates, catTryoutAttempts, sessions, records, ishiharaResults } = useApp()
+  const candidate = candidates.find((item) => item.id === currentUser.candidateId)
+  if (!candidate) return <Card className="p-6"><p className="text-sm text-slate-600">Profil kandidat belum tersedia.</p></Card>
+
+  const statuses = getProgressStageStatuses(candidate, catTryoutAttempts, sessions, records)
+  const ownAttempts = catTryoutAttempts
+    .filter((attempt) => attempt.candidateId === candidate.id || attempt.candidateName.trim().toLocaleLowerCase() === candidate.name.trim().toLocaleLowerCase())
+    .slice().sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))
+  const latestAttempt = ownAttempts[0]
+  const latestIshihara = ishiharaResults
+    .filter((result) => result.participantId === candidate.id)
+    .slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
+  const detailForStage = (index: number) => {
+    if (index === 0) {
+      const valid = (candidate.documents ?? []).filter(Boolean).length
+      return `${valid} dari 6 berkas tercatat lengkap`
+    }
+    if (index === 1) return latestAttempt ? `Nilai terakhir ${latestAttempt.pipScore}/100` : candidate.pip !== null ? `Nilai tercatat ${candidate.pip}/100` : "Hasil PIP belum tersedia"
+    if (index === 2) return latestAttempt ? `Nilai terakhir ${latestAttempt.tiuScoreScaled}/100` : candidate.tiu !== null ? `Nilai tercatat ${candidate.tiu}/100` : "Hasil TIU belum tersedia"
+    if (index === 3) return latestIshihara ? `Pemeriksaan ${latestIshihara.completionStatus === "completed" ? "selesai" : "belum tuntas"} · ${latestIshihara.selectionDecision === "eligible" ? "memenuhi syarat" : latestIshihara.selectionDecision === "ineligible" ? "perlu tindak lanjut" : "menunggu keputusan"}` : "Hasil pemeriksaan belum tersedia"
+    if (index === 4) return candidate.heightCm ? `Tinggi badan tercatat ${candidate.heightCm} cm` : "Data parade belum tersedia"
+    if (index === 5) return candidate.pbb !== null ? `Nilai tercatat ${candidate.pbb}/100` : "Hasil PBB belum tersedia"
+    if (index === 6) return candidate.fitness !== null ? `Nilai tercatat ${candidate.fitness}/100` : candidate.physicalMetrics?.length ? `${candidate.physicalMetrics.length} catatan kebugaran tersedia` : "Hasil kesamaptaan belum tersedia"
+    return candidate.personality !== null ? `Nilai tercatat ${candidate.personality}/100` : "Hasil kepribadian belum tersedia"
+  }
+  const prepMaterials = [
+    <ul className="grid gap-1.5 sm:grid-cols-2">{administrationDocuments.map((doc) => <li key={doc.name}><strong>{doc.name}:</strong> {doc.detail}</li>)}</ul>,
+    <ul className="grid gap-1.5 sm:grid-cols-2">{pipTopics.map((topic) => <li key={topic.name}><strong>{topic.name}:</strong> {topic.detail}</li>)}</ul>,
+    <ul className="grid gap-1.5 sm:grid-cols-2">{tiuTopics.map(([name, category, detail]) => <li key={name}><strong>{name} · {category}:</strong> {detail}</li>)}</ul>,
+    <p>Jaga kebugaran, istirahat cukup, dan ikuti instruksi petugas. Bawa dokumen kesehatan yang diminta panitia. Pemeriksaan dan keputusan resmi hanya dilakukan oleh petugas berwenang.</p>,
+    <p>Latih sikap sempurna, postur, kerapian, ketegapan, dan langkah berjalan. Pastikan pakaian dan perlengkapan sesuai arahan panitia.</p>,
+    <ul className="grid gap-1.5">{pbbRubric.map(([name, detail]) => <li key={name}><strong>{name}:</strong> {detail}</li>)}</ul>,
+    <ul className="grid gap-1.5 sm:grid-cols-2">{Object.entries(fitnessTables).map(([name, rows]) => <li key={name}><strong>{name === "run" ? "Lari 12 menit" : name === "pushup" ? "Push-up" : name === "situp" ? "Sit-up" : name === "backup" ? "Back-up" : "Shuttle run"}:</strong> {rows.slice(0, 4).map(([range, score, grade]) => `${range}: nilai ${score} (${grade})`).join("; ")}</li>)}</ul>,
+    <p>Persiapkan komunikasi yang jelas, kerja sama, disiplin, kepemimpinan, dan pengendalian diri. Jawab asesmen dengan jujur dan ikuti arahan pewawancara.</p>,
+  ]
+  const done = statuses.filter((status) => status === "passed").length
+
+  return <div className="grid gap-5">
+    <div>
+      <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Perjalanan seleksi · {candidate.number}</p>
+      <h1 className="mt-1 font-display text-2xl font-bold text-slate-950 sm:text-3xl">Tahapan seleksi saya</h1>
+      <p className="mt-1 text-sm text-slate-600">Pantau status dan informasi yang sudah tercatat untuk setiap tahap seleksi.</p>
+    </div>
+    <Card className="p-5 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-semibold text-slate-500">Progres keseluruhan</p><p className="mt-1 font-display text-2xl font-bold">{done} dari 8 tahap selesai</p></div><Badge tone="info">Kandidat: {candidate.name}</Badge></div>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-blue-600" style={{ width: `${Math.round(done / 8 * 100)}%` }} /></div>
+    </Card>
+    <div className="grid gap-3 md:grid-cols-2">
+      {selectionStages.map((stage, index) => {
+        const status = statuses[index] ?? "locked"
+        return <Card key={stage.key} className="p-4 sm:p-5">
+          <div className="flex items-start gap-3"><span className={`grid size-11 shrink-0 place-items-center rounded-2xl text-xs font-black ${stageTone(status)}`}>{stage.shortLabel}</span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-display font-bold text-slate-950">{stage.id}. {stage.label}</h2><StatusBadge status={status} /></div><p className="mt-1 text-sm text-slate-600">{detailForStage(index)}</p><p className="mt-2 text-xs text-slate-500">{stage.phase === 1 ? "Tahap seleksi awal" : "Tahap lanjutan"}</p></div></div>
+          <details className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-3"><summary className="cursor-pointer text-xs font-bold text-blue-800">Materi &amp; persiapan tahap ini</summary><div className="mt-3 text-xs leading-relaxed text-slate-600">{prepMaterials[index]}</div></details>
+        </Card>
+      })}
+    </div>
+    <p className="text-xs text-slate-500">Status diperbarui berdasarkan hasil dan data yang dicatat pelatih. Jika ada informasi yang belum sesuai, hubungi pelatih Anda.</p>
+  </div>
+}
+
+function CandidateProgress() {
+  const { currentUser, candidates, catTryoutAttempts, sessions, records, ishiharaResults } = useApp()
+  const candidate = candidates.find((item) => item.id === currentUser.candidateId)
+  if (!candidate) return <Card className="p-6"><p className="text-sm text-slate-600">Profil kandidat belum tersedia.</p></Card>
+
+  const statuses = getProgressStageStatuses(candidate, catTryoutAttempts, sessions, records)
+  const completed = statuses.filter((status) => status === "passed").length
+  const latestAttempt = catTryoutAttempts
+    .filter((attempt) => attempt.candidateId === candidate.id || attempt.candidateName.trim().toLocaleLowerCase() === candidate.name.trim().toLocaleLowerCase())
+    .slice().sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))[0]
+  const attempts = catTryoutAttempts
+    .filter((attempt) => attempt.candidateId === candidate.id || attempt.candidateName.trim().toLocaleLowerCase() === candidate.name.trim().toLocaleLowerCase())
+    .slice().sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))
+  const anthropometry = (candidate.anthropometryHistory ?? []).slice().sort((a, b) => b.date.localeCompare(a.date))
+  const latestMeasurement = anthropometry[0]
+  const height = latestMeasurement?.heightCm ?? candidate.heightCm
+  const weight = latestMeasurement?.weightKg ?? candidate.weightKg
+  const bmiInfo = bmi(weight ?? 0, height ?? 0)
+  const physicalMetrics = candidate.physicalMetrics ?? []
+  const metricFor = (term: string) => physicalMetrics.find((metric) => metric.label.toLowerCase().includes(term))
+  const fitnessRecords = sessions
+    .filter((session) => session.type === "fitness")
+    .map((session) => ({ session, record: records[`${session.id}:${candidate.id}`] }))
+    .filter((item) => Boolean(item.record?.savedAt))
+    .sort((a, b) => (b.record?.savedAt ?? "").localeCompare(a.record?.savedAt ?? ""))
+  const latestIshihara = ishiharaResults
+    .filter((result) => result.participantId === candidate.id)
+    .slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
+  const decisionText = latestIshihara?.selectionDecision === "eligible"
+    ? "Memenuhi syarat"
+    : latestIshihara?.selectionDecision === "ineligible"
+      ? "Perlu tindak lanjut"
+      : latestIshihara ? "Menunggu keputusan" : "Belum ada hasil"
+  const dataByStage = [
+    `${(candidate.documents ?? []).filter(Boolean).length}/6 berkas tercatat lengkap`,
+    latestAttempt ? `Nilai terakhir ${latestAttempt.pipScore}/100` : candidate.pip !== null ? `Nilai tercatat ${candidate.pip}/100` : "Belum ada hasil CAT PIP",
+    latestAttempt ? `Nilai terakhir ${latestAttempt.tiuScoreScaled}/100` : candidate.tiu !== null ? `Nilai tercatat ${candidate.tiu}/100` : "Belum ada hasil CAT TIU",
+    latestIshihara ? decisionText : "Hasil pemeriksaan belum tercatat",
+    candidate.heightCm && candidate.weightKg ? `${candidate.heightCm} cm · ${candidate.weightKg} kg` : "Data postur belum tersedia",
+    candidate.pbb !== null ? `Nilai tercatat ${candidate.pbb}/100` : "Hasil PBB belum tersedia",
+    candidate.physicalMetrics?.length ? candidate.physicalMetrics.map((metric) => `${metric.label}: ${metric.current}`).join(" · ") : candidate.fitness !== null ? `Nilai tercatat ${candidate.fitness}/100` : "Hasil kesamaptaan belum tersedia",
+    candidate.personality !== null ? `Nilai tercatat ${candidate.personality}/100` : "Hasil kepribadian belum tersedia",
+  ]
+
+  return <div className="grid gap-5 print:bg-white">
+    <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-red-600">Rekam perkembangan individual</p><h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Perkembangan saya</h1><p className="mt-1 text-sm text-slate-600">Informasi seleksi pribadi untuk {candidate.name} · {candidate.number}</p></div><Button variant="secondary" onClick={() => window.print()}><Printer className="size-4"/>Cetak ringkasan</Button></div>
+    <Card className="overflow-hidden">
+      <div className="flex flex-col gap-4 bg-slate-950 p-5 text-white sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="flex items-center gap-4"><CandidateAvatar name={candidate.name} avatar={candidate.avatar} photoUrl={candidate.photoUrl} className="size-16 shrink-0 border border-white/20" rounded="rounded-2xl"/><div><h2 className="font-display text-xl font-bold">{candidate.name}</h2><p className="mt-1 text-sm text-slate-300">{candidate.number} · {candidate.school} · {candidate.gender}</p></div></div>
+        <div className="min-w-48"><div className="flex justify-between text-xs"><span className="text-slate-300">Kesiapan seleksi</span><strong className="text-emerald-300">{Math.round(completed / 8 * 100)}%</strong></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-emerald-400" style={{ width: `${Math.round(completed / 8 * 100)}%` }}/></div><p className="mt-1 text-right text-xs text-slate-300">{completed} dari 8 tahap siap standar</p></div>
+      </div>
+      <div className="p-4 sm:p-5"><div className="mb-3 flex items-center justify-between"><h2 className="text-xs font-bold uppercase tracking-wider text-slate-600">Peta kesiapan 8 tahap seleksi</h2><span className="text-xs text-slate-500">Data akun Anda</span></div><div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">{selectionStages.map((stage, index) => <div key={stage.key} className="rounded-xl border border-slate-200 bg-white p-3"><div className="flex items-center justify-between gap-2"><span className="text-xs font-bold text-slate-500">{stage.id} · {stage.shortLabel}</span><StatusBadge status={statuses[index] ?? "locked"}/></div><h3 className="mt-2 text-sm font-bold text-slate-900">{stage.label}</h3><p className="mt-1 text-xs leading-relaxed text-slate-600">{dataByStage[index]}</p></div>)}</div></div>
+    </Card>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[
+      ["Administrasi", `${(candidate.documents ?? []).filter(Boolean).length}/6 berkas`],
+      ["PIP", latestAttempt ? `${latestAttempt.pipScore}/100` : candidate.pip === null ? "Belum dinilai" : `${candidate.pip}/100`],
+      ["TIU", latestAttempt ? `${latestAttempt.tiuScoreScaled}/100` : candidate.tiu === null ? "Belum dinilai" : `${candidate.tiu}/100`],
+      ["Status Ishihara", decisionText],
+    ].map(([label, value]) => <Card key={label} className="p-4"><p className="text-xs font-semibold text-slate-500">{label}</p><p className="mt-2 font-display text-lg font-bold text-slate-950">{value}</p></Card>)}</div>
+    <Card className="overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4"><div><h2 className="font-display text-lg font-bold text-slate-950">Tracking tinggi badan, berat badan &amp; BMI</h2><p className="mt-1 text-sm text-slate-600">Riwayat pengukuran yang tercatat untuk akun Anda.</p></div><Badge tone="info">{anthropometry.length || (height && weight ? 1 : 0)} pengukuran</Badge></div>
+      <div className="grid gap-3 p-4 md:grid-cols-3 sm:p-5">{[
+        { label: "Tinggi badan", value: height ? `${height} cm` : "Belum diukur", target: candidate.gender === "Putra" ? "Target 170–180 cm" : "Target 165–175 cm", tone: "bg-blue-500" },
+        { label: "Berat badan", value: weight ? `${weight} kg` : "Belum diukur", target: height ? `Rentang proporsional ${(height - 115).toFixed(0)}–${(height - 105).toFixed(0)} kg` : "Target proporsional", tone: "bg-emerald-500" },
+        { label: "Indeks Massa Tubuh", value: bmiInfo ? `${bmiInfo.value} kg/m²` : "Belum tersedia", target: bmiInfo ? bmiInfo.category : "Rentang acuan 18,5–24,9", tone: "bg-violet-500" },
+      ].map((item) => <div key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4"><p className="text-xs font-bold text-slate-600">{item.label}</p><p className="mt-2 font-display text-2xl font-bold text-slate-950">{item.value}</p><div className={`mt-4 h-1.5 rounded-full ${item.tone}`} /><p className="mt-3 text-xs text-slate-500">{item.target}</p></div>)}</div>
+      <div className="overflow-x-auto border-t border-slate-100"><table className="w-full min-w-[38rem] text-left text-sm"><thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Tanggal ukur</th><th className="px-4 py-3">Tinggi</th><th className="px-4 py-3">Berat</th><th className="px-4 py-3">BMI / IMT</th><th className="px-5 py-3">Catatan</th></tr></thead><tbody className="divide-y divide-slate-100">{anthropometry.length ? anthropometry.map((entry) => { const entryBmi = bmi(entry.weightKg, entry.heightCm); return <tr key={entry.id}><td className="px-5 py-3.5 text-slate-600">{entry.date}</td><td className="px-4 py-3.5 font-semibold">{entry.heightCm} cm</td><td className="px-4 py-3.5 font-semibold">{entry.weightKg} kg</td><td className="px-4 py-3.5">{entryBmi ? `${entryBmi.value} (${entryBmi.category})` : "—"}</td><td className="px-5 py-3.5 text-slate-600">{entry.note || "—"}</td></tr> }) : <tr><td colSpan={5} className="px-5 py-7 text-center text-sm text-slate-500">Belum ada riwayat pengukuran tersimpan.</td></tr>}</tbody></table></div>
+    </Card>
+    <Card className="overflow-hidden"><div className="border-b border-slate-100 px-5 py-4"><div className="flex items-center justify-between gap-3"><div><h2 className="font-display text-lg font-bold text-slate-950">Riwayat CAT PIP &amp; TIU</h2><p className="mt-1 text-sm text-slate-600">Percobaan Anda, dari yang paling baru.</p></div><Badge tone="info">{attempts.length} percobaan</Badge></div></div>{attempts.length ? <div className="overflow-x-auto"><table className="w-full min-w-[42rem] text-left text-sm"><thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Selesai</th><th className="px-4 py-3">Percobaan</th><th className="px-4 py-3">PIP</th><th className="px-4 py-3">TIU</th><th className="px-5 py-3 text-right">Rata-rata</th></tr></thead><tbody className="divide-y divide-slate-100">{attempts.map((attempt) => <tr key={attempt.id}><td className="px-5 py-3.5 text-slate-600">{new Date(attempt.finalizedAt.replace(" ", "T")).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td><td className="px-4 py-3.5 font-semibold">#{attempt.attemptNumber}</td><td className="px-4 py-3.5 font-semibold">{attempt.pipScore}/100</td><td className="px-4 py-3.5 font-semibold">{attempt.tiuScoreScaled}/100</td><td className="px-5 py-3.5 text-right font-bold text-emerald-700">{attempt.combinedScore.toFixed(1)}</td></tr>)}</tbody></table></div> : <p className="px-5 py-8 text-center text-sm text-slate-500">Belum ada riwayat ujian CAT PIP/TIU untuk akun ini.</p>}</Card>
+    <Card className="overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4"><div><h2 className="font-display text-lg font-bold text-slate-950">Tren &amp; rekap kesamaptaan</h2><p className="mt-1 text-sm text-slate-600">Nilai serta catatan sesi kebugaran yang sudah disimpan.</p></div><Badge tone="info">{fitnessRecords.length} sesi tercatat</Badge></div>
+      <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-5 sm:p-5">{[
+        ["Lari 12 menit", metricFor("lari")?.current ?? "—", "3000 m"], ["Push-up", metricFor("push")?.current ?? "—", "45 kali"], ["Sit-up", metricFor("sit")?.current ?? "—", "40 kali"], ["Back-up", metricFor("back")?.current ?? "—", "50 kali"], ["Shuttle run", metricFor("shuttle")?.current ?? "—", "15,4 dtk"],
+      ].map(([label, value, target]) => <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4"><p className="text-xs font-bold text-slate-700">{label}</p><p className="mt-2 font-display text-xl font-bold text-slate-950">{value}</p><p className="mt-3 border-t border-slate-200 pt-2 text-xs text-slate-500">Target acuan: {target}</p></div>)}</div>
+      <div className="flex items-center justify-between gap-3 border-y border-slate-100 bg-emerald-50/60 px-5 py-3"><span className="text-sm font-semibold text-slate-700">Nilai kesamaptaan terakhir</span><strong className="font-display text-lg text-emerald-800">{candidate.fitness === null ? "Belum dinilai" : `${candidate.fitness}/100`}</strong></div>
+      {fitnessRecords.length ? <div className="overflow-x-auto"><table className="w-full min-w-[42rem] text-left text-sm"><thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Tanggal &amp; sesi</th><th className="px-4 py-3">Lari</th><th className="px-4 py-3">Push-up</th><th className="px-4 py-3">Sit-up</th><th className="px-4 py-3">Back-up</th><th className="px-5 py-3">Shuttle run</th></tr></thead><tbody className="divide-y divide-slate-100">{fitnessRecords.map(({ session, record }) => <tr key={session.id}><td className="px-5 py-3.5"><p className="font-semibold text-slate-800">{session.title}</p><p className="text-xs text-slate-500">{record?.savedAt?.slice(0, 10)}</p></td><td className="px-4 py-3.5">{record?.metrics.distance || "—"}</td><td className="px-4 py-3.5">{record?.metrics.pushup || "—"}</td><td className="px-4 py-3.5">{record?.metrics.situp || "—"}</td><td className="px-4 py-3.5">{record?.metrics.backup || "—"}</td><td className="px-5 py-3.5">{record?.metrics.shuttle || "—"}</td></tr>)}</tbody></table></div> : <p className="px-5 py-7 text-center text-sm text-slate-500">Belum ada riwayat sesi kesamaptaan.</p>}
+    </Card>
+    <p className="text-xs text-slate-500">Nilai dan status ditampilkan dari hasil yang dicatat panitia. Kandidat tidak dapat mengubah hasil atau catatan seleksi.</p>
+  </div>
+}
+
+function CandidateRanking() {
+  return <RankingView onSelectCandidate={() => undefined} />
+}
+
+function CandidateProfileMissing() {
+  return <Card className="p-6"><h1 className="font-display text-xl font-bold text-slate-950">Profil santri belum terhubung</h1><p className="mt-2 text-sm text-slate-600">Tes belum dapat dibuka karena akun ini belum terhubung ke nomor peserta. Minta pelatih memeriksa profil akun Anda.</p></Card>
+}
+
+function CandidateResults({ onNavigate }: { onNavigate: (view: View) => void }) {
+  const { currentUser, candidates, catTryoutAttempts } = useApp()
+  const candidate = candidates.find((item) => item.id === currentUser.candidateId)
+  const attempts = catTryoutAttempts
+    .filter((attempt) => attempt.candidateId === candidate?.id || attempt.candidateName.trim().toLocaleLowerCase() === candidate?.name.trim().toLocaleLowerCase())
+    .slice()
+    .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))
+
+  if (!candidate) {
+    return <Card className="p-6"><p className="text-sm text-slate-600">Profil kandidat belum tersedia.</p></Card>
+  }
+
+  const latest = attempts[0]
+  return (
+    <div className="grid gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Ruang pribadi · {candidate.number}</p>
+          <h1 className="mt-1 font-display text-2xl font-bold text-slate-950 sm:text-3xl">Hasil &amp; riwayat</h1>
+          <p className="mt-1 text-sm text-slate-600">Hanya hasil ujian Anda yang ditampilkan di halaman ini.</p>
+        </div>
+        <Button variant="secondary" onClick={() => onNavigate("cat-bank")}><GraduationCap className="size-4" /> Buka CAT</Button>
+      </div>
+
+      {latest ? (
+        <Card className="p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Percobaan terbaru · #{latest.attemptNumber}</p>
+              <p className="mt-1 text-sm text-slate-600">{new Date(latest.finalizedAt.replace(" ", "T")).toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" })}</p>
+            </div>
+            <Badge tone={latest.pipStatus === "passed" && latest.tiuStatus === "passed" ? "success" : "warning"}>
+              {latest.pipStatus === "passed" && latest.tiuStatus === "passed" ? "Lulus PIP & TIU" : "Perlu tindak lanjut"}
+            </Badge>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs font-semibold text-slate-500">Nilai PIP</p><p className="mt-1 font-display text-2xl font-bold text-slate-950">{latest.pipScore}<span className="ml-1 text-sm text-slate-400">/100</span></p></div>
+            <div className="rounded-2xl bg-slate-50 p-4"><p className="text-xs font-semibold text-slate-500">Nilai TIU</p><p className="mt-1 font-display text-2xl font-bold text-slate-950">{latest.tiuScoreScaled}<span className="ml-1 text-sm text-slate-400">/100</span></p></div>
+            <div className="rounded-2xl bg-emerald-50 p-4"><p className="text-xs font-semibold text-emerald-800">Rata-rata</p><p className="mt-1 font-display text-2xl font-bold text-emerald-800">{latest.combinedScore.toFixed(1)}<span className="ml-1 text-sm text-emerald-700/60">/100</span></p></div>
+          </div>
+        </Card>
+      ) : (
+        <Card className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-display text-lg font-bold text-slate-950">Belum ada hasil CAT</h2>
+            <p className="mt-1 text-sm text-slate-600">Hasil akan tampil di sini setelah Anda menyelesaikan sesi PIP dan TIU.</p>
+          </div>
+          <Button onClick={() => onNavigate("cat-bank")}><GraduationCap className="size-4" /> Mulai tryout CAT</Button>
+        </Card>
+      )}
+
+      <Card className="overflow-hidden">
+        <div className="border-b border-slate-100 px-5 py-4">
+          <h2 className="font-display text-base font-bold text-slate-950">Riwayat percobaan</h2>
+          <p className="mt-1 text-xs text-slate-500">Percobaan terbaru ditampilkan lebih dahulu.</p>
+        </div>
+        {attempts.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[42rem] text-left text-sm">
+              <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wide text-slate-500">
+                <tr><th className="px-5 py-3">Tanggal</th><th className="px-4 py-3">Percobaan</th><th className="px-4 py-3">PIP</th><th className="px-4 py-3">TIU</th><th className="px-5 py-3 text-right">Rata-rata</th></tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {attempts.map((attempt) => (
+                  <tr key={attempt.id}>
+                    <td className="px-5 py-3.5 text-slate-600">{new Date(attempt.finalizedAt.replace(" ", "T")).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}</td>
+                    <td className="px-4 py-3.5 font-semibold">#{attempt.attemptNumber}</td>
+                    <td className="px-4 py-3.5 font-semibold tabular-nums">{attempt.pipScore} <span className="text-xs font-normal text-slate-400">· {attempt.pipStatus === "passed" ? "Lulus" : "Belum lulus"}</span></td>
+                    <td className="px-4 py-3.5 font-semibold tabular-nums">{attempt.tiuScoreScaled} <span className="text-xs font-normal text-slate-400">· {attempt.tiuStatus === "passed" ? "Lulus" : "Belum lulus"}</span></td>
+                    <td className="px-5 py-3.5 text-right font-bold tabular-nums text-emerald-700">{attempt.combinedScore.toFixed(1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="px-5 py-8 text-center text-sm text-slate-500">Riwayat ujian Anda akan muncul di sini.</p>
+        )}
+      </Card>
+    </div>
+  )
+}
+
 function Overview({
   onOpenAddCandidate,
   onSelectCandidate,
@@ -1560,7 +2090,14 @@ function Overview({
   onNavigateView: (view: View) => void
   onNavigateStage: (stageIndex: number) => void
 }) {
-  const { candidates, currentUser, activeCycle } = useApp()
+  const {
+    candidates,
+    currentUser,
+    activeCycle,
+    catTryoutAttempts,
+    sessions,
+    records,
+  } = useApp()
 
   const totalCount = candidates.length
 
@@ -1590,68 +2127,116 @@ function Overview({
   }).sort((a, b) => b.priority - a.priority)[0]
   // Perlu Atensi / Sesi Susulan
   const susulanCandidates = useMemo(() => {
-    return candidates.filter((c) => {
+    return candidates.flatMap((c) => {
       const note = (c.coachNote || "").toLowerCase()
       const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
       const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
       const noRun = !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
-      const isIzinOrSakit = note.includes("izin") || note.includes("sakit") || note.includes("alpa")
-      const needsReview = c.stageStatuses.slice(1).some((status) => status === "failed" || status === "review")
-      return isDnf || noRun || isIzinOrSakit || needsReview
+      const attendanceNote = ["izin", "sakit", "alpa"].find((word) => note.includes(word))
+      const statuses = getProgressStageStatuses(c, catTryoutAttempts, sessions, records)
+      const reviewStages = statuses
+        .slice(1)
+        .map((status, idx) => ({ status, stage: selectionStages[idx + 1] }))
+        .filter(({ status }) => status === "failed" || status === "review")
+        .map(({ stage }) => stage.shortLabel)
+      const needsReview = reviewStages.length > 0
+      if (!isDnf && !noRun && !attendanceNote && !needsReview) return []
+
+      const reason = isDnf
+        ? "DNF · tes lari perlu diulang"
+        : attendanceNote
+          ? `Tidak hadir (${attendanceNote}) · perlu dijadwalkan ulang`
+          : noRun
+            ? "Belum ada hasil tes lari"
+            : `Perlu penguatan: ${reviewStages.join(", ")}`
+      return [{ candidate: c, runM, isDnf, noRun, attendanceNote, reviewStages, reason }]
     })
-  }, [candidates])
+  }, [candidates, catTryoutAttempts, sessions, records])
 
   const dnfCount = susulanCandidates.filter((c) => {
-    const note = (c.coachNote || "").toLowerCase()
-    const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
-    return (runM && runM.current === "DNF") || note.includes("dnf")
+    return c.isDnf
   }).length
-  const untestedCount = susulanCandidates.filter((c) => {
-    const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
-    return !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
-  }).length
-  const needsReviewCount = susulanCandidates.filter((c) =>
-    c.stageStatuses.slice(1).some((status) => status === "failed" || status === "review"),
-  ).length
+  const untestedCount = susulanCandidates.filter((c) => c.noRun && !c.isDnf).length
+  const needsReviewCount = susulanCandidates.filter((c) => c.reviewStages.length > 0).length
   const followUpSummary = [
     dnfCount > 0 ? `${dnfCount} DNF` : null,
     untestedCount > 0 ? `${untestedCount} belum tes` : null,
     needsReviewCount > 0 ? `${needsReviewCount} perlu evaluasi` : null,
   ].filter(Boolean).join(" · ") || "Tidak ada catatan"
 
-  // Top Performers (Top 3 santri)
+  // Compare every available numeric result on the same 0–100 scale; use completed stages to break ties.
   const topPerformers = useMemo(() => {
     return [...candidates]
-      .filter((c) => c.fitness !== null || c.pbb !== null)
-      .sort((a, b) => {
-        const scoreA = (a.fitness ?? 0) + (a.pbb ?? 0)
-        const scoreB = (b.fitness ?? 0) + (b.pbb ?? 0)
-        return scoreB - scoreA
+      .map((candidate) => {
+        const statuses = getProgressStageStatuses(candidate, catTryoutAttempts, sessions, records)
+        const normalizedName = candidate.name.trim().toLocaleLowerCase()
+        const latestAttempt = catTryoutAttempts
+          .filter((attempt) => attempt.candidateId === candidate.id || attempt.candidateName.trim().toLocaleLowerCase() === normalizedName)
+          .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))[0]
+        const latestSessionScore = (type: "pip" | "tiu") => sessions
+          .filter((session) => session.type === type)
+          .map((session) => {
+            const record = records[`${session.id}:${candidate.id}`]
+            if (!record?.savedAt) return null
+            const rawScore = record.metrics.score !== undefined && record.metrics.score !== ""
+              ? Number(record.metrics.score)
+              : record.metrics.correct !== undefined && record.metrics.correct !== ""
+                ? Number(record.metrics.correct) * 2
+                : null
+            return rawScore !== null && Number.isFinite(rawScore)
+              ? { score: rawScore, time: Date.parse(record.savedAt) || 0 }
+              : null
+          })
+          .filter((entry): entry is { score: number; time: number } => entry !== null)
+          .sort((a, b) => b.time - a.time)[0]?.score
+        const pipScore = latestAttempt?.pipScore ?? candidate.pip ?? latestSessionScore("pip")
+        const tiuScore = latestAttempt?.tiuScoreScaled ?? candidate.tiu ?? latestSessionScore("tiu")
+        const values = [
+          pipScore,
+          tiuScore,
+          candidate.pbb,
+          candidate.fitness,
+          candidate.personality,
+        ].filter((value): value is number => typeof value === "number" && Number.isFinite(value))
+        const score = values.length
+          ? Number((values.reduce((total, value) => total + value, 0) / values.length).toFixed(1))
+          : null
+        const completedStages = statuses.filter((status) => status === "passed").length
+        const hasResult = score !== null || statuses.some((status) => status === "review" || status === "failed") || (candidate.documents ?? []).some(Boolean)
+        return { candidate, statuses, score, scoreCount: values.length, completedStages, hasResult, pipScore, tiuScore }
       })
-      .slice(0, 3)
-  }, [candidates])
+      .sort((a, b) => {
+        if (a.hasResult !== b.hasResult) return a.hasResult ? -1 : 1
+        return (b.score ?? -1) - (a.score ?? -1) ||
+          b.completedStages - a.completedStages ||
+          a.candidate.number.localeCompare(b.candidate.number)
+      })
+  }, [candidates, catTryoutAttempts, sessions, records])
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="flex flex-col gap-6 rounded-2xl bg-slate-900 p-6 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div>
-          <p className="text-sm text-slate-500">{activeCycle.name} · {activeCycle.level} · MA Mu'allimin Yogyakarta</p>
-          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200">
+            <span className="size-1.5 rounded-full bg-emerald-400" />
+            {activeCycle.name} · {activeCycle.level} · MA Mu'allimin Yogyakarta
+          </p>
+          <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
             Selamat datang, {currentUser.name.split(" ")[0]}
           </h1>
-          <p className="mt-1 text-sm text-slate-600">Ringkasan latihan dan hasil tes santri.</p>
+          <p className="mt-2 text-sm text-slate-300">Pantau progres latihan dan hasil tes santri dari satu tempat.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button
             variant="secondary"
             onClick={() => onNavigateView("sessions")}
-            className="text-sm font-medium gap-2"
+            className="!border-white/20 !bg-white/5 !text-white hover:!bg-white/10"
           >
             <ClipboardCheck className="size-4" /> Jadwal latihan
           </Button>
           <Button
             onClick={onOpenAddCandidate}
-            className="bg-red-700 hover:bg-red-800 text-white text-sm font-medium gap-2"
+            className="!bg-red-600 text-white hover:!bg-red-500"
           >
             <UserRoundCheck className="size-4" /> Tambah santri
           </Button>
@@ -1710,30 +2295,30 @@ function Overview({
                 </span>
                 <div>
                   <h2 className="font-display text-base font-bold text-slate-900">
-                    Hasil latihan terbaik
+                    Peringkat kesiapan santri
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Berdasarkan nilai tes lari dan PBB yang sudah dicatat
+                    Rerata nilai dan progres singkat; rincian tiap tahap ada di pemeringkatan lengkap
                   </p>
                 </div>
               </div>
               <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
-                3 teratas
+                {topPerformers.length} santri
               </span>
             </div>
 
             <div className="mt-3.5 divide-y divide-slate-100">
-              {topPerformers.map((cand, idx) => {
-                const runM = (cand.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+              {topPerformers.map((entry, idx) => {
+                const { candidate: cand, score, scoreCount, completedStages } = entry
                 return (
                   <button
                     key={cand.id}
                     type="button"
                     onClick={() => onSelectCandidate(cand.id)}
-                    className="flex w-full items-center justify-between gap-3 py-3 text-left transition hover:bg-slate-50 rounded-xl px-2 group"
+                    className="grid w-full gap-2.5 rounded-xl px-2 py-3 text-left transition hover:bg-slate-50 group"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex size-7 items-center justify-center rounded-full bg-slate-900 font-display text-xs font-bold text-white shrink-0">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-900 font-display text-xs font-bold text-white">
                         {idx + 1}
                       </div>
                       <CandidateAvatar
@@ -1743,29 +2328,17 @@ function Overview({
                         className="size-10 shrink-0 border border-slate-200 text-xs font-bold"
                         rounded="rounded-xl"
                       />
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-bold text-slate-900 group-hover:text-red-600 transition">
                           {cand.name}
                         </p>
-                        <p className="text-[0.68rem] text-slate-400">
-                          {cand.number} · TB {cand.heightCm} cm
+                        <p className="truncate text-[0.68rem] text-slate-400">
+                          {cand.number} · {score === null ? "Belum ada nilai angka" : `Rerata ${score.toFixed(1)}/100 dari ${scoreCount} nilai`} · {completedStages}/8 tahap lulus
                         </p>
                       </div>
+                      <ChevronRight className="size-4 shrink-0 text-slate-400 group-hover:text-slate-600" />
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {runM?.current && (
-                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          Lari {runM.current}
-                        </span>
-                      )}
-                      {cand.pbb !== null && (
-                        <span className="text-[0.68rem] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
-                          PBB {cand.pbb}
-                        </span>
-                      )}
-                      <ChevronRight className="size-4 text-slate-400 group-hover:text-slate-600" />
-                    </div>
                   </button>
                 )
               })}
@@ -1775,10 +2348,10 @@ function Overview({
           <div className="mt-4 border-t border-slate-100 pt-3">
             <button
               type="button"
-              onClick={() => onNavigateView("candidates")}
+              onClick={() => onNavigateView("ranking")}
               className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center justify-center gap-1 w-full py-1.5 transition"
             >
-              Lihat semua santri <ChevronRight className="size-3.5" />
+              Lihat pemeringkatan lengkap <ChevronRight className="size-3.5" />
             </button>
           </div>
         </Card>
@@ -1795,7 +2368,7 @@ function Overview({
                     Perlu tindak lanjut
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Santri yang belum tes atau perlu tes ulang
+                    Tes lari belum tercatat, DNF, absen, atau nilai perlu penguatan
                   </p>
                 </div>
               </div>
@@ -1805,17 +2378,14 @@ function Overview({
             </div>
 
             <div className="mt-3.5 divide-y divide-slate-100">
-              {susulanCandidates.map((cand) => {
-                const note = (cand.coachNote || "").toLowerCase()
-                const runM = (cand.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
-                const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
-                const isBelumTes = !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
-
+              {susulanCandidates.map(({ candidate: cand, isDnf, noRun, attendanceNote, reason }) => {
                 const statusLabel = isDnf
-                  ? "DNF Lari 12M"
-                  : isBelumTes
-                    ? "Belum Ambil Tes"
-                    : "Sesi Susulan"
+                  ? "Tes lari ulang"
+                  : attendanceNote
+                    ? "Jadwalkan ulang"
+                    : noRun
+                      ? "Belum tes"
+                      : "Penguatan"
 
                 const statusTone = isDnf
                   ? "bg-rose-50 text-rose-700 border-rose-200"
@@ -1843,7 +2413,7 @@ function Overview({
                           {cand.name}
                         </p>
                         <p className="mt-0.5 text-[0.68rem] text-slate-500">
-                          {cand.number} · {cand.coachNote || "Menunggu pengujian pos"}
+                          {cand.number} · {reason}
                         </p>
                       </div>
                     </button>
@@ -1869,7 +2439,7 @@ function Overview({
 
           <div className="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between">
             <p className="text-xs text-slate-500">
-              Atur jadwal tes susulan
+              Tinjau alasan dan jadwalkan tindak lanjut
             </p>
             <button
               type="button"
@@ -2817,7 +3387,14 @@ function ProgressView({
 }: {
   onSelectCandidate: (candidateId: string) => void
 }) {
-  const { candidates, activeCycle, updateCandidate } = useApp()
+  const {
+    candidates,
+    activeCycle,
+    updateCandidate,
+    catTryoutAttempts,
+    sessions,
+    records,
+  } = useApp()
   const [selectedId, setSelectedId] = useState(candidates[0]?.id ?? "")
   const [isEditingSamapta, setIsEditingSamapta] = useState(false)
   const [samaptaForm, setSamaptaForm] = useState<{
@@ -3063,7 +3640,13 @@ function ProgressView({
     physical: defaultPhysicalList,
   }
 
-  const passedCount = candidate.stageStatuses.filter(
+  const progressStatuses = getProgressStageStatuses(
+    candidate,
+    catTryoutAttempts,
+    sessions,
+    records,
+  )
+  const passedCount = progressStatuses.filter(
     (status) => status === "passed",
   ).length
   const completion = Math.round((passedCount / selectionStages.length) * 100)
@@ -3215,7 +3798,7 @@ function ProgressView({
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
             {selectionStages.map((stage, index) => {
-              const status = candidate.stageStatuses[index] ?? "active"
+              const status = progressStatuses[index] ?? "locked"
               const isPassed = status === "passed"
               const isFailed = status === "failed"
               const isReview = status === "review"
@@ -3787,7 +4370,8 @@ function RankingView({
                 <button
                   type="button"
                   onClick={() => onSelectCandidate(candidate.id)}
-                  className="p-4 text-left transition hover:bg-slate-50"
+                  disabled={currentUser.role === "candidate"}
+                  className="p-4 text-left transition hover:bg-slate-50 disabled:cursor-default disabled:hover:bg-transparent"
                   key={candidate.id}
                 >
                   <div className="flex items-center gap-3">
@@ -3860,8 +4444,8 @@ function RankingView({
                   return (
                     <tr
                       key={candidate.id}
-                      onClick={() => onSelectCandidate(candidate.id)}
-                      className="cursor-pointer transition hover:bg-slate-50/80"
+                      onClick={currentUser.role === "candidate" ? undefined : () => onSelectCandidate(candidate.id)}
+                      className={currentUser.role === "candidate" ? "transition" : "cursor-pointer transition hover:bg-slate-50/80"}
                     >
                       {/* Peringkat */}
                       <td className="px-5 py-4 text-center">
@@ -3955,7 +4539,7 @@ function RankingView({
         </div>
       </Card>
 
-      {unranked.length > 0 ? (
+      {currentUser.role !== "candidate" && unranked.length > 0 ? (
         <Card className="overflow-hidden">
           <div className="border-b border-slate-100 px-6 py-4">
             <h3 className="font-display text-base font-bold text-slate-900">
@@ -4291,8 +4875,8 @@ function StandardsView() {
 }
 
 function AppShell() {
-  const { isAuthenticated, toast, clearToast, currentUser } = useApp()
-  const [view, setView] = useState<View>("overview")
+  const { isAuthenticated, toast, clearToast, currentUser, candidates } = useApp()
+  const [view, setView] = useState<View>(currentUser?.role === "candidate" ? "candidate-home" : "overview")
   const [activeStage, setActiveStage] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showAddCandidate, setShowAddCandidate] = useState(false)
@@ -4305,10 +4889,12 @@ function AppShell() {
   // Security Route Guard: Candidate restricted views
   useEffect(() => {
     if (currentUser?.role === "candidate") {
-      const allowedViews: View[] = ["cat-bank", "guide", "documents", "ishihara"]
+      const allowedViews: View[] = ["candidate-home", "candidate-stages", "candidate-progress", "candidate-ranking", "candidate-results", "cat-bank", "guide", "documents", "ishihara"]
       if (!allowedViews.includes(view)) {
-        setView("cat-bank")
+        setView("candidate-home")
       }
+    } else if (view === "candidate-home" || view === "candidate-stages" || view === "candidate-progress" || view === "candidate-ranking" || view === "candidate-results") {
+      setView("overview")
     }
   }, [currentUser?.role, view])
 
@@ -4356,6 +4942,15 @@ function AppShell() {
                   }}
                 />
               ) : null}
+              {view === "candidate-home" ? (
+                <CandidateHome onNavigate={handleViewChange} />
+              ) : null}
+              {view === "candidate-results" ? (
+                <CandidateResults onNavigate={handleViewChange} />
+              ) : null}
+              {view === "candidate-stages" ? <CandidateStages /> : null}
+              {view === "candidate-progress" ? <CandidateProgress /> : null}
+              {view === "candidate-ranking" ? <CandidateRanking /> : null}
               {view === "sessions" ? (
                 <Suspense fallback={<PageLoader />}>
                   <SimulationCenter />
@@ -4381,20 +4976,20 @@ function AppShell() {
                 />
               ) : null}
               {view === "progress" ? (
-                <ProgressView
+                currentUser.role === "candidate" ? <CandidateProgress /> : <ProgressView
                   onSelectCandidate={(id) => setSelectedCandidateId(id)}
                 />
               ) : null}
               {view === "ranking" ? (
-                <RankingView
+                currentUser.role === "candidate" ? <CandidateRanking /> : <RankingView
                   onSelectCandidate={(id) => setSelectedCandidateId(id)}
                 />
               ) : null}
               {view === "standards" ? <StandardsView /> : null}
               {view === "cat-bank" ? (
-                <Suspense fallback={<PageLoader />}>
-                  <CatBankView />
-                </Suspense>
+                currentUser.role === "candidate" && !candidates.some((candidate) => candidate.id === currentUser.candidateId)
+                  ? <CandidateProfileMissing />
+                  : <Suspense fallback={<PageLoader />}><CatBankView /></Suspense>
               ) : null}
               {view === "documents" ? (
                 <Suspense fallback={<PageLoader />}>
@@ -4402,9 +4997,9 @@ function AppShell() {
                 </Suspense>
               ) : null}
               {view === "ishihara" ? (
-                <Suspense fallback={<PageLoader />}>
-                  <IshiharaView />
-                </Suspense>
+                currentUser.role === "candidate" && !candidates.some((candidate) => candidate.id === currentUser.candidateId)
+                  ? <CandidateProfileMissing />
+                  : <Suspense fallback={<PageLoader />}><IshiharaView /></Suspense>
               ) : null}
               {view === "users-audit" ? (
                 <Suspense fallback={<PageLoader />}>

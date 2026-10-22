@@ -529,6 +529,28 @@ export const candidates: Candidate[] = [
   },
 ]
 
+// The submitted roster is the source of truth for registration identity fields.
+// Keep the app's KAB participant code stable; the final column is stored separately.
+const authoritativeRoster: Record<string, Pick<Candidate, "origin" | "className" | "birthDate" | "nik" | "studentNumber">> = {
+  "KAB-27-001": { origin: "PURBALINGGA", birthDate: "2011-04-20", className: "X B", nik: "3303022004110001", studentNumber: "11711" },
+  "KAB-27-002": { origin: "SLEMAN", birthDate: "2010-11-17", className: "X C", nik: "3404141711100001", studentNumber: "11684" },
+  "KAB-27-003": { origin: "KULON PROGO", birthDate: "2010-08-25", className: "X C", nik: "3401012608100001", studentNumber: "11582" },
+  "KAB-27-004": { origin: "PURWOKERTO", birthDate: "2010-09-14", className: "X E", nik: "3302271409100004", studentNumber: "11775" },
+  "KAB-27-005": { origin: "SEMARANG", birthDate: "2011-01-11", className: "X A", nik: "3371032601110001", studentNumber: "11823" },
+  "KAB-27-006": { origin: "BOJONEGORO", birthDate: "2011-08-04", className: "X A", nik: "3522110408110001", studentNumber: "11722" },
+  "KAB-27-007": { origin: "DENPASAR", birthDate: "2011-04-07", className: "X B", nik: "5103050704110001", studentNumber: "11675" },
+  "KAB-27-008": { origin: "BANTUL", birthDate: "2010-06-11", className: "X F", nik: "3402021106100001", studentNumber: "11824" },
+  "KAB-27-009": { origin: "PEKALONGAN", birthDate: "2011-01-15", className: "X C", nik: "3375031501110002", studentNumber: "11720" },
+  "KAB-27-010": { origin: "KOTAWARINGIN BARAT", birthDate: "2010-11-30", className: "X USA", nik: "6201023011100001", studentNumber: "11759" },
+  "KAB-27-011": { origin: "BANTUL", birthDate: "2010-05-11", className: "X C", nik: "3471071105100001", studentNumber: "11814" },
+  "KAB-27-012": { origin: "SLEMAN", birthDate: "2011-01-25", className: "X B", nik: "3404112501110002", studentNumber: "11611" },
+  "KAB-27-013": { origin: "TANGERANG", birthDate: "2010-12-23", className: "X F", nik: "3671052312100004", studentNumber: "11524" },
+}
+
+for (const candidate of candidates) {
+  Object.assign(candidate, authoritativeRoster[candidate.number])
+}
+
 export const initialSessions: Session[] = [
   {
     id: "session-1792583477113",

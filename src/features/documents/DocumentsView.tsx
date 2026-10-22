@@ -17,6 +17,7 @@ import type { SupportingDoc } from "../../domain/selection"
 
 export default function DocumentsView() {
   const {
+    currentUser,
     candidates,
     toggleCandidateDocument,
     updateCandidate,
@@ -138,6 +139,29 @@ export default function DocumentsView() {
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
     showToast(`Mengunduh dokumen "${doc.title}"...`, "info")
+  }
+
+  if (currentUser.role === "candidate") {
+    const publishedDocs = supportingDocs.filter((doc) => doc.status === "published")
+    return (
+      <div className="grid gap-5">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Informasi seleksi</p>
+          <h1 className="mt-1 font-display text-2xl font-bold text-slate-950 sm:text-3xl">Dokumen &amp; pengumuman</h1>
+          <p className="mt-1 text-sm text-slate-600">Baca panduan dan pengumuman resmi yang telah diterbitkan untuk kandidat.</p>
+        </div>
+        {viewingDoc ? (
+          <Card className="p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4"><div><Badge tone="info">{viewingDoc.category}</Badge><h2 className="mt-2 font-display text-xl font-bold text-slate-950">{viewingDoc.title}</h2><p className="mt-1 text-xs text-slate-500">Diperbarui: {viewingDoc.updatedAt} · {viewingDoc.fileSize}</p></div><Button variant="secondary" onClick={() => setViewingDoc(null)}>Tutup</Button></div>
+            <p className="mt-4 whitespace-pre-wrap rounded-2xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">{viewingDoc.content}</p>
+            <Button className="mt-4" variant="secondary" onClick={() => downloadSupportingDoc(viewingDoc)}><Download className="size-4" /> Unduh salinan</Button>
+          </Card>
+        ) : null}
+        {publishedDocs.length ? <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{publishedDocs.map((doc) => (
+          <Card key={doc.id} className="flex flex-col justify-between p-5"><div><div className="flex items-center justify-between gap-2"><Badge tone="info">{doc.category}</Badge><span className="text-xs text-slate-400">{doc.fileSize}</span></div><h2 className="mt-3 font-display font-bold text-slate-950">{doc.title}</h2><p className="mt-2 text-sm leading-relaxed text-slate-600">{doc.summary}</p></div><div className="mt-5 flex gap-2 border-t border-slate-100 pt-4"><Button variant="secondary" onClick={() => setViewingDoc(doc)}>Baca isi</Button><Button variant="secondary" onClick={() => downloadSupportingDoc(doc)}><Download className="size-4" /> Unduh</Button></div></Card>
+        ))}</div> : <Card className="p-8 text-center"><FileText className="mx-auto size-8 text-slate-300"/><p className="mt-3 font-semibold text-slate-800">Belum ada dokumen terbit</p><p className="mt-1 text-sm text-slate-500">Dokumen resmi akan muncul di sini setelah diterbitkan pelatih.</p></Card>}
+      </div>
+    )
   }
 
   return (

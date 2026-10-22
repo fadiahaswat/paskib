@@ -124,8 +124,22 @@ export default function CandidateProjection({
 }: {
   candidateId: string
 }) {
-  const { candidates, addAnthropometryLog, deleteAnthropometryLog } = useApp()
+  const {
+    candidates,
+    currentUser,
+    catTryoutAttempts,
+    deleteCatTryoutAttempt,
+    addAnthropometryLog,
+    deleteAnthropometryLog,
+  } = useApp()
   const candidate = candidates.find((c) => c.id === candidateId)
+  const catHistory = useMemo(
+    () => catTryoutAttempts
+      .filter((attempt) => attempt.candidateId === candidateId)
+      .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt)),
+    [catTryoutAttempts, candidateId],
+  )
+  const canDeleteCatHistory = currentUser.role === "admin" || currentUser.role === "coach"
 
   const [history, setHistory] = useState<FitnessEntry[]>(() =>
     readHistory(candidateId),
@@ -542,6 +556,96 @@ export default function CandidateProjection({
           ) : null}
         </Card>
       ) : null}
+
+      <Card className="overflow-hidden">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <Activity className="size-5 text-red-600" />
+              <h2 className="font-display text-lg font-bold text-slate-900">
+                Riwayat CAT PIP & TIU
+              </h2>
+            </div>
+            <p className="mt-1 text-sm text-slate-500">
+              Semua percobaan CAT kandidat, diurutkan dari yang terbaru.
+            </p>
+          </div>
+          <Badge tone={catHistory.length ? "info" : "neutral"}>
+            {catHistory.length} percobaan
+          </Badge>
+        </div>
+
+        {catHistory.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[48rem] text-left text-sm">
+              <thead className="bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th className="px-6 py-3">Waktu ujian</th>
+                  <th className="px-4 py-3">Paket</th>
+                  <th className="px-4 py-3">PIP</th>
+                  <th className="px-4 py-3">TIU</th>
+                  <th className="px-4 py-3">Gabungan</th>
+                  <th className="px-4 py-3">Hasil</th>
+                  {canDeleteCatHistory ? <th className="px-6 py-3 text-right">Aksi</th> : null}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {catHistory.map((attempt) => {
+                  const pipPassed = attempt.pipStatus === "passed"
+                  const tiuPassed = attempt.tiuStatus === "passed"
+                  const finalized = new Date(attempt.finalizedAt.replace(" ", "T"))
+                  const displayTime = Number.isNaN(finalized.getTime())
+                    ? attempt.finalizedAt
+                    : finalized.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })
+                  return (
+                    <tr key={attempt.id}>
+                      <td className="px-6 py-3.5 font-medium text-slate-700">
+                        <span className="block">{displayTime}</span>
+                        <span className="text-xs text-slate-400">Percobaan {attempt.attemptNumber}</span>
+                      </td>
+                      <td className="px-4 py-3.5 text-slate-600">{attempt.packageName}</td>
+                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
+                        {attempt.pipScore} <span className="text-xs font-normal text-slate-400">({pipPassed ? "Lulus" : "Belum lulus"})</span>
+                      </td>
+                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
+                        {attempt.tiuScoreScaled} <span className="text-xs font-normal text-slate-400">({tiuPassed ? "Lulus" : "Belum lulus"})</span>
+                      </td>
+                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">{attempt.combinedScore}</td>
+                      <td className="px-4 py-3.5">
+                        <Badge tone={pipPassed && tiuPassed ? "success" : "warning"}>
+                          {pipPassed && tiuPassed ? "Lulus keduanya" : "Perlu tindak lanjut"}
+                        </Badge>
+                      </td>
+                      {canDeleteCatHistory ? (
+                        <td className="px-6 py-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                `Hapus percobaan CAT ${attempt.attemptNumber} tanggal ${displayTime}? Nilai kandidat akan diperbarui dari percobaan tersisa.`,
+                              )
+                              if (confirmed) deleteCatTryoutAttempt(attempt.id)
+                            }}
+                            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
+                            title="Hapus percobaan CAT ini"
+                            aria-label={`Hapus percobaan CAT ${attempt.attemptNumber}`}
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </td>
+                      ) : null}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="px-6 py-10 text-center text-sm text-slate-500">
+            Belum ada riwayat ujian CAT PIP/TIU untuk kandidat ini.
+          </div>
+        )}
+      </Card>
 
       <Card className="overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">

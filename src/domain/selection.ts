@@ -56,6 +56,10 @@ export type Candidate = {
   id: string
   number: string
   nik?: string
+  /** Data supplied on the candidate registration roster. */
+  origin?: string
+  className?: string
+  studentNumber?: string
   name: string
   school: string
   gender: "Putra" | "Putri"
@@ -83,6 +87,27 @@ export type Candidate = {
   physicalMetrics?: PhysicalMetric[]
   cycleId?: string
   updatedAt: string
+}
+
+export type CatTryoutAttempt = {
+  id: string
+  candidateId: string
+  candidateName: string
+  candidateGroup: string
+  packageName: string
+  attemptNumber: number
+  pipAnswers: Record<string, number>
+  tiuAnswers: Record<string, number>
+  pipCorrect: number
+  pipScore: number
+  pipStatus: "passed" | "failed"
+  tiuCorrect: number
+  tiuScoreRaw: number
+  tiuScoreScaled: number
+  tiuStatus: "passed" | "failed"
+  combinedScore: number
+  startedAt: string
+  finalizedAt: string
 }
 
 export type SelectionSchedule = {
