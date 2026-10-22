@@ -209,14 +209,9 @@ export function CreateCandidateModal({
             />
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               Jenis kelamin
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value as "Putra" | "Putri")}
-                className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400"
-              >
-                <option value="Putra">Putra</option>
-                <option value="Putri">Putri</option>
-              </select>
+              <div className="flex min-h-11 items-center rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm font-semibold text-slate-700">
+                Putra (Khusus Seleksi Putra)
+              </div>
             </label>
             <Input
               label="NIK (16 digit)"
@@ -282,7 +277,7 @@ export function CreateCandidateModal({
                 {bmiCheck ? `${bmiCheck.value} (${bmiCheck.category})` : "—"}
               </p>
               <p className="mt-0.5 text-xs text-slate-500">
-                Standar tinggi: {gender === "Putra" ? "170–180" : "165–175"} cm
+                Standar tinggi BPIP Putra: 170–180 cm (Min. 165 cm)
               </p>
             </div>
           </div>
@@ -654,16 +649,9 @@ export function CandidateDetailView({
                   />
                   <label className="grid gap-2 text-sm font-semibold text-slate-700">
                     Jenis kelamin
-                    <select
-                      value={gender}
-                      onChange={(e) =>
-                        setGender(e.target.value as "Putra" | "Putri")
-                      }
-                      className="min-h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-normal outline-none focus:border-red-400"
-                    >
-                      <option value="Putra">Putra</option>
-                      <option value="Putri">Putri</option>
-                    </select>
+                    <div className="flex min-h-11 items-center rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm font-semibold text-slate-700">
+                      Putra (Khusus Seleksi Putra)
+                    </div>
                   </label>
                   <Input
                     label="Tanggal lahir"

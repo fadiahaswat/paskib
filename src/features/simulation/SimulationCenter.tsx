@@ -1615,7 +1615,7 @@ export default function SimulationCenter() {
           title: "Standar Rikkes & Kesehatan Mata",
           badge: "Pemeriksaan Kesehatan",
           items: [
-            { label: "Antropometri TB/BB", target: "TB ≥ 170cm", sub: "Putra (Putri 165cm) · BMI 18.5 - 25.0" },
+            { label: "Antropometri TB/BB", target: "TB ≥ 170cm", sub: "Khusus Putra (170–180 cm) · BMI 18.5 - 25.0" },
             { label: "Ishihara Buta Warna", target: "24 Plat", sub: "Wajib Bebas Buta Warna" },
             { label: "Tensi & Jantung", target: "120/80 mmHg", sub: "Kardiovaskular prima" },
             { label: "Postur & Rangka", target: "Normal", sub: "Bebas kaki O/X, skoliosis, varises" },

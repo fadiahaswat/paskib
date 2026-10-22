@@ -122,7 +122,7 @@ export function exportRankingCsv(
 export function downloadCandidateTemplateCsv() {
   const headers = [
     "Nama Lengkap",
-    "Jenis Kelamin (Putra/Putri)",
+    "Jenis Kelamin (Putra)",
     "Tanggal Lahir (YYYY-MM-DD)",
     "Sekolah",
     "NIK (16 Digit)",

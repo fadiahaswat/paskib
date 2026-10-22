@@ -319,7 +319,7 @@ export default function GuideView() {
           />
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              ["Tinggi", "Putra 170–180 cm · Putri 165–175 cm"],
+              ["Tinggi", "Standar Putra: 170–180 cm (Min. 165 cm di Kab/Kota)"],
               ["BMI", "18,5–24,9 normal · ≥30 obesitas"],
               ["Rangka", "Celah kaki <5 cm · tidak flat foot · bahu simetris"],
             ].map(([title, detail]) => (

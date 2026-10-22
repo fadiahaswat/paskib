@@ -1280,9 +1280,6 @@ function CandidateTable({
   const { candidates, catTryoutAttempts, sessions, records, auditLogs } = useApp()
   const [showFilters, setShowFilters] = useState(false)
   const [search, setSearch] = useState("")
-  const [genderFilter, setGenderFilter] = useState<"all" | "Putra" | "Putri">(
-    "all",
-  )
   const [stageFilter, setStageFilter] = useState<number | "all">("all")
   const [statusFilter, setStatusFilter] = useState<StageStatus | "all">("all")
   const [sortBy, setSortBy] = useState<"number" | "name" | "stage" | "score">(
@@ -1435,7 +1432,6 @@ function CandidateTable({
     const list = candidates.filter((cand) => {
       const progress = progressByCandidate.get(cand.id)
       const currentStageIndex = progress?.stageIndex ?? 0
-      if (genderFilter !== "all" && cand.gender !== genderFilter) return false
       if (stageFilter !== "all" && currentStageIndex + 1 !== stageFilter) return false
       const currentStatus = progress?.statuses[currentStageIndex] ?? "locked"
       if (statusFilter !== "all" && currentStatus !== statusFilter) return false
@@ -1465,7 +1461,7 @@ function CandidateTable({
         return (finalScore(b) ?? -1) - (finalScore(a) ?? -1)
       return a.number.localeCompare(b.number)
     })
-  }, [candidates, progressByCandidate, latestActivityByCandidate, genderFilter, stageFilter, statusFilter, search, sortBy, compact])
+  }, [candidates, progressByCandidate, latestActivityByCandidate, stageFilter, statusFilter, search, sortBy, compact])
 
   const shown = compact ? filtered.slice(0, 5) : filtered
 
@@ -1501,17 +1497,6 @@ function CandidateTable({
             placeholder="Cari nama, nomor, sekolah..."
             className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs outline-none focus:border-red-400"
           />
-          <select
-            value={genderFilter}
-            onChange={(e) =>
-              setGenderFilter(e.target.value as "all" | "Putra" | "Putri")
-            }
-            className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs outline-none focus:border-red-400"
-          >
-            <option value="all">Semua Gender</option>
-            <option value="Putra">Putra</option>
-            <option value="Putri">Putri</option>
-          </select>
           <select
             value={stageFilter}
             onChange={(e) =>
@@ -2471,8 +2456,9 @@ function CandidatesView({
   const { candidates, importCandidates, activeCycle, showToast } = useApp()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-  const putraCount = candidates.filter((c) => c.gender === "Putra").length
-  const putriCount = candidates.filter((c) => c.gender === "Putri").length
+  const posturPassCount = candidates.filter(
+    (c) => (c.heightCm ?? 0) >= 170,
+  ).length
   const completeProfileCount = candidates.filter(
     (c) => (c.documents ?? []).filter(Boolean).length === 6,
   ).length
@@ -2495,8 +2481,7 @@ function CandidatesView({
       const imported: Candidate[] = dataLines.map((line, idx) => {
         const cols = line.split(",").map((c) => c.replace(/^"|"$/g, "").trim())
         const name = cols[0] || `Kandidat Impor ${idx + 1}`
-        const gender =
-          cols[1]?.toLowerCase() === "putri" ? "Putri" : "Putra" as const
+        const gender = "Putra" as const
         const birthDate = /^\d{4}-\d{2}-\d{2}$/.test(cols[2] ?? "")
           ? cols[2]
           : "2009-10-10"
@@ -2599,33 +2584,25 @@ function CandidatesView({
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Putra"
-          value={String(putraCount)}
-          detail={`${
-            candidates.length
-              ? Math.round((putraCount / candidates.length) * 100)
-              : 0
-          }% dari total kandidat`}
+          label="Total Santri Putra"
+          value={String(candidates.length)}
+          detail="100% seleksi kategori Putra"
           icon={UsersRound}
           tone="bg-blue-50 text-blue-700"
         />
         <StatCard
-          label="Putri"
-          value={String(putriCount)}
-          detail={`${
-            candidates.length
-              ? Math.round((putriCount / candidates.length) * 100)
-              : 0
-          }% dari total kandidat`}
-          icon={UsersRound}
-          tone="bg-violet-50 text-violet-700"
+          label="Standar Postur (≥ 170 cm)"
+          value={String(posturPassCount)}
+          detail={`${posturPassCount} dari ${candidates.length} santri memenuhi target BPIP`}
+          icon={UserRoundCheck}
+          tone="bg-emerald-50 text-emerald-700"
         />
         <StatCard
           label="Berkas 6/6 lengkap"
           value={String(completeProfileCount)}
           detail={`${candidates.length - completeProfileCount} kandidat perlu dilengkapi`}
           icon={FileCheck2}
-          tone="bg-emerald-50 text-emerald-700"
+          tone="bg-amber-50 text-amber-700"
         />
       </div>
 
@@ -2769,7 +2746,7 @@ function getCandidateStageMetric(cand: Candidate, stageIdx: number) {
     const candBmi = cand.heightCm && cand.weightKg ? bmi(cand.weightKg, cand.heightCm) : null
     return {
       primary: cand.heightCm ? `${cand.heightCm} cm / ${cand.weightKg ?? "—"} kg` : "Belum Ukur",
-      secondary: candBmi ? `BMI ${candBmi.value} (${candBmi.label})` : "Antropometri Postur",
+      secondary: candBmi ? `BMI ${candBmi.value} (${candBmi.category})` : "Antropometri Postur",
       badge: candBmi?.status === "ideal" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-slate-100 text-slate-700 border-slate-200",
     }
   }
@@ -3442,7 +3419,6 @@ function ProgressView({
   const docsValidCount = (candidate.documents ?? []).filter(Boolean).length
   const docsPercent = Math.round((docsValidCount / 6) * 100)
 
-  const isPutri = candidate.gender === "Putri"
   const existingMetrics = candidate.physicalMetrics ?? []
 
   const parseMetricNum = (str: string | undefined): number | null => {
@@ -3487,11 +3463,11 @@ function ProgressView({
   }
 
   const handleSaveSamapta = () => {
-    const runTarget = isPutri ? 2600 : 3000
-    const pushTarget = isPutri ? 35 : 45
-    const sitTarget = isPutri ? 38 : 40
-    const backTarget = isPutri ? 40 : 50
-    const shuttleTarget = isPutri ? 17.0 : 15.4
+    const runTarget = 3000
+    const pushTarget = 45
+    const sitTarget = 40
+    const backTarget = 50
+    const shuttleTarget = 15.4
 
     const fRun = samaptaForm.run.trim() !== "" ? parseFloat(samaptaForm.run) : null
     const fPush = samaptaForm.pushup.trim() !== "" ? parseFloat(samaptaForm.pushup) : null
@@ -3566,9 +3542,9 @@ function ProgressView({
       category: "Samapta A",
       isPrimary: true,
       current: runItem ? runItem.current : null,
-      target: isPutri ? "2.600 m" : "3.000 m",
+      target: "3.000 m",
       score: runVal !== null ? fitnessScore("run", runVal) : null,
-      percent: runVal !== null ? Math.min(100, Math.round((runVal / (isPutri ? 2600 : 3000)) * 100)) : null,
+      percent: runVal !== null ? Math.min(100, Math.round((runVal / 3000) * 100)) : null,
     },
     {
       key: "pushup" as const,
@@ -3576,9 +3552,9 @@ function ProgressView({
       category: "Samapta B",
       isPrimary: false,
       current: pushupItem ? pushupItem.current : null,
-      target: isPutri ? "35 kali" : "45 kali",
+      target: "45 kali",
       score: pushVal !== null ? fitnessScore("pushup", pushVal) : null,
-      percent: pushVal !== null ? Math.min(100, Math.round((pushVal / (isPutri ? 35 : 45)) * 100)) : null,
+      percent: pushVal !== null ? Math.min(100, Math.round((pushVal / 45) * 100)) : null,
     },
     {
       key: "situp" as const,
@@ -3586,9 +3562,9 @@ function ProgressView({
       category: "Samapta B",
       isPrimary: false,
       current: situpItem ? situpItem.current : null,
-      target: isPutri ? "38 kali" : "40 kali",
+      target: "40 kali",
       score: sitVal !== null ? fitnessScore("situp", sitVal) : null,
-      percent: sitVal !== null ? Math.min(100, Math.round((sitVal / (isPutri ? 38 : 40)) * 100)) : null,
+      percent: sitVal !== null ? Math.min(100, Math.round((sitVal / 40) * 100)) : null,
     },
     {
       key: "backup" as const,
@@ -3596,9 +3572,9 @@ function ProgressView({
       category: "Samapta B",
       isPrimary: false,
       current: backupItem ? backupItem.current : null,
-      target: isPutri ? "40 kali" : "50 kali",
+      target: "50 kali",
       score: backVal !== null ? fitnessScore("backup", backVal) : null,
-      percent: backVal !== null ? Math.min(100, Math.round((backVal / (isPutri ? 40 : 50)) * 100)) : null,
+      percent: backVal !== null ? Math.min(100, Math.round((backVal / 50) * 100)) : null,
     },
     {
       key: "shuttle" as const,
@@ -3606,9 +3582,9 @@ function ProgressView({
       category: "Samapta B",
       isPrimary: false,
       current: shuttleItem ? shuttleItem.current : null,
-      target: isPutri ? "17,0 dtk" : "15,4 dtk",
+      target: "15,4 dtk",
       score: shuttleVal !== null ? fitnessScore("shuttle", shuttleVal) : null,
-      percent: shuttleVal !== null && shuttleVal > 0 ? Math.min(100, Math.round(((isPutri ? 17.0 : 15.4) / shuttleVal) * 100)) : null,
+      percent: shuttleVal !== null && shuttleVal > 0 ? Math.min(100, Math.round((15.4 / shuttleVal) * 100)) : null,
     },
   ]
 
@@ -4025,12 +4001,12 @@ function ProgressView({
                     Lari 12 Menit (Jarak dalam meter)
                   </label>
                   <p className="text-[0.68rem] text-slate-400">
-                    Target nilai 100: {isPutri ? "2.600 m" : "3.000 m"}
+                    Target nilai 100: 3.000 m (Putra)
                   </p>
                   <input
                     type="number"
                     step="10"
-                    placeholder={isPutri ? "Target 2.600 m" : "Target 3.000 m"}
+                    placeholder="Target 3.000 m"
                     value={samaptaForm.run}
                     onChange={(e) =>
                       setSamaptaForm({
@@ -4048,7 +4024,7 @@ function ProgressView({
                       Push-up 1 Menit (kali)
                     </label>
                     <p className="text-[0.68rem] text-slate-400">
-                      Target: {isPutri ? "35 kali" : "45 kali"}
+                      Target: 45 kali
                     </p>
                     <input
                       type="number"
@@ -4068,7 +4044,7 @@ function ProgressView({
                       Sit-up 1 Menit (kali)
                     </label>
                     <p className="text-[0.68rem] text-slate-400">
-                      Target: {isPutri ? "38 kali" : "40 kali"}
+                      Target: 40 kali
                     </p>
                     <input
                       type="number"
@@ -4091,7 +4067,7 @@ function ProgressView({
                       Back-up 1 Menit (kali)
                     </label>
                     <p className="text-[0.68rem] text-slate-400">
-                      Target: {isPutri ? "40 kali" : "50 kali"}
+                      Target: 50 kali
                     </p>
                     <input
                       type="number"
@@ -4111,7 +4087,7 @@ function ProgressView({
                       Shuttle Run 6×10m (detik)
                     </label>
                     <p className="text-[0.68rem] text-slate-400">
-                      Target: {isPutri ? "17,0 dtk" : "15,4 dtk"}
+                      Target: 15,4 dtk
                     </p>
                     <input
                       type="number"
@@ -4232,15 +4208,11 @@ function RankingView({
 }) {
   const { candidates, rankingPublished, setRankingPublished, currentUser } =
     useApp()
-  const [genderFilter, setGenderFilter] = useState<"all" | "Putra" | "Putri">(
-    "all",
-  )
   const [searchQuery, setSearchQuery] = useState("")
 
   const ranked = useMemo(
     () =>
       candidates
-        .filter((c) => genderFilter === "all" || c.gender === genderFilter)
         .filter((candidate) => evaluateRankingAnthropometry(candidate).status === "eligible")
         .map((candidate) => ({ candidate, score: finalScore(candidate) }))
         .filter(
@@ -4248,7 +4220,7 @@ function RankingView({
             item.score !== null && item.score > 0,
         )
         .sort(compareRankedCandidates),
-    [candidates, genderFilter],
+    [candidates],
   )
 
   const filteredRanked = useMemo(() => {
@@ -4266,12 +4238,11 @@ function RankingView({
     () =>
       candidates.filter(
         (c) =>
-          (genderFilter === "all" || c.gender === genderFilter) &&
-          (evaluateRankingAnthropometry(c).status !== "eligible" ||
-            finalScore(c) === null ||
-            (finalScore(c) ?? 0) <= 0),
+          evaluateRankingAnthropometry(c).status !== "eligible" ||
+          finalScore(c) === null ||
+          (finalScore(c) ?? 0) <= 0,
       ),
-    [candidates, genderFilter],
+    [candidates],
   )
 
   return (
@@ -4313,7 +4284,7 @@ function RankingView({
               Leaderboard kesiapan sementara
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              {filteredRanked.length} santri aktif
+              {filteredRanked.length} santri putra aktif
             </p>
           </div>
 
@@ -4338,20 +4309,9 @@ function RankingView({
               ) : null}
             </div>
 
-            <div className="flex gap-1.5">
-              {(["all", "Putra", "Putri"] as const).map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setGenderFilter(g)}
-                  className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
-                    genderFilter === g
-                      ? "bg-slate-950 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {g === "all" ? "Semua Gender" : g}
-                </button>
-              ))}
+            <div className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-bold text-blue-700">
+              <span className="size-2 rounded-full bg-blue-600" />
+              Khusus Putra
             </div>
           </div>
         </div>
