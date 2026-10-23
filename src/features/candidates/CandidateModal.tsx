@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react"
 import {
+  Activity,
+  AlertCircle,
   ArrowLeft,
   Camera,
   CheckCircle2,
+  Clock,
   Eye,
   FileCheck2,
   FileText,
-  IdCard,
   Paperclip,
-  Printer,
+  RotateCcw,
   Save,
   ShieldAlert,
   Trash2,
@@ -16,19 +18,18 @@ import {
   UserRoundCheck,
   X,
 } from "lucide-react"
-import { Badge, Button, CandidateAvatar, Input } from "../../components/ui"
+import { Badge, Button, CandidateAvatar, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { administrationDocuments } from "../../data/selectionGuide"
+import type { IshiharaScreeningResult } from "../ishihara/types"
 import {
   bmi,
   evaluateAgeEligibility,
   finalScore,
-  isPhaseOnePassed,
   selectionStages,
   type Candidate,
   type StageStatus,
 } from "../../domain/selection"
-import { printAdmissionCard, printCandidateReport } from "../../lib/exportUtils"
 import {
   compressImageToDataUrl,
   readDocumentFileToDataUrl,
@@ -296,6 +297,169 @@ export function CreateCandidateModal({
   )
 }
 
+const STAGE_STATUS_CONFIG = {
+  passed: {
+    label: "Siap Standar",
+    shortLabel: "Siap",
+    badgeLabel: "SIAP",
+    tone: "success" as const,
+    icon: CheckCircle2,
+    activeClass: "bg-emerald-600 text-white shadow-xs ring-1 ring-emerald-600 font-semibold",
+  },
+  active: {
+    label: "Sedang Dilatih",
+    shortLabel: "Proses",
+    badgeLabel: "PROSES",
+    tone: "info" as const,
+    icon: Clock,
+    activeClass: "bg-blue-600 text-white shadow-xs ring-1 ring-blue-600 font-semibold",
+  },
+  review: {
+    label: "Perlu Penguatan",
+    shortLabel: "Penguatan",
+    badgeLabel: "PENGUATAN",
+    tone: "warning" as const,
+    icon: AlertCircle,
+    activeClass: "bg-amber-600 text-white shadow-xs ring-1 ring-amber-600 font-semibold",
+  },
+  failed: {
+    label: "Perlu Remedial",
+    shortLabel: "Remedial",
+    badgeLabel: "REMEDIAL",
+    tone: "danger" as const,
+    icon: RotateCcw,
+    activeClass: "bg-rose-600 text-white shadow-xs ring-1 ring-rose-600 font-semibold",
+  },
+} as const
+
+function getStageStatusExplanation(
+  stageKey: string,
+  status: StageStatus,
+  candidate: Candidate,
+): string {
+  if (status === "passed") {
+    switch (stageKey) {
+      case "administration": {
+        const docsCount = candidate.documents?.filter(Boolean).length ?? 0
+        return docsCount >= 6
+          ? "Seluruh 6 berkas persyaratan terverifikasi lengkap dan memenuhi standar kualifikasi."
+          : "Kualifikasi administrasi, usia, dan data santri dinyatakan lengkap & memenuhi syarat."
+      }
+      case "pip":
+        return candidate.pip !== null
+          ? `Skor CAT PIP mencapai ${candidate.pip}/100, telah melampaui passing grade minimal BPIP.`
+          : "Penguasaan materi Pancasila dan Wawasan Kebangsaan telah mencapai standar kelulusan."
+      case "tiu":
+        return candidate.tiu !== null
+          ? `Skor CAT TIU mencapai ${candidate.tiu}/100, kemampuan logika & numerik memenuhi passing grade.`
+          : "Kemampuan penalaran logis, analogi, dan numerik memenuhi standar kualifikasi."
+      case "medical":
+        return "Pemeriksaan kesehatan, tensi darah, penglihatan mata, dan tes buta warna dinyatakan normal."
+      case "parade":
+        return candidate.heightCm && candidate.weightKg
+          ? `Tinggi ${candidate.heightCm} cm & berat ${candidate.weightKg} kg proporsional, sikap sempurna dan postur tegak simetris.`
+          : "Postur tubuh simetris, sikap sempurna dan proporsi tinggi-berat badan memenuhi standar parade."
+      case "pbb":
+        return candidate.pbb !== null
+          ? `Nilai PBB ${candidate.pbb}/100, gerakan dasar patah-patah mantap dan vokal aba-aba dinilai tegas.`
+          : "Kerapian gerakan dasar baris berbaris dan penguasaan aba-aba telah memenuhi standar."
+      case "fitness":
+        return candidate.fitness !== null
+          ? `Nilai Samapta ${candidate.fitness}/100, ketahanan lari dan tes fisik melampaui ambang batas kuota.`
+          : "Daya tahan kardiorespirasi (lari 12 menit) dan ketangkasan fisik memenuhi standar kelulusan."
+      case "personality":
+        return candidate.personality !== null
+          ? `Nilai Kepribadian ${candidate.personality}/100, etika, mental santri dan komunikasi lugas.`
+          : "Integritas kepribadian, mental ideologi santri, dan artikulasi komunikasi teruji matang."
+      default:
+        return "Telah memenuhi seluruh standar kualifikasi materi dan siap menghadapi seleksi resmi."
+    }
+  }
+
+  if (status === "active") {
+    switch (stageKey) {
+      case "administration": {
+        const docsCount = candidate.documents?.filter(Boolean).length ?? 0
+        return `Sedang proses verifikasi dan validasi kelengkapan dokumen (${docsCount}/6 berkas terunggah).`
+      }
+      case "pip":
+        return candidate.pip !== null
+          ? `Nilai tryout saat ini ${candidate.pip}/100, sedang drill bank soal penguatan materi wawasan kebangsaan.`
+          : "Sedang menjalani simulasi bank soal dan pendalaman materi CAT Pancasila."
+      case "tiu":
+        return candidate.tiu !== null
+          ? `Nilai tryout saat ini ${candidate.tiu}/100, sedang pembinaan kecepatan hitung dan penalaran analitis.`
+          : "Sedang pembinaan kemampuan logika, silogisme, dan kecepatan numerik."
+      case "medical":
+        return "Dalam pemantauan antropometri rutin, stabilitas tekanan darah, dan kebugaran fisik."
+      case "parade":
+        return "Sedang pembinaan sikap sempurna parade, latihan kelurusan tulang belakang, dan peregangan postur."
+      case "pbb":
+        return candidate.pbb !== null
+          ? `Nilai PBB sementara ${candidate.pbb}/100, sedang pemantapan langkah tegap dan kekompakan tempo.`
+          : "Sedang menjalani drill rutin materi gerakan dasar di tempat dan langkah tegap berkelanjutan."
+      case "fitness":
+        return candidate.fitness !== null
+          ? `Nilai Samapta sementara ${candidate.fitness}/100, program peningkatan VO2Max dan daya tahan lari aktif.`
+          : "Sedang menjalani program latihan fisik terprogram, lari interval, dan calisthenics harian."
+      case "personality":
+        return candidate.personality !== null
+          ? `Nilai wawancara sementara ${candidate.personality}/100, simulasi tanya-jawab kepribadian berlanjut.`
+          : "Sedang simulasi wawancara mental ideologi santri dan pembentukan rasa percaya diri."
+      default:
+        return "Sedang aktif dalam proses pembinaan rutin dan pemenuhan materi latihan."
+    }
+  }
+
+  if (status === "review") {
+    switch (stageKey) {
+      case "administration":
+        return "Terdapat berkas administratif atau data registrasi yang perlu perbaikan/legalisir ulang."
+      case "pip":
+        return "Perlu fokus penguatan pada butir-butir Pancasila dan implementasi UUD 1945."
+      case "tiu":
+        return "Perlu latihan intensif pada sub-materi numerik dan ketelitian silogisme logika."
+      case "medical":
+        return "Perlu pemantauan tensi istirahat, pola tidur cukup, atau konsultasi kondisi fisik tertentu."
+      case "parade":
+        return "Perlu koreksi bahu miring, sikap sempurna, atau penyesuaian stabilitas berat badan."
+      case "pbb":
+        return "Fokus perbaikan pada ayunan lengan, hentakan tempo langkah, atau volume suara aba-aba."
+      case "fitness":
+        return "Perlu peningkatan porsi latihan lari 12 menit dan penguatan otot inti (core muscle)."
+      case "personality":
+        return "Perlu melatih ketenangan saat berbicara, artikulasi vokal, dan struktur jawaban wawancara."
+      default:
+        return "Memerlukan penajaman fokus dan pembinaan khusus pada beberapa aspek evaluasi."
+    }
+  }
+
+  if (status === "failed") {
+    switch (stageKey) {
+      case "administration":
+        return "Berkas persyaratan belum lengkap atau terdapat ketidaksesuaian data identitas calon."
+      case "pip":
+        return "Skor simulasi belum mencapai passing grade minimal BPIP, memerlukan remedial drill soal."
+      case "tiu":
+        return "Skor tryout TIU masih di bawah ambang batas minimal, memerlukan bimbingan trik dan remedial."
+      case "medical":
+        return "Terdapat catatan medis atau antropometri yang berada di luar ambang batas kelulusan."
+      case "parade":
+        return "Tinggi badan atau postur sikap belum memenuhi standar minimal formasi parade."
+      case "pbb":
+        return "Gerakan masih sering keliru tempo atau ragu-ragu dalam aba-aba, butuh drill remedial."
+      case "fitness":
+        return "Daya tahan fisik atau jarak tempuh lari belum memenuhi batas kuota minimal."
+      case "personality":
+        return "Penyampaian jawaban belum memenuhi kriteria sikap mental kepribadian yang dipersyaratkan."
+      default:
+        return "Belum mencapai ambang batas kelulusan materi, memerlukan sesi remedial intensif."
+    }
+  }
+
+  return "Materi belum dinilai atau menunggu evaluasi pelatih."
+}
+
 export function CandidateDetailView({
   candidateId,
   onClose,
@@ -313,7 +477,7 @@ export function CandidateDetailView({
   } = useApp()
 
   const candidate = allCandidates.find((c) => c.id === candidateId) ?? null
-  const [tab, setTab] = useState<"profile" | "stages" | "scores">("profile")
+  const [tab, setTab] = useState<"profile" | "stages">("profile")
 
   const [name, setName] = useState("")
   const [school, setSchool] = useState("")
@@ -333,7 +497,6 @@ export function CandidateDetailView({
   const [attendance, setAttendance] = useState("90")
   const [trainingCompliance, setTrainingCompliance] = useState("88")
   const [coachNote, setCoachNote] = useState("")
-  const [stageReason, setStageReason] = useState("")
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [uploadingDocIdx, setUploadingDocIdx] = useState<number | null>(null)
 
@@ -420,7 +583,6 @@ export function CandidateDetailView({
     setAttendance(String(candidate.attendance ?? 90))
     setTrainingCompliance(String(candidate.trainingCompliance ?? 88))
     setCoachNote(candidate.coachNote ?? "")
-    setStageReason(candidate.eliminationReason ?? "")
   }, [candidate])
 
   if (!candidate) return null
@@ -428,7 +590,6 @@ export function CandidateDetailView({
   const age = evaluateAgeEligibility(candidate.birthDate, activeCycle.year)
   const bmiInfo = bmi(candidate.weightKg ?? 0, candidate.heightCm ?? 0)
   const score = finalScore(candidate)
-  const phase1Passed = isPhaseOnePassed(candidate)
   const docs = candidate.documents ?? [false, false, false, false, false, false]
 
   function saveProfile(e: React.FormEvent) {
@@ -465,22 +626,23 @@ export function CandidateDetailView({
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 animate-in fade-in duration-200">
-      {/* Top Back & Breadcrumb Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300 active:scale-95"
-        >
-          <ArrowLeft className="size-4 text-slate-500 group-hover:text-red-600 transition" />
-          <span>Kembali</span>
-        </button>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <span>Buku Induk Santri</span>
-          <span>/</span>
-          <span className="font-bold text-slate-900">{candidate.name}</span>
+      {/* Wadah Navigasi & Nama Kandidat (Berdampingan Rapi Tanpa Jarak Kosong) */}
+      <Card className="border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-2xs">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="group inline-flex items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200/90 bg-slate-50/70 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-slate-700 shadow-2xs transition hover:bg-red-50 hover:border-red-200 hover:text-red-700 active:scale-95 shrink-0"
+          >
+            <ArrowLeft className="size-3.5 sm:size-4 text-slate-500 group-hover:text-red-600 transition" />
+            <span>Kembali</span>
+          </button>
+          <span className="h-4 w-px bg-slate-200 shrink-0" />
+          <span className="font-bold text-xs sm:text-sm text-slate-900 truncate min-w-0">
+            {candidate.name}
+          </span>
         </div>
-      </div>
+      </Card>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
         <div className="flex flex-wrap items-start justify-between gap-4 bg-slate-950 p-5 sm:p-6 text-white">
@@ -509,36 +671,16 @@ export function CandidateDetailView({
               </label>
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-xl sm:text-2xl font-bold">
-                  {candidate.name}
-                </h2>
-                <Badge tone={phase1Passed ? "success" : "info"}>
-                  Materi {candidate.stage} ·{" "}
-                  {selectionStages[candidate.stage - 1]?.shortLabel}
-                </Badge>
-              </div>
+              <h2 className="font-display text-xl sm:text-2xl font-bold">
+                {candidate.name}
+              </h2>
               <p className="mt-1 text-xs text-slate-300">
                 {candidate.number} · {candidate.school} · {candidate.gender} ·
                 Usia: {age.years} th {age.months} bln
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="secondary"
-              className="!px-3 !py-1.5 !text-xs"
-              onClick={() => printAdmissionCard(candidate)}
-            >
-              <IdCard className="size-4" /> Kartu Ujian
-            </Button>
-            <Button
-              variant="secondary"
-              className="!px-3 !py-1.5 !text-xs"
-              onClick={() => printCandidateReport(candidate, activeCycle.year)}
-            >
-              <Printer className="size-4" /> Cetak Laporan
-            </Button>
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               className="!px-3 !py-1.5 !text-xs text-white hover:bg-white/10"
@@ -549,27 +691,49 @@ export function CandidateDetailView({
           </div>
         </div>
 
-        <div className="flex border-b border-slate-200 bg-slate-50 px-3 sm:px-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {([
-            ["profile", "Profil & 6 Berkas"],
-            ["stages", "Peta Kesiapan 8 Materi"],
-            ["scores", "Nilai & Catatan Pelatih"],
-          ] as const).map(([id, label]) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={`shrink-0 border-b-2 px-3 sm:px-4 py-3 sm:py-3.5 text-xs font-bold transition ${
-                tab === id
-                  ? "border-red-600 text-red-700"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        {/* Segmented Control Navigasi 2 Tab Bersih, Rapi & Lega */}
+        <div className="border-b border-slate-200/80 bg-slate-50/70 p-2 sm:p-3">
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-200/60 p-1">
+            {[
+              {
+                id: "profile" as const,
+                label: "Profil & Berkas",
+                shortLabel: "Profil",
+                icon: FileCheck2,
+              },
+              {
+                id: "stages" as const,
+                label: "Kesiapan Materi",
+                shortLabel: "Materi",
+                icon: Activity,
+              },
+            ].map(({ id, label, shortLabel, icon: TabIcon }) => {
+              const active = tab === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setTab(id)}
+                  className={`flex items-center justify-center gap-2 rounded-lg py-2 sm:py-2.5 px-3 text-xs sm:text-sm font-semibold transition-all duration-150 active:scale-[0.99] min-w-0 ${
+                    active
+                      ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-900/5 font-bold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                  }`}
+                >
+                  <TabIcon
+                    className={`size-4 shrink-0 transition ${
+                      active ? "text-red-600" : "text-slate-400"
+                    }`}
+                  />
+                  <span className="whitespace-nowrap sm:hidden">{shortLabel}</span>
+                  <span className="hidden whitespace-nowrap sm:inline">{label}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {tab === "profile" ? (
             <div className="grid gap-6">
               {/* Photo & Avatar Card */}
@@ -743,28 +907,28 @@ export function CandidateDetailView({
                         }`}
                       >
                         <div>
-                          <div className="flex items-start justify-between gap-2">
-                            <label className="flex cursor-pointer items-start gap-2.5">
+                          <div className="flex items-start justify-between gap-2.5">
+                            <label className="flex cursor-pointer items-start gap-2.5 min-w-0 flex-1">
                               <input
                                 type="checkbox"
                                 checked={checked}
                                 onChange={() =>
                                   toggleCandidateDocument(candidate.id, idx)
                                 }
-                                className="mt-0.5 size-4 accent-emerald-600 cursor-pointer"
+                                className="mt-0.5 size-4 accent-emerald-600 cursor-pointer shrink-0"
                               />
-                              <div>
+                              <div className="min-w-0 flex-1">
                                 <strong className="block text-slate-900 text-xs font-semibold leading-tight">
                                   {idx + 1}. {doc.name}
                                 </strong>
-                                <span className="mt-0.5 block text-[0.7rem] text-slate-500">
+                                <span className="mt-0.5 block text-[0.7rem] text-slate-500 leading-snug">
                                   {doc.detail}
                                 </span>
                               </div>
                             </label>
                             <Badge
                               tone={checked ? "success" : "neutral"}
-                              className="text-[0.62rem] !py-0.5 shrink-0"
+                              className="text-[0.65rem] px-2.5 py-0.5 shrink-0 whitespace-nowrap font-bold"
                             >
                               {checked ? "Valid" : "Belum Valid"}
                             </Badge>
@@ -853,72 +1017,103 @@ export function CandidateDetailView({
 
           {tab === "stages" ? (
             <div className="grid gap-4">
-              <div className="rounded-xl border border-blue-200 bg-blue-50 p-3.5 text-xs text-blue-900">
-                <strong>Paradigma Pembinaan &amp; Kesiapan:</strong> Setiap materi latihan bersifat mandiri tanpa sistem gugur. Santri dapat dievaluasi, diberi penguatan, atau ditandai remedial kapan saja untuk persiapan seleksi resmi.
-              </div>
-
-              <Input
-                label="Catatan perkembangan / hasil evaluasi materi"
-                placeholder="Contoh: Berkas terverifikasi lengkap / Perlu drill vokal komando PBB"
-                value={stageReason}
-                onChange={(e) => setStageReason(e.target.value)}
-              />
-
-              <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200">
+              <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200/90 bg-white">
                 {selectionStages.map((stage, idx) => {
                   const st = candidate.stageStatuses[idx] ?? "active"
+                  const currentConfig =
+                    STAGE_STATUS_CONFIG[
+                      st as keyof typeof STAGE_STATUS_CONFIG
+                    ] ?? {
+                      label: "Belum Dinilai",
+                      badgeLabel: "BELUM DINILAI",
+                      tone: "neutral" as const,
+                      icon: Clock,
+                      activeClass: "bg-slate-800 text-white shadow-xs ring-1 ring-slate-800 font-semibold",
+                    }
+                  const CurrentIcon = currentConfig.icon
+                  const explanation = getStageStatusExplanation(
+                    stage.key,
+                    st,
+                    candidate,
+                  )
+
                   return (
                     <div
                       key={stage.key}
-                      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5"
+                      className="p-4 transition sm:p-5 hover:bg-slate-50/50"
                     >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-400">
-                            Materi {stage.id}
-                          </span>
-                          <p className="text-sm font-bold text-slate-900">
-                            {stage.label}
+                      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0 space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
+                              Materi {stage.id}
+                            </span>
+                            <h4 className="text-sm font-bold text-slate-900">
+                              {stage.label}
+                            </h4>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            {stage.phase === 1
+                              ? "Standar Kualifikasi Dasar"
+                              : "Simulasi Lapangan & Bobot Nilai"}
                           </p>
-                          <Badge
-                            tone={
-                              st === "passed"
-                                ? "success"
-                                : st === "failed"
-                                  ? "danger"
-                                  : st === "review"
-                                    ? "warning"
-                                    : st === "active"
-                                      ? "info"
-                                      : "neutral"
-                            }
-                          >
-                            {st === "passed"
-                              ? "SIAP"
-                              : st === "failed"
-                                ? "REMEDIAL"
-                                : st === "review"
-                                  ? "PENGUATAN"
-                                  : st === "active"
-                                    ? "PROSES"
-                                    : "BELUM DINILAI"}
-                          </Badge>
                         </div>
-                        <p className="mt-0.5 text-xs text-slate-500">
-                          {stage.phase === 1
-                            ? "Standar Kualifikasi Dasar"
-                            : "Simulasi Lapangan & Bobot Nilai"}
-                        </p>
+
+                        <Badge
+                          tone={currentConfig.tone}
+                          className="self-start gap-1.5 px-3 py-1 text-xs font-semibold sm:self-center"
+                        >
+                          <CurrentIcon className="size-3.5 shrink-0" />
+                          <span>{currentConfig.badgeLabel}</span>
+                        </Badge>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5">
-                        {([
-                          ["passed", "Siap Standar"],
-                          ["active", "Sedang Dilatih"],
-                          ["review", "Perlu Penguatan"],
-                          ["failed", "Perlu Remedial"],
-                        ] as [StageStatus, string][]).map(
-                          ([statusVal, label]) => (
+                      {/* Uraian Kesiapan / Catatan Evaluasi Status */}
+                      <div
+                        className={`mt-3 flex items-start gap-2.5 rounded-xl border p-3 text-xs leading-relaxed ${
+                          st === "passed"
+                            ? "border-emerald-200/80 bg-emerald-50/50 text-emerald-950"
+                            : st === "active"
+                              ? "border-blue-200/80 bg-blue-50/50 text-blue-950"
+                              : st === "review"
+                                ? "border-amber-200/80 bg-amber-50/50 text-amber-950"
+                                : st === "failed"
+                                  ? "border-rose-200/80 bg-rose-50/50 text-rose-950"
+                                  : "border-slate-200 bg-slate-50 text-slate-800"
+                        }`}
+                      >
+                        <CurrentIcon className="mt-0.5 size-4 shrink-0 opacity-80" />
+                        <div className="min-w-0 flex-1">
+                          <p>
+                            <span className="font-bold">
+                              {st === "passed"
+                                ? "Keterangan Kesiapan: "
+                                : st === "active"
+                                  ? "Proses Pembinaan: "
+                                  : st === "review"
+                                    ? "Fokus Penguatan: "
+                                    : st === "failed"
+                                      ? "Kendala Remedial: "
+                                      : "Keterangan: "}
+                            </span>
+                            <span className="font-normal">{explanation}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {(
+                          [
+                            "passed",
+                            "active",
+                            "review",
+                            "failed",
+                          ] as (keyof typeof STAGE_STATUS_CONFIG)[]
+                        ).map((statusVal) => {
+                          const config = STAGE_STATUS_CONFIG[statusVal]
+                          const Icon = config.icon
+                          const isSelected = st === statusVal
+                          return (
                             <button
                               key={statusVal}
                               type="button"
@@ -927,128 +1122,26 @@ export function CandidateDetailView({
                                   candidate.id,
                                   idx,
                                   statusVal,
-                                  stageReason,
                                 )
                               }
-                              className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition ${
-                                st === statusVal
-                                  ? "bg-slate-950 text-white"
-                                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                              className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition active:scale-[0.98] ${
+                                isSelected
+                                  ? config.activeClass
+                                  : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
                               }`}
                             >
-                              {label}
+                              <Icon className="size-3.5 shrink-0" />
+                              <span className="whitespace-nowrap sm:hidden">{config.shortLabel}</span>
+                              <span className="hidden whitespace-nowrap sm:inline">{config.label}</span>
                             </button>
-                          ),
-                        )}
+                          )
+                        })}
                       </div>
                     </div>
                   )
                 })}
               </div>
             </div>
-          ) : null}
-
-          {tab === "scores" ? (
-            <form onSubmit={saveScores} className="grid gap-5">
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                <Input
-                  label="Nilai CAT PIP (Tahap 2)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  placeholder="0–100"
-                  value={pip}
-                  onChange={(e) => setPip(e.target.value)}
-                />
-                <Input
-                  label="Nilai CAT TIU (Tahap 3)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  placeholder="0–100"
-                  value={tiu}
-                  onChange={(e) => setTiu(e.target.value)}
-                />
-                <Input
-                  label="Nilai PBB · Bobot 30% (Tahap 6)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  placeholder="0–100"
-                  value={pbb}
-                  onChange={(e) => setPbb(e.target.value)}
-                />
-                <Input
-                  label="Nilai Samapta · Bobot 30% (Tahap 7)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  placeholder="0–100"
-                  value={fitness}
-                  onChange={(e) => setFitness(e.target.value)}
-                />
-                <Input
-                  label="Nilai Kepribadian · Bobot 40% (Tahap 8)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  placeholder="0–100"
-                  value={personality}
-                  onChange={(e) => setPersonality(e.target.value)}
-                />
-                <div className="flex flex-col justify-center rounded-2xl bg-slate-950 p-4 text-white">
-                  <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
-                    Nilai Akhir (30/30/40)
-                  </span>
-                  <span className="mt-1 font-display text-2xl font-bold text-red-400">
-                    {score !== null ? score.toFixed(2) : "Belum lengkap"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Input
-                  label="Kehadiran latihan (%)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={attendance}
-                  onChange={(e) => setAttendance(e.target.value)}
-                />
-                <Input
-                  label="Kepatuhan program latihan (%)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={trainingCompliance}
-                  onChange={(e) => setTrainingCompliance(e.target.value)}
-                />
-              </div>
-
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                Catatan pelatih / rekomendasi evaluasi
-                <textarea
-                  rows={3}
-                  value={coachNote}
-                  onChange={(e) => setCoachNote(e.target.value)}
-                  className="rounded-xl border border-slate-200 p-3.5 text-sm font-normal outline-none focus:border-red-400"
-                />
-              </label>
-
-              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
-                <Button type="button" variant="secondary" onClick={onClose}>
-                  <ArrowLeft className="size-4" /> Kembali
-                </Button>
-                <Button type="submit">
-                  <Save className="size-4" /> Simpan seluruh nilai & catatan
-                </Button>
-              </div>
-            </form>
           ) : null}
         </div>
       </div>

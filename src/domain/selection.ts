@@ -86,6 +86,13 @@ export type Candidate = {
   birthDate: string
   phone?: string
   socialMedia?: string
+  socialMediaAudit?: {
+    status: "verified" | "review" | "flagged"
+    notes?: string
+    checkedItems?: string[]
+    verifiedAt?: string
+    embedUrls?: string[]
+  }
   heightCm?: number
   weightKg?: number
   anthropometryHistory?: AnthropometryLog[]

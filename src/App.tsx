@@ -51,6 +51,7 @@ import {
   UserAvatar,
 } from "./components/ui"
 import { AppProvider, useApp } from "./context/AppContext"
+import { candidates as initialCandidates } from "./data/initialData"
 import { administrationDocuments, fitnessScore, fitnessTables, pbbRubric, pipTopics, tiuTopics } from "./data/selectionGuide"
 import {
   ageOnReferenceDate,
@@ -957,8 +958,8 @@ function MobileNav({
       : [
           { id: "overview" as View, label: "Beranda", icon: LayoutDashboard, color: "bg-indigo-600 shadow-indigo-600/30" },
           { id: "sessions" as View, label: "Sesi", icon: ClipboardCheck, color: "bg-pink-600 shadow-pink-600/30" },
-          { id: "progress" as View, label: "Perkembangan", icon: Activity, color: "bg-emerald-600 shadow-emerald-600/30" },
           { id: "candidates" as View, label: "Kandidat", icon: UsersRound, color: "bg-amber-500 shadow-amber-500/30" },
+          { id: "progress" as View, label: "Perkembangan", icon: Activity, color: "bg-emerald-600 shadow-emerald-600/30" },
           { id: "ranking" as View, label: "Peringkat", icon: Trophy, color: "bg-cyan-600 shadow-cyan-600/30" },
         ]
 
@@ -1578,10 +1579,10 @@ function CandidateTable({
           <h2 className="font-display text-base sm:text-lg font-bold text-slate-900 truncate">
             {compact ? "Aktivitas kandidat" : "Daftar kandidat"}
           </h2>
-          <p className="mt-0.5 text-xs text-slate-500 truncate">
+          <p className="mt-0.5 text-xs text-slate-500">
             {compact
               ? "Pembaruan terbaru lintas tahapan"
-              : `${filtered.length} dari ${candidates.length} kandidat ditampilkan`}
+              : `${filtered.length} dari ${candidates.length} kandidat`}
           </p>
         </div>
         {compact ? (
@@ -1658,29 +1659,24 @@ function CandidateTable({
               onClick={() => onSelectCandidate(candidate.id)}
               className="w-full min-w-0 rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-xs hover:shadow-md transition-all duration-200 hover:border-slate-300 text-left active:scale-[0.99] flex flex-col gap-3 group"
             >
-              <div className="flex items-center justify-between gap-2.5 w-full min-w-0">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <CandidateAvatar
-                    name={candidate.name}
-                    avatar={candidate.avatar}
-                    photoUrl={candidate.photoUrl}
-                    className="size-11 sm:size-12 text-xs font-bold shrink-0 border border-slate-200 shadow-2xs"
-                    rounded="rounded-xl"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition">
+              <div className="flex items-start gap-3 w-full min-w-0">
+                <CandidateAvatar
+                  name={candidate.name}
+                  avatar={candidate.avatar}
+                  photoUrl={candidate.photoUrl}
+                  className="size-11 sm:size-12 text-xs font-bold shrink-0 border border-slate-200 shadow-2xs mt-0.5"
+                  rounded="rounded-xl"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition leading-snug break-words">
                       {candidate.name}
                     </p>
-                    <p className="mt-0.5 truncate text-[0.68rem] sm:text-xs text-slate-500">
-                      {candidate.school}
-                    </p>
+                    <ChevronRight className="size-4 shrink-0 text-slate-300 group-hover:text-slate-600 transition mt-0.5" />
                   </div>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <Badge tone={insight?.overallTone ?? "neutral"}>
-                    {insight?.overallStatus ?? "Belum dimulai"}
-                  </Badge>
-                  <ChevronRight className="size-4 shrink-0 text-slate-300 group-hover:text-slate-600 transition" />
+                  <p className="mt-0.5 text-[0.68rem] sm:text-xs text-slate-500">
+                    {candidate.school}
+                  </p>
                 </div>
               </div>
 
@@ -1728,9 +1724,9 @@ function CandidateTable({
               </div>
 
               {insight?.followUp && insight.followUp !== "Tidak ada tindak lanjut" ? (
-                <div className="flex items-center gap-2 rounded-xl bg-amber-50/90 border border-amber-200/70 px-2.5 py-1.5 text-[0.68rem] text-amber-900 min-w-0">
-                  <AlertTriangle className="size-3.5 shrink-0 text-amber-600" />
-                  <p className="truncate min-w-0">
+                <div className="flex items-start gap-2 rounded-xl bg-amber-50/90 border border-amber-200/70 px-2.5 py-1.5 text-[0.68rem] text-amber-900 min-w-0">
+                  <AlertTriangle className="size-3.5 shrink-0 text-amber-600 mt-0.5" />
+                  <p className="min-w-0 leading-snug break-words">
                     <strong className="font-bold">Tindak lanjut:</strong> {insight.followUp}
                   </p>
                 </div>
@@ -2803,12 +2799,16 @@ function CandidatesView({
   const { candidates, importCandidates, activeCycle, showToast } = useApp()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
+  const totalCount = candidates.length
   const posturPassCount = candidates.filter(
     (c) => (c.heightCm ?? 0) >= 170,
   ).length
   const completeProfileCount = candidates.filter(
     (c) => (c.documents ?? []).filter(Boolean).length === 6,
   ).length
+  const posturPassPct = totalCount > 0 ? Math.round((posturPassCount / totalCount) * 100) : 0
+  const completeProfilePct = totalCount > 0 ? Math.round((completeProfileCount / totalCount) * 100) : 0
+  const pendingDocsCount = totalCount - completeProfileCount
 
   function handleCsvFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -2883,81 +2883,149 @@ function CandidatesView({
 
   return (
     <div className="grid gap-4 sm:gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-              Kandidat
-            </h1>
-            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
-              {activeCycle.name} · {activeCycle.level}
-            </span>
+      {/* Wadah Header Kandidat Terstruktur & Rapi */}
+      <Card className="border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="grid size-8 sm:size-9 shrink-0 place-items-center rounded-xl bg-red-100 text-red-600 shadow-2xs">
+                <UsersRound className="size-4.5" />
+              </span>
+              <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+                Kandidat
+              </h1>
+              <span className="inline-flex items-center rounded-lg bg-red-50 border border-red-200/80 px-2.5 py-0.5 text-xs font-bold text-red-700">
+                {activeCycle.name} · {activeCycle.level}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-slate-500 max-w-xl leading-relaxed">
+              Kelola profil, status tahap, dan kelengkapan berkas kandidat.
+            </p>
           </div>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Kelola profil, status tahap, impor/ekspor CSV, dan kelengkapan berkas kandidat.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            className="hidden"
-            onChange={handleCsvFileChange}
-          />
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={downloadCandidateTemplateCsv}
-            title="Unduh contoh format CSV untuk impor"
-            className="justify-center text-xs"
-          >
-            <Download className="size-3.5" /> Template CSV
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => fileInputRef.current?.click()}
-            className="justify-center text-xs"
-          >
-            <Upload className="size-3.5" /> Impor CSV
-          </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => exportCandidatesCsv(candidates)}
-            className="justify-center text-xs"
-          >
-            <Download className="size-3.5" /> Ekspor CSV
-          </Button>
-          <Button size="sm" onClick={onOpenAddCandidate} className="justify-center text-xs">
-            <UserRoundCheck className="size-3.5" /> Tambah kandidat
-          </Button>
-        </div>
-      </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
-        <StatCard
-          label="Total Santri Putra"
-          value={String(candidates.length)}
-          detail="100% seleksi kategori Putra"
-          icon={UsersRound}
-          tone="bg-blue-50 text-blue-700"
-        />
-        <StatCard
-          label="Standar Postur (≥ 170 cm)"
-          value={String(posturPassCount)}
-          detail={`${posturPassCount} dari ${candidates.length} santri memenuhi target BPIP`}
-          icon={UserRoundCheck}
-          tone="bg-emerald-50 text-emerald-700"
-        />
-        <StatCard
-          label="Berkas 6/6 lengkap"
-          value={String(completeProfileCount)}
-          detail={`${candidates.length - completeProfileCount} kandidat perlu dilengkapi`}
-          icon={FileCheck2}
-          tone="bg-amber-50 text-amber-700"
-        />
+          <div className="shrink-0">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleCsvFileChange}
+            />
+            {/* Tombol Aksi Utama: Tambah Kandidat */}
+            <Button
+              size="sm"
+              onClick={onOpenAddCandidate}
+              className="justify-center text-xs w-full sm:w-auto shadow-xs font-bold whitespace-nowrap"
+            >
+              <UserRoundCheck className="size-3.5" />
+              <span>Tambah kandidat</span>
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* 3 Kotak Metrik 1 Baris (Responsif & Modern) */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+        {/* Card 1: Total Santri Putra */}
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-blue-200/80 bg-gradient-to-br from-white via-blue-50/25 to-indigo-50/40 p-2.5 sm:p-4 shadow-2xs hover:shadow-xs transition duration-200">
+          <div>
+            <div className="flex items-center justify-between gap-1">
+              <span className="grid size-7 sm:size-9 place-items-center rounded-lg sm:rounded-xl bg-blue-100/90 text-blue-700 shadow-2xs">
+                <UsersRound className="size-3.5 sm:size-4.5" />
+              </span>
+              <span className="inline-flex items-center rounded-md bg-blue-100/80 px-1.5 py-0.5 text-[0.6rem] sm:text-xs font-bold text-blue-700">
+                100%
+              </span>
+            </div>
+            <div className="mt-2 sm:mt-3">
+              <p className="text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">
+                Total Santri
+              </p>
+              <p className="font-display text-lg sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-950">
+                {totalCount}
+              </p>
+            </div>
+          </div>
+          <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2 border-t border-blue-100/70">
+            <div className="flex items-center justify-between text-[0.6rem] sm:text-xs text-slate-500">
+              <span className="truncate">Kategori</span>
+              <span className="font-semibold text-blue-700 shrink-0">Putra</span>
+            </div>
+            <div className="mt-1 h-1 sm:h-1.5 w-full rounded-full bg-blue-100 overflow-hidden">
+              <div className="h-full rounded-full bg-blue-600 w-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Standar Postur */}
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-white via-emerald-50/25 to-teal-50/40 p-2.5 sm:p-4 shadow-2xs hover:shadow-xs transition duration-200">
+          <div>
+            <div className="flex items-center justify-between gap-1">
+              <span className="grid size-7 sm:size-9 place-items-center rounded-lg sm:rounded-xl bg-emerald-100/90 text-emerald-700 shadow-2xs">
+                <UserRoundCheck className="size-3.5 sm:size-4.5" />
+              </span>
+              <span className="inline-flex items-center rounded-md bg-emerald-100/80 px-1.5 py-0.5 text-[0.6rem] sm:text-xs font-bold text-emerald-700">
+                {posturPassPct}%
+              </span>
+            </div>
+            <div className="mt-2 sm:mt-3">
+              <p className="text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">
+                Target Postur
+              </p>
+              <p className="font-display text-lg sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-950">
+                {posturPassCount}
+              </p>
+            </div>
+          </div>
+          <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2 border-t border-emerald-100/70">
+            <div className="flex items-center justify-between text-[0.6rem] sm:text-xs text-slate-500">
+              <span className="truncate">≥ 170 cm</span>
+              <span className="font-semibold text-emerald-700 shrink-0">{posturPassCount}/{totalCount}</span>
+            </div>
+            <div className="mt-1 h-1 sm:h-1.5 w-full rounded-full bg-emerald-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-600 transition-all duration-500"
+                style={{ width: `${posturPassPct}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Berkas 6/6 Lengkap */}
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-amber-200/80 bg-gradient-to-br from-white via-amber-50/25 to-orange-50/40 p-2.5 sm:p-4 shadow-2xs hover:shadow-xs transition duration-200">
+          <div>
+            <div className="flex items-center justify-between gap-1">
+              <span className="grid size-7 sm:size-9 place-items-center rounded-lg sm:rounded-xl bg-amber-100/90 text-amber-700 shadow-2xs">
+                <FileCheck2 className="size-3.5 sm:size-4.5" />
+              </span>
+              <span className="inline-flex items-center rounded-md bg-amber-100/80 px-1.5 py-0.5 text-[0.6rem] sm:text-xs font-bold text-amber-800">
+                {completeProfilePct}%
+              </span>
+            </div>
+            <div className="mt-2 sm:mt-3">
+              <p className="text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider text-slate-500 truncate">
+                Berkas 6/6
+              </p>
+              <p className="font-display text-lg sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-950">
+                {completeProfileCount}
+              </p>
+            </div>
+          </div>
+          <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2 border-t border-amber-100/70">
+            <div className="flex items-center justify-between text-[0.6rem] sm:text-xs text-slate-500">
+              <span className="truncate">{pendingDocsCount > 0 ? "Kurang" : "Lengkap"}</span>
+              <span className="font-semibold text-amber-800 shrink-0">
+                {pendingDocsCount > 0 ? `${pendingDocsCount} santri` : "Semua"}
+              </span>
+            </div>
+            <div className="mt-1 h-1 sm:h-1.5 w-full rounded-full bg-amber-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-amber-500 transition-all duration-500"
+                style={{ width: `${completeProfilePct}%` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <CandidateTable onSelectCandidate={onSelectCandidate} />
@@ -3812,19 +3880,34 @@ function ProgressView({
   let runVal = parsedRun
   if (parsedRun !== null && parsedRun < 2000) {
     const officialSession = sessions.find(
-      (s) => s.type === "fitness" && !s.title.toLowerCase().includes("interval"),
+      (s) =>
+        s.type === "fitness" &&
+        !s.title.toLowerCase().includes("interval") &&
+        !s.title.toLowerCase().includes("drill"),
     )
+    let dist: number | null = null
     if (officialSession) {
       const offRec = records[`${officialSession.id}:${candidate?.id}`]
-      const dist = offRec?.metrics?.distance ? parseFloat(offRec.metrics.distance) : null
-      if (dist && dist >= 2000) {
-        runVal = dist
-        effectiveRunItem = {
-          label: "Lari 12 menit",
-          current: `${dist.toLocaleString("id-ID")} m`,
-          target: "3.000 m",
-          percent: Math.min(100, Math.round((dist / 3000) * 100)),
-        }
+      if (offRec?.metrics?.distance && !offRec.metrics.runMode?.includes("interval")) {
+        const parsed = parseFloat(offRec.metrics.distance)
+        if (parsed >= 2000) dist = parsed
+      }
+    }
+    if (!dist) {
+      const seeded = initialCandidates.find((sc) => sc.id === candidate?.id || sc.number === candidate?.number)
+      const seededRun = seeded?.physicalMetrics?.find((m) => m.label.toLowerCase().includes("lari"))
+      if (seededRun) {
+        const parsed = parseFloat(seededRun.current.replace(/\./g, "").replace(/[^\d.]/g, ""))
+        if (parsed >= 2000) dist = parsed
+      }
+    }
+    if (dist && dist >= 2000) {
+      runVal = dist
+      effectiveRunItem = {
+        label: "Lari 12 menit",
+        current: `${dist.toLocaleString("id-ID")} m`,
+        target: "3.000 m",
+        percent: Math.min(100, Math.round((dist / 3000) * 100)),
       }
     }
   }
@@ -4839,7 +4922,7 @@ function RankingView({
                       rounded="rounded-xl"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-slate-900">
+                      <p className="text-sm font-bold text-slate-900 leading-snug break-words">
                         {candidate.name}
                       </p>
                       <p className="mt-0.5 text-xs text-slate-500">

@@ -12747,7 +12747,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam pembahasan Buku Pendidikan Pancasila Kelas X (Bab 1 (hlm. 11)), penjelasan yang paling tepat mengenai 'Bahasa Sanskerta 'Panca' dan 'Sila'' adalah...",
     "options": [
-      "Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia",
+      "Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia",
       "Asal kata Pancasila yang dikemukakan Sukarno pada 1 Juni 1945, di mana 'panca' berarti lima dan 'sila' berarti dasar/asas",
       "Lagu kebangsaan/patriotik yang menggambarkan rasa cinta mendalam kepada tanah air Indonesia yang elok, aman, makmur, dan subur",
       "Dasar konstitusional yang menegaskan bahwa 'Negara Indonesia adalah negara hukum', sehingga segala tatanan kehidupan didasarkan atas hukum",
@@ -12761,7 +12761,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0798",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Merujuk pada materi Buku Pendidikan Pancasila Kelas X (Bab 1 (hlm. 12)), konsep, peristiwa, atau regulasi yang berkaitan dengan \"Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia\" adalah...",
+    "question": "Merujuk pada materi Buku Pendidikan Pancasila Kelas X (Bab 1 (hlm. 12)), konsep, peristiwa, atau regulasi yang berkaitan dengan \"Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia\" adalah...",
     "options": [
       "Pendirian ASEAN pada 8 Agustus 1967 di Bangkok dan Keketuaan Indonesia",
       "Harmonisasi Peraturan Perundang-undangan (Sayuna, 2015 & Hasan Wargakusumah)",
@@ -12770,7 +12770,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Politik Uang (Money Politic), Jual Beli Jabatan, Korupsi, dan Nepotisme"
     ],
     "correctIndex": 2,
-    "explanation": "Pada Bab 1 (hlm. 12), dijelaskan bahwa Semboyan Tiga A Jepang (1942) adalah: Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia.",
+    "explanation": "Pada Bab 1 (hlm. 12), dijelaskan bahwa Semboyan Tiga A Jepang (1942) adalah: Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia.",
     "status": "active"
   },
   {
@@ -12783,10 +12783,10 @@ const baseCatQuestions: CatQuestion[] = [
       "Pidato Ketua BPUPK yang menanyakan dasar negara Indonesia merdeka dan mengawali empat hari persidangan pertama BPUPK",
       "Collective action to struggle (tindakan kolektif untuk berjuang), self governing (kemandirian mengatur diri), common goal (tujuan bersama), dan sovereignty (kedaulatan)",
       "Tokoh proklamator yang memopulerkan koperasi sebagai badan usaha demokrasi ekonomi yang berakar kuat pada tradisi gotong royong masyarakat Indonesia",
-      "Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia"
+      "Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia"
     ],
     "correctIndex": 4,
-    "explanation": "Semboyan Tiga A Jepang (1942) (Bab 1 (hlm. 12)): Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia.",
+    "explanation": "Semboyan Tiga A Jepang (1942) (Bab 1 (hlm. 12)): Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia.",
     "status": "active"
   },
   {
@@ -13678,7 +13678,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Tempat pembacaan teks Proklamasi Kemerdekaan Indonesia oleh Sukarno didampingi Moh. Hatta pada Jumat, 17 Agustus 1945 pukul 10.00 WIB",
       "Penyelarasan peraturan agar tidak tumpang tindih dan saling melengkapi: vertikal (dengan peraturan di atasnya) dan horizontal (dengan peraturan sederajat)",
       "Contoh nyata pemenuhan hak pengembangan bakat, minat, dan penguasaan iptek peserta didik di sekolah untuk berkontribusi pada kemajuan bangsa",
-      "Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia",
+      "Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia",
       "Wujud pembangunan ekonomi dan infrastruktur nasional yang berkeadilan untuk memeratakan kesejahteraan masyarakat dari Sabang sampai Merauke"
     ],
     "correctIndex": 4,
@@ -13999,7 +13999,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Konsep negara demokratis Indonesia yang bertanggung jawab atas kesejahteraan umum dan distribusi kekayaan secara adil, di mana hak milik perorangan diakui tetapi memiliki fungsi sosial",
       "Pesan pengabdian tanpa pamrih bagi warga negara: 'Tidak seorang pun yang menghitung-hitung: berapa untung yang kudapat nanti dari Republik ini, jikalau aku berjuang dan berkorban untuk mempertahankannya'",
       "Ketentuan hukum yang melindungi data pribadi warga negara dan mengatur ancaman pidana bagi pelaku tindak kejahatan pencurian data pribadi di ruang siber",
-      "Semboyan пропаganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia"
+      "Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia"
     ],
     "correctIndex": 2,
     "explanation": "Nasihat Presiden Sukarno 17 Agustus 1956 (Gambar 4.9) (Bab 4 Gambar 4.9 (hlm. 174)): Pesan pengabdian tanpa pamrih bagi warga negara: 'Tidak seorang pun yang menghitung-hitung: berapa untung yang kudapat nanti dari Republik ini, jikalau aku berjuang dan berkorban untuk mempertahankannya'.",

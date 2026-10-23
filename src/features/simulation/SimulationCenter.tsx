@@ -1275,11 +1275,13 @@ export default function SimulationCenter() {
           }
 
           const isActive = activeFitnessTests.includes(item.key)
-          const label = isIntervalDistance ? "Lari Interval" : item.label
+          const label = isIntervalDistance ? "Drill Interval (Bina Fisik)" : item.label
           const shortLabel = isIntervalDistance ? "Interval" : item.shortLabel
 
           return {
             ...item,
+            isInterval: isIntervalDistance,
+            isOfficialSamapta: !isIntervalDistance,
             label,
             shortLabel,
             rawStr,
@@ -1292,14 +1294,18 @@ export default function SimulationCenter() {
         })
       : []
 
-  const testedFitnessItems = fitnessItemsData.filter(
-    (item) => item.isActive && item.hasVal,
+  // Tes Resmi Samapta: HANYA Lari 12 Menit resmi dan Samapta B (Latihan Interval TIDAK PERNAH masuk nilai Samapta!)
+  const officialTestedFitnessItems = fitnessItemsData.filter(
+    (item) => item.isActive && item.hasVal && item.isOfficialSamapta,
   )
 
-  const fitnessAverage = testedFitnessItems.length
-    ? testedFitnessItems.reduce((acc, item) => acc + item.score, 0) /
-      testedFitnessItems.length
-    : 0
+  const officialFitnessAverage = officialTestedFitnessItems.length
+    ? officialTestedFitnessItems.reduce((acc, item) => acc + item.score, 0) /
+      officialTestedFitnessItems.length
+    : null
+
+  // Komponen Drill Interval (terpisah dari nilai Samapta)
+  const intervalItemData = fitnessItemsData.find((item) => item.isInterval)
 
   function setSessionFitnessPreset(
     presetId: "all" | "run_only" | "run_shuttle" | "samapta_b" | "custom",
@@ -1468,6 +1474,7 @@ export default function SimulationCenter() {
   function updateIntervalMetrics(patch: Record<string, string>) {
     const nextMetrics = {
       ...record.metrics,
+      runMode: "interval",
       ...patch,
     }
     const distPerSet =
@@ -1481,7 +1488,9 @@ export default function SimulationCenter() {
         ? completedLaps
         : parseInt(nextMetrics.intervalTargetSets || "4", 10) || 4
 
-    nextMetrics.distance = String(setsCount * distPerSet)
+    nextMetrics.intervalTotalDist = String(setsCount * distPerSet)
+    // JANGAN timpa distance dengan total jarak interval! distance HANYA untuk tes resmi Lari 12 Menit.
+    delete nextMetrics.distance
     patchRecord({ metrics: nextMetrics })
   }
 
@@ -1489,6 +1498,7 @@ export default function SimulationCenter() {
     const fieldKey = `intervalLap${setNum}`
     const nextMetrics = {
       ...record.metrics,
+      runMode: "interval",
       [fieldKey]: value,
     }
     const laps = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -1504,9 +1514,11 @@ export default function SimulationCenter() {
     const totalDist = laps.length * distPerSet
     const avg = laps.length > 0 ? laps.reduce((a, b) => a + b, 0) / laps.length : 0
 
-    nextMetrics.distance = totalDist > 0 ? String(totalDist) : ""
+    nextMetrics.intervalTotalDist = totalDist > 0 ? String(totalDist) : ""
     nextMetrics.intervalAvg = avg > 0 ? avg.toFixed(1) : ""
     nextMetrics.laps = String(laps.length)
+    // JANGAN timpa distance dengan total jarak interval! distance HANYA untuk tes resmi Lari 12 Menit.
+    delete nextMetrics.distance
 
     patchRecord({ metrics: nextMetrics })
   }
@@ -1524,7 +1536,12 @@ export default function SimulationCenter() {
   function saveRecord(advanceToNext = false) {
     if (!candidate || !key) return
     const isAbsent = Boolean(record.attendance && record.attendance !== "hadir")
-    const metricsToSave = isAbsent ? {} : record.metrics
+    const metricsToSave = isAbsent ? {} : { ...record.metrics }
+    // Jaminan proteksi: jika mode lari adalah latihan interval, pastikan runMode: 'interval' dan distance tidak disalahartikan
+    if (currentRunMode === "interval") {
+      metricsToSave.runMode = "interval"
+      delete metricsToSave.distance
+    }
     const nextRecord = {
       ...record,
       metrics: metricsToSave,
@@ -3700,33 +3717,71 @@ export default function SimulationCenter() {
                         </div>
                       ) : null}
 
-                      {/* Konversi Otomatis Samapta Live Card */}
+                      {/* Konversi Samapta Resmi vs Drill Interval Live Card */}
                       {session.type === "fitness" ? (
                         <div className="mt-5 rounded-2xl bg-slate-950 p-4 text-white shadow-md">
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
-                              <p className="text-sm font-bold">
-                                Konversi Otomatis Samapta
-                              </p>
-                              <p className="mt-0.5 text-xs text-slate-400">
-                                {testedFitnessItems.length > 0
-                                  ? `Rata-rata ${testedFitnessItems.length} tes disinkronkan ke nilai Samapta kandidat.`
-                                  : "Rata-rata tes otomatis disinkronkan ke profil kandidat saat disimpan."}
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-bold">
+                                  {currentRunMode === "interval"
+                                    ? officialTestedFitnessItems.length > 0
+                                      ? "Konversi Otomatis Samapta B"
+                                      : "Status Penilaian Kesamaptaan"
+                                    : "Konversi Otomatis Samapta"}
+                                </p>
+                                {currentRunMode === "interval" ? (
+                                  <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-amber-300 ring-1 ring-inset ring-amber-500/30">
+                                    Porsi Interval = Drill Fisik
+                                  </span>
+                                ) : (
+                                  <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
+                                    Resmi BPIP (Lari 12 Mnt)
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-1 text-xs text-slate-400">
+                                {currentRunMode === "interval"
+                                  ? officialTestedFitnessItems.length > 0
+                                    ? `Rata-rata ${officialTestedFitnessItems.length} tes Samapta B disinkronkan ke profil kandidat. Latihan interval dicatat terpisah ke riwayat drill.`
+                                    : "Sesi ini adalah Drill Interval (Pembinaan Fisik). Nilai latihan tidak memengaruhi nilai resmi Samapta (hanya tes Lari 12 Menit resmi yang dihitung sebagai Samapta A)."
+                                  : officialTestedFitnessItems.length > 0
+                                    ? `Rata-rata ${officialTestedFitnessItems.length} tes resmi disinkronkan ke nilai Samapta kandidat.`
+                                    : "Rata-rata tes otomatis disinkronkan ke profil kandidat saat disimpan."}
                               </p>
                             </div>
                             <div className="text-right">
                               <p className="font-display text-2xl font-bold">
-                                {testedFitnessItems.length > 0
-                                  ? fitnessAverage.toFixed(1)
+                                {officialFitnessAverage !== null
+                                  ? officialFitnessAverage.toFixed(1)
                                   : "—"}
                               </p>
                               <p className="text-[0.68rem] text-slate-400">
-                                {testedFitnessItems.length > 0
-                                  ? `rata-rata (${testedFitnessItems.length} tes)`
-                                  : "belum diisi"}
+                                {officialFitnessAverage !== null
+                                  ? `skor Samapta (${officialTestedFitnessItems.length} tes resmi)`
+                                  : currentRunMode === "interval"
+                                    ? "tidak ada tes Samapta resmi"
+                                    : "belum diisi"}
                               </p>
                             </div>
                           </div>
+
+                          {/* Banner Info Skor Drill Interval jika dalam mode interval */}
+                          {currentRunMode === "interval" && intervalItemData?.hasVal ? (
+                            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-amber-500/10 border border-amber-500/25 px-3 py-2 text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-amber-300">⚡ Skor Drill Interval:</span>
+                                <span className="text-slate-200 font-bold text-sm">{intervalItemData.score}/100</span>
+                                <span className="text-slate-400 text-[0.68rem]">
+                                  ({calcIntervalCompletedSets} set · split {calcIntervalAvgSplit > 0 ? `${calcIntervalAvgSplit.toFixed(1)}s` : `${currentIntervalTargetPace}s`})
+                                </span>
+                              </div>
+                              <span className="text-[0.65rem] text-amber-300 font-semibold bg-amber-500/20 px-2 py-0.5 rounded">
+                                Masuk Riwayat Latihan · Bukan Samapta
+                              </span>
+                            </div>
+                          ) : null}
+
                           <div
                             className={`mt-3 grid gap-2 ${
                               activeFitnessTests.length <= 2
@@ -3742,19 +3797,36 @@ export default function SimulationCenter() {
                               .filter((item) => item.isActive)
                               .map((item) => (
                                 <div
-                                  className="rounded-xl bg-white/[0.07] p-2.5 text-center"
+                                  className={`rounded-xl p-2.5 text-center ${
+                                    item.isInterval
+                                      ? "bg-amber-500/10 border border-amber-500/30"
+                                      : "bg-white/[0.07]"
+                                  }`}
                                   key={item.key}
                                 >
-                                  <p className="text-[0.65rem] text-slate-400">
-                                    {item.shortLabel}
-                                  </p>
+                                  <div className="flex items-center justify-center gap-1">
+                                    <p className="text-[0.65rem] text-slate-400">
+                                      {item.shortLabel}
+                                    </p>
+                                    {item.isInterval ? (
+                                      <span className="text-[0.55rem] font-bold text-amber-300 bg-amber-500/20 px-1 py-0.2 rounded">
+                                        Drill
+                                      </span>
+                                    ) : null}
+                                  </div>
                                   <p className="mt-1 font-bold">
                                     {item.isDnf ? (
                                       <span className="font-extrabold text-rose-400">
                                         DNF
                                       </span>
                                     ) : item.hasVal ? (
-                                      item.score
+                                      item.isInterval ? (
+                                        <span className="text-amber-300 font-extrabold">
+                                          {item.score}
+                                        </span>
+                                      ) : (
+                                        item.score
+                                      )
                                     ) : (
                                       "—"
                                     )}

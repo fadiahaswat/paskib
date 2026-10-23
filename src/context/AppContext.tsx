@@ -369,10 +369,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
-    const isIntervalPurgedV6 = typeof window !== "undefined" && !localStorage.getItem("paska-samapta-interval-purged-v6")
-    if (isIntervalPurgedV6) {
+    const isIntervalPurgedV7 = typeof window !== "undefined" && !localStorage.getItem("paska-samapta-interval-purged-v7")
+    if (isIntervalPurgedV7) {
       try {
-        localStorage.setItem("paska-samapta-interval-purged-v6", "true")
+        localStorage.setItem("paska-samapta-interval-purged-v7", "true")
       } catch {}
     }
 
@@ -416,7 +416,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (
           seededDist &&
           seededDist >= 2000 &&
-          (runMetricDist === null || runMetricDist < 2000 || isIntervalPurgedV6)
+          (runMetricDist === null || runMetricDist < 2000 || isIntervalPurgedV7)
         ) {
           // Pulihkan kembali ke hasil tes resmi Lari 12 Menit yang sah (misal 2.880 m untuk Devga, 2.740 m untuk Alfan)
           metrics = match.physicalMetrics
@@ -1633,13 +1633,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const currentList = stateRef.current.allCandidates
       const candidateSessionRecords = stateRef.current.sessions
         .filter((session) => session.type === sessionType)
-        .map((session) => ({
-          sessionId: session.id,
-          sessionTitle: session.title,
-          isInterval: session.title.toLowerCase().includes("interval"),
-          savedAt: records[`${session.id}:${candidateId}`]?.savedAt ?? "",
-          metrics: records[`${session.id}:${candidateId}`]?.metrics ?? {},
-        }))
+        .map((session) => {
+          const rec = records[`${session.id}:${candidateId}`]
+          const m = rec?.metrics ?? {}
+          const isInterval =
+            session.title.toLowerCase().includes("interval") ||
+            m.runMode === "interval" ||
+            Boolean(m.intervalLap1) ||
+            Boolean(m.intervalDist) ||
+            Boolean(m.intervalTargetSets) ||
+            Boolean(m.intervalAvg)
+          return {
+            sessionId: session.id,
+            sessionTitle: session.title,
+            isInterval,
+            savedAt: rec?.savedAt ?? "",
+            metrics: m,
+          }
+        })
         .filter((record) => record.savedAt)
         .sort((a, b) => a.savedAt.localeCompare(b.savedAt))
       const latestMetrics = (keys: string[]) => {
@@ -1748,7 +1759,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const isRunDnf = metrics.runDnf === "yes"
             const isIntervalRun =
               metrics.runMode === "interval" ||
-              Boolean(sessionTitle && sessionTitle.toLowerCase().includes("interval"))
+              Boolean(sessionTitle && sessionTitle.toLowerCase().includes("interval")) ||
+              Boolean(metrics.intervalLap1 || metrics.intervalTargetSets || metrics.intervalDist || metrics.intervalAvg)
 
             if (isIntervalRun) {
               const laps = Array.from({ length: 12 }, (_, i) => i + 1)
@@ -1899,7 +1911,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
               // HANYA sesi tes lari resmi (bukan latihan interval) yang masuk ke evaluasi lari 12 menit resmi
               const officialRunRecords = candidateSessionRecords.filter(
-                (r) => !r.isInterval && r.metrics.runMode !== "interval",
+                (r) =>
+                  !r.isInterval &&
+                  r.metrics.runMode !== "interval" &&
+                  !r.metrics.intervalLap1 &&
+                  !r.metrics.intervalDist,
               )
               for (const record of officialRunRecords) {
                 if (record.metrics.runDnf === "yes") {
@@ -1909,13 +1925,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   record.metrics.distance?.trim() &&
                   Number.isFinite(Number(record.metrics.distance))
                 ) {
-                  latest.distance = Number(record.metrics.distance)
-                  latest.runDnf = 0
+                  const dVal = Number(record.metrics.distance)
+                  // Proteksi: Jarak lari 12 menit resmi acuan seleksi >= 2000m
+                  if (dVal >= 2000) {
+                    latest.distance = dVal
+                    latest.runDnf = 0
+                  }
                 }
               }
-              if (hasDistance) {
+              if (hasDistance && distance >= 2000) {
                 latest.distance = distance
                 latest.runDnf = isRunDnf ? 1 : 0
+              } else if (hasDistance && isRunDnf) {
+                latest.distance = 0
+                latest.runDnf = 1
               }
               if (hasPushup) latest.pushup = pushup
               if (hasSitup) latest.situp = situp
@@ -1939,8 +1962,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
               if (latest.shuttle !== undefined) {
                 scores.push(fitnessScore("shuttle", latest.shuttle))
               }
-              if (scores.length > 0) {
-                patch.fitness = Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1))
+              // HANYA perbarui nilai Samapta resmi (patch.fitness) jika ada tes Samapta resmi (Lari 12 menit atau Samapta B)!
+              // Sesi drill interval murni TIDAK PERNAH mengubah atau merusak nilai Samapta kandidat.
+              if (!isIntervalRun || hasPushup || hasSitup || hasBackup || hasShuttle) {
+                if (scores.length > 0) {
+                  patch.fitness = Number((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1))
+                }
               }
             }
           } else if (sessionType === "interview") {
@@ -1972,11 +1999,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             if (attendance && attendance !== "hadir") {
               effectiveResult = "review"
             } else if (sessionType === "fitness") {
-              if (metrics.runDnf === "yes") {
+              if (isIntervalRun && !hasPushup && !hasSitup && !hasBackup && !hasShuttle) {
+                // Sesi drill interval murni tidak mengubah status tahapan seleksi Samapta resmi
+                effectiveResult = "pending"
+              } else if (metrics.runDnf === "yes") {
                 effectiveResult = "review"
-              } else if (Number(metrics.distance) >= 2400) {
+              } else if (Number(metrics.distance) >= 2400 && !isIntervalRun) {
                 effectiveResult = "passed"
-              } else if (Number(metrics.distance) > 0) {
+              } else if (Number(metrics.distance) > 0 && !isIntervalRun) {
                 effectiveResult = "review"
               }
             } else if (sessionType === "pbb") {

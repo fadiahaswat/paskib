@@ -66,9 +66,11 @@ export function Input({
 export function Badge({
   children,
   tone = "neutral",
+  className = "",
 }: {
   children: ReactNode
   tone?: "success" | "warning" | "danger" | "info" | "neutral"
+  className?: string
 }) {
   const tones = {
     success: "bg-emerald-50 text-emerald-700 ring-emerald-600/10",
@@ -79,7 +81,7 @@ export function Badge({
   }
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${tones[tone]}`}
+      className={`inline-flex items-center whitespace-nowrap shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${tones[tone]} ${className}`}
     >
       {children}
     </span>

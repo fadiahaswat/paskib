@@ -89,22 +89,33 @@ function readHistory(candidateId: string): FitnessEntry[] {
     ) as Record<string, StoredRecord>
 
     return sessions
-      .filter((session) => session.type === "fitness")
+      .filter((session) => {
+        if (session.type !== "fitness") return false
+        const t = session.title.toLowerCase()
+        return !t.includes("interval") && !t.includes("drill")
+      })
       .flatMap((session) => {
         const record = records[`${session.id}:${candidateId}`]
         if (!record?.savedAt) return []
+        if (
+          record.metrics.runMode === "interval" ||
+          record.metrics.intervalDist ||
+          record.metrics.intervalLap1
+        ) return []
         const numberValue = (key: string) => {
           const value = Number(record.metrics[key])
           return Number.isFinite(value) && record.metrics[key] !== ""
             ? value
             : null
         }
+        const rawDist = numberValue("distance")
+        const dist = rawDist !== null && rawDist >= 2000 ? rawDist : null
         return [
           {
             sessionId: session.id,
             title: session.title,
             date: session.date,
-            distance: numberValue("distance"),
+            distance: dist,
             pushup: numberValue("pushup"),
             situp: numberValue("situp"),
             backup: numberValue("backup"),
