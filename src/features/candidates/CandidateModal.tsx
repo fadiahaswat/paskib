@@ -332,132 +332,463 @@ const STAGE_STATUS_CONFIG = {
   },
 } as const
 
-function getStageStatusExplanation(
+type StageAnalysisResult = {
+  metricLabel: string
+  metricBadgeClass: string
+  analysis: string
+  coachConsideration: string
+  mismatchWarning?: string
+}
+
+function getDetailedStageAnalysis(
   stageKey: string,
   status: StageStatus,
   candidate: Candidate,
-): string {
-  if (status === "passed") {
-    switch (stageKey) {
-      case "administration": {
-        const docsCount = candidate.documents?.filter(Boolean).length ?? 0
-        return docsCount >= 6
-          ? "Seluruh 6 berkas persyaratan terverifikasi lengkap dan memenuhi standar kualifikasi."
-          : "Kualifikasi administrasi, usia, dan data santri dinyatakan lengkap & memenuhi syarat."
+  ishiharaResults?: IshiharaScreeningResult[],
+): StageAnalysisResult {
+  const docsUploaded = Object.keys(candidate.documentFiles ?? {}).length
+  const docsValid = (candidate.documents ?? []).filter(Boolean).length
+  const docsCount = Math.max(docsUploaded, docsValid)
+
+  switch (stageKey) {
+    case "administration": {
+      const metricLabel =
+        docsCount >= 6
+          ? "6/6 Berkas Lengkap"
+          : docsCount > 0
+            ? `${docsCount}/6 Berkas Terunggah`
+            : "0/6 Berkas (Kosong)"
+      const metricBadgeClass =
+        docsCount >= 6
+          ? "bg-emerald-100 text-emerald-800"
+          : docsCount > 0
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (docsCount >= 6) {
+        analysis =
+          "Seluruh 6 berkas administrasi pokok (KK, Rapor, Akta Kelahiran, Izin Orang Tua, Surat Keterangan Sehat, dan Pas Foto) telah terunggah dan terverifikasi lengkap."
+        coachConsideration =
+          "Kandidat telah memenuhi seluruh syarat administratif awal dan siap diverifikasi pada registrasi resmi."
+      } else if (docsCount > 0) {
+        analysis = `Baru ${docsCount} dari 6 berkas pokok yang terunggah/terverifikasi. Masih kurang ${6 - docsCount} berkas wajib yang belum dilengkapi.`
+        coachConsideration =
+          "Prioritaskan pengunggahan dokumen legalisir rapor, surat izin orang tua, dan surat sehat dari faskes sebelum batas penutupan."
+        if (status === "passed") {
+          mismatchWarning = `Perhatian: Status ditandai "Siap", namun berkas baru ${docsCount}/6. Standar kelulusan administrasi mensyaratkan 6 berkas lengkap.`
+        }
+      } else {
+        analysis =
+          "Belum ada berkas pokok administrasi yang diunggah ke sistem."
+        coachConsideration =
+          "Segera kumpulkan dokumen persyaratan santri dan unggah scan asli melalui tab Profil & Berkas."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap" tetapi belum ada berkas administrasi yang diunggah.'
+        }
       }
-      case "pip":
-        return candidate.pip !== null
-          ? `Skor CAT PIP mencapai ${candidate.pip}/100, telah melampaui passing grade minimal BPIP.`
-          : "Penguasaan materi Pancasila dan Wawasan Kebangsaan telah mencapai standar kelulusan."
-      case "tiu":
-        return candidate.tiu !== null
-          ? `Skor CAT TIU mencapai ${candidate.tiu}/100, kemampuan logika & numerik memenuhi passing grade.`
-          : "Kemampuan penalaran logis, analogi, dan numerik memenuhi standar kualifikasi."
-      case "medical":
-        return "Pemeriksaan kesehatan, tensi darah, penglihatan mata, dan tes buta warna dinyatakan normal."
-      case "parade":
-        return candidate.heightCm && candidate.weightKg
-          ? `Tinggi ${candidate.heightCm} cm & berat ${candidate.weightKg} kg proporsional, sikap sempurna dan postur tegak simetris.`
-          : "Postur tubuh simetris, sikap sempurna dan proporsi tinggi-berat badan memenuhi standar parade."
-      case "pbb":
-        return candidate.pbb !== null
-          ? `Nilai PBB ${candidate.pbb}/100, gerakan dasar patah-patah mantap dan vokal aba-aba dinilai tegas.`
-          : "Kerapian gerakan dasar baris berbaris dan penguasaan aba-aba telah memenuhi standar."
-      case "fitness":
-        return candidate.fitness !== null
-          ? `Nilai Samapta ${candidate.fitness}/100, ketahanan lari dan tes fisik melampaui ambang batas kuota.`
-          : "Daya tahan kardiorespirasi (lari 12 menit) dan ketangkasan fisik memenuhi standar kelulusan."
-      case "personality":
-        return candidate.personality !== null
-          ? `Nilai Kepribadian ${candidate.personality}/100, etika, mental santri dan komunikasi lugas.`
-          : "Integritas kepribadian, mental ideologi santri, dan artikulasi komunikasi teruji matang."
-      default:
-        return "Telah memenuhi seluruh standar kualifikasi materi dan siap menghadapi seleksi resmi."
-    }
-  }
 
-  if (status === "active") {
-    switch (stageKey) {
-      case "administration": {
-        const docsCount = candidate.documents?.filter(Boolean).length ?? 0
-        return `Sedang proses verifikasi dan validasi kelengkapan dokumen (${docsCount}/6 berkas terunggah).`
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
       }
-      case "pip":
-        return candidate.pip !== null
-          ? `Nilai tryout saat ini ${candidate.pip}/100, sedang drill bank soal penguatan materi wawasan kebangsaan.`
-          : "Sedang menjalani simulasi bank soal dan pendalaman materi CAT Pancasila."
-      case "tiu":
-        return candidate.tiu !== null
-          ? `Nilai tryout saat ini ${candidate.tiu}/100, sedang pembinaan kecepatan hitung dan penalaran analitis.`
-          : "Sedang pembinaan kemampuan logika, silogisme, dan kecepatan numerik."
-      case "medical":
-        return "Dalam pemantauan antropometri rutin, stabilitas tekanan darah, dan kebugaran fisik."
-      case "parade":
-        return "Sedang pembinaan sikap sempurna parade, latihan kelurusan tulang belakang, dan peregangan postur."
-      case "pbb":
-        return candidate.pbb !== null
-          ? `Nilai PBB sementara ${candidate.pbb}/100, sedang pemantapan langkah tegap dan kekompakan tempo.`
-          : "Sedang menjalani drill rutin materi gerakan dasar di tempat dan langkah tegap berkelanjutan."
-      case "fitness":
-        return candidate.fitness !== null
-          ? `Nilai Samapta sementara ${candidate.fitness}/100, program peningkatan VO2Max dan daya tahan lari aktif.`
-          : "Sedang menjalani program latihan fisik terprogram, lari interval, dan calisthenics harian."
-      case "personality":
-        return candidate.personality !== null
-          ? `Nilai wawancara sementara ${candidate.personality}/100, simulasi tanya-jawab kepribadian berlanjut.`
-          : "Sedang simulasi wawancara mental ideologi santri dan pembentukan rasa percaya diri."
-      default:
-        return "Sedang aktif dalam proses pembinaan rutin dan pemenuhan materi latihan."
     }
-  }
 
-  if (status === "review") {
-    switch (stageKey) {
-      case "administration":
-        return "Terdapat berkas administratif atau data registrasi yang perlu perbaikan/legalisir ulang."
-      case "pip":
-        return "Perlu fokus penguatan pada butir-butir Pancasila dan implementasi UUD 1945."
-      case "tiu":
-        return "Perlu latihan intensif pada sub-materi numerik dan ketelitian silogisme logika."
-      case "medical":
-        return "Perlu pemantauan tensi istirahat, pola tidur cukup, atau konsultasi kondisi fisik tertentu."
-      case "parade":
-        return "Perlu koreksi bahu miring, sikap sempurna, atau penyesuaian stabilitas berat badan."
-      case "pbb":
-        return "Fokus perbaikan pada ayunan lengan, hentakan tempo langkah, atau volume suara aba-aba."
-      case "fitness":
-        return "Perlu peningkatan porsi latihan lari 12 menit dan penguatan otot inti (core muscle)."
-      case "personality":
-        return "Perlu melatih ketenangan saat berbicara, artikulasi vokal, dan struktur jawaban wawancara."
-      default:
-        return "Memerlukan penajaman fokus dan pembinaan khusus pada beberapa aspek evaluasi."
+    case "pip": {
+      const hasTaken = candidate.pip !== null
+      const score = candidate.pip ?? 0
+      const metricLabel = hasTaken
+        ? `Skor CAT: ${score}/100`
+        : "Belum Ada Tryout CAT"
+      const metricBadgeClass = !hasTaken
+        ? "bg-slate-100 text-slate-700"
+        : score >= 80
+          ? "bg-emerald-100 text-emerald-800"
+          : score >= 70
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (!hasTaken) {
+        analysis =
+          "Santri belum pernah mengikuti tryout atau simulasi CAT PIP (Pancasila & Wawasan Kebangsaan). Belum ada data baseline nilai."
+        coachConsideration =
+          "Jadwalkan sesi tryout CAT PIP perdana pada menu Bank Soal CAT untuk mengukur daya serap materi ideologi Pancasila dan UUD 1945."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap", namun belum ada rekam nilai tryout CAT Pancasila.'
+        }
+      } else if (score >= 80) {
+        analysis = `Skor tryout terakhir mencapai ${score}/100 (Kategori: Unggul). Melampaui passing grade standar BPIP (≥70).`
+        coachConsideration =
+          "Pertahankan konsistensi dengan latihan variasi soal studi kasus dan penalaran nilai-nilai kebangsaan."
+      } else if (score >= 70) {
+        analysis = `Skor tryout terakhir ${score}/100 (Kategori: Memenuhi Ambang Batas). Masih berada pada batas minimal passing grade 70.`
+        coachConsideration =
+          "Tingkatkan drill pada butir Pancasila, sejarah lambang negara, dan struktur ketatanegaraan agar nilai aman di atas 80."
+      } else {
+        analysis = `Skor tryout terakhir ${score}/100 (Kategori: Di Bawah Passing Grade). Belum memenuhi batas minimal kelulusan (70).`
+        coachConsideration =
+          "Wajib remedial mandiri dan pengulangan simulasi tryout CAT PIP minimal 2 kali seminggu."
+        if (status === "passed") {
+          mismatchWarning = `Perhatian: Nilai CAT ${score} masih di bawah passing grade 70, disarankan status Remedial/Penguatan.`
+        }
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
     }
-  }
 
-  if (status === "failed") {
-    switch (stageKey) {
-      case "administration":
-        return "Berkas persyaratan belum lengkap atau terdapat ketidaksesuaian data identitas calon."
-      case "pip":
-        return "Skor simulasi belum mencapai passing grade minimal BPIP, memerlukan remedial drill soal."
-      case "tiu":
-        return "Skor tryout TIU masih di bawah ambang batas minimal, memerlukan bimbingan trik dan remedial."
-      case "medical":
-        return "Terdapat catatan medis atau antropometri yang berada di luar ambang batas kelulusan."
-      case "parade":
-        return "Tinggi badan atau postur sikap belum memenuhi standar minimal formasi parade."
-      case "pbb":
-        return "Gerakan masih sering keliru tempo atau ragu-ragu dalam aba-aba, butuh drill remedial."
-      case "fitness":
-        return "Daya tahan fisik atau jarak tempuh lari belum memenuhi batas kuota minimal."
-      case "personality":
-        return "Penyampaian jawaban belum memenuhi kriteria sikap mental kepribadian yang dipersyaratkan."
-      default:
-        return "Belum mencapai ambang batas kelulusan materi, memerlukan sesi remedial intensif."
+    case "tiu": {
+      const hasTaken = candidate.tiu !== null
+      const score = candidate.tiu ?? 0
+      const metricLabel = hasTaken
+        ? `Skor CAT: ${score}/100`
+        : "Belum Ada Tryout CAT"
+      const metricBadgeClass = !hasTaken
+        ? "bg-slate-100 text-slate-700"
+        : score >= 80
+          ? "bg-emerald-100 text-emerald-800"
+          : score >= 70
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (!hasTaken) {
+        analysis =
+          "Santri belum pernah mengikuti tes simulasi CAT TIU (Tes Intelegensia Umum). Belum ada riwayat kemampuan numerik dan logika."
+        coachConsideration =
+          "Lakukan simulasi CAT TIU untuk memetakan kecepatan hitung numerik, analogi kata, dan silogisme logika."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap", namun belum ada rekam tryout CAT TIU.'
+        }
+      } else if (score >= 80) {
+        analysis = `Skor CAT TIU mencapai ${score}/100 (Kategori: Unggul). Ketepatan penalaran analitis dan kecepatan numerik sangat prima.`
+        coachConsideration =
+          "Pertahankan manajemen waktu pengerjaan soal (rata-rata 45–50 detik per butir soal)."
+      } else if (score >= 70) {
+        analysis = `Skor CAT TIU ${score}/100 (Kategori: Cukup). Lolos passing grade minimal, namun rentan pada soal figural dan deret angka panjang.`
+        coachConsideration =
+          "Beri drill khusus trik eliminasi pilihan jawaban dan rumus cepat aritmatika dasar."
+      } else {
+        analysis = `Skor CAT TIU ${score}/100 (Kategori: Di Bawah Standar). Nilai belum mencapai passing grade kelulusan.`
+        coachConsideration =
+          "Perlu bimbingan intensif materi logika deduktif dan perbanyak latihan soal bertempo cepat."
+        if (status === "passed") {
+          mismatchWarning = `Perhatian: Nilai CAT ${score} masih di bawah passing grade TIU, disarankan Remedial.`
+        }
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
     }
-  }
 
-  return "Materi belum dinilai atau menunggu evaluasi pelatih."
+    case "medical": {
+      const ishihara = ishiharaResults?.find(
+        (r) =>
+          r.participantId === candidate.id ||
+          (r as any).candidateId === candidate.id,
+      )
+      const hasMedicalHistory =
+        (candidate.anthropometryHistory?.length ?? 0) > 0
+      const isNormal =
+        ishihara &&
+        (ishihara.screeningInterpretation === "normal" ||
+          ishihara.selectionDecision === "eligible")
+
+      const metricLabel = ishihara
+        ? isNormal
+          ? "Ishihara: Bebas Buta Warna"
+          : `Ishihara: Catatan Khusus`
+        : hasMedicalHistory
+          ? "Rikkes Awal Tercatat"
+          : "Belum Ada Rekam Rikkes"
+      const metricBadgeClass = ishihara
+        ? isNormal
+          ? "bg-emerald-100 text-emerald-800"
+          : "bg-rose-100 text-rose-800"
+        : hasMedicalHistory
+          ? "bg-blue-100 text-blue-800"
+          : "bg-slate-100 text-slate-700"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (!ishihara && !hasMedicalHistory) {
+        analysis =
+          "Belum ada catatan skrining kesehatan fisik (Rikkes) maupun tes buta warna Ishihara yang terdata di sistem."
+        coachConsideration =
+          "Jadwalkan pemeriksaan kesehatan umum (tensi darah istirahat, visus mata, THT, gigi, dan uji Ishihara 14 plat) sebelum latihan beban fisik tinggi."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap", namun belum ada catatan pemeriksaan medis/buta warna resmi.'
+        }
+      } else {
+        const ishiharaText = ishihara
+          ? isNormal
+            ? "Skrining Ishihara: Lolos / Bebas Buta Warna (14/14 benar)."
+            : `Skrining Ishihara: Catatan (${ishihara.interpretationLabel}). Perlu pemeriksaan dokter spesialis mata.`
+          : "Tes Ishihara belum terekam."
+        analysis = `${ishiharaText} Kondisi fisik dan tensi darah dalam pemantauan tim pelatih.`
+        coachConsideration =
+          "Pastikan santri menjaga pola hidrasi, istirahat teratur minimal 7 jam per malam, dan asupan gizi seimbang."
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
+    }
+
+    case "parade": {
+      const h = candidate.heightCm ?? 0
+      const w = candidate.weightKg ?? 0
+      const minH = candidate.gender === "Putri" ? 165 : 170
+      const isHeightEligible = h >= minH
+      const bmiVal = h > 0 ? (w / Math.pow(h / 100, 2)).toFixed(1) : "0"
+      const numBmi = Number(bmiVal)
+      const bmiCategory =
+        numBmi < 18.5
+          ? "Kurang (Underweight)"
+          : numBmi <= 24.9
+            ? "Ideal (Normal)"
+            : numBmi <= 27
+              ? "Kelebihan (Overweight)"
+              : "Obesitas"
+
+      const metricLabel =
+        h > 0 ? `TB: ${h} cm · BB: ${w} kg · BMI: ${bmiVal}` : "Data Fisik Kosong"
+      const metricBadgeClass =
+        isHeightEligible && numBmi >= 18.5 && numBmi <= 24.9
+          ? "bg-emerald-100 text-emerald-800"
+          : isHeightEligible
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (h <= 0) {
+        analysis =
+          "Belum ada pengukuran tinggi dan berat badan resmi yang diinput."
+        coachConsideration =
+          "Lakukan pengukuran antropometri dengan stadiometer terkalibrasi."
+      } else if (!isHeightEligible) {
+        analysis = `Tinggi badan santri ${h} cm masih di bawah batas kualifikasi minimal ${minH} cm untuk kategori ${candidate.gender}.`
+        coachConsideration =
+          "Beri program peregangan, hanging exercise, renang, dan evaluasi ulang tinggi badan secara berkala."
+        if (status === "passed") {
+          mismatchWarning = `Perhatian: Tinggi ${h} cm belum memenuhi syarat minimum ${minH} cm, berisiko gugur di parade resmi.`
+        }
+      } else {
+        analysis = `Tinggi badan ${h} cm memenuhi syarat minimal (≥${minH} cm). Berat ${w} kg dengan BMI ${bmiVal} (${bmiCategory}).`
+        coachConsideration =
+          "Latih sikap sempurna berdiri lama (30–45 menit), perbaiki simetri bahu, dan pastikan tidak ada postur condong ke depan."
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
+    }
+
+    case "pbb": {
+      const hasScore = candidate.pbb !== null
+      const score = candidate.pbb ?? 0
+      const metricLabel = hasScore
+        ? `Nilai Latihan: ${score}/100`
+        : "Belum Ada Nilai PBB"
+      const metricBadgeClass = !hasScore
+        ? "bg-slate-100 text-slate-700"
+        : score >= 85
+          ? "bg-emerald-100 text-emerald-800"
+          : score >= 75
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (!hasScore) {
+        analysis =
+          "Belum ada catatan penilaian latihan PBB (Peraturan Baris Berbaris) di lapangan."
+        coachConsideration =
+          "Lakukan evaluasi materi PBB dasar: sikap sempurna, istirahat di tempat, hadap kanan/kiri, dan langkah tegap."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap", namun belum ada nilai ujian latihan PBB yang terekam.'
+        }
+      } else if (score >= 85) {
+        analysis = `Nilai PBB latihan terakhir: ${score}/100 (Kategori: Sangat Baik / Standar Lolos). Hentakan langkah presisi, tempo stabil, dan aba-aba lantang.`
+        coachConsideration =
+          "Pertahankan performa, latih adaptasi formasi kelompok besar dan kesiapan sebagai komandan peleton (danton)."
+      } else if (score >= 75) {
+        analysis = `Nilai PBB latihan terakhir: ${score}/100 (Kategori: Cukup — Belum Sempurna). Gerakan dasar sudah terbentuk namun masih kurang ketukan tegas, presisi ayunan tangan 90°, dan stabilitas tempo langkah tegap.`
+        coachConsideration =
+          "Tingkatkan drill repetisi gerakan berjalan dan latihan pernapasan vokal komando agar nilai meningkat ke standar unggul (≥80)."
+        if (status === "passed") {
+          mismatchWarning = `Pertimbangan: Skor PBB ${score} tergolong cukup namun belum sempurna untuk level seleksi (target aman: ≥80).`
+        }
+      } else {
+        analysis = `Nilai PBB latihan terakhir: ${score}/100 (Kategori: Perlu Remedial). Masih sering keliru tempo, ayunan tangan belum seragam, atau vokal aba-aba kurang tegas.`
+        coachConsideration =
+          "Wajib pembinaan khusus gerakan di tempat secara perorangan sebelum diikutsertakan dalam formasi peleton."
+        if (status === "passed") {
+          mismatchWarning = `Perhatian: Skor PBB ${score} di bawah standar kelulusan minimal, belum siap untuk seleksi resmi.`
+        }
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
+    }
+
+    case "fitness": {
+      const hasScore = candidate.fitness !== null
+      const score = candidate.fitness ?? 0
+      const metricLabel = hasScore
+        ? `Nilai Samapta: ${score}/100`
+        : "Belum Ada Tes Samapta"
+      const metricBadgeClass = !hasScore
+        ? "bg-slate-100 text-slate-700"
+        : score >= 80
+          ? "bg-emerald-100 text-emerald-800"
+          : score >= 70
+            ? "bg-amber-100 text-amber-800"
+            : "bg-rose-100 text-rose-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (!hasScore) {
+        analysis =
+          "Belum ada catatan tes kesamaptaan jasmani resmi (lari 12 menit, push up, sit up, shuttle run)."
+        coachConsideration =
+          "Jadwalkan tes Cooper lari 12 menit di lintasan standar untuk mengetahui volume aerobik maksimal (VO2Max)."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap", namun belum ada rekam nilai fisik Samapta.'
+        }
+      } else if (score >= 80) {
+        analysis = `Nilai Kesamaptaan: ${score}/100 (Kategori: Prima). Daya tahan kardiorespirasi dan kekuatan otot memenuhi standar kuota seleksi.`
+        coachConsideration =
+          "Pertahankan jadwal lari jarak menengah dan perbanyak pendinginan (stretching) untuk mencegah cedera otot."
+      } else if (score >= 70) {
+        analysis = `Nilai Kesamaptaan: ${score}/100 (Kategori: Cukup). Lolos ambang batas minimal, namun daya tahan di 3 menit terakhir lari masih menurun.`
+        coachConsideration =
+          "Tambahkan porsi lari interval (400m x 6 repetisi) dan penguatan otot inti (plank & sit-up)."
+      } else {
+        analysis = `Nilai Kesamaptaan: ${score}/100 (Kategori: Kurang). Jarak tempuh lari 12 menit dan repetisi push-up belum mencapai batas aman.`
+        coachConsideration =
+          "Program latihan fisik adaptif bertahap, perbaiki teknik pernapasan dan tingkatkan frekuensi lari mingguan."
+        if (status === "passed") {
+          mismatchWarning = `Perhatian: Nilai Samapta ${score} belum mencapai batas aman seleksi.`
+        }
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
+    }
+
+    case "personality": {
+      const hasScore = candidate.personality !== null
+      const score = candidate.personality ?? 0
+      const att = candidate.attendance ?? 90
+      const comp = candidate.trainingCompliance ?? 85
+      const metricLabel = hasScore
+        ? `Wawancara: ${score}/100`
+        : `Disiplin: Kehadiran ${att}%`
+      const metricBadgeClass = hasScore
+        ? score >= 80
+          ? "bg-emerald-100 text-emerald-800"
+          : "bg-amber-100 text-amber-800"
+        : att >= 90
+          ? "bg-blue-100 text-blue-800"
+          : "bg-amber-100 text-amber-800"
+
+      let analysis = ""
+      let coachConsideration = ""
+      let mismatchWarning: string | undefined
+
+      if (!hasScore) {
+        analysis = `Belum dilakukan simulasi wawancara kepribadian resmi. Rekam kedisiplinan harian: kehadiran latihan ${att}% dan kepatuhan instruksi ${comp}%.`
+        coachConsideration =
+          "Lakukan simulasi wawancara tatap muka: uji pengenalan diri, motivasi santri, adab, dan penelusuran rekam jejak santri."
+        if (status === "passed") {
+          mismatchWarning =
+            'Perhatian: Status ditandai "Siap", namun sesi wawancara formal kepribadian belum dilaksanakan.'
+        }
+      } else if (score >= 80) {
+        analysis = `Nilai Kepribadian & Wawancara: ${score}/100 (Kategori: Terpuji). Artikulasi bahasa jelas, adab santri santun, dan integritas mental ideologi mantap.`
+        coachConsideration =
+          "Perkuat wawasan isu aktual nasional dan keistimewaan daerah Yogyakarta untuk persiapan seleksi tingkat lanjut."
+      } else {
+        analysis = `Nilai Wawancara: ${score}/100 (Kategori: Cukup). Masih terlihat gugup saat menjawab dan gestur tubuh kurang tenang.`
+        coachConsideration =
+          "Latih eye contact, intonasi suara yang lugas, dan simulasi menjawab pertanyaan pancingan dari penguji."
+      }
+
+      return {
+        metricLabel,
+        metricBadgeClass,
+        analysis,
+        coachConsideration,
+        mismatchWarning,
+      }
+    }
+
+    default:
+      return {
+        metricLabel: "Standar Materi",
+        metricBadgeClass: "bg-slate-100 text-slate-700",
+        analysis: "Materi dalam pemantauan rutin pelatih.",
+        coachConsideration:
+          "Lanjutkan pemantauan perkembangan santri secara berkala.",
+      }
+  }
 }
 
 export function CandidateDetailView({
@@ -474,6 +805,7 @@ export function CandidateDetailView({
     updateCandidateStage,
     toggleCandidateDocument,
     activeCycle,
+    ishiharaResults,
   } = useApp()
 
   const candidate = allCandidates.find((c) => c.id === candidateId) ?? null
@@ -1031,10 +1363,11 @@ export function CandidateDetailView({
                       activeClass: "bg-slate-800 text-white shadow-xs ring-1 ring-slate-800 font-semibold",
                     }
                   const CurrentIcon = currentConfig.icon
-                  const explanation = getStageStatusExplanation(
+                  const analysis = getDetailedStageAnalysis(
                     stage.key,
                     st,
                     candidate,
+                    ishiharaResults,
                   )
 
                   return (
@@ -1068,37 +1401,59 @@ export function CandidateDetailView({
                         </Badge>
                       </div>
 
-                      {/* Uraian Kesiapan / Catatan Evaluasi Status */}
+                      {/* Uraian Kesiapan & Analisis Terperinci Berdasarkan Data Latihan */}
                       <div
-                        className={`mt-3 flex items-start gap-2.5 rounded-xl border p-3 text-xs leading-relaxed ${
+                        className={`mt-3.5 space-y-2.5 rounded-xl border p-3.5 text-xs transition ${
                           st === "passed"
-                            ? "border-emerald-200/80 bg-emerald-50/50 text-emerald-950"
+                            ? "border-emerald-200/90 bg-emerald-50/50 text-emerald-950"
                             : st === "active"
-                              ? "border-blue-200/80 bg-blue-50/50 text-blue-950"
+                              ? "border-blue-200/90 bg-blue-50/50 text-blue-950"
                               : st === "review"
-                                ? "border-amber-200/80 bg-amber-50/50 text-amber-950"
+                                ? "border-amber-200/90 bg-amber-50/50 text-amber-950"
                                 : st === "failed"
-                                  ? "border-rose-200/80 bg-rose-50/50 text-rose-950"
+                                  ? "border-rose-200/90 bg-rose-50/50 text-rose-950"
                                   : "border-slate-200 bg-slate-50 text-slate-800"
                         }`}
                       >
-                        <CurrentIcon className="mt-0.5 size-4 shrink-0 opacity-80" />
-                        <div className="min-w-0 flex-1">
+                        {/* Header Analisis: Riwayat Latihan / Data Terakhir */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/5 pb-2">
+                          <div className="flex items-center gap-1.5 font-bold">
+                            <CurrentIcon className="size-4 shrink-0 opacity-80" />
+                            <span>Rekam &amp; Latihan Terakhir:</span>
+                          </div>
+                          <span
+                            className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${analysis.metricBadgeClass}`}
+                          >
+                            {analysis.metricLabel}
+                          </span>
+                        </div>
+
+                        {/* Uraian Evaluasi & Pertimbangan */}
+                        <div className="space-y-1.5 leading-relaxed">
+                          <p>
+                            <span className="font-bold">Analisis Kesiapan: </span>
+                            <span className="font-normal opacity-90">
+                              {analysis.analysis}
+                            </span>
+                          </p>
+
                           <p>
                             <span className="font-bold">
-                              {st === "passed"
-                                ? "Keterangan Kesiapan: "
-                                : st === "active"
-                                  ? "Proses Pembinaan: "
-                                  : st === "review"
-                                    ? "Fokus Penguatan: "
-                                    : st === "failed"
-                                      ? "Kendala Remedial: "
-                                      : "Keterangan: "}
+                              Pertimbangan Pelatih:{" "}
                             </span>
-                            <span className="font-normal">{explanation}</span>
+                            <span className="font-normal opacity-90">
+                              {analysis.coachConsideration}
+                            </span>
                           </p>
                         </div>
+
+                        {/* Peringatan jika status belum sinkron dengan fakta */}
+                        {analysis.mismatchWarning ? (
+                          <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-amber-300/80 bg-amber-100/90 p-2.5 text-[11px] font-medium text-amber-950">
+                            <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-amber-700" />
+                            <span>{analysis.mismatchWarning}</span>
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
