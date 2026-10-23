@@ -1,4 +1,5 @@
 import React from "react"
+import { Layers } from "lucide-react"
 import { Badge, Card } from "../../components/ui"
 import { bmi, type Candidate } from "../../domain/selection"
 import { useApp } from "../../context/AppContext"
@@ -53,8 +54,10 @@ function getStageHistory(candidateId: string, stageType: string): number[] {
 
 export function StageCards({
   candidate,
+  onOpenModal,
 }: {
   candidate: Candidate
+  onOpenModal?: () => void
 }) {
   const { catTryoutAttempts, sessions, records } = useApp()
   const validDocs = (candidate.documents ?? []).filter(Boolean).length
@@ -128,7 +131,7 @@ export function StageCards({
     {
       num: 3,
       shortLabel: "TIU",
-      name: "Intelegensia",
+      name: "Intelegensia Umum",
       value: tiuScore !== null ? `${tiuScore.toFixed(0)}` : "—",
       unit: tiuScore !== null ? "/ 100" : "",
       target: 70,
@@ -152,7 +155,7 @@ export function StageCards({
     {
       num: 4,
       shortLabel: "RIK",
-      name: "Kesehatan",
+      name: "Kesehatan & Rikkes",
       value: medicalRecord
         ? medicalRecord.result === "passed"
           ? "Laik"
@@ -161,10 +164,10 @@ export function StageCards({
             : medicalRecord.result === "review"
               ? "Perlu Tinjau"
               : "Proses"
-        : "Belum Dinilai",
+        : "—",
       unit: "",
       target: 85,
-      targetText: "Standar Laik",
+      targetText: "Laik",
       status: medicalRecord
         ? medicalRecord.result === "passed"
           ? "Memenuhi"
@@ -191,8 +194,8 @@ export function StageCards({
       name: "Parade & Postur",
       value: candidate.heightCm ? `${candidate.heightCm}` : "—",
       unit: "cm",
-      target: candidate.gender === "Putra" ? 175 : 170,
-      targetText: candidate.gender === "Putra" ? "170–180 cm" : "165–175 cm",
+      target: candidate.gender === "Putra" ? 170 : 165,
+      targetText: candidate.gender === "Putra" ? "≥ 170 cm" : "≥ 165 cm",
       status: bmiInfo ? bmiInfo.category : "Belum Ukur",
       tone:
         bmiInfo?.category === "Normal"
@@ -211,12 +214,12 @@ export function StageCards({
       value: candidate.pbb !== null ? `${candidate.pbb.toFixed(1)}` : "—",
       unit: candidate.pbb !== null ? "/ 100" : "",
       target: 80,
-      targetText: "≥ 80 (30%)",
+      targetText: "≥ 80",
       status:
         candidate.pbb !== null
           ? candidate.pbb >= 80
             ? "Siap"
-            : "Drill"
+            : "Penguatan"
           : "Belum Dinilai",
       tone:
         candidate.pbb !== null
@@ -235,7 +238,7 @@ export function StageCards({
       value: candidate.fitness !== null ? `${candidate.fitness.toFixed(1)}` : "—",
       unit: candidate.fitness !== null ? "/ 100" : "",
       target: 80,
-      targetText: "≥ 80 (30%)",
+      targetText: "≥ 80",
       status:
         candidate.fitness !== null
           ? candidate.fitness >= 80
@@ -262,12 +265,12 @@ export function StageCards({
           : "—",
       unit: candidate.personality !== null ? "/ 100" : "",
       target: 80,
-      targetText: "≥ 80 (40%)",
+      targetText: "≥ 80",
       status:
         candidate.personality !== null
           ? candidate.personality >= 80
             ? "Siap"
-            : "Pembinaan"
+            : "Penguatan"
           : "Belum Dinilai",
       tone:
         candidate.personality !== null
@@ -282,67 +285,88 @@ export function StageCards({
   ]
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-base font-bold text-slate-900">
-          Kesiapan 8 Materi Pembinaan
-        </h2>
-        <span className="text-xs text-slate-500">
-          Standar Resmi BPIP
-        </span>
+    <Card className="overflow-hidden border border-slate-200/90 bg-white shadow-2xs rounded-2xl">
+      {/* Header Wadah Ringkas */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 bg-white px-4 py-3 sm:px-5 sm:py-3.5">
+        <div className="flex items-center gap-2.5">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+            <Layers className="size-4" />
+          </span>
+          <div>
+            <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
+              Kesiapan 8 Materi Pembinaan
+            </h2>
+            <p className="text-[11px] text-slate-500">
+              Monitoring kesiapan tahapan seleksi berdasarkan standar resmi BPIP
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge tone="neutral" className="text-[11px] font-semibold px-2 py-0.5">
+            Standar BPIP
+          </Badge>
+        </div>
       </div>
 
-      {/* Clean 4-Column Grid of 8 Minimalist KPI Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
-        {stagesData.map((stage) => (
-          <Card
-            key={stage.num}
-            className="flex flex-col justify-between p-3.5 rounded-xl border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-2xs transition"
-          >
-            <div>
-              {/* Top Row: Dot + Stage Name + Status Pill */}
-              <div className="flex items-center justify-between gap-1.5">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className={`size-2 shrink-0 rounded-full ${stage.dotColor}`} />
-                  <span className="truncate text-xs font-bold text-slate-800">
-                    {stage.shortLabel} · {stage.name}
+      {/* Grid 8 Kartu Materi Pembinaan Compact */}
+      <div className="p-2.5 sm:p-4 bg-slate-50/50">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
+          {stagesData.map((stage) => (
+            <div
+              key={stage.num}
+              onClick={onOpenModal}
+              className={`flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200/90 bg-white hover:border-blue-300 hover:shadow-2xs transition-all duration-150 ${
+                onOpenModal ? "cursor-pointer" : ""
+              }`}
+            >
+              <div>
+                {/* Baris 1: Kode Tahap + Status Badge */}
+                <div className="flex items-center justify-between gap-1">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className={`size-1.5 shrink-0 rounded-full ${stage.dotColor}`} />
+                    {stage.shortLabel}
                   </span>
+                  <Badge tone={stage.tone} className="text-[10px] !py-0 !px-1.5 shrink-0 font-semibold">
+                    {stage.status}
+                  </Badge>
                 </div>
-                <Badge tone={stage.tone} className="text-[0.62rem] !py-0 !px-1.5 shrink-0">
-                  {stage.status}
-                </Badge>
-              </div>
 
-              {/* Main Metric Value + Target */}
-              <div className="mt-2.5 flex items-baseline justify-between gap-1">
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-xl font-black text-slate-950">
-                    {stage.value}
-                  </span>
-                  {stage.unit ? (
-                    <span className="text-[0.68rem] font-semibold text-slate-400">
-                      {stage.unit}
+                {/* Baris 2: Nama Materi Lengkap */}
+                <h3 className="mt-1 text-xs font-bold text-slate-900 leading-tight">
+                  {stage.name}
+                </h3>
+
+                {/* Baris 3: Nilai / Metrik & Target */}
+                <div className="mt-1.5 flex items-baseline justify-between gap-1">
+                  <div className="flex items-baseline gap-1 min-w-0">
+                    <span className="font-display text-base sm:text-lg font-black text-slate-950">
+                      {stage.value}
                     </span>
-                  ) : null}
+                    {stage.unit ? (
+                      <span className="text-[10px] font-semibold text-slate-400 shrink-0">
+                        {stage.unit}
+                      </span>
+                    ) : null}
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-medium shrink-0 text-right">
+                    Tgt {stage.targetText}
+                  </span>
                 </div>
-                <span className="text-[0.62rem] text-slate-400 font-medium shrink-0">
-                  Tgt {stage.targetText}
-                </span>
+              </div>
+
+              {/* Sparkline Trend Chart Compact */}
+              <div className="mt-1.5 pt-1.5 border-t border-slate-100">
+                <LineChart
+                  values={stage.chartValues}
+                  target={stage.target}
+                  color={stage.color}
+                  height={14}
+                />
               </div>
             </div>
-
-            {/* Seamless, Borderless Mini LineChart */}
-            <div className="mt-2 pt-1 border-t border-slate-100/80">
-              <LineChart
-                values={stage.chartValues}
-                target={stage.target}
-                color={stage.color}
-                height={26}
-              />
-            </div>
-          </Card>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </Card>
   )
 }

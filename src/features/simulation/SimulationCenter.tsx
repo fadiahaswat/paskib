@@ -1946,9 +1946,6 @@ export default function SimulationCenter() {
               <h1 className="font-display text-lg sm:text-xl font-bold tracking-tight text-slate-950 truncate">
                 Sesi seleksi &amp; latihan
               </h1>
-              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[0.68rem] font-bold text-slate-600 shrink-0">
-                {sessions.length} Sesi
-              </span>
             </div>
             <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
               Input hasil seleksi &amp; latihan secara cepat di lapangan dengan sinkronisasi otomatis.

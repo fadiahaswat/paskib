@@ -35,6 +35,7 @@ import {
   Stethoscope,
   Target,
   Trash2,
+  TrendingUp,
   Trophy,
   Upload,
   UserRound,
@@ -4116,29 +4117,47 @@ function ProgressView({
 
   return (
     <div className="grid gap-4 sm:gap-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-              Perkembangan santri
-            </h1>
+      {/* Wadah Header Perkembangan Santri Berstandar Desain Identik Kandidat & Sesi */}
+      <Card className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs w-full min-w-0">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 border border-red-100 shadow-2xs">
+              <TrendingUp className="size-5.5 stroke-[2.2]" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="font-display text-lg sm:text-xl font-bold tracking-tight text-slate-950">
+                  Perkembangan Santri
+                </h1>
+                <span className="inline-flex items-center rounded-md bg-red-50 border border-red-200/80 px-2.5 py-0.5 text-xs font-bold text-red-700">
+                  Rekam Individual
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                {candidate
+                  ? `Santri ke-${currentIndex + 1} dari ${candidates.length} santri aktif · MA Mu'allimin Yogyakarta`
+                  : `Pilih salah satu dari ${candidates.length} santri aktif untuk melihat rekam perkembangan individual`}
+              </p>
+            </div>
+          </div>
 
-            {/* Navigasi Santri Bersih: Dropdown 1-klik + tombol panah Sebelumnya / Berikutnya */}
-            <div className="flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs max-w-full">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full lg:w-auto">
+            {/* Navigasi Dropdown Santri */}
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-1 shadow-2xs w-full sm:w-auto min-w-0">
               <button
                 type="button"
                 onClick={handlePrev}
                 disabled={!candidate}
-                className="grid size-7 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
+                className="grid size-8 sm:size-9 place-items-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
                 title="Santri sebelumnya"
               >
-                <ChevronLeft className="size-3.5" />
+                <ChevronLeft className="size-4" />
               </button>
 
               <select
                 value={candidate?.id ?? ""}
                 onChange={(e) => setSelectedId(e.target.value)}
-                className="h-7 min-w-0 max-w-[11rem] xs:max-w-[15rem] sm:max-w-[18rem] truncate rounded-md border-0 bg-transparent px-1.5 text-xs font-bold text-slate-900 outline-none cursor-pointer"
+                className="h-8 sm:h-9 flex-1 sm:w-64 min-w-0 bg-transparent px-2 text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer truncate"
               >
                 <option value="">-- Pilih Santri / Siswa --</option>
                 {candidates.map((c, i) => (
@@ -4152,84 +4171,44 @@ function ProgressView({
                 type="button"
                 onClick={handleNext}
                 disabled={!candidate}
-                className="grid size-7 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
+                className="grid size-8 sm:size-9 place-items-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
                 title="Santri berikutnya"
               >
-                <ChevronRight className="size-3.5" />
+                <ChevronRight className="size-4" />
               </button>
             </div>
-
-            <span className="hidden sm:inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
-              Rekam Individual
-            </span>
           </div>
-
-          <p className="mt-0.5 text-xs text-slate-500">
-            {candidate
-              ? `Santri ke-${currentIndex + 1} dari ${candidates.length} santri aktif · MA Mu'allimin Yogyakarta`
-              : `Pilih salah satu dari ${candidates.length} santri aktif untuk melihat rekam perkembangan individual`}
-          </p>
         </div>
-
-        {candidate && (
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => onSelectCandidate(candidate.id)}
-            >
-              <Edit3 className="size-3.5" /> Edit nilai & catatan
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => printCandidateReport(candidate, activeCycle.year)}
-            >
-              <Printer className="size-3.5" /> Unduh / cetak laporan
-            </Button>
-          </div>
-        )}
-      </div>
+      </Card>
 
       {!candidate ? (
-        <Card className="p-4 sm:p-8 md:p-12 text-center border-dashed border-2 border-slate-200 bg-slate-50/50">
-          <div className="mx-auto flex size-12 sm:size-14 items-center justify-center rounded-2xl bg-red-100 text-red-600 mb-3 sm:mb-4 shadow-2xs">
+        <Card className="p-4 sm:p-6 md:p-8 text-center border border-slate-200/90 bg-white shadow-2xs rounded-2xl min-w-0 overflow-hidden">
+          <div className="mx-auto flex size-12 sm:size-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 mb-3 sm:mb-4 shadow-2xs">
             <UsersRound className="size-6 sm:size-7" />
           </div>
           <h3 className="text-base sm:text-lg font-bold text-slate-900">
             Belum Ada Santri yang Dipilih
           </h3>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-            Silakan pilih santri melalui dropdown di atas atau klik salah satu kartu santri di bawah untuk melihat rekam perkembangan individual, peta kesiapan 8 materi, dan evaluasi latihan.
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-lg mx-auto leading-relaxed break-words px-2">
+            Silakan pilih santri melalui dropdown di atas atau klik salah satu
+            kartu santri di bawah untuk melihat rekam perkembangan individual,
+            peta kesiapan 8 materi, dan evaluasi latihan.
           </p>
 
-          <div className="mt-6 sm:mt-8 max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-3 sm:mb-4 text-left">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Pilih Santri Aktif ({candidates.length})
-                </p>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Klik salah satu kartu santri untuk melihat rekam perkembangan individual
-                </p>
-              </div>
-              <span className="text-xs font-semibold text-slate-400 hidden sm:inline">
-                {candidates.length} Santri Terdaftar
-              </span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 text-left">
+          <div className="mt-5 border-t border-slate-100 pt-5 text-left">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4 text-left">
               {candidates.map((c, i) => (
                 <button
                   key={c.id}
                   type="button"
                   onClick={() => setSelectedId(c.id)}
-                  className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-red-400 hover:bg-red-50/25 hover:shadow-md transition-all group cursor-pointer"
+                  className="group flex flex-col justify-between items-center text-center p-3 sm:p-4 rounded-xl border border-slate-200/90 bg-slate-50/40 hover:bg-white hover:border-red-400 hover:shadow-xs transition-all cursor-pointer min-w-0 w-full"
                 >
                   <div className="w-full flex items-center justify-between mb-2">
-                    <span className="text-[0.65rem] sm:text-[0.68rem] font-black text-slate-500 bg-slate-100 group-hover:bg-red-100 group-hover:text-red-700 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] sm:text-[11px] font-black text-slate-600 bg-white border border-slate-200 group-hover:bg-red-50 group-hover:text-red-700 group-hover:border-red-200 px-2 py-0.5 rounded-full">
                       #{i + 1}
                     </span>
-                    <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-slate-400">
+                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400">
                       {c.gender}
                     </span>
                   </div>
@@ -4238,18 +4217,18 @@ function ProgressView({
                     name={c.name}
                     avatar={c.avatar}
                     photoUrl={c.photoUrl}
-                    className="size-14 sm:size-20 text-base sm:text-lg font-bold shrink-0 ring-2 sm:ring-3 ring-slate-100 group-hover:ring-red-200 shadow-xs"
+                    className="size-14 sm:size-18 text-base sm:text-lg font-bold shrink-0 ring-2 ring-slate-100 group-hover:ring-red-200 shadow-2xs"
                     rounded="rounded-2xl"
                   />
 
                   <div className="mt-2.5 w-full min-w-0">
-                    <p className="font-display text-xs sm:text-sm font-bold text-slate-950 group-hover:text-red-700 leading-snug line-clamp-2">
+                    <p className="font-display text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-700 leading-snug break-words">
                       {c.name}
                     </p>
-                    <p className="mt-1 text-[0.68rem] sm:text-[0.72rem] font-semibold text-slate-500 truncate">
+                    <p className="mt-1 text-[11px] font-semibold text-slate-500">
                       {c.number}
                     </p>
-                    <p className="mt-0.5 text-[0.62rem] sm:text-[0.68rem] font-medium text-slate-400 truncate">
+                    <p className="mt-0.5 text-[10px] font-medium text-slate-400 break-words leading-tight">
                       {c.school}
                     </p>
                   </div>
@@ -4261,21 +4240,21 @@ function ProgressView({
       ) : (
         <>
 
-      {/* Banner Profil & Stepper Alur 8 Materi (Fully Responsive, No Cutoff!) */}
-      <Card className="overflow-hidden">
-        <div className="bg-slate-950 p-5 sm:p-6 text-white">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
+      {/* Banner Profil & Stepper Alur 8 Materi (Fully Responsive & Contained) */}
+      <Card className="overflow-hidden border border-slate-200/90 shadow-2xs rounded-2xl min-w-0 max-w-full">
+        <div className="bg-slate-950 p-4 sm:p-6 text-white min-w-0">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0">
+            <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
               <CandidateAvatar
                 name={candidate.name}
                 avatar={candidate.avatar}
                 photoUrl={candidate.photoUrl}
-                className="size-24 sm:size-28 md:size-32 font-display text-2xl sm:text-3xl border-2 border-white/20 shadow-xl shadow-red-950/40 shrink-0"
+                className="size-18 sm:size-24 md:size-28 font-display text-xl sm:text-2xl md:text-3xl border-2 border-white/20 shadow-xl shadow-red-950/40 shrink-0"
                 rounded="rounded-2xl"
               />
-              <div>
+              <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white">
+                  <h2 className="font-display text-lg sm:text-2xl font-bold tracking-tight text-white break-words">
                     {candidate.name}
                   </h2>
                   <Badge
@@ -4286,30 +4265,37 @@ function ProgressView({
                     }
                   >
                     {candidate.stageStatuses.includes("failed")
-                      ? "Perlu Pembinaan Khusus"
+                      ? "Perlu Pembinaan"
                       : "Aktif"}
                   </Badge>
                 </div>
-                <p className="mt-1 text-xs sm:text-sm text-slate-400">
-                  {candidate.number} · {candidate.school} · {candidate.gender}
+                <p className="text-xs sm:text-sm text-slate-300 break-words leading-relaxed">
+                  {candidate.number} · {candidate.school}
                 </p>
+                <span className="inline-block rounded-md bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-slate-200">
+                  {candidate.gender}
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0">
-              <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center min-w-24">
-                <p className="text-[0.65rem] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="grid grid-cols-2 gap-2.5 sm:flex sm:items-center sm:gap-3 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0 min-w-0">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-center sm:min-w-28">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Fisik (TB/BB)
                 </p>
-                <p className="mt-0.5 text-xs font-bold text-white">
+                <p className="mt-0.5 text-xs sm:text-sm font-bold text-white whitespace-nowrap">
                   {candidate.heightCm ?? "—"} cm · {candidate.weightKg ?? "—"} kg
                 </p>
               </div>
 
-              <div className="min-w-36 flex-1 sm:flex-initial">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-400">Tingkat kesiapan</span>
-                  <span className="text-emerald-300 font-bold">{completion}%</span>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 sm:min-w-36">
+                <div className="flex items-center justify-between text-xs font-semibold gap-1">
+                  <span className="text-slate-400 text-[10px] uppercase tracking-wider">
+                    Kesiapan
+                  </span>
+                  <span className="text-emerald-300 font-bold">
+                    {completion}%
+                  </span>
                 </div>
                 <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/10">
                   <div
@@ -4323,9 +4309,9 @@ function ProgressView({
         </div>
 
         {/* Responsive Stage Stepper (Grid 8 kolom di Desktop, 4 kolom di Tablet, 2 kolom di HP) */}
-        <div className="border-t border-slate-100 bg-slate-50/60 p-4 sm:p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-600">
+        <div className="border-t border-slate-100 bg-slate-50/70 p-3.5 sm:p-5 min-w-0">
+          <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Peta Kesiapan 8 Materi Latihan
             </p>
             <span className="text-xs font-semibold text-slate-500">
@@ -4342,19 +4328,19 @@ function ProgressView({
               return (
                 <div
                   key={stage.key}
-                  className={`flex flex-col justify-between rounded-xl border p-2.5 text-center transition ${
+                  className={`flex flex-col justify-between rounded-xl border p-2.5 text-center transition min-w-0 ${
                     isPassed
                       ? "border-emerald-200 bg-emerald-50/60 shadow-2xs"
                       : isReview
                         ? "border-amber-200 bg-amber-50/60"
                         : isFailed
                           ? "border-red-200 bg-red-50/60"
-                          : "border-slate-200 bg-white"
+                          : "border-slate-200/90 bg-white"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center justify-between gap-1 min-w-0">
                     <span
-                      className={`grid size-6 place-items-center rounded-full text-[0.68rem] font-bold ${
+                      className={`grid size-5 sm:size-6 place-items-center rounded-full text-[10px] sm:text-xs font-bold shrink-0 ${
                         isPassed
                           ? "bg-emerald-600 text-white"
                           : isReview
@@ -4367,7 +4353,7 @@ function ProgressView({
                       {index + 1}
                     </span>
                     <span
-                      className={`text-[0.62rem] font-bold uppercase tracking-wider ${
+                      className={`text-[10px] font-bold uppercase tracking-wider truncate ${
                         isPassed
                           ? "text-emerald-700 font-extrabold"
                           : isReview
@@ -4381,12 +4367,12 @@ function ProgressView({
                     </span>
                   </div>
                   <p
-                    className="mt-2 line-clamp-1 text-xs font-bold text-slate-800"
+                    className="mt-2 text-xs font-bold text-slate-800 break-words leading-tight"
                     title={stage.label}
                   >
                     {stage.label}
                   </p>
-                  <p className="mt-0.5 text-[0.65rem] font-medium text-slate-400">
+                  <p className="mt-1 text-[10px] font-medium text-slate-400">
                     {stage.shortLabel} · {index < 5 ? "Dasar" : "Lapangan"}
                   </p>
                 </div>
@@ -4409,34 +4395,34 @@ function ProgressView({
 
       <div className="grid gap-6">
 
-        <Card className="overflow-hidden border border-slate-200 shadow-xs">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-white p-5 sm:p-6">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-lg bg-red-100 text-red-600">
-                  <Activity className="size-4" />
-                </span>
-                <h2 className="font-display text-base sm:text-lg font-bold text-slate-900">
+        <Card className="overflow-hidden border border-slate-200/90 shadow-2xs rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-b border-slate-100 bg-white px-4 py-3 sm:px-5 sm:py-3.5">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 border border-red-100">
+                <Activity className="size-4" />
+              </span>
+              <div>
+                <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
                   Rekap Uji Kesamaptaan Jasmani (BPIP)
                 </h2>
+                <p className="text-[11px] text-slate-500">
+                  Standar Nilai 100: Lari 3.000m · Push-up 45x · Sit-up 40x · Back-up 50x · Shuttle 15,4s
+                </p>
               </div>
-              <p className="mt-1 text-xs text-slate-500">
-                Standar Nilai 100: Lari 3.000m · Push-up 45x · Sit-up 40x · Back-up 50x · Shuttle 15,4s
-              </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-auto">
               {effectiveCandidateFitness !== null && (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-950">
-                  <span className="text-[0.68rem] font-bold uppercase text-emerald-700">Rata-rata:</span>
-                  <span className="font-display font-black text-sm text-emerald-800">{effectiveCandidateFitness}</span>
-                  <span className="text-xs text-emerald-600">/ 100</span>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-950">
+                  <span className="text-[10px] font-bold uppercase text-emerald-700">Rata-rata:</span>
+                  <span className="font-display font-black text-xs sm:text-sm text-emerald-800">{effectiveCandidateFitness}</span>
+                  <span className="text-[10px] text-emerald-600">/ 100</span>
                 </div>
               )}
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={handleOpenSamaptaModal}
-                className="gap-1.5 text-xs font-bold"
+                className="gap-1 text-xs font-bold"
               >
                 <Edit3 className="size-3.5" /> Catat / Edit Nilai
               </Button>
@@ -4449,78 +4435,138 @@ function ProgressView({
               return (
                 <div
                   key={metric.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 hover:bg-slate-50/70 transition-colors"
+                  className="px-3.5 py-2.5 sm:px-5 sm:py-3 hover:bg-slate-50/70 transition-colors"
                 >
-                  {/* Left: Kategori & Nama Uji */}
-                  <div className="flex items-center gap-3 sm:w-1/3 min-w-0">
-                    <span
-                      className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-md shrink-0 ${
-                        metric.isPrimary
-                          ? "bg-red-50 text-red-700 border border-red-200"
-                          : "bg-slate-100 text-slate-600 border border-slate-200"
-                      }`}
-                    >
-                      {metric.category}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 truncate">{metric.label}</p>
-                      <p className="text-[0.68rem] text-slate-400">Target 100: <strong className="text-slate-600">{metric.target}</strong></p>
-                    </div>
-                  </div>
-
-                  {/* Middle: Capaian & Nilai BPIP */}
-                  <div className="flex items-center gap-5 sm:w-1/3">
-                    <div>
-                      <span className="text-[0.62rem] uppercase font-bold text-slate-400 block">Hasil</span>
-                      {isRecorded ? (
-                        <span className="font-display text-sm font-bold text-slate-900">
-                          {metric.current}
-                        </span>
-                      ) : (
-                        <span className="font-sans text-xs italic text-slate-400">
-                          Belum diuji
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="pl-4 border-l border-slate-100">
-                      <span className="text-[0.62rem] uppercase font-bold text-slate-400 block">Poin BPIP</span>
-                      {isRecorded && metric.score !== null ? (
-                        <span className={`text-xs font-bold ${metric.score >= 85 ? "text-emerald-600" : metric.score >= 70 ? "text-blue-600" : "text-amber-600"}`}>
-                          {metric.score} Poin
-                        </span>
-                      ) : (
-                        <span className="text-xs text-slate-400">—</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right: Progress Bar & Status */}
-                  <div className="flex items-center justify-end gap-3 sm:w-1/3">
-                    {isRecorded && metric.percent !== null ? (
-                      <div className="w-full max-w-[140px] space-y-1">
-                        <div className="flex justify-between text-[0.68rem]">
-                          <span className="text-slate-400">Kesiapan</span>
-                          <span className="font-bold text-slate-700">{metric.percent}%</span>
-                        </div>
-                        <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              metric.percent >= 90
-                                ? "bg-emerald-500"
-                                : metric.percent >= 75
-                                  ? "bg-blue-600"
-                                  : "bg-amber-500"
-                            }`}
-                            style={{ width: `${Math.min(100, metric.percent)}%` }}
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 text-[0.68rem] font-medium text-slate-400 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
-                        Menunggu Pengujian
+                  {/* Tampilan Desktop (Satu Baris Seimbang) */}
+                  <div className="hidden sm:flex items-center justify-between gap-4">
+                    {/* Left: Kategori & Nama Uji */}
+                    <div className="flex items-center gap-2.5 w-5/12 min-w-0">
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                          metric.isPrimary
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
+                        }`}
+                      >
+                        {metric.category}
                       </span>
-                    )}
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">{metric.label}</p>
+                        <p className="text-[10px] text-slate-400">Target: <strong className="text-slate-600">{metric.target}</strong></p>
+                      </div>
+                    </div>
+
+                    {/* Middle: Capaian & Nilai BPIP */}
+                    <div className="flex items-center gap-4 w-4/12">
+                      <div className="min-w-0">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Hasil</span>
+                        {isRecorded ? (
+                          <span className="font-display text-xs font-bold text-slate-900">
+                            {metric.current}
+                          </span>
+                        ) : (
+                          <span className="font-sans text-[11px] italic text-slate-400">
+                            Belum diuji
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="pl-3 border-l border-slate-100 min-w-0">
+                        <span className="text-[9px] uppercase font-bold text-slate-400 block">Poin BPIP</span>
+                        {isRecorded && metric.score !== null ? (
+                          <span className={`text-xs font-bold ${metric.score >= 85 ? "text-emerald-600" : metric.score >= 70 ? "text-blue-600" : "text-amber-600"}`}>
+                            {metric.score} Poin
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right: Progress Bar & Status */}
+                    <div className="flex items-center justify-end w-3/12">
+                      {isRecorded && metric.percent !== null ? (
+                        <div className="w-full max-w-[120px] space-y-1">
+                          <div className="flex justify-between text-[10px]">
+                            <span className="text-slate-400">Kesiapan</span>
+                            <span className="font-bold text-slate-700">{metric.percent}%</span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${
+                                metric.percent >= 90
+                                  ? "bg-emerald-500"
+                                  : metric.percent >= 75
+                                    ? "bg-blue-600"
+                                    : "bg-amber-500"
+                              }`}
+                              style={{ width: `${Math.min(100, metric.percent)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center text-[10px] font-medium text-slate-400 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded">
+                          Menunggu Pengujian
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tampilan Mobile: 2 Baris Ringkas & Rapi */}
+                  <div className="sm:hidden space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                            metric.isPrimary
+                              ? "bg-red-50 text-red-700 border border-red-200"
+                              : "bg-slate-100 text-slate-600 border border-slate-200"
+                          }`}
+                        >
+                          {metric.category}
+                        </span>
+                        <p className="text-xs font-bold text-slate-900 truncate">
+                          {metric.label}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        {isRecorded ? (
+                          <div className="flex items-baseline gap-1">
+                            <span className="font-display text-xs font-black text-slate-900">{metric.current}</span>
+                            {metric.score !== null && (
+                              <span className={`text-[10px] font-bold ${metric.score >= 85 ? "text-emerald-600" : metric.score >= 70 ? "text-blue-600" : "text-amber-600"}`}>
+                                · {metric.score} Poin
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[10px] italic text-slate-400">Belum diuji</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 text-[10px] text-slate-400">
+                      <span>Target: <strong className="text-slate-600">{metric.target}</strong></span>
+                      {isRecorded && metric.percent !== null ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-600">{metric.percent}%</span>
+                          <div className="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${
+                                metric.percent >= 90
+                                  ? "bg-emerald-500"
+                                  : metric.percent >= 75
+                                    ? "bg-blue-600"
+                                    : "bg-amber-500"
+                              }`}
+                              style={{ width: `${Math.min(100, metric.percent)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] text-slate-400">Menunggu Pengujian</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               )
@@ -4528,11 +4574,11 @@ function ProgressView({
           </div>
 
           {/* Footer note */}
-          <div className="border-t border-slate-100 bg-slate-50/60 px-5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-            <span className="text-[0.72rem]">
+          <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-2 sm:px-5 sm:py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            <span className="text-[11px]">
               Passing grade kelulusan jasmani BPIP: <strong className="text-slate-700">Rata-rata &ge; 75.0</strong>.
             </span>
-            <span className="text-[0.68rem] text-slate-400">
+            <span className="text-[10px] text-slate-400">
               Terakhir diperbarui: {candidate.updatedAt || "Hari ini"}
             </span>
           </div>
@@ -4708,7 +4754,7 @@ function ProgressView({
         )}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
         {[
           ["Kehadiran latihan", development.attendance, CalendarDays],
           ["Kepatuhan program", development.training, ClipboardCheck],
@@ -4716,19 +4762,21 @@ function ProgressView({
         ].map(([label, value, Icon]) => {
           const MetricIcon = Icon as typeof CalendarDays
           return (
-            <Card className="p-5" key={label as string}>
-              <div className="flex items-center justify-between">
-                <span className="grid size-10 place-items-center rounded-xl bg-slate-100 text-slate-700">
-                  <MetricIcon className="size-5" />
-                </span>
-                <span className="font-display text-2xl font-bold text-slate-950">
-                  {value as number}%
-                </span>
+            <Card className="flex flex-col justify-between p-3 sm:p-5" key={label as string}>
+              <div>
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="grid size-8 sm:size-10 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-slate-100 text-slate-700">
+                    <MetricIcon className="size-4 sm:size-5" />
+                  </span>
+                  <span className="font-display text-base sm:text-2xl font-bold text-slate-950">
+                    {value as number}%
+                  </span>
+                </div>
+                <p className="mt-2.5 sm:mt-4 text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                  {label as string}
+                </p>
               </div>
-              <p className="mt-4 text-sm font-bold text-slate-800">
-                {label as string}
-              </p>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-2.5 sm:mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-red-500"
                   style={{ width: `${value as number}%` }}
@@ -4738,30 +4786,6 @@ function ProgressView({
           )
         })}
       </div>
-
-      <Card className="border-blue-200 bg-blue-50 p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-blue-600 text-white">
-              <GraduationCap className="size-5" />
-            </span>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-blue-700">
-                Catatan pelatih
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-relaxed text-blue-950">
-                {development.note}
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="secondary"
-            onClick={() => onSelectCandidate(candidate.id)}
-          >
-            Ubah catatan
-          </Button>
-        </div>
-      </Card>
     </>
   )}
 </div>
@@ -4773,8 +4797,7 @@ function RankingView({
 }: {
   onSelectCandidate: (candidateId: string) => void
 }) {
-  const { candidates, rankingPublished, setRankingPublished, currentUser } =
-    useApp()
+  const { candidates, currentUser } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
 
   const ranked = useMemo(
@@ -4814,75 +4837,57 @@ function RankingView({
 
   return (
     <div className="grid gap-4 sm:gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-              Pemeringkatan sementara latihan
-            </h1>
-            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
-              Simulasi &amp; Evaluasi · MA Mu'allimin
-            </span>
+      {/* Wadah Header Pemeringkatan Ringkas & Berikon */}
+      <Card className="border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-2xs">
+        <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+          <span className="grid size-9 sm:size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-600 border border-red-100/80 shadow-2xs">
+            <Trophy className="size-4.5 sm:size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-display text-base sm:text-lg font-bold tracking-tight text-slate-950">
+                Peringkat Sementara
+              </h1>
+              <span className="inline-flex items-center rounded-md bg-red-50 border border-red-200/80 px-2 py-0.5 text-[11px] font-semibold text-red-700">
+                Simulasi &amp; Evaluasi
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+              Capaian nilai latihan dan kesiapan seleksi santri.
+            </p>
           </div>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Peringkat dinamis berbasis capaian nilai latihan yang sudah tercatat.
-          </p>
         </div>
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          {currentUser.role === "admin" ? (
-            <Button
-              size="sm"
-              variant={rankingPublished ? "danger" : "primary"}
-              onClick={() => setRankingPublished(!rankingPublished)}
-            >
-              <ShieldCheck className="size-3.5" />{" "}
-              {rankingPublished
-                ? "Tarik Publikasi Hasil"
-                : "Publikasikan Hasil Sementara"}
-            </Button>
-          ) : null}
-          <Button size="sm" variant="secondary" onClick={() => exportRankingCsv(ranked)}>
-            <Download className="size-3.5" /> Ekspor rekap CSV
-          </Button>
-        </div>
-      </div>
+      </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-6 py-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 px-5 py-4 sm:px-6 sm:py-5">
           <div>
-            <h2 className="font-display text-lg font-bold text-slate-900">
+            <h2 className="font-display text-base sm:text-lg font-bold text-slate-900">
               Leaderboard kesiapan sementara
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              {filteredRanked.length} santri putra aktif
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              {filteredRanked.length} santri aktif
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari nama atau nomor..."
-                className="w-full rounded-xl border border-slate-200 bg-white py-1.5 pl-9 pr-8 text-xs placeholder:text-slate-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
-              />
-              {searchQuery ? (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="size-3.5" />
-                </button>
-              ) : null}
-            </div>
-
-            <div className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-bold text-blue-700">
-              <span className="size-2 rounded-full bg-blue-600" />
-              Khusus Putra
-            </div>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari nama atau nomor..."
+              className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-8 text-xs sm:text-sm placeholder:text-slate-400 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
+            />
+            {searchQuery ? (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="size-3.5" />
+              </button>
+            ) : null}
           </div>
         </div>
 

@@ -447,118 +447,117 @@ export default function CandidateProjection({
             </form>
           ) : null}
 
-          <div className="grid gap-4 p-5 sm:p-6 md:grid-cols-3">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div>
+          <div className="grid gap-3 p-3.5 sm:p-5 md:grid-cols-3">
+            {/* Tinggi Badan */}
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-3 sm:p-3.5 shadow-2xs">
+              <div>
+                <div className="flex items-center justify-between gap-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                    <Ruler className="size-3.5 text-red-600" /> Tinggi Badan
+                    <Ruler className="size-3.5 text-blue-600 shrink-0" /> Tinggi Badan
                   </p>
-                  <p className="mt-2 font-display text-2xl font-bold text-slate-950">
-                    {candidate.heightCm ?? "—"}{" "}
-                    <span className="font-sans text-xs font-semibold text-slate-400">
-                      cm
-                    </span>
-                  </p>
+                  <Badge tone={anthroEval.heightStatus.tone} className="text-[10px] !py-0.5 !px-2 font-semibold shrink-0">
+                    {anthroEval.heightStatus.label}
+                  </Badge>
                 </div>
-                <Badge tone={anthroEval.heightStatus.tone}>
-                  {anthroEval.heightStatus.label}
-                </Badge>
+
+                <div className="mt-1.5 flex items-baseline justify-between gap-1">
+                  <p className="font-display text-xl sm:text-2xl font-black text-slate-950">
+                    {candidate.heightCm ?? "—"}{" "}
+                    <span className="font-sans text-xs font-semibold text-slate-400">cm</span>
+                  </p>
+                  <div className="text-right text-[11px] text-slate-500">
+                    Tgt: <strong className="text-slate-800">{anthroEval.minIdealHeight}–{anthroEval.maxIdealHeight} cm</strong>
+                    <span className="ml-1 font-bold text-blue-700">
+                      ({heightDelta !== null ? `${heightDelta >= 0 ? "+" : ""}${heightDelta} cm` : "Baseline"})
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="mt-3">
+
+              <div className="mt-2 pt-1.5 border-t border-slate-100">
                 <LineChart
                   values={anthroLogs.map((l) => l.heightCm)}
                   target={candidate.gender === "Putra" ? 175 : 170}
                   unit="cm"
                   color="blue"
-                  height={28}
+                  height={14}
                 />
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-[0.68rem]">
-                <span className="text-slate-500">
-                  Target {candidate.gender}:{" "}
-                  <strong className="text-slate-800">
-                    {anthroEval.minIdealHeight}–{anthroEval.maxIdealHeight} cm
-                  </strong>
-                </span>
-                <span className="font-bold text-blue-700">
-                  {heightDelta !== null
-                    ? `${heightDelta >= 0 ? "+" : ""}${heightDelta} cm`
-                    : "Baseline"}
-                </span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div>
+            {/* Berat Badan */}
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-3 sm:p-3.5 shadow-2xs">
+              <div>
+                <div className="flex items-center justify-between gap-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                    <Scale className="size-3.5 text-red-600" /> Berat Badan
+                    <Scale className="size-3.5 text-emerald-600 shrink-0" /> Berat Badan
                   </p>
-                  <p className="mt-2 font-display text-2xl font-bold text-slate-950">
-                    {candidate.weightKg ?? "—"}{" "}
-                    <span className="font-sans text-xs font-semibold text-slate-400">
-                      kg
-                    </span>
-                  </p>
+                  <Badge tone={anthroEval.weightStatus.tone} className="text-[10px] !py-0.5 !px-2 font-semibold shrink-0">
+                    {anthroEval.weightStatus.label}
+                  </Badge>
                 </div>
-                <Badge tone={anthroEval.weightStatus.tone}>
-                  {anthroEval.weightStatus.label}
-                </Badge>
+
+                <div className="mt-1.5 flex items-baseline justify-between gap-1">
+                  <p className="font-display text-xl sm:text-2xl font-black text-slate-950">
+                    {candidate.weightKg ?? "—"}{" "}
+                    <span className="font-sans text-xs font-semibold text-slate-400">kg</span>
+                  </p>
+                  <div className="text-right text-[11px] text-slate-500">
+                    Ideal: <strong className="text-slate-800">{anthroEval.minIdealWeight !== null ? `${anthroEval.minIdealWeight}–${anthroEval.maxIdealWeight} kg` : "—"}</strong>
+                    <span className="ml-1 font-bold text-emerald-700">
+                      ({weightDelta !== null ? `${weightDelta >= 0 ? "+" : ""}${weightDelta} kg` : "Baseline"})
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="mt-3">
+
+              <div className="mt-2 pt-1.5 border-t border-slate-100">
                 <LineChart
                   values={anthroLogs.map((l) => l.weightKg)}
                   target={anthroEval.idealWeight ?? 62}
                   unit="kg"
                   color="emerald"
-                  height={28}
+                  height={14}
                 />
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-[0.68rem]">
-                <span className="text-slate-500">
-                  Rentang ideal:{" "}
-                  <strong className="text-slate-800">
-                    {anthroEval.minIdealWeight !== null
-                      ? `${anthroEval.minIdealWeight}–${anthroEval.maxIdealWeight} kg`
-                      : "—"}
-                  </strong>
-                </span>
-                <span className="font-bold text-blue-700">
-                  {weightDelta !== null
-                    ? `${weightDelta >= 0 ? "+" : ""}${weightDelta} kg`
-                    : "Baseline"}
-                </span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div>
+            {/* Indeks Massa Tubuh (BMI) */}
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-3 sm:p-3.5 shadow-2xs">
+              <div>
+                <div className="flex items-center justify-between gap-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                    <Activity className="size-3.5 text-red-600" /> Indeks Massa
-                    Tubuh (BMI)
+                    <Activity className="size-3.5 text-purple-600 shrink-0" /> BMI / IMT
                   </p>
-                  <p className="mt-2 font-display text-2xl font-bold text-slate-950">
-                    {anthroEval.bmi?.value ?? "—"}{" "}
-                    <span className="font-sans text-xs font-semibold text-slate-400">
-                      kg/m²
-                    </span>
-                  </p>
+                  <Badge
+                    tone={
+                      anthroEval.bmi?.category === "Normal"
+                        ? "success"
+                        : anthroEval.bmi
+                          ? "warning"
+                          : "neutral"
+                    }
+                    className="text-[10px] !py-0.5 !px-2 font-semibold shrink-0"
+                  >
+                    {anthroEval.bmi?.category ?? "Belum diukur"}
+                  </Badge>
                 </div>
-                <Badge
-                  tone={
-                    anthroEval.bmi?.category === "Normal"
-                      ? "success"
-                      : anthroEval.bmi
-                        ? "warning"
-                        : "neutral"
-                  }
-                >
-                  {anthroEval.bmi?.category ?? "Belum diukur"}
-                </Badge>
+
+                <div className="mt-1.5 flex items-baseline justify-between gap-1">
+                  <p className="font-display text-xl sm:text-2xl font-black text-slate-950">
+                    {anthroEval.bmi?.value ?? "—"}{" "}
+                    <span className="font-sans text-xs font-semibold text-slate-400">kg/m²</span>
+                  </p>
+                  <div className="text-right text-[11px] text-slate-500">
+                    Tgt: <strong className="text-slate-800">18,5–24,9</strong>
+                    <span className="ml-1 text-slate-400">
+                      (Ideal: {anthroEval.idealWeight ?? "—"} kg)
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="mt-3">
+
+              <div className="mt-2 pt-1.5 border-t border-slate-100">
                 <LineChart
                   values={anthroLogs
                     .map((l) => bmi(l.weightKg, l.heightCm)?.value ?? 0)
@@ -566,16 +565,8 @@ export default function CandidateProjection({
                   target={22}
                   unit=""
                   color="purple"
-                  height={28}
+                  height={14}
                 />
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 text-[0.68rem]">
-                <span className="text-slate-500">
-                  Target BMI: <strong className="text-slate-800">18,5–24,9</strong>
-                </span>
-                <span className="font-bold text-slate-700">
-                  Ideal Parade: {anthroEval.idealWeight ?? "—"} kg
-                </span>
               </div>
             </div>
           </div>
@@ -739,33 +730,35 @@ export default function CandidateProjection({
         )}
       </Card>
 
-      <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="size-5 text-red-600" />
-              <h2 className="font-display text-lg font-bold text-slate-900">
-                Tren & proyeksi Samapta
+      <Card className="overflow-hidden border border-slate-200/90 shadow-2xs rounded-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 bg-white px-4 py-3 sm:px-5 sm:py-3.5">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 border border-red-100">
+              <TrendingUp className="size-4" />
+            </span>
+            <div>
+              <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                Tren & Proyeksi Samapta
               </h2>
+              <p className="text-[11px] text-slate-500">
+                Dihitung otomatis dari hasil sesi latihan fisik tersimpan
+              </p>
             </div>
-            <p className="mt-1 text-sm text-slate-500">
-              Dihitung otomatis dari hasil sesi latihan yang tersimpan.
-            </p>
           </div>
-          <Badge tone={history.length ? "info" : "neutral"}>
+          <Badge tone={history.length ? "info" : "neutral"} className="text-[11px] font-semibold px-2 py-0.5 shrink-0 self-start sm:self-auto">
             {history.length} sesi tercatat
           </Badge>
         </div>
 
         {!history.length ? (
-          <div className="px-6 py-12 text-center">
-            <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-slate-100 text-slate-500">
-              <Activity className="size-6" />
+          <div className="px-6 py-10 text-center">
+            <span className="mx-auto grid size-10 place-items-center rounded-xl bg-slate-100 text-slate-500">
+              <Activity className="size-5" />
             </span>
-            <p className="mt-4 font-bold text-slate-900">
+            <p className="mt-3 text-sm font-bold text-slate-900">
               Belum ada hasil Samapta tersimpan
             </p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-500">
+            <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-slate-500">
               Buat atau buka sesi Latihan Samapta, input lima hasil kandidat,
               lalu tekan &ldquo;Simpan hasil kandidat&rdquo;. Tren akan muncul
               otomatis di sini.
@@ -773,81 +766,84 @@ export default function CandidateProjection({
           </div>
         ) : (
           <>
-            <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-5 sm:p-6">
-              {projections.map((metric) => (
-                <div
-                  key={metric.key}
-                  className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4"
-                >
-                  <div className="flex items-start justify-between gap-2">
+            <div className="p-2.5 sm:p-4 bg-slate-50/50">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                {projections.map((metric, idx) => (
+                  <div
+                    key={metric.key}
+                    className={`flex flex-col justify-between p-2.5 sm:p-3 rounded-xl border border-slate-200/90 bg-white shadow-2xs ${
+                      idx === 4 ? "col-span-2 sm:col-span-1" : ""
+                    }`}
+                  >
                     <div>
-                      <p className="text-xs font-bold text-slate-700">
-                        {metric.label}
-                      </p>
-                      <p className="mt-2 font-display text-xl font-bold text-slate-950">
-                        {metric.latest ?? "—"}{" "}
-                        <span className="font-sans text-xs font-semibold text-slate-400">
+                      {/* Baris 1: Label + Trend Icon */}
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-xs font-bold text-slate-800 leading-tight">
+                          {metric.label}
+                        </span>
+                        {metric.targetMet ? (
+                          <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                        ) : metric.improvement !== null && metric.improvement > 0 ? (
+                          <ArrowUpRight className="size-4 text-blue-600 shrink-0" />
+                        ) : (
+                          <ArrowDownRight className="size-4 text-amber-600 shrink-0" />
+                        )}
+                      </div>
+
+                      {/* Baris 2: Nilai Terkini */}
+                      <div className="mt-1 flex items-baseline gap-1">
+                        <span className="font-display text-base sm:text-lg font-black text-slate-950">
+                          {metric.latest ?? "—"}
+                        </span>
+                        <span className="font-sans text-[10px] font-semibold text-slate-400">
                           {metric.unit}
                         </span>
-                      </p>
+                      </div>
                     </div>
-                    {metric.targetMet ? (
-                      <CheckCircle2 className="size-5 text-emerald-600" />
-                    ) : metric.improvement !== null &&
-                      metric.improvement > 0 ? (
-                      <ArrowUpRight className="size-5 text-blue-600" />
-                    ) : (
-                      <ArrowDownRight className="size-5 text-amber-600" />
-                    )}
-                  </div>
-                  <div className="mt-3">
-                    <LineChart
-                      values={metric.values}
-                      target={metric.target}
-                      unit={metric.unit}
-                      color={metric.targetMet ? "emerald" : "red"}
-                      lowerIsBetter={metric.lowerIsBetter}
-                      height={28}
-                    />
-                  </div>
-                  <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-200 pt-3 text-[0.68rem]">
-                    <div>
-                      <p className="text-slate-400">Target</p>
-                      <p className="mt-0.5 font-bold text-slate-700">
-                        {metric.target} {metric.unit}
-                      </p>
+
+                    {/* Baris 3: Sparkline Compact */}
+                    <div className="mt-1.5">
+                      <LineChart
+                        values={metric.values}
+                        target={metric.target}
+                        unit={metric.unit}
+                        color={metric.targetMet ? "emerald" : "red"}
+                        lowerIsBetter={metric.lowerIsBetter}
+                        height={14}
+                      />
                     </div>
-                    <div>
-                      <p className="text-slate-400">Proyeksi berikut</p>
-                      <p className="mt-0.5 font-bold text-blue-700">
-                        {metric.projected?.toFixed(
-                          metric.key === "shuttle" ? 1 : 0,
-                        ) ?? "—"}{" "}
-                        {metric.unit}
-                      </p>
+
+                    {/* Baris 4: Target & Proyeksi Berikut */}
+                    <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] gap-1">
+                      <span className="text-slate-500">
+                        Tgt: <strong className="text-slate-700">{metric.target} {metric.unit}</strong>
+                      </span>
+                      <span className="text-blue-700 font-bold shrink-0 text-right">
+                        Proy: {metric.projected?.toFixed(metric.key === "shuttle" ? 1 : 0) ?? "—"} {metric.unit}
+                      </span>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <div className="grid gap-5 border-t border-slate-100 px-5 py-5 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="grid gap-3 border-t border-slate-100 px-4 py-3 sm:px-5 sm:py-3.5 bg-white lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <div className="flex items-center gap-2">
-                  <Target className="size-4 text-red-600" />
-                  <p className="text-sm font-bold text-slate-900">
+                  <Target className="size-3.5 text-red-600" />
+                  <p className="text-xs sm:text-sm font-bold text-slate-900">
                     Kesiapan target: {completedMetrics} dari 5 komponen
                   </p>
                 </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
                   <div
                     className="h-full rounded-full bg-red-500 transition-all"
                     style={{ width: `${(completedMetrics / 5) * 100}%` }}
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                <CalendarDays className="size-4" />
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                <CalendarDays className="size-3.5" />
                 Terakhir:{" "}
                 {new Date(
                   `${history.at(-1)?.date}T00:00:00`,

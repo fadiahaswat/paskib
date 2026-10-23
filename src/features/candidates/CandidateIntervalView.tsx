@@ -15,7 +15,7 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react"
-import { Badge, Button, Input } from "../../components/ui"
+import { Badge, Button, Card, Input } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import {
   analyzeIntervalPerformance,
@@ -123,99 +123,103 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
   }
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner & Insight */}
-      <div className="rounded-2xl border border-red-100 bg-gradient-to-r from-red-50/60 via-amber-50/40 to-white p-5 shadow-2xs">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-red-600 text-white shadow-md shadow-red-200">
-              <Timer className="size-6" />
-            </div>
+    <div className="space-y-4">
+      {/* Top Banner & Insight Compact */}
+      <Card className="overflow-hidden border border-slate-200/90 bg-white shadow-2xs rounded-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-b border-slate-100 bg-white px-4 py-3 sm:px-5 sm:py-3.5">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 border border-red-100">
+              <Timer className="size-4" />
+            </span>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-base font-bold text-slate-900 sm:text-lg">
+                <h3 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
                   Pelacakan &amp; Analisis Latihan Interval
                 </h3>
-                <Badge tone="info">Khusus Pembinaan Fisik</Badge>
+                <Badge tone="info" className="text-[10px] !py-0 !px-1.5 font-semibold">
+                  Khusus Drill Fisik
+                </Badge>
               </div>
-              <p className="mt-0.5 text-xs text-slate-600 max-w-2xl">
-                Wadah khusus pencatatan drill kardio santri. Skor interval dan split pace dianalisis
-                untuk proyeksi daya tahan tanpa menimpa nilai resmi Lari 12 Menit seleksi.
+              <p className="text-[11px] text-slate-500">
+                Pencatatan drill kardio &amp; proyeksi daya tahan lari 12 menit santri
               </p>
             </div>
           </div>
           <Button
             type="button"
+            size="sm"
             variant={showAddForm ? "secondary" : "primary"}
             onClick={() => setShowAddForm(!showAddForm)}
-            className="shrink-0"
+            className="shrink-0 gap-1 text-xs font-bold self-start sm:self-auto"
           >
             {showAddForm ? (
               <>
-                <ChevronUp className="size-4" /> Tutup Form
+                <ChevronUp className="size-3.5" /> Tutup Form
               </>
             ) : (
               <>
-                <Plus className="size-4" /> Catat Latihan Interval
+                <Plus className="size-3.5" /> Catat Latihan Interval
               </>
             )}
           </Button>
         </div>
 
-        {/* 4 Kartu KPI Ringkasan */}
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider">Total Latihan</span>
-              <Activity className="size-4 text-blue-500" />
+        {/* 4 Kartu KPI Ringkasan Compact */}
+        <div className="p-2.5 sm:p-4 bg-slate-50/50">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-2xs">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Total Drill</span>
+                <Activity className="size-3.5 text-blue-500" />
+              </div>
+              <p className="mt-1 font-display text-lg sm:text-xl font-black text-slate-900">
+                {totalSessions}{" "}
+                <span className="font-sans text-xs font-semibold text-slate-400">Sesi</span>
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-500">Tercatat dalam rekam jejak</p>
             </div>
-            <p className="mt-1.5 font-display text-2xl font-black text-slate-900">
-              {totalSessions}{" "}
-              <span className="text-xs font-semibold text-slate-400">Sesi</span>
-            </p>
-            <p className="mt-0.5 text-[0.65rem] text-slate-500">Tercatat dalam rekam jejak</p>
-          </div>
 
-          <div className="rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider">Split Terbaik</span>
-              <Zap className="size-4 text-amber-500" />
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-2xs">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Split Terbaik</span>
+                <Zap className="size-3.5 text-amber-500" />
+              </div>
+              <p className="mt-1 font-display text-lg sm:text-xl font-black text-slate-900">
+                {bestAvgSplit ? `${bestAvgSplit.toFixed(1)}s` : "—"}
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-500">
+                {bestAvgSplit ? `Pace ${(bestAvgSplit / 400 * 1000 / 60).toFixed(1)} m/km` : "Belum ada sesi"}
+              </p>
             </div>
-            <p className="mt-1.5 font-display text-2xl font-black text-slate-900">
-              {bestAvgSplit ? `${bestAvgSplit.toFixed(1)}s` : "—"}
-            </p>
-            <p className="mt-0.5 text-[0.65rem] text-slate-500">
-              {bestAvgSplit ? `Setara pace ${(bestAvgSplit / 400 * 1000 / 60).toFixed(1)} mnt/km` : "Belum ada sesi"}
-            </p>
-          </div>
 
-          <div className="rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider">Proyeksi 12 Mnt</span>
-              <TrendingUp className="size-4 text-emerald-500" />
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-2xs">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Proyeksi 12 Mnt</span>
+                <TrendingUp className="size-3.5 text-emerald-500" />
+              </div>
+              <p className="mt-1 font-display text-lg sm:text-xl font-black text-emerald-700">
+                {latestLog ? `${latestLog.projected12MinDistanceM.toLocaleString("id-ID")} m` : "—"}
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-500">
+                {latestLog ? `Skor BPIP: ${latestLog.projected12MinScore}/100` : "Menunggu data"}
+              </p>
             </div>
-            <p className="mt-1.5 font-display text-2xl font-black text-emerald-700">
-              {latestLog ? `${latestLog.projected12MinDistanceM.toLocaleString("id-ID")} m` : "—"}
-            </p>
-            <p className="mt-0.5 text-[0.65rem] text-slate-500">
-              {latestLog ? `Prediksi Skor BPIP: ${latestLog.projected12MinScore}/100` : "Menunggu data"}
-            </p>
-          </div>
 
-          <div className="rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider">Konsistensi Pace</span>
-              <Target className="size-4 text-rose-500" />
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-2xs">
+              <div className="flex items-center justify-between text-slate-500">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Konsistensi</span>
+                <Target className="size-3.5 text-rose-500" />
+              </div>
+              <p className="mt-1 font-display text-lg sm:text-xl font-black text-slate-900">
+                {latestLog?.paceConsistency ?? "—"}
+              </p>
+              <p className="mt-0.5 text-[10px] text-slate-500">
+                {latestLog ? `Sesi ${latestLog.date}` : "Lakukan sesi drill"}
+              </p>
             </div>
-            <p className="mt-1.5 font-display text-base font-extrabold text-slate-900 truncate">
-              {latestLog?.paceConsistency ?? "Belum Ada Data"}
-            </p>
-            <p className="mt-0.5 text-[0.65rem] text-slate-500 truncate">
-              {latestLog ? `Sesi ${latestLog.date}` : "Lakukan sesi drill"}
-            </p>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Form Input Sesi Latihan Baru (Bisa dibuka/tutup) */}
       {showAddForm ? (
