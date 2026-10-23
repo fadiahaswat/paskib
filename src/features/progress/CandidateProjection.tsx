@@ -361,9 +361,9 @@ export default function CandidateProjection({
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 min-w-0 max-w-full">
       {candidate && anthroEval ? (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden min-w-0 max-w-full border border-slate-200/90 shadow-2xs rounded-2xl">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
             <div>
               <div className="flex items-center gap-2">
@@ -572,7 +572,7 @@ export default function CandidateProjection({
           </div>
 
           {anthroLogs.length > 0 ? (
-            <div className="overflow-x-auto border-t border-slate-100">
+            <div className="overflow-x-auto w-full min-w-0 max-w-full border-t border-slate-100">
               <table className="w-full min-w-[44rem] text-left text-sm">
                 <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
                   <tr>
@@ -640,7 +640,7 @@ export default function CandidateProjection({
         </Card>
       ) : null}
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden min-w-0 max-w-full border border-slate-200/90 shadow-2xs rounded-2xl">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
           <div>
             <div className="flex items-center gap-2">
@@ -659,7 +659,7 @@ export default function CandidateProjection({
         </div>
 
         {catHistory.length ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full min-w-0 max-w-full">
             <table className="w-full min-w-[48rem] text-left text-sm">
               <thead className="bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
                 <tr>
@@ -855,7 +855,7 @@ export default function CandidateProjection({
               </div>
             </div>
 
-            <div className="overflow-x-auto border-t border-slate-100">
+            <div className="overflow-x-auto w-full min-w-0 max-w-full border-t border-slate-100">
               <table className="w-full min-w-[48rem] text-left text-sm">
                 <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
                   <tr>

@@ -4141,9 +4141,9 @@ function ProgressView({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto min-w-0">
             {/* Navigasi Dropdown Santri */}
-            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-1 shadow-2xs w-full sm:w-auto min-w-0">
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-1 shadow-2xs w-full sm:w-auto min-w-0 max-w-full overflow-hidden">
               <button
                 type="button"
                 onClick={handlePrev}
@@ -4154,18 +4154,20 @@ function ProgressView({
                 <ChevronLeft className="size-4" />
               </button>
 
-              <select
-                value={candidate?.id ?? ""}
-                onChange={(e) => setSelectedId(e.target.value)}
-                className="h-8 sm:h-9 flex-1 sm:w-64 min-w-0 bg-transparent px-2 text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer truncate"
-              >
-                <option value="">-- Pilih Santri / Siswa --</option>
-                {candidates.map((c, i) => (
-                  <option key={c.id} value={c.id}>
-                    {i + 1}. {c.name} ({c.number})
-                  </option>
-                ))}
-              </select>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <select
+                  value={candidate?.id ?? ""}
+                  onChange={(e) => setSelectedId(e.target.value)}
+                  className="h-8 sm:h-9 w-full min-w-0 max-w-full bg-transparent px-1.5 text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer truncate"
+                >
+                  <option value="">-- Pilih Santri / Siswa --</option>
+                  {candidates.map((c, i) => (
+                    <option key={c.id} value={c.id}>
+                      {i + 1}. {c.name} ({c.number})
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <button
                 type="button"
@@ -4242,19 +4244,19 @@ function ProgressView({
 
       {/* Banner Profil & Stepper Alur 8 Materi (Fully Responsive & Contained) */}
       <Card className="overflow-hidden border border-slate-200/90 shadow-2xs rounded-2xl min-w-0 max-w-full">
-        <div className="bg-slate-950 p-4 sm:p-6 text-white min-w-0">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0">
-            <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+        <div className="bg-slate-950 p-4 sm:p-6 text-white min-w-0 max-w-full">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0 max-w-full">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
               <CandidateAvatar
                 name={candidate.name}
                 avatar={candidate.avatar}
                 photoUrl={candidate.photoUrl}
-                className="size-18 sm:size-24 md:size-28 font-display text-xl sm:text-2xl md:text-3xl border-2 border-white/20 shadow-xl shadow-red-950/40 shrink-0"
+                className="size-16 sm:size-24 md:size-28 font-display text-xl sm:text-2xl md:text-3xl border-2 border-white/20 shadow-xl shadow-red-950/40 shrink-0"
                 rounded="rounded-2xl"
               />
               <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-display text-lg sm:text-2xl font-bold tracking-tight text-white break-words">
+                  <h2 className="font-display text-base sm:text-xl lg:text-2xl font-bold tracking-tight text-white break-words">
                     {candidate.name}
                   </h2>
                   <Badge
@@ -4263,6 +4265,7 @@ function ProgressView({
                         ? "danger"
                         : "success"
                     }
+                    className="shrink-0 text-[10px] !py-0.5 !px-2 font-semibold"
                   >
                     {candidate.stageStatuses.includes("failed")
                       ? "Perlu Pembinaan"
@@ -4278,8 +4281,8 @@ function ProgressView({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 sm:flex sm:items-center sm:gap-3 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0 min-w-0">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-center sm:min-w-28">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3 border-t border-white/10 pt-3 sm:border-t-0 sm:pt-0 min-w-0 w-full lg:w-auto">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-center min-w-0 flex-1 sm:flex-none sm:min-w-28">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Fisik (TB/BB)
                 </p>
@@ -4288,7 +4291,7 @@ function ProgressView({
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 sm:min-w-36">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-2.5 min-w-0 flex-1 sm:flex-none sm:min-w-36">
                 <div className="flex items-center justify-between text-xs font-semibold gap-1">
                   <span className="text-slate-400 text-[10px] uppercase tracking-wider">
                     Kesiapan
@@ -4309,7 +4312,7 @@ function ProgressView({
         </div>
 
         {/* Responsive Stage Stepper (Grid 8 kolom di Desktop, 4 kolom di Tablet, 2 kolom di HP) */}
-        <div className="border-t border-slate-100 bg-slate-50/70 p-3.5 sm:p-5 min-w-0">
+        <div className="border-t border-slate-100 bg-slate-50/70 p-3 sm:p-5 min-w-0 max-w-full overflow-hidden">
           <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Peta Kesiapan 8 Materi Latihan
@@ -4319,7 +4322,7 @@ function ProgressView({
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 min-w-0 max-w-full">
             {selectionStages.map((stage, index) => {
               const status = progressStatuses[index] ?? "locked"
               const isPassed = status === "passed"
@@ -4328,7 +4331,7 @@ function ProgressView({
               return (
                 <div
                   key={stage.key}
-                  className={`flex flex-col justify-between rounded-xl border p-2.5 text-center transition min-w-0 ${
+                  className={`flex flex-col justify-between rounded-xl border p-2 sm:p-2.5 text-center transition min-w-0 max-w-full overflow-hidden ${
                     isPassed
                       ? "border-emerald-200 bg-emerald-50/60 shadow-2xs"
                       : isReview
@@ -4353,7 +4356,7 @@ function ProgressView({
                       {index + 1}
                     </span>
                     <span
-                      className={`text-[10px] font-bold uppercase tracking-wider truncate ${
+                      className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider truncate ${
                         isPassed
                           ? "text-emerald-700 font-extrabold"
                           : isReview
@@ -4367,7 +4370,7 @@ function ProgressView({
                     </span>
                   </div>
                   <p
-                    className="mt-2 text-xs font-bold text-slate-800 break-words leading-tight"
+                    className="mt-1.5 text-xs font-bold text-slate-800 break-words leading-tight"
                     title={stage.label}
                   >
                     {stage.label}
@@ -5457,7 +5460,7 @@ function AppShell() {
           onSelectCandidate={(id) => setSelectedCandidateId(id)}
           onOpenGoogleSync={() => setShowGoogleSync(true)}
         />
-        <main className="mx-auto min-w-0 w-full max-w-[100rem] px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-3.5 sm:px-5 sm:pt-5 md:px-8 md:pt-8 md:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8">
+        <main className="mx-auto min-w-0 w-full max-w-[100rem] overflow-x-clip px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-3.5 sm:px-5 sm:pt-5 md:px-8 md:pt-8 md:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8">
           {selectedCandidateId ? (
             <CandidateDetailView
               candidateId={selectedCandidateId}

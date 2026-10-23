@@ -567,7 +567,7 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
         </div>
 
         {history.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto w-full min-w-0 max-w-full">
             <table className="w-full min-w-[50rem] text-left text-xs">
               <thead className="bg-slate-50 font-bold uppercase tracking-wider text-slate-500">
                 <tr>
