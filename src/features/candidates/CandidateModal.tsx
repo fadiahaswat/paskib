@@ -549,7 +549,7 @@ export function CandidateDetailView({
           </div>
         </div>
 
-        <div className="flex border-b border-slate-200 bg-slate-50 px-6">
+        <div className="flex border-b border-slate-200 bg-slate-50 px-3 sm:px-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {([
             ["profile", "Profil & 6 Berkas"],
             ["stages", "Peta Kesiapan 8 Materi"],
@@ -558,7 +558,7 @@ export function CandidateDetailView({
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`border-b-2 px-4 py-3.5 text-xs font-bold transition ${
+              className={`shrink-0 border-b-2 px-3 sm:px-4 py-3 sm:py-3.5 text-xs font-bold transition ${
                 tab === id
                   ? "border-red-600 text-red-700"
                   : "border-transparent text-slate-500 hover:text-slate-800"

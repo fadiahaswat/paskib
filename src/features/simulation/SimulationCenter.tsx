@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import {
   Activity,
+  AlertCircle,
   ArrowRight,
   BookOpenCheck,
   Calculator,
@@ -11,7 +12,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  CircleDashed,
   ClipboardList,
+  Clock,
   Dumbbell,
   Eye,
   Filter,
@@ -29,7 +32,9 @@ import {
   Trash2,
   UserRound,
   UsersRound,
+  UserX,
   X,
+  XCircle,
   Zap,
 } from "lucide-react"
 import { Badge, Button, CandidateAvatar, Card, Input } from "../../components/ui"
@@ -409,6 +414,21 @@ function calculateIntervalScore(
   return Math.min(100, Math.max(10, Math.round(score)))
 }
 
+export function hasRecordMetrics(rec?: SessionRecord): boolean {
+  if (!rec || !rec.metrics) return false
+  const configKeys = new Set([
+    "runMode",
+    "intervalDist",
+    "intervalTargetSets",
+    "intervalTargetPace",
+  ])
+  const entries = Object.entries(rec.metrics)
+  return entries.some(([k, val]) => {
+    if (configKeys.has(k)) return false
+    return val !== undefined && val !== null && String(val).trim() !== ""
+  })
+}
+
 function SessionBadge({ status }: { status: SessionStatus }) {
   return (
     <Badge
@@ -753,15 +773,13 @@ export default function SimulationCenter() {
   } = useApp()
 
   const [sessionId, setSessionId] = useState(sessions[0]?.id ?? "")
-  const [candidateId, setCandidateId] = useState(
-    sessions[0]?.participantIds[0] ?? candidates[0]?.id ?? "",
-  )
+  const [candidateId, setCandidateId] = useState("")
   const [showCreate, setShowCreate] = useState(false)
   const [saved, setSaved] = useState(false)
   const [sessionFilter, setSessionFilter] =
     useState<"Semua" | "Seleksi" | "CAT" | "Latihan">("Semua")
   const [candidateFilter, setCandidateFilter] = useState<
-    "all" | "unrated" | "rated"
+    "all" | "unrated" | "rated" | "unscored" | "absent"
   >("all")
   const [mobileTab, setMobileTab] = useState<"scoring" | "survey" | "profile">(
     "scoring",
@@ -826,16 +844,16 @@ export default function SimulationCenter() {
 
   useEffect(() => {
     if (
-      (!candidateId || !candidates.some((c) => c.id === candidateId)) &&
+      candidateId &&
+      !candidates.some((c) => c.id === candidateId) &&
       candidates.length > 0
     ) {
-      setCandidateId(sessions[0]?.participantIds[0] ?? candidates[0].id)
+      setCandidateId("")
     }
-  }, [candidates, sessions, candidateId])
+  }, [candidates, candidateId])
 
   const session = sessions.find((item) => item.id === sessionId) ?? sessions[0]
-  const candidate =
-    candidates.find((item) => item.id === candidateId) ?? candidates[0]
+  const candidate = candidates.find((item) => item.id === candidateId)
 
   const sessionCandidates = useMemo(() => {
     if (!session) return candidates
@@ -848,11 +866,54 @@ export default function SimulationCenter() {
     if (!session) return new Set<string>()
     return new Set(
       sessionCandidates
-        .filter((c) => records[`${session.id}:${c.id}`]?.savedAt)
+        .filter((c) => {
+          const rec = records[`${session.id}:${c.id}`]
+          return (
+            rec?.savedAt &&
+            (rec.attendance === "hadir" || !rec.attendance) &&
+            hasRecordMetrics(rec)
+          )
+        })
         .map((c) => c.id),
     )
   }, [session, sessionCandidates, records])
 
+  const unratedPresentCandidateIds = useMemo(() => {
+    if (!session) return new Set<string>()
+    return new Set(
+      sessionCandidates
+        .filter((c) => {
+          const rec = records[`${session.id}:${c.id}`]
+          return (
+            rec?.savedAt &&
+            (rec.attendance === "hadir" || !rec.attendance) &&
+            !hasRecordMetrics(rec)
+          )
+        })
+        .map((c) => c.id),
+    )
+  }, [session, sessionCandidates, records])
+
+  const absentCandidateIds = useMemo(() => {
+    if (!session) return new Set<string>()
+    return new Set(
+      sessionCandidates
+        .filter((c) => {
+          const rec = records[`${session.id}:${c.id}`]
+          return rec?.savedAt && rec.attendance && rec.attendance !== "hadir"
+        })
+        .map((c) => c.id),
+    )
+  }, [session, sessionCandidates, records])
+
+  const savedCandidateIds = useMemo(() => {
+    if (!session) return new Set<string>()
+    return new Set(
+      sessionCandidates
+        .filter((c) => records[`${session.id}:${c.id}`]?.savedAt)
+        .map((c) => c.id),
+    )
+  }, [session, sessionCandidates, records])
 
   const currentCandidateIndex = useMemo(() => {
     return sessionCandidates.findIndex((c) => c.id === candidate?.id)
@@ -871,26 +932,27 @@ export default function SimulationCenter() {
   const nextUnratedCandidate = useMemo(() => {
     if (currentCandidateIndex < 0) return null
     for (let i = currentCandidateIndex + 1; i < sessionCandidates.length; i++) {
-      if (!completedCandidateIds.has(sessionCandidates[i].id)) {
+      if (!savedCandidateIds.has(sessionCandidates[i].id)) {
         return sessionCandidates[i]
       }
     }
     for (let i = 0; i < currentCandidateIndex; i++) {
-      if (!completedCandidateIds.has(sessionCandidates[i].id)) {
+      if (!savedCandidateIds.has(sessionCandidates[i].id)) {
         return sessionCandidates[i]
       }
     }
     return null
-  }, [sessionCandidates, currentCandidateIndex, completedCandidateIds])
+  }, [sessionCandidates, currentCandidateIndex, savedCandidateIds])
 
   const filteredCandidates = useMemo(() => {
     return sessionCandidates.filter((c) => {
-      const isSaved = completedCandidateIds.has(c.id)
-      if (candidateFilter === "unrated") return !isSaved
-      if (candidateFilter === "rated") return isSaved
+      if (candidateFilter === "unrated") return !savedCandidateIds.has(c.id)
+      if (candidateFilter === "rated") return completedCandidateIds.has(c.id)
+      if (candidateFilter === "unscored") return unratedPresentCandidateIds.has(c.id)
+      if (candidateFilter === "absent") return absentCandidateIds.has(c.id)
       return true
     })
-  }, [sessionCandidates, completedCandidateIds, candidateFilter])
+  }, [sessionCandidates, completedCandidateIds, unratedPresentCandidateIds, absentCandidateIds, savedCandidateIds, candidateFilter])
 
   const searchedCandidates = useMemo(() => {
     const q = candidateSearch.trim().toLowerCase()
@@ -1077,21 +1139,21 @@ export default function SimulationCenter() {
     </Card>
   ) : null
 
-  if (!session || !candidate) {
+  if (!session || !candidates.length) {
     return (
-      <div className="grid gap-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="grid gap-4 sm:gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
           <div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
               Sesi seleksi & latihan
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
+            <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
               Buat sesi, input hasil, isi survei pelatih, dan sinkronkan otomatis
               ke profil, tahapan, serta pemeringkatan kandidat.
             </p>
           </div>
-          <Button onClick={() => setShowCreate((value) => !value)}>
-            <Plus className="size-4" /> Buat sesi baru
+          <Button size="sm" onClick={() => setShowCreate((value) => !value)}>
+            <Plus className="size-3.5" /> Buat sesi baru
           </Button>
         </div>
         {createModalBlock}
@@ -1118,8 +1180,8 @@ export default function SimulationCenter() {
     )
   }
 
-  const key = `${session.id}:${candidate.id}`
-  const record = records[key] ?? emptyRecord()
+  const key = candidate ? `${session.id}:${candidate.id}` : ""
+  const record = (key ? records[key] : null) ?? emptyRecord()
   const definition = definitions[session.type]
   const visibleSessions = sessions.filter(
     (item) =>
@@ -1455,11 +1517,20 @@ export default function SimulationCenter() {
   ).length
 
   function patchRecord(patch: Partial<SessionRecord>) {
+    if (!key) return
     setRecords((current) => ({ ...current, [key]: { ...record, ...patch } }))
   }
 
   function saveRecord(advanceToNext = false) {
-    const nextRecord = { ...record, savedAt: new Date().toISOString() }
+    if (!candidate || !key) return
+    const isAbsent = Boolean(record.attendance && record.attendance !== "hadir")
+    const metricsToSave = isAbsent ? {} : record.metrics
+    const nextRecord = {
+      ...record,
+      metrics: metricsToSave,
+      result: isAbsent ? "review" : record.result,
+      savedAt: new Date().toISOString(),
+    }
     const nextRecords = {
       ...records,
       [key]: nextRecord,
@@ -1469,7 +1540,9 @@ export default function SimulationCenter() {
     const nextCandidates = syncCandidateFromSession({
       candidateId: candidate.id,
       sessionType: session.type,
-      metrics: nextRecord.metrics,
+      sessionId: session.id,
+      sessionTitle: session.title,
+      metrics: metricsToSave,
       records: nextRecords,
       result: nextRecord.result,
       note: nextRecord.note,
@@ -1482,22 +1555,29 @@ export default function SimulationCenter() {
       candidates: nextCandidates,
     })
 
+    const hasScores = hasRecordMetrics(record)
+    const actionText = isAbsent
+      ? `Status absensi (${record.attendance!.toUpperCase()}) ${candidate.name}`
+      : hasScores
+        ? `Nilai ${candidate.name}`
+        : `Status sesi ${candidate.name} (tanpa nilai)`
+
     if (advanceToNext) {
       const target = nextUnratedCandidate || nextCandidate
       if (target && target.id !== candidate.id) {
         setCandidateId(target.id)
         showToast(
-          `Nilai ${candidate.name} disimpan! Lanjut ke ${target.name}.`,
+          `${actionText} disimpan! Lanjut ke ${target.name}.`,
           "success",
         )
       } else {
         showToast(
-          `Nilai ${candidate.name} disimpan! Semua peserta dalam sesi ini telah selesai diinput. 🎉`,
+          `${actionText} disimpan! Semua peserta dalam sesi ini telah selesai diinput. 🎉`,
           "success",
         )
       }
     } else {
-      showToast(`Nilai ${candidate.name} berhasil disimpan.`, "success")
+      showToast(`${actionText} berhasil disimpan.`, "success")
     }
   }
 
@@ -1519,21 +1599,23 @@ export default function SimulationCenter() {
   }
 
   // Statistik & Standar Khusus Sesi Aktif untuk Mengisi Ruang Kartu dengan Informasi Relevan
-  const sessionGradedRecords = useMemo(() => {
-    return session.participantIds
-      .map((id) => records[`${session.id}:${id}`])
-      .filter((r): r is SessionRecord => Boolean(r && r.savedAt))
-  }, [session.id, session.participantIds, records])
+  const sessionGradedRecords = session.participantIds
+    .map((id) => records[`${session.id}:${id}`])
+    .filter(
+      (r): r is SessionRecord =>
+        Boolean(
+          r &&
+            r.savedAt &&
+            (r.attendance === "hadir" || !r.attendance) &&
+            hasRecordMetrics(r),
+        ),
+    )
 
-  const sessionPassCount = useMemo(() => {
-    return sessionGradedRecords.filter((r) => r.result === "passed").length
-  }, [sessionGradedRecords])
+  const sessionPassCount = sessionGradedRecords.filter((r) => r.result === "passed").length
 
-  const sessionReviewCount = useMemo(() => {
-    return sessionGradedRecords.filter((r) => r.result === "review").length
-  }, [sessionGradedRecords])
+  const sessionReviewCount = sessionGradedRecords.filter((r) => r.result === "review").length
 
-  const sessionStandards = useMemo(() => {
+  const sessionStandards = (() => {
     switch (session.type) {
       case "fitness": {
         const isInterval = session.title.toLowerCase().includes("interval")
@@ -1660,7 +1742,7 @@ export default function SimulationCenter() {
           guideline: "Semua dokumen wajib terverifikasi sah untuk memastikan kepesertaan santri di tingkat kota/kabupaten.",
         }
     }
-  }, [session.type, session.title, sessionTrackLength, activeFitnessTests])
+  })()
 
   return (
     <div className="grid gap-6 pb-28 lg:pb-0">
@@ -1676,6 +1758,9 @@ export default function SimulationCenter() {
                 <p className="mt-0.5 text-xs text-slate-500">
                   {completedCandidateIds.size} dari {sessionCandidates.length}{" "}
                   peserta telah dinilai
+                  {absentCandidateIds.size > 0 && (
+                    <span className="text-slate-400"> ({absentCandidateIds.size} izin/absen)</span>
+                  )}
                 </p>
               </div>
               <button
@@ -1703,14 +1788,30 @@ export default function SimulationCenter() {
                   { id: "all", label: `Semua (${sessionCandidates.length})` },
                   {
                     id: "unrated",
-                    label: `Belum (${
-                      sessionCandidates.length - completedCandidateIds.size
+                    label: `Belum Input (${
+                      sessionCandidates.length - savedCandidateIds.size
                     })`,
                   },
                   {
                     id: "rated",
-                    label: `Sudah (${completedCandidateIds.size})`,
+                    label: `Dinilai (${completedCandidateIds.size})`,
                   },
+                  ...(unratedPresentCandidateIds.size > 0
+                    ? [
+                        {
+                          id: "unscored",
+                          label: `Tanpa Nilai (${unratedPresentCandidateIds.size})`,
+                        },
+                      ]
+                    : []),
+                  ...(absentCandidateIds.size > 0
+                    ? [
+                        {
+                          id: "absent",
+                          label: `Izin/Absen (${absentCandidateIds.size})`,
+                        },
+                      ]
+                    : []),
                 ].map((f) => (
                   <button
                     key={f.id}
@@ -1731,16 +1832,21 @@ export default function SimulationCenter() {
             <div className="flex-1 overflow-y-auto divide-y divide-slate-100 p-2">
               {searchedCandidates
                 .filter((c) => {
-                  const isSaved = completedCandidateIds.has(c.id)
-                  if (candidateFilter === "unrated") return !isSaved
-                  if (candidateFilter === "rated") return isSaved
+                  if (candidateFilter === "unrated") return !savedCandidateIds.has(c.id)
+                  if (candidateFilter === "rated") return completedCandidateIds.has(c.id)
+                  if (candidateFilter === "unscored") return unratedPresentCandidateIds.has(c.id)
+                  if (candidateFilter === "absent") return absentCandidateIds.has(c.id)
                   return true
                 })
                 .map((c) => {
-                  const isSelected = c.id === candidate.id
+                  const isSelected = candidate ? c.id === candidate.id : false
                   const rec = records[`${session.id}:${c.id}`]
                   const isSaved = Boolean(rec?.savedAt)
                   const att = rec?.attendance ?? "hadir"
+                  const isAbsent = att !== "hadir"
+                  const hasMetrics = hasRecordMetrics(rec)
+                  const isRated = isSaved && !isAbsent && hasMetrics
+                  const isPresentUnrated = isSaved && !isAbsent && !hasMetrics
                   return (
                     <button
                       key={c.id}
@@ -1773,17 +1879,33 @@ export default function SimulationCenter() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        {att !== "hadir" ? (
-                          <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[0.65rem] font-bold text-amber-800 uppercase">
-                            {att}
-                          </span>
-                        ) : null}
-                        {isSaved ? (
+                        {isAbsent ? (
+                          <>
+                            <span
+                              className={`rounded-md px-2 py-0.5 text-[0.65rem] font-bold uppercase ${
+                                att === "izin"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : att === "sakit"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-rose-100 text-rose-800"
+                              }`}
+                            >
+                              {att}
+                            </span>
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                              {isSaved ? "Tanpa Nilai" : "Belum Simpan"}
+                            </span>
+                          </>
+                        ) : isRated ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
                             <Check className="size-3" /> Dinilai
                           </span>
+                        ) : isPresentUnrated ? (
+                          <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                            Tanpa Nilai
+                          </span>
                         ) : (
-                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
                             Belum
                           </span>
                         )}
@@ -1796,57 +1918,62 @@ export default function SimulationCenter() {
         </div>
       )}
 
-      {/* Page Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
-            Sesi seleksi & latihan
-          </h1>
-          <p className="mt-1 max-w-2xl text-xs text-slate-500 sm:text-sm">
-            Input hasil seleksi & latihan secara cepat di lapangan dengan
-            sinkronisasi otomatis.
-          </p>
+      {/* Page Header (Wadah Card) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs w-full min-w-0">
+        <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 border border-red-100 shadow-2xs">
+            <ClipboardList className="size-5.5 stroke-[2.2]" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-lg sm:text-xl font-bold tracking-tight text-slate-950 truncate">
+                Sesi seleksi &amp; latihan
+              </h1>
+              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[0.68rem] font-bold text-slate-600 shrink-0">
+                {sessions.length} Sesi
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+              Input hasil seleksi &amp; latihan secara cepat di lapangan dengan sinkronisasi otomatis.
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setShowCreate((value) => !value)}>
-            <Plus className="size-4" /> Buat sesi baru
-          </Button>
+
+        <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setShowCreate((value) => !value)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-95 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 shadow-md shadow-red-600/25 transition-all duration-150 shrink-0 w-full sm:w-auto"
+          >
+            <Plus className="size-4 shrink-0" />
+            <span>Buat sesi baru</span>
+          </button>
         </div>
       </div>
 
       {createModalBlock}
 
       {/* Mobile Active Session Banner with Quick Switcher */}
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs xl:hidden">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white p-2.5 shadow-xs xl:hidden">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <span
-            className={`grid size-10 shrink-0 place-items-center rounded-xl ${definition.tone}`}
+            className={`grid size-9 shrink-0 place-items-center rounded-xl ${definition.tone}`}
           >
-            <definition.icon className="size-5" />
+            <definition.icon className="size-4.5" />
           </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[0.65rem] font-bold uppercase tracking-wider text-red-600">
-                Sesi Aktif
-              </span>
-              <SessionBadge status={session.status} />
-            </div>
+          <div className="flex items-center gap-1.5 min-w-0">
             <p className="truncate text-sm font-bold text-slate-900">
               {session.title}
             </p>
-            <p className="text-[0.68rem] text-slate-500">
-              {completedCandidateIds.size}/{sessionCandidates.length} peserta dinilai ({Math.round(
-                sessionCandidates.length
-                  ? (completedCandidateIds.size / sessionCandidates.length) * 100
-                  : 0,
-              )}%)
-            </p>
+            <div className="shrink-0">
+              <SessionBadge status={session.status} />
+            </div>
           </div>
         </div>
         <button
           type="button"
           onClick={() => setShowMobileSessionList((v) => !v)}
-          className="inline-flex items-center gap-1.5 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition active:scale-95"
+          className="inline-flex items-center gap-1 shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition active:scale-95 whitespace-nowrap"
         >
           <ListFilter className="size-3.5" />
           <span>{showMobileSessionList ? "Tutup" : "Ganti Sesi"}</span>
@@ -1905,7 +2032,6 @@ export default function SimulationCenter() {
                   key={item.id}
                   onClick={() => {
                     setSessionId(item.id)
-                    setCandidateId(item.participantIds[0] ?? candidates[0].id)
                     setShowMobileSessionList(false)
                   }}
                   className={`w-full rounded-xl border p-3 text-left transition active:scale-[0.99] ${
@@ -1945,178 +2071,295 @@ export default function SimulationCenter() {
 
         {/* Col 2: Detail Sesi Aktif */}
         <Card className="overflow-hidden flex flex-col justify-between">
-          <div className="bg-slate-950 p-5 text-white sm:p-6">
-            <div className="flex flex-wrap items-start justify-between gap-5">
-              <div className="flex gap-4">
+          <div className="bg-slate-950 p-3.5 sm:p-5 text-white">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
                 <span
-                  className={`grid size-12 shrink-0 place-items-center rounded-2xl ${definition.tone}`}
+                  className={`grid size-9.5 sm:size-11 shrink-0 place-items-center rounded-xl ${definition.tone}`}
                 >
-                  <definition.icon className="size-6" />
+                  <definition.icon className="size-5 sm:size-5.5" />
                 </span>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-xs font-bold uppercase tracking-wider text-red-300">
-                      {definition.group}
-                    </p>
-                    <SessionBadge status={session.status} />
-                  </div>
-                  <h2 className="mt-1 font-display text-2xl font-bold">
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-display text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-white truncate">
                     {session.title}
                   </h2>
-                  <p className="mt-2 text-sm text-slate-400">
-                    {definition.description}
-                  </p>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex flex-wrap gap-1.5">
-                  {(["scheduled", "active", "completed"] as const).map(
-                    (st) => (
+
+              {/* Status Badge at far right (Mobile & Desktop) + Desktop Controls */}
+              <div className="flex items-center gap-2 shrink-0">
+                <SessionBadge status={session.status} />
+
+                {/* Desktop Status & Delete (Hidden on Mobile) */}
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="inline-flex rounded-lg bg-white/10 p-0.5 border border-white/10">
+                    {(["scheduled", "active", "completed"] as const).map((st) => (
                       <button
                         key={st}
                         onClick={() => updateSessionStatus(st)}
-                        className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold transition active:scale-95 ${
                           session.status === st
-                            ? "bg-red-600 text-white"
-                            : "bg-white/10 text-slate-300 hover:bg-white/20"
+                            ? "bg-red-600 text-white font-bold shadow-xs"
+                            : "text-slate-300 hover:text-white"
                         }`}
                       >
-                        {st === "scheduled"
-                          ? "Terjadwal"
-                          : st === "active"
-                            ? "Aktif"
-                            : "Selesai"}
+                        {st === "scheduled" ? "Terjadwal" : st === "active" ? "Aktif" : "Selesai"}
                       </button>
-                    ),
-                  )}
+                    ))}
+                  </div>
                   <button
                     onClick={deleteCurrentSession}
-                    className="rounded-lg bg-white/10 px-2 py-1 text-xs text-red-300 transition hover:bg-red-600 hover:text-white"
+                    className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/10 hover:bg-rose-600/30 text-slate-400 hover:text-rose-200 border border-white/10 transition active:scale-95"
                     title="Hapus sesi ini"
                   >
                     <Trash2 className="size-3.5" />
                   </button>
                 </div>
-                <div className="grid gap-1 text-xs text-slate-300">
-                  <span className="flex items-center gap-2">
-                    <CalendarDays className="size-3.5" /> {session.date} ·{" "}
-                    {session.time}
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <MapPin className="size-3.5" /> {session.location} ·{" "}
-                    {session.coach}
-                  </span>
+              </div>
+            </div>
+
+            {/* Symmetrical Sub-Bar: Mobile Controls & Metadata Badges */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-3 border-t border-white/10">
+              {/* Mobile Symmetrical Status Switcher */}
+              <div className="flex sm:hidden items-center justify-between gap-2 w-full">
+                <div className="grid grid-cols-3 flex-1 rounded-lg bg-white/10 p-0.5 border border-white/10 text-center">
+                  {(["scheduled", "active", "completed"] as const).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => updateSessionStatus(st)}
+                      className={`rounded-md py-1 text-xs font-semibold transition active:scale-95 ${
+                        session.status === st
+                          ? "bg-red-600 text-white font-bold shadow-xs"
+                          : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      {st === "scheduled" ? "Terjadwal" : st === "active" ? "Aktif" : "Selesai"}
+                    </button>
+                  ))}
                 </div>
+                <button
+                  onClick={deleteCurrentSession}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/10 hover:bg-rose-600/30 text-slate-400 hover:text-rose-200 border border-white/10 transition active:scale-95"
+                  title="Hapus sesi ini"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+
+              {/* Clean Symmetrical Metadata Badges */}
+              <div className="flex flex-wrap items-center gap-2 text-[0.7rem] sm:text-xs text-slate-300">
+                <span className="flex items-center gap-1.5 bg-white/[0.07] border border-white/10 px-2.5 py-1 rounded-lg">
+                  <CalendarDays className="size-3 text-slate-400 shrink-0" />
+                  <span>{session.date} · {session.time}</span>
+                </span>
+                <span className="flex items-center gap-1.5 bg-white/[0.07] border border-white/10 px-2.5 py-1 rounded-lg">
+                  <MapPin className="size-3 text-slate-400 shrink-0" />
+                  <span>{session.location} · {session.coach}</span>
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Middle Section: Parameter & Standar Sesi (Mengisi ruang kartu dengan informasi relevan & terstruktur) */}
-          <div className="flex-1 bg-white p-5 sm:p-6 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-lg bg-red-100 text-red-700">
-                  <Target className="size-3.5" />
-                </span>
-                <h3 className="font-display text-sm font-bold text-slate-900">
-                  {sessionStandards.title}
-                </h3>
-              </div>
-              <Badge tone="indigo" size="sm">
-                {sessionStandards.badge}
-              </Badge>
+          {/* Middle Section: Parameter & Standar Sesi */}
+          <div className="flex-1 bg-white p-4 sm:p-5 space-y-3.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="flex size-6 items-center justify-center rounded-lg bg-red-100 text-red-700 shrink-0">
+                <Target className="size-3.5" />
+              </span>
+              <h3 className="font-display text-sm font-bold text-slate-900 truncate">
+                {sessionStandards.title}
+              </h3>
             </div>
 
-            {/* Grid Kartu Target Standar */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            {/* Grid Kartu Target Standar (Berdampingan & Rapi) */}
+            <div
+              className={`grid gap-2 sm:gap-2.5 ${
+                sessionStandards.items.length === 1
+                  ? "grid-cols-1"
+                  : sessionStandards.items.length === 2
+                    ? "grid-cols-2"
+                    : sessionStandards.items.length === 3
+                      ? "grid-cols-3"
+                      : sessionStandards.items.length === 4
+                        ? "grid-cols-2 sm:grid-cols-4"
+                        : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+              }`}
+            >
               {sessionStandards.items.map((item, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl border border-slate-200/90 bg-slate-50/70 p-3 transition hover:border-slate-300 hover:bg-slate-50"
+                  className={`rounded-xl border border-slate-200/90 bg-slate-50/70 p-2.5 sm:p-3 transition hover:border-slate-300 hover:bg-slate-50 flex flex-col justify-between ${
+                    sessionStandards.items.length === 1
+                      ? "!flex-row !items-center !justify-between gap-3"
+                      : ""
+                  }`}
                 >
-                  <p className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider truncate">
-                    {item.label}
-                  </p>
-                  <p className="mt-1 font-display text-sm sm:text-base font-bold text-emerald-600">
+                  <div className="min-w-0">
+                    <p className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider truncate">
+                      {item.label}
+                    </p>
+                    <p className="mt-0.5 text-[0.65rem] text-slate-400 truncate">
+                      {item.sub}
+                    </p>
+                  </div>
+                  <p
+                    className={`font-display font-bold text-emerald-600 ${
+                      sessionStandards.items.length === 1
+                        ? "text-lg sm:text-xl shrink-0"
+                        : "mt-2 text-sm sm:text-base leading-none"
+                    }`}
+                  >
                     {item.target}
-                  </p>
-                  <p className="mt-0.5 text-[0.62rem] text-slate-400 truncate">
-                    {item.sub}
                   </p>
                 </div>
               ))}
             </div>
 
-            {/* Live Session Insights / Ringkasan Kesiapan */}
-            {completed > 0 ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-2.5 text-xs text-emerald-950">
-                <div className="flex items-center gap-2">
+            {/* Live Session Insights / Ringkasan Kesiapan Simetris */}
+            {sessionGradedRecords.length > 0 ? (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-emerald-200/90 bg-emerald-50/70 p-3 text-xs text-emerald-950">
+                <div className="flex items-center gap-2 min-w-0">
                   <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                  <span className="font-bold">
-                    {sessionPassCount} dari {completed} santri ({Math.round((sessionPassCount / completed) * 100)}%) memenuhi standar kelayakan
+                  <span className="font-bold truncate">
+                    {sessionPassCount} dari {sessionGradedRecords.length} santri ({Math.round((sessionPassCount / sessionGradedRecords.length) * 100)}%) memenuhi standar kelayakan
                   </span>
                 </div>
                 {sessionReviewCount > 0 && (
-                  <span className="text-[0.68rem] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md">
+                  <span className="inline-flex items-center self-start sm:self-auto text-[0.68rem] font-bold text-amber-800 bg-amber-100/90 border border-amber-200/80 px-2 py-0.5 rounded-md shrink-0">
                     {sessionReviewCount} butuh penguatan
                   </span>
                 )}
               </div>
             ) : (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-2.5 text-xs text-slate-600">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 text-xs text-slate-600">
+                <div className="flex items-center gap-2 min-w-0">
                   <Sparkles className="size-4 text-amber-500 shrink-0" />
-                  <span className="font-medium text-[0.72rem]">
+                  <span className="font-medium text-[0.72rem] truncate">
                     {sessionStandards.guideline}
                   </span>
                 </div>
-                <span className="text-[0.68rem] font-bold text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-md">
-                  Menunggu input lapangan
+                <span className="text-[0.68rem] font-bold text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-md shrink-0">
+                  Menunggu input
                 </span>
               </div>
             )}
           </div>
 
-          <div className="flex flex-col justify-end bg-white border-t border-slate-100">
-            <div className="grid grid-cols-3 divide-x divide-slate-100">
-              {[
-                ["Peserta", sessionCandidates.length],
-                ["Sudah diinput", completed],
-                ["Belum diinput", Math.max(0, sessionCandidates.length - completed)],
-              ].map(([label, value]) => (
-                <div className="p-4 text-center" key={label}>
-                  <p className="font-display text-xl font-bold text-slate-950">
-                    {value}
-                  </p>
-                  <p className="mt-1 text-[0.68rem] font-semibold text-slate-500">
-                    {label}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="border-t border-slate-100 px-5 py-3.5 bg-slate-50/50">
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                <span>Progres penilaian sesi</span>
-                <span className="font-bold text-slate-900">
-                  {completed} dari {sessionCandidates.length} peserta ({Math.round(
+          {/* Footer Card: Ringkasan Sesi & Progres Kompak */}
+          <div className="bg-slate-50/70 border-t border-slate-200/80 p-3 sm:p-3.5 space-y-2.5">
+            {/* Header Progres Bar Kompak */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 font-semibold text-[0.72rem] flex items-center gap-1.5">
+                  <span>Progres Penilaian</span>
+                  <span className="text-slate-300">·</span>
+                  <strong className="text-slate-900 font-bold">
+                    {completedCandidateIds.size} dari {sessionCandidates.length}
+                  </strong>
+                  <span className="text-slate-500 text-[0.68rem] hidden sm:inline">santri dinilai</span>
+                </span>
+                <span className="font-display font-bold text-red-600 text-xs">
+                  {Math.round(
                     sessionCandidates.length
-                      ? (completed / sessionCandidates.length) * 100
-                      : 0,
-                  )}%)
+                      ? (completedCandidateIds.size / sessionCandidates.length) * 100
+                      : 0
+                  )}%
                 </span>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+
+              {/* Multi-Segment Stacked Progress Bar */}
+              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/80 flex shadow-2xs">
                 <div
-                  className="h-full rounded-full bg-emerald-500 transition-all"
+                  className="bg-emerald-500 transition-all duration-300"
                   style={{
                     width: `${
                       sessionCandidates.length
-                        ? (completed / sessionCandidates.length) * 100
+                        ? (completedCandidateIds.size / sessionCandidates.length) * 100
                         : 0
                     }%`,
                   }}
+                  title={`Dinilai: ${completedCandidateIds.size}`}
+                />
+                <div
+                  className="bg-amber-400 transition-all duration-300"
+                  style={{
+                    width: `${
+                      sessionCandidates.length
+                        ? (unratedPresentCandidateIds.size / sessionCandidates.length) * 100
+                        : 0
+                    }%`,
+                  }}
+                  title={`Tanpa Nilai: ${unratedPresentCandidateIds.size}`}
+                />
+                <div
+                  className="bg-blue-400 transition-all duration-300"
+                  style={{
+                    width: `${
+                      sessionCandidates.length
+                        ? (absentCandidateIds.size / sessionCandidates.length) * 100
+                        : 0
+                    }%`,
+                  }}
+                  title={`Izin/Absen: ${absentCandidateIds.size}`}
                 />
               </div>
+            </div>
+
+            {/* Micro-Badges Status Kompak & Menarik */}
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-800 shadow-2xs">
+                <UsersRound className="size-3.5 text-slate-500 shrink-0" />
+                <span className="font-display text-xs font-bold text-slate-900">
+                  {sessionCandidates.length}
+                </span>
+                <span className="text-[0.68rem] font-medium text-slate-500">
+                  Peserta
+                </span>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200/90 bg-emerald-50/90 px-2.5 py-1 text-emerald-900 shadow-2xs">
+                <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                <span className="font-display text-xs font-bold text-emerald-800">
+                  {completedCandidateIds.size}
+                </span>
+                <span className="text-[0.68rem] font-bold text-emerald-700">
+                  Dinilai
+                </span>
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 shadow-2xs">
+                <Clock className="size-3.5 text-slate-400 shrink-0" />
+                <span className="font-display text-xs font-bold text-slate-700">
+                  {Math.max(0, sessionCandidates.length - savedCandidateIds.size)}
+                </span>
+                <span className="text-[0.68rem] font-medium text-slate-500">
+                  Belum diinput
+                </span>
+              </div>
+
+              {unratedPresentCandidateIds.size > 0 && (
+                <div className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200/90 bg-amber-50/90 px-2.5 py-1 text-amber-900 shadow-2xs">
+                  <AlertCircle className="size-3.5 text-amber-600 shrink-0" />
+                  <span className="font-display text-xs font-bold text-amber-800">
+                    {unratedPresentCandidateIds.size}
+                  </span>
+                  <span className="text-[0.68rem] font-bold text-amber-700">
+                    Tanpa Nilai
+                  </span>
+                </div>
+              )}
+
+              {absentCandidateIds.size > 0 && (
+                <div className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200/90 bg-blue-50/90 px-2.5 py-1 text-blue-900 shadow-2xs">
+                  <UserX className="size-3.5 text-blue-600 shrink-0" />
+                  <span className="font-display text-xs font-bold text-blue-800">
+                    {absentCandidateIds.size}
+                  </span>
+                  <span className="text-[0.68rem] font-bold text-blue-700">
+                    Izin/Absen
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </Card>
@@ -2126,99 +2369,114 @@ export default function SimulationCenter() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         {/* Col 1: Input Hasil & Survei */}
         <Card className="overflow-hidden">
-          {/* Header with Title and Desktop Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6 sm:py-5">
-                <div>
-                  <h2 className="font-display text-base font-bold text-slate-900 sm:text-lg">
-                    Input hasil & survei
+          {/* Header with Title and Result Badge */}
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 sm:px-6 sm:py-3.5 bg-white">
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 whitespace-nowrap">
+                    Input Hasil &amp; Penilaian
                   </h2>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    Tersimpan per kandidat & menyinkronkan nilai ke profil utama.
-                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ResultBadge status={record.result} />
-                  <Button
-                    variant="secondary"
-                    className="hidden sm:inline-flex !min-h-9 !py-1.5 !text-xs font-semibold"
-                    onClick={() => saveRecord(false)}
-                  >
-                    <Save className="size-3.5" /> Simpan
-                  </Button>
-                  <Button
-                    className="hidden sm:inline-flex !min-h-9 !py-1.5 !text-xs font-bold"
-                    onClick={() => saveRecord(true)}
-                  >
-                    <Save className="size-3.5" /> Simpan & Lanjut
-                    <ArrowRight className="size-3.5" />
-                  </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  {candidate && (
+                    <ResultBadge
+                      status={
+                        record.attendance && record.attendance !== "hadir"
+                          ? "review"
+                          : record.result
+                      }
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* Clean Unified Candidate Bar */}
-              <div className="border-b border-slate-100 bg-slate-50/70 p-3 sm:p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  {/* Left: Integrated Navigation & Candidate Info (Expanded for full name) */}
-                  <div className="flex flex-1 items-center gap-2 sm:gap-3 min-w-0">
-                    <button
-                      type="button"
-                      disabled={!prevCandidate}
-                      onClick={() =>
-                        prevCandidate && setCandidateId(prevCandidate.id)
-                      }
-                      className="grid size-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:border-slate-300 disabled:opacity-30 disabled:hover:bg-white disabled:hover:border-slate-200 active:scale-95"
-                      title="Kandidat sebelumnya"
-                    >
-                      <ChevronLeft className="size-4" />
-                    </button>
+              {/* Clean Unified Candidate & Attendance Console */}
+              <div className="border-b border-slate-100 bg-slate-50/80 p-3 sm:p-4 space-y-2.5">
+                {/* Candidate Selector Row */}
+                <div className="flex items-center justify-between gap-2.5">
+                  <button
+                    type="button"
+                    disabled={!prevCandidate}
+                    onClick={() =>
+                      prevCandidate && setCandidateId(prevCandidate.id)
+                    }
+                    className="grid size-9 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs transition hover:bg-slate-100 disabled:opacity-30 active:scale-95"
+                    title="Kandidat sebelumnya"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
 
-                    <CandidateAvatar
-                      name={candidate.name}
-                      avatar={candidate.avatar}
-                      photoUrl={candidate.photoUrl}
-                      className="size-14 text-sm font-bold shrink-0 border border-slate-200 shadow-xs"
-                      rounded="rounded-2xl"
-                    />
+                  {candidate ? (
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 px-1">
+                      <CandidateAvatar
+                        name={candidate.name}
+                        avatar={candidate.avatar}
+                        photoUrl={candidate.photoUrl}
+                        className="size-10 sm:size-11 text-xs font-bold shrink-0 border border-slate-200 shadow-2xs"
+                        rounded="rounded-xl"
+                      />
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-nowrap">
+                      <div className="min-w-0 flex-1">
                         <button
                           type="button"
                           onClick={() => setShowCandidatePicker(true)}
-                          className="group inline-flex items-center gap-2 text-left min-w-0"
+                          className="group flex items-center gap-1.5 text-left min-w-0 cursor-pointer w-full"
                           title="Klik untuk cari atau ganti kandidat"
                         >
-                          <span className="truncate font-display text-lg sm:text-xl font-black tracking-tight text-slate-950 group-hover:text-red-600 transition">
+                          <span className="truncate font-display text-xs sm:text-base font-bold text-slate-950 group-hover:text-red-600 transition">
                             {candidate.name}
                           </span>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-slate-200/90 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition shrink-0">
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-slate-200/90 px-1.5 py-0.5 text-[0.62rem] font-bold text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition shrink-0">
                             <span>
                               {currentCandidateIndex + 1}/{sessionCandidates.length}
                             </span>
-                            <ChevronDown className="size-3 text-slate-500 group-hover:text-red-600 transition" />
+                            <ChevronDown className="size-2.5 text-slate-500 group-hover:text-red-600 transition" />
                           </span>
                         </button>
+                        <p className="text-[0.65rem] sm:text-xs font-medium text-slate-500 truncate mt-0.5">
+                          {candidate.school}
+                        </p>
                       </div>
-                      <p className="mt-0.5 text-xs font-medium text-slate-500 truncate">
-                        {candidate.school} · {candidate.gender}
-                      </p>
                     </div>
-
+                  ) : (
                     <button
                       type="button"
-                      disabled={!nextCandidate}
-                      onClick={() =>
-                        nextCandidate && setCandidateId(nextCandidate.id)
-                      }
-                      className="grid size-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:border-slate-300 disabled:opacity-30 disabled:hover:bg-white disabled:hover:border-slate-200 active:scale-95"
-                      title="Kandidat berikutnya"
+                      onClick={() => setShowCandidatePicker(true)}
+                      className="group flex flex-1 items-center gap-2 p-1 rounded-lg hover:bg-white/80 transition text-left cursor-pointer min-w-0"
+                      title="Klik untuk memilih kandidat"
                     >
-                      <ChevronRight className="size-4" />
+                      <div className="size-9 rounded-xl border-2 border-dashed border-slate-300 grid place-items-center text-slate-400 bg-white group-hover:border-red-400 group-hover:text-red-500 transition shrink-0">
+                        <UsersRound className="size-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-display text-xs sm:text-sm font-bold text-slate-700 group-hover:text-red-600 transition truncate">
+                            Pilih Santri
+                          </span>
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-slate-200/90 px-1.5 py-0.5 text-[0.62rem] font-bold text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition shrink-0">
+                            <span>0/{sessionCandidates.length}</span>
+                            <ChevronDown className="size-2.5 text-slate-500" />
+                          </span>
+                        </div>
+                      </div>
                     </button>
-                  </div>
+                  )}
 
-                  {/* Right: Status Kehadiran (Ultra-compact segmented pills) */}
-                  <div className="inline-flex rounded-xl border border-slate-200 bg-white p-0.5 shadow-2xs shrink-0 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    disabled={!nextCandidate}
+                    onClick={() =>
+                      nextCandidate && setCandidateId(nextCandidate.id)
+                    }
+                    className="grid size-9 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-2xs transition hover:bg-slate-100 disabled:opacity-30 active:scale-95"
+                    title="Kandidat berikutnya"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+
+                {/* Attendance Segmented Bar - Full Width & Cleanly Balanced */}
+                {candidate && (
+                  <div className="grid grid-cols-4 gap-1 p-1 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
                     {[
                       {
                         id: "hadir",
@@ -2248,24 +2506,15 @@ export default function SimulationCenter() {
                           key={item.id}
                           type="button"
                           onClick={() => {
-                            const newAtt = item.id as AttendanceStatus
                             patchRecord({
-                              attendance: newAtt,
-                              result:
-                                newAtt === "hadir"
-                                  ? record.result === "review" &&
-                                    (record.attendance === "sakit" ||
-                                      record.attendance === "izin" ||
-                                      record.attendance === "alpa")
-                                    ? "pending"
-                                    : record.result
-                                  : "review",
+                              attendance: item.id as any,
+                              result: item.id === "hadir" ? "passed" : "review",
                             })
                           }}
-                          className={`min-h-8 rounded-lg px-2.5 py-1 text-xs transition active:scale-95 ${
+                          className={`py-1.5 text-center text-xs rounded-lg transition active:scale-95 ${
                             isCur
                               ? item.activeClass
-                              : "text-slate-600 font-medium hover:text-slate-900 hover:bg-slate-50"
+                              : "text-slate-600 hover:bg-slate-100 font-medium"
                           }`}
                         >
                           {item.label}
@@ -2273,10 +2522,94 @@ export default function SimulationCenter() {
                       )
                     })}
                   </div>
-                </div>
+                )}
               </div>
 
-              <div className="p-4 sm:p-6">
+              {!candidate ? (
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 text-left">
+                      {sessionCandidates.map((c, i) => {
+                        const rec = records[`${session.id}:${c.id}`]
+                        const att = rec?.attendance ?? "hadir"
+                        const isSaved = Boolean(rec?.savedAt)
+                        const isAbsent = att !== "hadir"
+                        const hasMetrics = hasRecordMetrics(rec)
+                        const isRated = isSaved && !isAbsent && hasMetrics
+                        const isPresentUnrated = isSaved && !isAbsent && !hasMetrics
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setCandidateId(c.id)}
+                            className={`flex flex-col items-center text-center p-2.5 sm:p-3 rounded-2xl border bg-white transition-all cursor-pointer group hover:shadow-md ${
+                              isRated
+                                ? "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/20"
+                                : isAbsent && isSaved
+                                  ? "border-blue-200 hover:border-blue-400 hover:bg-blue-50/20"
+                                  : isPresentUnrated
+                                    ? "border-amber-200 hover:border-amber-400 hover:bg-amber-50/20"
+                                    : "border-slate-200 hover:border-red-400 hover:bg-red-50/20"
+                            }`}
+                          >
+                            {/* Header row: Number and Attendance/Rated Badge (Single Clean Badge) */}
+                            <div className="w-full flex items-center justify-between gap-1 mb-2">
+                              <span className="text-[0.65rem] font-bold text-slate-400 bg-slate-100 group-hover:bg-red-100 group-hover:text-red-700 px-1.5 py-0.5 rounded-md">
+                                #{i + 1}
+                              </span>
+                              <div className="flex items-center gap-1">
+                                {isAbsent ? (
+                                  <span
+                                    className={`text-[0.62rem] font-bold px-1.5 py-0.5 rounded uppercase ${
+                                      att === "izin"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : att === "sakit"
+                                          ? "bg-amber-100 text-amber-800"
+                                          : "bg-rose-100 text-rose-800"
+                                    }`}
+                                  >
+                                    {att}
+                                  </span>
+                                ) : isRated ? (
+                                  <span className="text-[0.62rem] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                                    ✓ Dinilai
+                                  </span>
+                                ) : isPresentUnrated ? (
+                                  <span className="text-[0.62rem] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                                    Tanpa Nilai
+                                  </span>
+                                ) : (
+                                  <span className="text-[0.62rem] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">
+                                    Belum
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Compact Portrait Photo */}
+                            <CandidateAvatar
+                              name={c.name}
+                              avatar={c.avatar}
+                              photoUrl={c.photoUrl}
+                              className="size-13 sm:size-15 text-sm font-bold shrink-0 ring-2 ring-slate-100 group-hover:ring-red-200 shadow-2xs"
+                              rounded="rounded-xl"
+                            />
+
+                            {/* Candidate Details (Compact, Essential Info Only) */}
+                            <div className="mt-2 w-full text-center">
+                              <p className="font-display text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-700 leading-snug line-clamp-2">
+                                {c.name}
+                              </p>
+                              <p className="mt-0.5 text-[0.68rem] font-medium text-slate-400">
+                                {c.number}
+                              </p>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                </div>
+              ) : (
+                <div className="p-4 sm:p-6">
 
                 {/* Mobile Segmented Tabs */}
                 <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 lg:hidden">
@@ -2359,17 +2692,17 @@ export default function SimulationCenter() {
                   {(record.attendance ?? "hadir") === "hadir" ? (
                     <>
                       {session.type !== "pbb" ? (
-                        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <div className="mt-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <p className="text-[0.68rem] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
                             Hasil Pengujian Sesi
                           </p>
                           {session.type === "fitness" ? (
-                            <div className="flex items-center gap-1.5 text-xs">
-                              <span className="text-slate-400">Filter tes:</span>
+                            <div className="flex items-center gap-1 overflow-x-auto pb-0.5 text-xs no-scrollbar">
+                              <span className="text-[0.65rem] text-slate-400 shrink-0">Filter:</span>
                               {[
                                 ["all", "Semua"],
-                                ["run_only", "Hanya Lari"],
-                                ["run_shuttle", "Lari & Shuttle"],
+                                ["run_only", "Lari"],
+                                ["run_shuttle", "Lari+Shuttle"],
                                 ["samapta_b", "Samapta B"],
                               ].map(([id, label]) => {
                                 const isSelected =
@@ -2388,9 +2721,9 @@ export default function SimulationCenter() {
                                     onClick={() =>
                                       setSessionFitnessPreset(id as any)
                                     }
-                                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                                    className={`rounded-lg px-2 py-0.5 text-[0.68rem] font-semibold transition shrink-0 ${
                                       isSelected
-                                        ? "bg-slate-900 text-white"
+                                        ? "bg-slate-900 text-white shadow-2xs font-bold"
                                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                     }`}
                                   >
@@ -2691,7 +3024,8 @@ export default function SimulationCenter() {
                                       </div>
                                     )
                                   })()}
-                                </div>
+
+                                  </div>
                               ) : (
                                 /* Regular 12-Minute Run Grid */
                                 <div className="grid gap-3 sm:grid-cols-3">
@@ -3434,114 +3768,172 @@ export default function SimulationCenter() {
                   ) : null}
 
                   {/* 3. Keputusan / Status Tahapan Kandidat */}
-                  <fieldset className="mt-5 border-t border-slate-100 pt-5">
-                    <legend className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      Keputusan / Status Hasil Kandidat
-                    </legend>
-                    <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {[
-                        ["pending", "Belum"],
-                        ["passed", "Lolos target"],
-                        ["review", "Remedial / Tinjau"],
-                        ["failed", "Belum memenuhi"],
-                      ].map(([value, label]) => (
-                        <button
-                          type="button"
-                          key={value}
-                          onClick={() =>
-                            patchRecord({ result: value as ResultStatus })
-                          }
-                          className={`min-h-12 rounded-xl border px-3 text-xs font-bold transition active:scale-95 ${
-                            record.result === value
-                              ? value === "passed"
-                                ? "border-emerald-300 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-200"
-                                : value === "failed"
-                                  ? "border-red-300 bg-red-50 text-red-800 ring-2 ring-red-200"
-                                  : value === "review"
-                                    ? "border-amber-300 bg-amber-50 text-amber-800 ring-2 ring-amber-200"
-                                    : "border-slate-300 bg-slate-100 text-slate-800 ring-2 ring-slate-200"
-                              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
+                  <div className="mt-4 rounded-xl border border-slate-200/90 bg-slate-50/60 p-3 sm:p-3.5 shadow-2xs">
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <ShieldCheck className="size-3.5 text-slate-500 shrink-0" />
+                        <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-600">
+                          Keputusan / Status Hasil Kandidat
+                        </span>
+                      </div>
+                      <span className="text-[0.65rem] font-semibold text-slate-400 hidden sm:inline">
+                        Pilih kelayakan
+                      </span>
                     </div>
-                  </fieldset>
+
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      {[
+                        {
+                          value: "pending",
+                          label: "Belum",
+                          icon: CircleDashed,
+                          activeStyle:
+                            "border-slate-400 bg-slate-100 text-slate-900 font-bold ring-2 ring-slate-400/20 shadow-xs",
+                          iconColor: "text-slate-400",
+                          activeIconColor: "text-slate-700",
+                        },
+                        {
+                          value: "passed",
+                          label: "Lolos Target",
+                          icon: CheckCircle2,
+                          activeStyle:
+                            "border-emerald-500 bg-emerald-50 text-emerald-900 font-bold ring-2 ring-emerald-500/20 shadow-xs",
+                          iconColor: "text-emerald-500",
+                          activeIconColor: "text-emerald-600",
+                        },
+                        {
+                          value: "review",
+                          label: "Remedial / Tinjau",
+                          mobileLabel: "Remedial",
+                          icon: AlertCircle,
+                          activeStyle:
+                            "border-amber-500 bg-amber-50 text-amber-900 font-bold ring-2 ring-amber-500/20 shadow-xs",
+                          iconColor: "text-amber-500",
+                          activeIconColor: "text-amber-600",
+                        },
+                        {
+                          value: "failed",
+                          label: "Belum Memenuhi",
+                          icon: XCircle,
+                          activeStyle:
+                            "border-rose-500 bg-rose-50 text-rose-900 font-bold ring-2 ring-rose-500/20 shadow-xs",
+                          iconColor: "text-rose-500",
+                          activeIconColor: "text-rose-600",
+                        },
+                      ].map((item) => {
+                        const Icon = item.icon
+                        const isSelected = record.result === item.value
+                        return (
+                          <button
+                            type="button"
+                            key={item.value}
+                            onClick={() =>
+                              patchRecord({ result: item.value as ResultStatus })
+                            }
+                            className={`flex min-h-10 items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${
+                              isSelected
+                                ? item.activeStyle
+                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 shadow-2xs"
+                            }`}
+                          >
+                            <Icon
+                              className={`size-3.5 shrink-0 ${
+                                isSelected ? item.activeIconColor : item.iconColor
+                              }`}
+                            />
+                            <span className="text-[11px] sm:text-xs leading-tight text-center">
+                              {item.mobileLabel ? (
+                                <>
+                                  <span className="hidden sm:inline">{item.label}</span>
+                                  <span className="sm:hidden">{item.mobileLabel}</span>
+                                </>
+                              ) : (
+                                item.label
+                              )}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
                 </div>
 
-                {/* 3. SECTION SURVEI PELATIH */}
+                {/* 3. SECTION SURVEI PELATIH / CATATAN */}
                 <div
                   className={
                     mobileTab === "survey" || "hidden lg:block"
                   }
                 >
                   <div className="mt-7 border-t border-slate-100 pt-5">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                          Survei Observasi Pelatih
-                        </p>
-                        <p className="mt-0.5 text-xs text-slate-400">
-                          Pilih skala observasi 1–5 (1: Perlu Perhatian, 5:
-                          Sangat Baik).
-                        </p>
-                      </div>
-                      <ClipboardList className="size-5 text-red-600" />
-                    </div>
-
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                      {[
-                        ["discipline", "Disiplin"],
-                        ["focus", "Fokus"],
-                        ["stamina", "Stamina"],
-                      ].map(([field, label]) => {
-                        const currentVal =
-                          record[
-                            field as "discipline" | "focus" | "stamina"
-                          ] || "4"
-                        return (
-                          <div
-                            key={field}
-                            className="rounded-2xl border border-slate-200 bg-slate-50/50 p-3"
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold text-slate-800">
-                                {label}
-                              </span>
-                              <span className="text-xs font-bold text-red-600">
-                                {currentVal} / 5
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-5 gap-1">
-                              {[1, 2, 3, 4, 5].map((val) => {
-                                const isSel = String(val) === currentVal
-                                return (
-                                  <button
-                                    key={val}
-                                    type="button"
-                                    onClick={() =>
-                                      patchRecord({ [field]: String(val) })
-                                    }
-                                    className={`min-h-10 rounded-xl text-xs font-bold transition active:scale-95 ${
-                                      isSel
-                                        ? val >= 4
-                                          ? "bg-emerald-600 text-white shadow-xs font-extrabold"
-                                          : val === 3
-                                            ? "bg-blue-600 text-white shadow-xs font-extrabold"
-                                            : "bg-amber-500 text-white shadow-xs font-extrabold"
-                                        : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
-                                    }`}
-                                  >
-                                    {val}
-                                  </button>
-                                )
-                              })}
-                            </div>
+                    {(record.attendance ?? "hadir") === "hadir" ? (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                              Survei Observasi Pelatih
+                            </p>
+                            <p className="mt-0.5 text-xs text-slate-400">
+                              Pilih skala observasi 1–5 (1: Perlu Perhatian, 5:
+                              Sangat Baik).
+                            </p>
                           </div>
-                        )
-                      })}
-                    </div>
+                          <ClipboardList className="size-5 text-red-600" />
+                        </div>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          {[
+                            ["discipline", "Disiplin"],
+                            ["focus", "Fokus"],
+                            ["stamina", "Stamina"],
+                          ].map(([field, label]) => {
+                            const currentVal =
+                              record[
+                                field as "discipline" | "focus" | "stamina"
+                              ] || "4"
+                            return (
+                              <div
+                                key={field}
+                                className="rounded-2xl border border-slate-200 bg-slate-50/50 p-3"
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-bold text-slate-800">
+                                    {label}
+                                  </span>
+                                  <span className="text-xs font-bold text-red-600">
+                                    {currentVal} / 5
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-5 gap-1">
+                                  {[1, 2, 3, 4, 5].map((val) => {
+                                    const isSel = String(val) === currentVal
+                                    return (
+                                      <button
+                                        key={val}
+                                        type="button"
+                                        onClick={() =>
+                                          patchRecord({ [field]: String(val) })
+                                        }
+                                        className={`min-h-10 rounded-xl text-xs font-bold transition active:scale-95 ${
+                                          isSel
+                                            ? val >= 4
+                                              ? "bg-emerald-600 text-white shadow-xs font-extrabold"
+                                              : val === 3
+                                                ? "bg-blue-600 text-white shadow-xs font-extrabold"
+                                                : "bg-amber-500 text-white shadow-xs font-extrabold"
+                                            : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                                        }`}
+                                      >
+                                        {val}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </>
+                    ) : null}
 
                     <label className="mt-4 grid gap-1.5 text-xs font-bold text-slate-700">
                       Catatan Pelatih / Petugas Sesi
@@ -3551,7 +3943,11 @@ export default function SimulationCenter() {
                         onChange={(event) =>
                           patchRecord({ note: event.target.value })
                         }
-                        placeholder="Catat koreksi teknik, kendala fisik, atau instruksi khusus..."
+                        placeholder={
+                          record.attendance && record.attendance !== "hadir"
+                            ? `Alasan ${record.attendance} atau keterangan rencana susulan...`
+                            : "Catat koreksi teknik, kendala fisik, atau instruksi khusus..."
+                        }
                         className="resize-y rounded-xl border border-slate-200 p-3 text-xs font-normal outline-none placeholder:text-slate-400 focus:border-red-400 focus:ring-4 focus:ring-red-100"
                       />
                     </label>
@@ -3579,36 +3975,43 @@ export default function SimulationCenter() {
                   </div>
                 )}
 
-                {/* Desktop Save Actions Bar at bottom of card */}
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
-                  <div className="flex items-center gap-2">
+                {/* Compact Save Actions Bar at bottom of card */}
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2.5 border-t border-slate-100 pt-3">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-400 min-w-0">
                     {saved ? (
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 animate-in fade-in">
-                        <CheckCircle2 className="size-4" /> Tersimpan &
-                        Disinkronkan
+                      <span className="flex items-center gap-1 text-[0.72rem] font-bold text-emerald-700 animate-in fade-in">
+                        <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                        <span>Tersimpan &amp; Disinkronkan</span>
                       </span>
                     ) : (
-                      <span className="text-xs text-slate-400">
-                        Perubahan otomatis tersinkron ke master kandidat saat
-                        disimpan.
+                      <span className="text-[0.68rem] text-slate-400 truncate">
+                        Otomatis tersinkron ke master kandidat.
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="secondary"
+                  <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                    <button
+                      type="button"
                       onClick={() => saveRecord(false)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition active:scale-95 whitespace-nowrap"
                     >
-                      <Save className="size-4" /> Simpan
-                    </Button>
-                    <Button onClick={() => saveRecord(true)}>
-                      <Save className="size-4" /> Simpan & Lanjut
-                      <ArrowRight className="size-4" />
-                    </Button>
+                      <Save className="size-3 text-slate-500 shrink-0" />
+                      <span>{record.attendance && record.attendance !== "hadir" ? "Simpan Absen" : "Simpan"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => saveRecord(true)}
+                      className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 px-3 py-1.5 text-xs font-bold text-white shadow-xs shadow-red-600/20 transition active:scale-95 whitespace-nowrap"
+                    >
+                      <Save className="size-3 shrink-0" />
+                      <span>Simpan &amp; Lanjut</span>
+                      <ArrowRight className="size-3 shrink-0" />
+                    </button>
                   </div>
                 </div>
               </div>
+            )}
             </Card>
 
             {/* Col 2: Candidate Profile Card on Desktop (Row 2 Kanan) */}
@@ -3617,81 +4020,94 @@ export default function SimulationCenter() {
                 Profil kandidat
               </h2>
               <div className="mt-5">
-                <Profile
-                  candidate={candidate}
-                  sessionCount={
-                    sessions.filter((item) =>
-                      item.participantIds.includes(candidate.id),
-                    ).length
-                  }
-                  recordCount={
-                    Object.entries(records).filter(
-                      ([recordKey, value]) =>
-                        recordKey.endsWith(`:${candidate.id}`) && value.savedAt,
-                    ).length
-                  }
-                />
+                {candidate ? (
+                  <Profile
+                    candidate={candidate}
+                    sessionCount={
+                      sessions.filter((item) =>
+                        item.participantIds.includes(candidate.id),
+                      ).length
+                    }
+                    recordCount={
+                      Object.entries(records).filter(
+                        ([recordKey, value]) =>
+                          recordKey.endsWith(`:${candidate.id}`) && value.savedAt,
+                      ).length
+                    }
+                  />
+                ) : (
+                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center text-xs text-slate-400">
+                    Pilih salah satu kandidat untuk melihat ringkasan profil dan riwayat penilaian.
+                  </div>
+                )}
               </div>
             </Card>
           </div>
 
       {/* MOBILE STICKY FLOATING ACTION BAR (Touch-First) */}
-      <div className="fixed inset-x-3 bottom-20 z-30 flex items-center justify-between gap-2 rounded-2xl border border-slate-200/95 bg-white/95 p-2.5 shadow-2xl shadow-slate-950/20 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <CandidateAvatar
-            name={candidate.name}
-            avatar={candidate.avatar}
-            photoUrl={candidate.photoUrl}
-            className="size-11 text-xs shrink-0"
-            rounded="rounded-xl"
-          />
-          <div className="min-w-0">
-            <p className="truncate text-xs font-bold text-slate-900">
-              {candidate.name}
-            </p>
-            <p className="text-[0.65rem] font-semibold text-slate-500">
-              {record.savedAt ? (
-                <span className="text-emerald-600 font-bold">
-                  ✓ Tersimpan
-                </span>
-              ) : (
-                <span className="text-amber-600 font-bold">
-                  ⏳ Belum diinput
-                </span>
-              )}
-            </p>
+      {candidate && (
+        <div className="fixed inset-x-3 bottom-20 z-30 flex items-center justify-between gap-2.5 rounded-2xl border border-slate-200/95 bg-white/95 p-2 shadow-2xl shadow-slate-950/20 backdrop-blur-xl lg:hidden">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <CandidateAvatar
+              name={candidate.name}
+              avatar={candidate.avatar}
+              photoUrl={candidate.photoUrl}
+              className="size-9.5 text-xs shrink-0 border border-slate-200"
+              rounded="rounded-xl"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-slate-900 leading-tight line-clamp-2">
+                {candidate.name}
+              </p>
+              <div className="flex items-center gap-1.5 text-[0.65rem] mt-0.5">
+                {record.savedAt ? (
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="size-2.5 shrink-0" /> Tersimpan
+                  </span>
+                ) : (
+                  <span className="text-amber-600 font-bold flex items-center gap-1">
+                    <span className="size-1.5 rounded-full bg-amber-500 shrink-0" /> Belum simpan
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Compact Joined Prev/Next Pill */}
+            <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5 shadow-2xs">
+              <button
+                type="button"
+                disabled={!prevCandidate}
+                onClick={() => prevCandidate && setCandidateId(prevCandidate.id)}
+                className="size-7 grid place-items-center rounded text-slate-700 transition disabled:opacity-30 active:scale-90 hover:bg-white"
+                title="Kandidat sebelumnya"
+              >
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <div className="h-3.5 w-px bg-slate-200" />
+              <button
+                type="button"
+                disabled={!nextCandidate}
+                onClick={() => nextCandidate && setCandidateId(nextCandidate.id)}
+                className="size-7 grid place-items-center rounded text-slate-700 transition disabled:opacity-30 active:scale-90 hover:bg-white"
+                title="Kandidat berikutnya"
+              >
+                <ChevronRight className="size-3.5" />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => saveRecord(true)}
+              className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-red-600/25 active:scale-95 transition whitespace-nowrap"
+            >
+              <Save className="size-3.5" />
+              <span>Simpan</span>
+            </button>
           </div>
         </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            disabled={!prevCandidate}
-            onClick={() => prevCandidate && setCandidateId(prevCandidate.id)}
-            className="grid size-9 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition disabled:opacity-30 active:scale-95 hover:bg-slate-200"
-            title="Kandidat sebelumnya"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <button
-            type="button"
-            disabled={!nextCandidate}
-            onClick={() => nextCandidate && setCandidateId(nextCandidate.id)}
-            className="grid size-9 place-items-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 transition disabled:opacity-30 active:scale-95 hover:bg-slate-200"
-            title="Kandidat berikutnya"
-          >
-            <ChevronRight className="size-4" />
-          </button>
-          <Button
-            className="!min-h-10 !px-3.5 !py-2 !text-xs font-bold shadow-md shadow-red-600/20 active:scale-95"
-            onClick={() => saveRecord(true)}
-          >
-            <Save className="size-3.5" />
-            <span>Simpan & Lanjut</span>
-            <ArrowRight className="size-3.5" />
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

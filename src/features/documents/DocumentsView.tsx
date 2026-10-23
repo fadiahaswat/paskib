@@ -165,33 +165,36 @@ export default function DocumentsView() {
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="grid gap-4 sm:gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            Repository & verifikasi administrasi
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Manajemen dokumen & berkas
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
-            Verifikasi enam berkas pokok peserta untuk kelulusan Tahap 1
-            (Administrasi) serta kelola dokumen pedoman dan pengumuman periode.
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+              Manajemen dokumen &amp; berkas
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              Repository &amp; Verifikasi
+            </span>
+          </div>
+          <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
+            Verifikasi enam berkas pokok peserta untuk kelulusan Tahap 1 (Administrasi) serta kelola dokumen pedoman.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <Button
+            size="sm"
             variant={activeTab === "verification" ? "primary" : "secondary"}
             onClick={() => setActiveTab("verification")}
           >
-            <FileCheck2 className="size-4" /> Verifikasi 6 Berkas (
+            <FileCheck2 className="size-3.5" /> Verifikasi 6 Berkas (
             {completeCandidatesCount}/{candidates.length})
           </Button>
           <Button
+            size="sm"
             variant={activeTab === "supporting" ? "primary" : "secondary"}
             onClick={() => setActiveTab("supporting")}
           >
-            <FileText className="size-4" /> Dokumen & Pengumuman (
+            <FileText className="size-3.5" /> Dokumen &amp; Pengumuman (
             {supportingDocs.length})
           </Button>
         </div>

@@ -29,6 +29,7 @@ import type {
   TestAssignment,
 } from "../features/ishihara/types"
 import { fitnessScore } from "../data/selectionGuide"
+import { createIntervalLogEntry } from "../domain/intervalAnalytics"
 import {
   applyStageDecision,
   type AuditLogEntry,
@@ -122,9 +123,16 @@ type AppContextValue = {
     entry: { date: string, heightCm: number, weightKg: number, note?: string },
   ) => void
   deleteAnthropometryLog: (candidateId: string, logId: string) => void
+  addIntervalLog: (
+    candidateId: string,
+    entry: Omit<import("../domain/selection").IntervalTrainingLog, "id">,
+  ) => void
+  deleteIntervalLog: (candidateId: string, logId: string) => void
   syncCandidateFromSession: (params: {
     candidateId: string
     sessionType: string
+    sessionId?: string
+    sessionTitle?: string
     metrics: Record<string, string>
     records: Record<string, SessionRecord>
     result: "pending" | "passed" | "review" | "failed"
@@ -361,6 +369,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
+    const isIntervalPurgedV6 = typeof window !== "undefined" && !localStorage.getItem("paska-samapta-interval-purged-v6")
+    if (isIntervalPurgedV6) {
+      try {
+        localStorage.setItem("paska-samapta-interval-purged-v6", "true")
+      } catch {}
+    }
+
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
     const baseList = !loaded || loaded.length === 0 ? seededCandidates : loaded
     // Ensure all 13 seeded candidates are always present
@@ -384,6 +399,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
         metrics = metrics.filter((m) => m.label.toLowerCase().includes("lari"))
       }
 
+      // RESTORASI KONTAMINASI INTERVAL: Jika Lari 12 menit sebelumnya tercemar oleh jarak interval (misal 960m, 640m)
+      const runMetric = metrics.find((m) => m.label.toLowerCase().includes("lari"))
+      const runMetricDist = runMetric
+        ? parseFloat(runMetric.current.replace(/\./g, "").replace(/[^\d.]/g, ""))
+        : null
+
+      let candidateFitness = c.fitness ?? match?.fitness ?? null
+
+      if (match && match.physicalMetrics && match.physicalMetrics.length > 0) {
+        const seededRunMetric = match.physicalMetrics.find((m) => m.label.toLowerCase().includes("lari"))
+        const seededDist = seededRunMetric
+          ? parseFloat(seededRunMetric.current.replace(/\./g, "").replace(/[^\d.]/g, ""))
+          : null
+
+        if (
+          seededDist &&
+          seededDist >= 2000 &&
+          (runMetricDist === null || runMetricDist < 2000 || isIntervalPurgedV6)
+        ) {
+          // Pulihkan kembali ke hasil tes resmi Lari 12 Menit yang sah (misal 2.880 m untuk Devga, 2.740 m untuk Alfan)
+          metrics = match.physicalMetrics
+          if (match.fitness) {
+            candidateFitness = match.fitness
+          }
+        }
+      }
+
       return {
         ...c,
         // Registration identity comes from the verified roster, even when an older
@@ -401,7 +443,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         pip: c.pip ?? null,
         tiu: c.tiu ?? null,
         pbb: c.pbb ?? null,
-        fitness: c.fitness ?? match?.fitness ?? null,
+        fitness: candidateFitness,
         personality: c.personality ?? null,
         documents:
           Array.isArray(c.documents) && c.documents.length === 6 && c.documents.some(Boolean)
@@ -414,6 +456,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
             : match?.stageStatuses ?? ["active", "locked", "locked", "locked", "locked", "locked", "locked", "locked"],
         coachNote: c.coachNote ?? match?.coachNote ?? "",
         physicalMetrics: metrics,
+        intervalHistory: (Array.isArray(c.intervalHistory)
+          ? c.intervalHistory
+          : (match?.intervalHistory ?? [])
+        ).filter(
+          (entry) =>
+            Array.isArray(entry.lapSplitsSec) && entry.lapSplitsSec.length > 0,
+        ),
       }
     })
     try {
@@ -1507,10 +1556,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [showToast, saveToCloud],
   )
 
+  const addIntervalLog = useCallback(
+    (
+      candidateId: string,
+      entry: Omit<import("../domain/selection").IntervalTrainingLog, "id">,
+    ) => {
+      const currentList = stateRef.current.allCandidates
+      const newEntry = {
+        ...entry,
+        id: `interval-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      }
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const history = [newEntry, ...(cand.intervalHistory ?? [])]
+        return {
+          ...cand,
+          intervalHistory: history,
+          updatedAt: "Baru saja",
+        }
+      })
+      setAllCandidates(nextCandidates)
+      logAudit(
+        "LOG_INTERVAL",
+        candidateId,
+        `Mencatat sesi interval: ${newEntry.completedSets}/${newEntry.targetSets} set, split ${newEntry.avgSplitSec}s, skor ${newEntry.score}`,
+      )
+      showToast("Data sesi latihan interval berhasil dicatat.")
+      saveToCloud({ candidates: nextCandidates })
+    },
+    [logAudit, showToast, saveToCloud],
+  )
+
+  const deleteIntervalLog = useCallback(
+    (candidateId: string, logId: string) => {
+      const currentList = stateRef.current.allCandidates
+      const nextCandidates = currentList.map((cand) => {
+        if (cand.id !== candidateId) return cand
+        const history = (cand.intervalHistory ?? []).filter(
+          (item) => item.id !== logId,
+        )
+        return {
+          ...cand,
+          intervalHistory: history,
+          updatedAt: "Baru saja",
+        }
+      })
+      setAllCandidates(nextCandidates)
+      showToast("Riwayat sesi latihan interval dihapus.", "warning")
+      saveToCloud({ candidates: nextCandidates })
+    },
+    [showToast, saveToCloud],
+  )
+
   const syncCandidateFromSession = useCallback(
     ({
       candidateId,
       sessionType,
+      sessionId,
+      sessionTitle,
       metrics,
       records,
       result,
@@ -1519,6 +1622,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }: {
       candidateId: string
       sessionType: string
+      sessionId?: string
+      sessionTitle?: string
       metrics: Record<string, string>
       records: Record<string, SessionRecord>
       result: "pending" | "passed" | "review" | "failed"
@@ -1529,6 +1634,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const candidateSessionRecords = stateRef.current.sessions
         .filter((session) => session.type === sessionType)
         .map((session) => ({
+          sessionId: session.id,
+          sessionTitle: session.title,
+          isInterval: session.title.toLowerCase().includes("interval"),
           savedAt: records[`${session.id}:${candidateId}`]?.savedAt ?? "",
           metrics: records[`${session.id}:${candidateId}`]?.metrics ?? {},
         }))
@@ -1637,13 +1745,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
               patch.pbb = Number(latest.pbbScore.toFixed(1))
             }
           } else if (sessionType === "fitness") {
-            stageIndex = 6
             const isRunDnf = metrics.runDnf === "yes"
+            const isIntervalRun =
+              metrics.runMode === "interval" ||
+              Boolean(sessionTitle && sessionTitle.toLowerCase().includes("interval"))
+
+            if (isIntervalRun) {
+              const laps = Array.from({ length: 12 }, (_, i) => i + 1)
+                .map((i) => parseFloat(metrics[`intervalLap${i}`] || ""))
+                .filter((v) => !isNaN(v) && v > 0)
+
+              const prevHistory = (cand.intervalHistory ?? []).filter(
+                (h) => Array.isArray(h.lapSplitsSec) && h.lapSplitsSec.length > 0,
+              )
+
+              // KUNCI: HANYA buat log interval jika ada split lap yang benar-benar dicatat!
+              if (laps.length > 0) {
+                const targetSets = parseInt(metrics.intervalTargetSets || "4", 10) || 4
+                const targetPace = parseFloat(metrics.intervalTargetPace || "90") || 90
+                const distPerSet = parseFloat(metrics.intervalDist || "400") || 400
+                const completedSets = laps.length
+                const avgSplit = laps.reduce((a, b) => a + b, 0) / laps.length
+
+                const todayStr = new Date().toISOString().slice(0, 10)
+                const newLog = createIntervalLogEntry({
+                  sessionId,
+                  sessionTitle: sessionTitle || "Latihan Lari Interval",
+                  date: todayStr,
+                  targetSets,
+                  completedSets,
+                  targetPaceSec: targetPace,
+                  avgSplitSec: avgSplit,
+                  lapSplits: laps,
+                  isDnf: isRunDnf,
+                  distPerSetM: distPerSet,
+                  note: note.trim() || undefined,
+                })
+
+                const filtered = sessionId ? prevHistory.filter((h) => h.sessionId !== sessionId) : prevHistory
+                patch.intervalHistory = [newLog, ...filtered]
+              } else if (sessionId) {
+                // Hapus entri kosong jika tidak ada lap yang dicatat
+                patch.intervalHistory = prevHistory.filter((h) => h.sessionId !== sessionId)
+              }
+            }
+
             const hasDistance =
-              isRunDnf ||
-              (metrics.distance !== undefined &&
-                metrics.distance.trim() !== "" &&
-                !isNaN(Number(metrics.distance)))
+              !isIntervalRun &&
+              (isRunDnf ||
+                (metrics.distance !== undefined &&
+                  metrics.distance.trim() !== "" &&
+                  !isNaN(Number(metrics.distance))))
             const hasPushup =
               metrics.pushup !== undefined &&
               metrics.pushup.trim() !== "" &&
@@ -1666,6 +1818,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const situp = hasSitup ? Number(metrics.situp) : 0
             const backup = hasBackup ? Number(metrics.backup) : 0
             const shuttle = hasShuttle ? Number(metrics.shuttle) : 0
+
+            // Sesi hanya memengaruhi tahap 6 (Samapta Resmi) jika ada tes Samapta resmi (bukan semata latihan interval)
+            if (!isIntervalRun || hasPushup || hasSitup || hasBackup || hasShuttle) {
+              stageIndex = 6
+            }
 
             {
               const existing = cand.physicalMetrics ?? []
@@ -1734,13 +1891,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
               }
 
               const latest = latestMetrics([
-                "distance",
                 "pushup",
                 "situp",
                 "backup",
                 "shuttle",
               ])
-              for (const record of candidateSessionRecords) {
+
+              // HANYA sesi tes lari resmi (bukan latihan interval) yang masuk ke evaluasi lari 12 menit resmi
+              const officialRunRecords = candidateSessionRecords.filter(
+                (r) => !r.isInterval && r.metrics.runMode !== "interval",
+              )
+              for (const record of officialRunRecords) {
                 if (record.metrics.runDnf === "yes") {
                   latest.distance = 0
                   latest.runDnf = 1
@@ -2610,6 +2771,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleCandidateDocument,
       addAnthropometryLog,
       deleteAnthropometryLog,
+      addIntervalLog,
+      deleteIntervalLog,
       syncCandidateFromSession,
       stageChecklists,
       toggleStageChecklist,
@@ -2700,6 +2863,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleCandidateDocument,
       addAnthropometryLog,
       deleteAnthropometryLog,
+      addIntervalLog,
+      deleteIntervalLog,
       syncCandidateFromSession,
       stageChecklists,
       toggleStageChecklist,

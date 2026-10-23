@@ -700,35 +700,34 @@ export default function IshiharaView() {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-5">
       {/* Header Halaman */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
-              <Eye className="size-3.5" />
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
               Sistem Skrining Ishihara
+            </h1>
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              <Eye className="size-3 text-red-600" /> Rikkes Tahap 4
             </span>
-            <span className="text-xs text-slate-400">· PRD Version 1.1 · Rikkes Tahap 4</span>
+            <span className="hidden sm:inline text-xs text-slate-400">·</span>
+            <span className="hidden sm:inline text-xs font-medium text-slate-500">PRD Version 1.1</span>
           </div>
-          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
-            Sistem Skrining Penglihatan Warna (Ishihara)
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-2xl">
-            Mendukung pelaksanaan terstruktur berbasis Google Sheet &amp; Google Apps Script,
-            dengan pemisahan peran admin/operator, mode terjadwal, dan tes mandiri.
+          <p className="mt-0.5 text-xs text-slate-500 max-w-2xl">
+            Mendukung pelaksanaan terstruktur berbasis Google Sheet &amp; Google Apps Script, dengan pemisahan peran admin/operator.
           </p>
         </div>
 
         {activeTab === "runner" && !isCandidate && (
           /* Pemilihan Santri yang Dites */
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
-            <span className="text-xs font-semibold text-slate-500 pl-2">Santri yang dites:</span>
+          <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1 shadow-2xs">
+            <span className="text-xs font-semibold text-slate-500 pl-1.5">Santri yang dites:</span>
             <select
               value={selectedCandidateId}
               onChange={(e) => setSelectedCandidateId(e.target.value)}
               disabled={isStarted}
-              className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-800 outline-none focus:border-red-400"
+              className="h-7 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-slate-800 outline-none focus:border-red-400"
             >
               {candidates.map((cand) => (
                 <option key={cand.id} value={cand.id}>

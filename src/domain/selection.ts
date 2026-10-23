@@ -52,6 +52,26 @@ export type CandidateDocumentFile = {
   uploadedAt: string
 }
 
+export type IntervalTrainingLog = {
+  id: string
+  sessionId?: string
+  sessionTitle?: string
+  date: string
+  targetSets: number
+  completedSets: number
+  distancePerSet: number
+  totalDistance: number
+  targetPaceSec: number
+  avgSplitSec: number
+  lapSplitsSec: number[]
+  score: number
+  projected12MinDistanceM: number
+  projected12MinScore: number
+  paceConsistency: "Sangat Konsisten" | "Negatif Split (Kuat)" | "Cukup Stabil" | "Penurunan Drastis" | "Data Belum Lengkap"
+  coachRecommendation: string
+  note?: string
+}
+
 export type Candidate = {
   id: string
   number: string
@@ -69,6 +89,7 @@ export type Candidate = {
   heightCm?: number
   weightKg?: number
   anthropometryHistory?: AnthropometryLog[]
+  intervalHistory?: IntervalTrainingLog[]
   avatar: string
   photoUrl?: string
   stage: number

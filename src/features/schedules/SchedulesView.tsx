@@ -109,22 +109,23 @@ export default function SchedulesView() {
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="grid gap-4 sm:gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            Manajemen operasional & kartu peserta
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Jadwal seleksi & kartu ujian
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
-            Atur jadwal per tahapan, kelola kapasitas ruangan/lapangan, tetapkan
-            peserta, dan cetak kartu ujian internal.
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+              Jadwal seleksi &amp; kartu ujian
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              Operasional &amp; Kartu Peserta
+            </span>
+          </div>
+          <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
+            Atur jadwal per tahapan, kelola kapasitas ruangan/lapangan, tetapkan peserta, dan cetak kartu ujian internal.
           </p>
         </div>
-        <Button onClick={openCreate}>
-          <Plus className="size-4" /> Buat jadwal baru
+        <Button size="sm" onClick={openCreate}>
+          <Plus className="size-3.5" /> Buat jadwal baru
         </Button>
       </div>
 

@@ -269,28 +269,25 @@ export default function UsersAuditView({
       {/* ===================================================================== */}
       {/* PAGE HEADER */}
       {/* ===================================================================== */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200/80 pb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-200">
-              <ShieldCheck className="size-3 text-red-600" /> Administrasi Sistem
-            </span>
-            <span className="text-xs text-slate-300">·</span>
-            <span className="text-xs font-semibold text-slate-500">
-              Hak Akses RBAC &amp; Kepatuhan Audit
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Manajemen Pengguna &amp; Jejak Audit
+            </h1>
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
+              <ShieldCheck className="size-3 text-red-600" /> Admin &amp; RBAC
             </span>
           </div>
-          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-            Manajemen Pengguna &amp; Jejak Audit
-          </h1>
-          <p className="mt-1 max-w-2xl text-xs text-slate-500 sm:text-sm">
+          <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
             Pusat tata kelola otorisasi staf, simulasi pengujian peran santri, pantau log aktivitas sistem, dan sinkronisasi data cloud.
           </p>
         </div>
 
         {/* Header Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <Button
+            size="sm"
             variant="secondary"
             loading={isSyncing}
             onClick={async () => {
@@ -307,6 +304,7 @@ export default function UsersAuditView({
           </Button>
 
           <Button
+            size="sm"
             variant="danger"
             onClick={() => setShowResetConfirm(true)}
             className="!text-xs font-semibold"

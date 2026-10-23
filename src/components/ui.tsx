@@ -8,12 +8,14 @@ import { LoaderCircle } from "lucide-react"
 export function Button({
   children,
   variant = "primary",
+  size = "md",
   className = "",
   loading,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode
   variant?: "primary" | "secondary" | "ghost" | "danger"
+  size?: "sm" | "md" | "lg"
   loading?: boolean
 }) {
   const variants = {
@@ -24,13 +26,18 @@ export function Button({
     ghost: "text-slate-600 hover:bg-slate-100",
     danger: "bg-red-50 text-red-700 hover:bg-red-100",
   }
+  const sizes = {
+    sm: "min-h-8 px-2.5 sm:px-3 py-1.5 text-xs rounded-lg gap-1.5",
+    md: "min-h-10 px-4 py-2 text-sm rounded-xl gap-2",
+    lg: "min-h-11 px-5 py-2.5 text-base rounded-xl gap-2.5",
+  }
   return (
     <button
-      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
       disabled={loading || props.disabled}
       {...props}
     >
-      {loading ? <LoaderCircle className="size-4 animate-spin" /> : null}
+      {loading ? <LoaderCircle className="size-3.5 sm:size-4 animate-spin" /> : null}
       {children}
     </button>
   )
@@ -91,7 +98,7 @@ export function Card({
   return (
     <section
       onClick={onClick}
-      className={`rounded-2xl border border-slate-200/80 bg-white shadow-sm ${className}`}
+      className={`min-w-0 max-w-full rounded-2xl border border-slate-200/80 bg-white shadow-sm ${className}`}
     >
       {children}
     </section>

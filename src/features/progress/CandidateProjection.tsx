@@ -126,6 +126,8 @@ export default function CandidateProjection({
 }) {
   const {
     candidates,
+    sessions,
+    records,
     currentUser,
     catTryoutAttempts,
     deleteCatTryoutAttempt,
@@ -141,9 +143,99 @@ export default function CandidateProjection({
   )
   const canDeleteCatHistory = currentUser.role === "admin" || currentUser.role === "coach"
 
-  const [history, setHistory] = useState<FitnessEntry[]>(() =>
-    readHistory(candidateId),
-  )
+  const history = useMemo<FitnessEntry[]>(() => {
+    // 1. Ambil dari sessions resmi non-interval
+    const sessionEntries: FitnessEntry[] = sessions
+      .filter((session) => {
+        if (session.type !== "fitness") return false
+        const t = session.title.toLowerCase()
+        return !t.includes("interval") && !t.includes("drill")
+      })
+      .flatMap((session) => {
+        const record = records[`${session.id}:${candidateId}`]
+        if (!record?.savedAt) return []
+
+        if (
+          record.metrics.runMode === "interval" ||
+          record.metrics.intervalDist ||
+          record.metrics.intervalTargetSets ||
+          record.metrics.intervalLap1
+        ) {
+          return []
+        }
+
+        const numberValue = (key: string) => {
+          const value = Number(record.metrics[key])
+          return Number.isFinite(value) && record.metrics[key] !== ""
+            ? value
+            : null
+        }
+
+        const rawDist = numberValue("distance")
+        // Proteksi: tes lari 12 menit resmi tidak mungkin < 2000 m (jika < 2000 berarti porsi interval/drill)
+        const dist = rawDist !== null && rawDist >= 2000 ? rawDist : null
+
+        return [
+          {
+            sessionId: session.id,
+            title: session.title,
+            date: session.date,
+            distance: dist,
+            pushup: numberValue("pushup"),
+            situp: numberValue("situp"),
+            backup: numberValue("backup"),
+            shuttle: numberValue("shuttle"),
+          },
+        ]
+      })
+      .sort((a, b) => a.date.localeCompare(b.date))
+
+    // 2. Ambil baseline resmi dari profil kandidat
+    const physicalMetrics = candidate?.physicalMetrics ?? []
+    const parseMetricNum = (str: string | undefined): number | null => {
+      if (!str) return null
+      if (str.trim().toUpperCase() === "DNF") return 0
+      const cleaned = str.replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, "")
+      const val = parseFloat(cleaned)
+      return isNaN(val) ? null : val
+    }
+    const findM = (term: string) =>
+      physicalMetrics.find(
+        (m) =>
+          m.label.toLowerCase().includes(term.toLowerCase()) &&
+          m.current &&
+          !m.current.includes("Belum") &&
+          m.current !== "—",
+      )
+    const baseRun = parseMetricNum(findM("lari")?.current)
+    const basePush = parseMetricNum(findM("push")?.current)
+    const baseSit = parseMetricNum(findM("sit")?.current)
+    const baseBack = parseMetricNum(findM("back")?.current)
+    const baseShuttle = parseMetricNum(findM("shuttle")?.current)
+
+    const baselineEntry: FitnessEntry = {
+      sessionId: "baseline",
+      title: "Tes Pemetaan Awal (Resmi)",
+      date: "2026-10-21",
+      distance: baseRun !== null && baseRun >= 2000 ? baseRun : null,
+      pushup: basePush,
+      situp: baseSit,
+      backup: baseBack,
+      shuttle: baseShuttle,
+    }
+
+    if (sessionEntries.length === 0) {
+      return baseRun || basePush || baseSit || baseBack || baseShuttle ? [baselineEntry] : []
+    }
+
+    const hasAnyRunInSessions = sessionEntries.some((s) => s.distance !== null)
+    if (!hasAnyRunInSessions && baseRun !== null && baseRun >= 2000) {
+      return [baselineEntry, ...sessionEntries]
+    }
+
+    return sessionEntries
+  }, [sessions, records, candidateId, candidate])
+
   const [showAnthroForm, setShowAnthroForm] = useState(false)
   const [logDate, setLogDate] = useState(() =>
     new Date().toISOString().slice(0, 10),
@@ -160,17 +252,6 @@ export default function CandidateProjection({
       setLogWeight(candidate.weightKg ?? 60)
     }
   }, [candidate])
-
-  useEffect(() => {
-    const refresh = () => setHistory(readHistory(candidateId))
-    refresh()
-    window.addEventListener("storage", refresh)
-    window.addEventListener("paska-track-updated", refresh)
-    return () => {
-      window.removeEventListener("storage", refresh)
-      window.removeEventListener("paska-track-updated", refresh)
-    }
-  }, [candidateId])
 
   const anthroLogs = useMemo(() => {
     if (!candidate) return []

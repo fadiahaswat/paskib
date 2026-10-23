@@ -151,7 +151,7 @@ export default function CatBankView() {
   // --------------------------------------------------------------------------
   const [sessionPhase, setSessionPhase] = useState<SessionPhase>("idle")
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>(
-    currentUser.candidateId || candidates[0]?.id || "cand-001",
+    currentUser.candidateId || "",
   )
 
   // Automatically bind to candidate's own profile when logged in as candidate
@@ -161,9 +161,9 @@ export default function CatBankView() {
     }
   }, [currentUser])
   const selectedCandidate = useMemo(
-    () => currentUser.role === "candidate"
-      ? candidates.find((c) => c.id === currentUser.candidateId)!
-      : candidates.find((c) => c.id === selectedCandidateId) ?? candidates[0],
+    () => (currentUser.role === "candidate"
+      ? candidates.find((c) => c.id === currentUser.candidateId)
+      : candidates.find((c) => c.id === selectedCandidateId)) ?? null,
     [candidates, currentUser.role, currentUser.candidateId, selectedCandidateId],
   )
 
@@ -247,26 +247,29 @@ export default function CatBankView() {
     })
   }, [candidates, currentUser.role, currentUser.candidateId, latestAttemptByCandidate])
 
-  const getLatestSessionScore = (type: "pip" | "tiu") => sessions
-    .filter((session) => session.type === type)
-    .map((session) => {
-      const record = records[`${session.id}:${selectedCandidate.id}`]
-      if (!record?.savedAt) return null
-      const score = record.metrics.score !== undefined && record.metrics.score !== ""
-        ? Number(record.metrics.score)
-        : record.metrics.correct !== undefined && record.metrics.correct !== ""
-          ? Number(record.metrics.correct) * 2
+  const getLatestSessionScore = (type: "pip" | "tiu") => {
+    if (!selectedCandidate) return null
+    return sessions
+      .filter((session) => session.type === type)
+      .map((session) => {
+        const record = records[`${session.id}:${selectedCandidate.id}`]
+        if (!record?.savedAt) return null
+        const score = record.metrics.score !== undefined && record.metrics.score !== ""
+          ? Number(record.metrics.score)
+          : record.metrics.correct !== undefined && record.metrics.correct !== ""
+            ? Number(record.metrics.correct) * 2
+            : null
+        return score !== null && Number.isFinite(score)
+          ? { score, time: Date.parse(record.savedAt) || 0 }
           : null
-      return score !== null && Number.isFinite(score)
-        ? { score, time: Date.parse(record.savedAt) || 0 }
-        : null
-    })
-    .filter((entry): entry is { score: number; time: number } => entry !== null)
-    .sort((a, b) => b.time - a.time)[0]?.score
+      })
+      .filter((entry): entry is { score: number; time: number } => entry !== null)
+      .sort((a, b) => b.time - a.time)[0]?.score
+  }
 
-  const latestSelectedAttempt = latestAttemptByCandidate.get(selectedCandidate.id)
-  const currentPipScore = latestSelectedAttempt?.pipScore ?? selectedCandidate.pip ?? getLatestSessionScore("pip")
-  const currentTiuScore = latestSelectedAttempt?.tiuScoreScaled ?? selectedCandidate.tiu ?? getLatestSessionScore("tiu")
+  const latestSelectedAttempt = selectedCandidate ? latestAttemptByCandidate.get(selectedCandidate.id) : null
+  const currentPipScore = selectedCandidate ? (latestSelectedAttempt?.pipScore ?? selectedCandidate.pip ?? getLatestSessionScore("pip")) : null
+  const currentTiuScore = selectedCandidate ? (latestSelectedAttempt?.tiuScoreScaled ?? selectedCandidate.tiu ?? getLatestSessionScore("tiu")) : null
 
   // --------------------------------------------------------------------------
   // TIMER TICK ENGINE
@@ -331,6 +334,10 @@ export default function CatBankView() {
   // START SESSION 1: PIP
   // --------------------------------------------------------------------------
   function startPipSession() {
+    if (!selectedCandidate) {
+      showToast("Silakan pilih santri / peserta terlebih dahulu sebelum memulai ujian.", "warning")
+      return
+    }
     if (!activeCatSchedule) {
       showToast("CAT hanya dapat dimulai pada jadwal yang ditetapkan admin/pelatih.", "warning")
       return
@@ -842,40 +849,39 @@ export default function CatBankView() {
   // RENDER INTERACTION
   // --------------------------------------------------------------------------
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-5">
       {/* ======================= TOP NAVIGATION & BANNER ======================= */}
-      <div className="grid gap-5 border-b border-slate-200/80 pb-5">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-200/70 pb-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-[0.68rem] font-black uppercase tracking-wider text-red-700 ring-1 ring-red-200">
-              <Zap className="size-3 text-red-600" /> Standar BPIP PRD 1.1
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950">
+              CAT Tryout PIP &amp; TIU
+            </h1>
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
+              <Zap className="size-3 text-red-600" /> BPIP PRD 1.1
             </span>
-            <span className="text-xs text-slate-400">·</span>
-            <span className="text-xs font-semibold text-slate-500">
+            <span className="hidden sm:inline text-xs text-slate-400">·</span>
+            <span className="hidden sm:inline text-xs font-semibold text-slate-500">
               Tryout Sekuensial (PIP 45m &rarr; TIU 30m)
             </span>
           </div>
-          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950">
-            CAT Tryout PIP &amp; TIU
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-600">
+          <p className="mt-0.5 text-xs text-slate-500">
             {currentUser.role === "candidate"
               ? "Kerjakan ujian Anda dengan tenang. Jawaban tersimpan otomatis dan hasil dapat dilihat setelah sesi selesai."
               : "Pilih peserta, jalankan PIP lalu TIU, kemudian tinjau hasil dan riwayat percobaan."}
           </p>
         </div>
-
       </div>
 
       {/* NAVIGATION GROUPED BY USER FLOW */}
-      <nav aria-label="Navigasi CAT" className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
+      <nav aria-label="Navigasi CAT" className="grid gap-2.5 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <p className="mb-1.5 px-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-slate-400">Alur ujian</p>
-          <div className="flex flex-wrap items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
+          <p className="mb-1 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Alur ujian</p>
+          <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-xl bg-slate-100 p-1">
           <button
             type="button"
             onClick={() => setActiveTab("tryout")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+            className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
               activeTab === "tryout"
                 ? "bg-white text-slate-950 shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
@@ -893,7 +899,7 @@ export default function CatBankView() {
               <button
                 type="button"
                 onClick={() => setActiveTab("rekap")}
-                className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
                   activeTab === "rekap"
                     ? "bg-white text-slate-950 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
@@ -906,7 +912,7 @@ export default function CatBankView() {
               <button
                 type="button"
                 onClick={() => setActiveTab("history")}
-                className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
                   activeTab === "history"
                     ? "bg-white text-slate-950 shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
@@ -920,43 +926,43 @@ export default function CatBankView() {
           </div>
         </div>
 
-          {currentUser.role !== "candidate" && (
-            <div>
-              <p className="mb-1.5 px-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-slate-400">Perangkat pelatih</p>
-              <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-slate-200 bg-white p-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab("pip-bank")
-                    setCategoryFilter("all")
-                    setSearch("")
-                  }}
-                  className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${activeTab === "pip-bank" ? "bg-blue-50 text-blue-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-                >
-                  <BookOpenCheck className="size-3.5 text-blue-600" /> Bank PIP ({pipActiveCount})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab("tiu-bank")
-                    setCategoryFilter("all")
-                    setSearch("")
-                  }}
-                  className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${activeTab === "tiu-bank" ? "bg-purple-50 text-purple-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-                >
-                  <Calculator className="size-3.5 text-purple-600" /> Bank TIU ({tiuActiveCount})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("settings")}
-                  className={`flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold transition ${activeTab === "settings" ? "bg-slate-100 text-slate-900 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-                  title="Konfigurasi paket dan formula"
-                >
-                  <Settings2 className="size-3.5 text-slate-500" /> Paket
-                </button>
-              </div>
+        {currentUser.role !== "candidate" && (
+          <div>
+            <p className="mb-1 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Perangkat pelatih</p>
+            <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("pip-bank")
+                  setCategoryFilter("all")
+                  setSearch("")
+                }}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${activeTab === "pip-bank" ? "bg-blue-50 text-blue-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+              >
+                <BookOpenCheck className="size-3.5 text-blue-600" /> Bank PIP ({pipActiveCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("tiu-bank")
+                  setCategoryFilter("all")
+                  setSearch("")
+                }}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${activeTab === "tiu-bank" ? "bg-purple-50 text-purple-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+              >
+                <Calculator className="size-3.5 text-purple-600" /> Bank TIU ({tiuActiveCount})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("settings")}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${activeTab === "settings" ? "bg-slate-100 text-slate-900 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                title="Konfigurasi paket dan formula"
+              >
+                <Settings2 className="size-3.5 text-slate-500" /> Paket
+              </button>
             </div>
-          )}
+          </div>
+        )}
       </nav>
 
       {/* ===================================================================== */}
@@ -997,8 +1003,9 @@ export default function CatBankView() {
                       <select
                         value={selectedCandidateId}
                         onChange={(e) => setSelectedCandidateId(e.target.value)}
-                        className="min-h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200"
+                        className="min-h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 cursor-pointer"
                       >
+                        <option value="">-- Pilih Santri / Siswa --</option>
                         {candidates.map((c) => (
                           <option key={c.id} value={c.id}>
                             {c.name} ({c.number}) · {c.school}
@@ -1029,7 +1036,15 @@ export default function CatBankView() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="text-sm font-bold text-slate-900">Jadwal CAT</h3>
-                        <Badge tone={activeCatSchedule ? "success" : "neutral"}>{activeCatSchedule ? "Sedang berlangsung" : displayedCatSchedule ? "Terjadwal" : "Belum terjadwal"}</Badge>
+                        <Badge tone={activeCatSchedule ? "success" : "neutral"}>
+                          {!selectedCandidate
+                            ? "Pilih peserta"
+                            : activeCatSchedule
+                              ? "Sedang berlangsung"
+                              : displayedCatSchedule
+                                ? "Terjadwal"
+                                : "Belum terjadwal"}
+                        </Badge>
                       </div>
                       {displayedCatSchedule ? (
                         <>
@@ -1037,7 +1052,11 @@ export default function CatBankView() {
                           <p className="mt-0.5 text-xs text-slate-500">{displayedCatSchedule.date} · {displayedCatSchedule.time} · {displayedCatSchedule.location}</p>
                         </>
                       ) : (
-                        <p className="mt-1 text-xs leading-relaxed text-slate-500">Belum ada jadwal untuk peserta ini. Admin/pelatih mengaturnya melalui Sesi seleksi & latihan.</p>
+                        <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                          {!selectedCandidate
+                            ? "Silakan pilih peserta di atas untuk melihat jadwal CAT yang tersedia."
+                            : "Belum ada jadwal untuk peserta ini. Admin/pelatih mengaturnya melalui Sesi seleksi & latihan."}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -1103,10 +1122,10 @@ export default function CatBankView() {
 
                   <Button
                     onClick={startPipSession}
-                    disabled={!activeCatSchedule}
+                    disabled={!selectedCandidate || !activeCatSchedule}
                     className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    <Play className="size-4" /> {activeCatSchedule ? "Mulai sesi 1 · PIP" : "Menunggu jadwal CAT"}
+                    <Play className="size-4" /> {!selectedCandidate ? "Pilih peserta terlebih dahulu" : activeCatSchedule ? "Mulai sesi 1 · PIP" : "Menunggu jadwal CAT"}
                   </Button>
                 </div>
               </Card>
@@ -1117,23 +1136,31 @@ export default function CatBankView() {
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                     {currentUser.role === "candidate" ? "Hasil CAT terakhir" : "Ringkasan peserta terpilih"}
                   </h3>
-                  {currentUser.role !== "candidate" && <div className="mt-3 flex items-center gap-3">
-                    <CandidateAvatar
-                      name={selectedCandidate.name}
-                      avatar={selectedCandidate.avatar}
-                      photoUrl={selectedCandidate.photoUrl}
-                      className="size-12 text-sm shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-bold text-slate-900 leading-tight">
-                        {selectedCandidate.name}
-                      </h4>
-                      <p className="text-xs text-slate-500">{selectedCandidate.school}</p>
-                      <p className="text-[0.68rem] font-semibold text-slate-400">
-                        Nomor: {selectedCandidate.number}
-                      </p>
-                    </div>
-                  </div>}
+                  {currentUser.role !== "candidate" && (
+                    selectedCandidate ? (
+                      <div className="mt-3 flex items-center gap-3">
+                        <CandidateAvatar
+                          name={selectedCandidate.name}
+                          avatar={selectedCandidate.avatar}
+                          photoUrl={selectedCandidate.photoUrl}
+                          className="size-12 text-sm shrink-0"
+                        />
+                        <div>
+                          <h4 className="font-bold text-slate-900 leading-tight">
+                            {selectedCandidate.name}
+                          </h4>
+                          <p className="text-xs text-slate-500">{selectedCandidate.school}</p>
+                          <p className="text-[0.68rem] font-semibold text-slate-400">
+                            Nomor: {selectedCandidate.number}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-xs text-slate-400">
+                        Belum ada peserta yang dipilih
+                      </div>
+                    )
+                  )}
 
                   <div className={`${currentUser.role === "candidate" ? "mt-3" : "mt-4 border-t border-slate-100 pt-3"} grid grid-cols-2 gap-2`}>
                     <div className="rounded-lg bg-slate-50 p-2.5 text-center">
@@ -1201,8 +1228,8 @@ export default function CatBankView() {
                   </Badge>
                   <div>
                     <h3 className="text-sm font-bold text-white">
-                      {selectedCandidate.name}{" "}
-                      <span className="text-slate-400 font-normal">({selectedCandidate.number})</span>
+                      {selectedCandidate?.name ?? "Peserta"}{" "}
+                      <span className="text-slate-400 font-normal">({selectedCandidate?.number ?? "—"})</span>
                     </h3>
                     <p className="text-[0.68rem] text-slate-400">
                       {packageConfig.packageName} · {sessionPhase === "pip" ? "Pancasila & TWK" : "Intelegensia Umum"}
@@ -1481,7 +1508,7 @@ export default function CatBankView() {
                       Hasil Sesi 1: CAT PIP Selesai
                     </h2>
                     <p className="mt-1 text-xs sm:text-sm text-slate-300">
-                      Peserta: <strong>{selectedCandidate.name}</strong> ({selectedCandidate.school})
+                      Peserta: <strong>{selectedCandidate?.name ?? "Peserta"}</strong> ({selectedCandidate?.school ?? "—"})
                     </p>
                   </div>
 
@@ -1586,7 +1613,7 @@ export default function CatBankView() {
                         Laporan Evaluasi Lengkap CAT BPIP
                       </h2>
                       <p className="mt-1 text-xs sm:text-sm text-slate-300">
-                        Santri / Peserta: <strong>{selectedCandidate.name}</strong> ({selectedCandidate.school})
+                        Santri / Peserta: <strong>{selectedCandidate?.name ?? "Peserta"}</strong> ({selectedCandidate?.school ?? "—"})
                       </p>
                     </div>
 

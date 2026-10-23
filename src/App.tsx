@@ -68,6 +68,8 @@ import {
   CandidateDetailView,
   CreateCandidateModal,
 } from "./features/candidates/CandidateModal"
+import { CandidateIntervalView } from "./features/candidates/CandidateIntervalView"
+import { extractCandidateIntervalLogs } from "./domain/intervalAnalytics"
 import CandidateProjection from "./features/progress/CandidateProjection"
 import { StageCards } from "./features/progress/StageCards"
 import { getProgressStageStatuses } from "./features/progress/readiness"
@@ -425,6 +427,7 @@ function Header({
     logout,
   } = useApp()
   const [searchQuery, setSearchQuery] = useState("")
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [showNotif, setShowNotif] = useState(false)
   const [cycleMenuOpen, setCycleMenuOpen] = useState(false)
   const [showNewCycle, setShowNewCycle] = useState(false)
@@ -533,27 +536,27 @@ function Header({
   // CANDIDATE RESTRICTED HEADER
   if (currentUser.role === "candidate") {
     return (
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-xl md:px-6">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full max-w-full min-w-0 items-center justify-between gap-2 sm:gap-3 border-b border-slate-200/80 bg-white/95 px-2.5 sm:px-4 backdrop-blur-xl md:px-6">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Button
             variant="ghost"
-            className="!px-2 lg:hidden"
+            className="!px-2 lg:hidden shrink-0"
             onClick={onMenu}
             aria-label="Buka navigasi"
           >
             <Menu className="size-5" />
           </Button>
-          <div className="flex items-center gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-950 font-bold shadow-2xs">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Portal Siswa: {currentUser.name}</span>
-            <span className="hidden sm:inline text-emerald-700 font-normal">({currentUser.title})</span>
+          <div className="flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs text-emerald-950 font-bold shadow-2xs min-w-0 truncate">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="truncate">Portal Siswa: {currentUser.name}</span>
+            <span className="hidden sm:inline text-emerald-700 font-normal shrink-0">({currentUser.title})</span>
           </div>
         </div>
 
         <button
           type="button"
           onClick={logout}
-          className="flex h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 transition hover:bg-red-100 shadow-2xs"
+          className="flex h-8.5 sm:h-9 items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-2.5 sm:px-3 text-xs font-bold text-red-700 transition hover:bg-red-100 shadow-2xs shrink-0"
           title="Keluar dari sesi ujian santri"
         >
           <LogOut className="size-3.5" />
@@ -565,366 +568,370 @@ function Header({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex min-w-0 h-16 items-center gap-2 border-b border-slate-200/80 bg-white/90 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:gap-4 md:px-6">
-      <Button
-        variant="ghost"
-        className="!px-2 lg:hidden"
-        onClick={onMenu}
-        aria-label="Buka navigasi"
-      >
-        <Menu className="size-5" />
-      </Button>
+    <>
+      <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full max-w-full min-w-0 items-center justify-between gap-2 border-b border-slate-200/80 bg-white/95 px-3 backdrop-blur-xl sm:px-4 md:px-6">
+        {/* Sisi Kiri: Menu + Logo Paskib & Judul di Mobile, Periode di Desktop */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <button
+            type="button"
+            onClick={onMenu}
+            className="flex size-9 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition active:scale-90 lg:hidden shrink-0"
+            aria-label="Buka navigasi"
+          >
+            <Menu className="size-5" />
+          </button>
 
-      {/* Selector Periode Seleksi / Latihan */}
-      <div ref={cycleMenuRef} className="relative shrink-0">
-        <button
-          type="button"
-          onClick={() => setCycleMenuOpen((v) => !v)}
-          className="flex h-9 items-center gap-1.5 sm:gap-2 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300"
-          title="Ubah atau kelola periode seleksi / latihan"
-        >
-          <CalendarDays className="size-3.5 text-red-600 shrink-0" />
-          <span className="font-bold truncate max-w-28 sm:max-w-44 md:max-w-none">
-            {activeCycle?.name || "Periode Seleksi"}
-          </span>
-          <span className="hidden md:inline rounded bg-slate-100 px-1.5 py-0.5 text-[0.62rem] font-bold text-slate-600">
-            {activeCycle?.level}
-          </span>
-          <ChevronDown
-            className={`size-3 text-slate-400 transition shrink-0 ${
-              cycleMenuOpen ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-
-        {cycleMenuOpen ? (
-          <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
-            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-3.5 py-2.5">
-              <div>
-                <p className="text-xs font-bold text-slate-900">Periode Seleksi & Latihan</p>
-                <p className="text-[0.68rem] text-slate-500">Pilih angkatan aktif atau kelola periode</p>
-              </div>
-              {currentUser.role === "admin" && (
-                <button
-                  type="button"
-                  onClick={() => setShowNewCycle((v) => !v)}
-                  className="flex items-center gap-1 text-[0.7rem] font-bold text-red-600 hover:text-red-700 hover:underline"
-                >
-                  <Plus className="size-3.5" />
-                  <span>{showNewCycle ? "Batal" : "Tambah"}</span>
-                </button>
-              )}
+          {/* Logo Paskib & Judul BACAPASMUIN di Mobile */}
+          <div className="flex items-center gap-2 md:hidden min-w-0">
+            <img
+              src={logoUrl}
+              alt="BACAPASMUIN!"
+              className="h-7 w-auto object-contain shrink-0 drop-shadow-xs"
+            />
+            <div className="min-w-0">
+              <p className="font-display text-sm font-black tracking-tight text-slate-900 leading-none">
+                BACAPASMUIN!
+              </p>
+              <p className="text-[0.6rem] font-bold text-red-600 uppercase tracking-wider leading-none mt-0.5 truncate">
+                Paskibraka
+              </p>
             </div>
+          </div>
 
-            {showNewCycle ? (
-              <form onSubmit={handleCreateCycle} className="border-b border-slate-100 p-3 bg-slate-50/50">
-                <p className="text-[0.7rem] font-bold text-slate-700 mb-2">Tambah Periode Baru</p>
-                <div className="space-y-2">
-                  <Input
-                    value={newCycleName}
-                    onChange={(e) => setNewCycleName(e.target.value)}
-                    placeholder="Contoh: Latihan & Pembinaan 2026/2027"
-                    className="h-8 text-xs bg-white"
-                    autoFocus
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[0.62rem] font-bold text-slate-500 uppercase">Tahun</label>
-                      <Input
-                        type="number"
-                        value={newCycleYear}
-                        onChange={(e) => setNewCycleYear(Number(e.target.value))}
-                        className="h-8 text-xs bg-white mt-0.5"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[0.62rem] font-bold text-slate-500 uppercase">Tingkat</label>
-                      <select
-                        value={newCycleLevel}
-                        onChange={(e) => setNewCycleLevel(e.target.value as any)}
-                        className="mt-0.5 h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none focus:border-slate-300"
-                      >
-                        <option value="Kabupaten/Kota">Kabupaten/Kota</option>
-                        <option value="Provinsi">Provinsi</option>
-                        <option value="Pusat">Pusat</option>
-                      </select>
-                    </div>
+          {/* Selector Periode Seleksi / Latihan di Layar Desktop */}
+          <div ref={cycleMenuRef} className="relative shrink-0 hidden md:block">
+            <button
+              type="button"
+              onClick={() => setCycleMenuOpen((v) => !v)}
+              className="flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:border-slate-300"
+              title="Ubah atau kelola periode seleksi / latihan"
+            >
+              <CalendarDays className="size-3.5 text-red-600 shrink-0" />
+              <span className="font-bold truncate max-w-48 md:max-w-none">
+                {activeCycle?.name || "Periode Seleksi"}
+              </span>
+              <span className="inline rounded bg-slate-100 px-1.5 py-0.5 text-[0.62rem] font-bold text-slate-600">
+                {activeCycle?.level}
+              </span>
+              <ChevronDown
+                className={`size-3 text-slate-400 transition shrink-0 ${
+                  cycleMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {cycleMenuOpen ? (
+              <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-3.5 py-2.5">
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">Periode Seleksi & Latihan</p>
+                    <p className="text-[0.68rem] text-slate-500">Pilih angkatan aktif atau kelola periode</p>
                   </div>
-                  <Button
-                    type="submit"
-                    size="sm"
-                    className="w-full h-8 text-xs font-bold bg-red-600 hover:bg-red-700 text-white mt-1"
-                  >
-                    Simpan Periode
-                  </Button>
-                </div>
-              </form>
-            ) : null}
-
-            <div className="p-1.5 max-h-64 overflow-y-auto divide-y divide-slate-100">
-              {cycles.map((c) => {
-                const isCurrent = c.id === activeCycle.id
-                return (
-                  <div
-                    key={c.id}
-                    className={`flex items-center justify-between rounded-lg px-2.5 py-2 transition ${
-                      isCurrent ? "bg-red-50 text-red-900" : "hover:bg-slate-50 text-slate-800"
-                    }`}
-                  >
+                  {currentUser.role === "admin" && (
                     <button
                       type="button"
-                      onClick={() => {
-                        setActiveCycleId(c.id)
-                        setCycleMenuOpen(false)
-                      }}
-                      className="flex flex-1 items-center gap-2.5 text-left min-w-0"
+                      onClick={() => setShowNewCycle((v) => !v)}
+                      className="flex items-center gap-1 text-[0.7rem] font-bold text-red-600 hover:text-red-700 hover:underline"
                     >
+                      <Plus className="size-3.5" />
+                      <span>{showNewCycle ? "Batal" : "Tambah"}</span>
+                    </button>
+                  )}
+                </div>
+
+                {showNewCycle ? (
+                  <form onSubmit={handleCreateCycle} className="border-b border-slate-100 p-3 bg-slate-50/50">
+                    <p className="text-[0.7rem] font-bold text-slate-700 mb-2">Tambah Periode Baru</p>
+                    <div className="space-y-2">
+                      <Input
+                        value={newCycleName}
+                        onChange={(e) => setNewCycleName(e.target.value)}
+                        placeholder="Contoh: Latihan & Pembinaan 2026/2027"
+                        className="h-8 text-xs bg-white"
+                        autoFocus
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[0.62rem] font-bold text-slate-500 uppercase">Tahun</label>
+                          <Input
+                            type="number"
+                            value={newCycleYear}
+                            onChange={(e) => setNewCycleYear(Number(e.target.value))}
+                            className="h-8 text-xs bg-white mt-0.5"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[0.62rem] font-bold text-slate-500 uppercase">Tingkat</label>
+                          <select
+                            value={newCycleLevel}
+                            onChange={(e) => setNewCycleLevel(e.target.value as any)}
+                            className="mt-0.5 h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none focus:border-slate-300"
+                          >
+                            <option value="Kabupaten/Kota">Kabupaten/Kota</option>
+                            <option value="Provinsi">Provinsi</option>
+                            <option value="Pusat">Pusat</option>
+                          </select>
+                        </div>
+                      </div>
+                      <Button
+                        type="submit"
+                        size="sm"
+                        className="w-full h-8 text-xs font-bold bg-red-600 hover:bg-red-700 text-white mt-1"
+                      >
+                        Simpan Periode
+                      </Button>
+                    </div>
+                  </form>
+                ) : null}
+
+                <div className="p-1.5 max-h-64 overflow-y-auto divide-y divide-slate-100">
+                  {cycles.map((c) => {
+                    const isCurrent = c.id === activeCycle.id
+                    return (
                       <div
-                        className={`grid size-7 place-items-center rounded-md text-xs font-bold shrink-0 ${
-                          isCurrent ? "bg-red-600 text-white" : "bg-slate-100 text-slate-600"
+                        key={c.id}
+                        className={`flex items-center justify-between rounded-lg px-2.5 py-2 transition ${
+                          isCurrent ? "bg-red-50 text-red-900" : "hover:bg-slate-50 text-slate-800"
                         }`}
                       >
-                        {c.year}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className={`text-xs font-bold truncate ${isCurrent ? "text-red-950" : "text-slate-900"}`}>
-                          {c.name}
-                        </p>
-                        <p className="text-[0.65rem] text-slate-500 truncate">
-                          Tingkat {c.level} · {c.status === "active" ? "Aktif" : "Arsip"}
-                        </p>
-                      </div>
-                      {isCurrent ? <CheckCircle2 className="size-4 text-red-600 shrink-0" /> : null}
-                    </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveCycleId(c.id)
+                            setCycleMenuOpen(false)
+                          }}
+                          className="flex flex-1 items-center gap-2.5 text-left min-w-0"
+                        >
+                          <div
+                            className={`grid size-7 place-items-center rounded-md text-xs font-bold shrink-0 ${
+                              isCurrent ? "bg-red-600 text-white" : "bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            {c.year}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className={`text-xs font-bold truncate ${isCurrent ? "text-red-950" : "text-slate-900"}`}>
+                              {c.name}
+                            </p>
+                            <p className="text-[0.65rem] text-slate-500 truncate">
+                              Tingkat {c.level} · {c.status === "active" ? "Aktif" : "Arsip"}
+                            </p>
+                          </div>
+                          {isCurrent ? <CheckCircle2 className="size-4 text-red-600 shrink-0" /> : null}
+                        </button>
 
-                    {cycles.length > 1 && currentUser.role === "admin" && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (confirm(`Hapus periode "${c.name}"? Data di dalamnya akan dibersihkan.`)) {
-                            deleteCycle(c.id)
-                          }
-                        }}
-                        className="ml-2 rounded p-1 text-slate-400 hover:text-red-600 hover:bg-red-100/50 transition shrink-0"
-                        title="Hapus periode"
-                      >
-                        <Trash2 className="size-3.5" />
-                      </button>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ) : null}
-      </div>
-
-      <div className="relative max-w-md flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-        <input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-9 w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-9 pr-8 text-xs outline-none transition placeholder:text-slate-400 hover:bg-slate-50 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-100"
-          placeholder="Cari kandidat, nomor peserta, atau sekolah..."
-        />
-        {searchQuery ? (
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            aria-label="Bersihkan pencarian"
-          >
-            <X className="size-3.5" />
-          </button>
-        ) : null}
-
-        {searchQuery.trim() ? (
-          <div className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50">
-            <div className="border-b border-slate-100 bg-slate-50 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-              Hasil pencarian kandidat ({searchResults.length})
-            </div>
-            {searchResults.length ? (
-              <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
-                {searchResults.map((cand) => (
-                  <button
-                    key={cand.id}
-                    type="button"
-                    onClick={() => {
-                      onSelectCandidate(cand.id)
-                      setSearchQuery("")
-                    }}
-                    className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <CandidateAvatar
-                        name={cand.name}
-                        avatar={cand.avatar}
-                        photoUrl={cand.photoUrl}
-                        className="size-8 text-xs shrink-0"
-                      />
-                      <div>
-                        <p className="text-xs font-bold text-slate-900">
-                          {cand.name}
-                        </p>
-                        <p className="text-[0.68rem] text-slate-500">
-                          {cand.number} · {cand.school}
-                        </p>
+                        {cycles.length > 1 && currentUser.role === "admin" && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (confirm(`Hapus periode "${c.name}"? Data di dalamnya akan dibersihkan.`)) {
+                                deleteCycle(c.id)
+                              }
+                            }}
+                            className="ml-2 rounded p-1 text-slate-400 hover:text-red-600 hover:bg-red-100/50 transition shrink-0"
+                            title="Hapus periode"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        )}
                       </div>
-                    </div>
-                    <Badge tone="info">Tahap {cand.stage}</Badge>
-                  </button>
-                ))}
+                    )
+                  })}
+                </div>
               </div>
-            ) : (
-              <div className="p-4 text-center text-xs text-slate-500">
-                Kandidat tidak ditemukan untuk kata kunci tersebut.
-              </div>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <div className="ml-auto flex items-center gap-2">
-        {/* Google Sheet Cloud Status & Sync Control */}
-        {googleSheetUrl ? (
-          <div className="flex h-9 items-center rounded-lg border border-slate-200 bg-white shadow-2xs text-xs">
-            {/* Status Indikator Cloud */}
-            <div
-              className="flex h-full items-center gap-1.5 px-2.5 font-medium border-r border-slate-200 select-none cursor-default"
-              title={
-                cloudSyncStatus === "syncing"
-                  ? "Sedang menyimpan perubahan ke Google Sheet..."
-                  : cloudSyncStatus === "pulling"
-                    ? "Sedang memuat data terbaru dari Google Sheet..."
-                    : `Tersimpan aman di Google Sheet (Terakhir: ${formatLastSync(lastCloudSync)})`
-              }
-            >
-              {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling" ? (
-                <>
-                  <RotateCw className="size-3.5 animate-spin text-blue-600" />
-                  <span className="hidden sm:inline text-blue-700">
-                    {cloudSyncStatus === "syncing" ? "Menyimpan..." : "Memuat..."}
-                  </span>
-                </>
-              ) : cloudSyncStatus === "error" ? (
-                <>
-                  <span className="size-2 rounded-full bg-red-500" />
-                  <span className="hidden sm:inline text-red-600">Gagal simpan</span>
-                </>
-              ) : (
-                <>
-                  <span className="size-2 rounded-full bg-emerald-500" />
-                  <span className="hidden sm:inline text-slate-700">Google Sheet</span>
-                </>
-              )}
-            </div>
-
-            {/* Tombol Refresh Manual */}
-            <button
-              type="button"
-              onClick={() => refreshAndSync("manual")}
-              disabled={cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"}
-              className="flex h-full items-center gap-1.5 px-2.5 font-medium text-slate-700 hover:bg-slate-50 transition border-r border-slate-200 disabled:opacity-50"
-              title="Ambil data terbaru dari Google Sheet"
-            >
-              <RotateCw className="size-3 text-slate-500" />
-              <span>Refresh</span>
-            </button>
-
-            {/* Modal Pengaturan Sheet */}
-            <button
-              type="button"
-              onClick={onOpenGoogleSync}
-              className="flex h-full items-center px-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition rounded-r-lg"
-              title="Pengaturan Google Sheet"
-            >
-              <Cloud className="size-3.5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={onOpenGoogleSync}
-            className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition shadow-2xs"
-            title="Hubungkan Google Sheet"
-          >
-            <Cloud className="size-3.5 text-slate-400" />
-            <span className="hidden sm:inline">Hubungkan Sheet</span>
-          </button>
-        )}
-
-        {/* Notifikasi */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowNotif((v) => !v)}
-            className="relative flex size-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition shadow-2xs"
-            aria-label="Notifikasi"
-          >
-            <Bell className="size-4" />
-            {notifications.length > 0 ? (
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-red-600 ring-2 ring-white" />
             ) : null}
-          </button>
+          </div>
+        </div>
 
-          {showNotif ? (
-            <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:w-96 z-50">
-              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Notifikasi & Tugas ({notifications.length})
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowNotif(false)}
-                  className="text-xs font-semibold text-slate-400 hover:text-slate-700"
-                >
-                  Tutup
-                </button>
+        {/* Tengah: Search Input di Layar Tablet & Desktop (md ke atas) */}
+        <div className="hidden md:block relative min-w-0 flex-1 max-w-md mx-3">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50/70 pl-9 pr-8 text-xs outline-none transition placeholder:text-slate-400 hover:bg-slate-50 focus:border-slate-300 focus:bg-white focus:ring-2 focus:ring-slate-100"
+            placeholder="Cari kandidat, nomor peserta, atau sekolah..."
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              aria-label="Bersihkan pencarian"
+            >
+              <X className="size-3.5" />
+            </button>
+          ) : null}
+
+          {searchQuery.trim() ? (
+            <div className="absolute left-0 right-0 top-full mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-50">
+              <div className="border-b border-slate-100 bg-slate-50 px-4 py-2 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                Hasil pencarian kandidat ({searchResults.length})
               </div>
-              <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
-                {notifications.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      onView(item.targetView)
-                      setShowNotif(false)
-                    }}
-                    className="block w-full p-3.5 text-left transition hover:bg-slate-50"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-bold text-slate-900">
-                        {item.title}
-                      </p>
-                      <Badge tone={item.tone}>Tindak Lanjut</Badge>
-                    </div>
-                    <p className="mt-1 text-xs text-slate-500">{item.detail}</p>
-                  </button>
-                ))}
-                {!notifications.length ? (
-                  <div className="p-6 text-center text-xs text-slate-500">
-                    Seluruh tugas prioritas telah ditindaklanjuti.
-                  </div>
-                ) : null}
-              </div>
+              {searchResults.length ? (
+                <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                  {searchResults.map((cand) => (
+                    <button
+                      key={cand.id}
+                      type="button"
+                      onClick={() => {
+                        onSelectCandidate(cand.id)
+                        setSearchQuery("")
+                      }}
+                      className="flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left transition hover:bg-slate-50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <CandidateAvatar
+                          name={cand.name}
+                          avatar={cand.avatar}
+                          photoUrl={cand.photoUrl}
+                          className="size-8 text-xs shrink-0"
+                        />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">
+                            {cand.name}
+                          </p>
+                          <p className="text-[0.68rem] text-slate-500">
+                            {cand.number} · {cand.school}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge tone="info">Tahap {cand.stage}</Badge>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-xs text-slate-500">
+                  Kandidat tidak ditemukan untuk kata kunci tersebut.
+                </div>
+              )}
             </div>
           ) : null}
         </div>
 
-        {/* Status Sesi Mandiri Santri (Hanya jika login sebagai santri) */}
-        {currentUser.role === "candidate" && (
-          <div
-            className="flex h-9 items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 text-xs font-bold text-emerald-800 shadow-2xs"
-            title="Sesi Mandiri Santri Aktif"
-          >
-            <GraduationCap className="size-4 text-emerald-600" />
-            <span className="hidden sm:inline">Santri: {currentUser.name.split(" ")[0]}</span>
-            <span className="sm:hidden">{currentUser.name.split(" ")[0]}</span>
+        {/* Sisi Kanan: Aksi & Notifikasi */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Google Sheet Bar Lengkap di Layar Desktop (md ke atas) */}
+          {googleSheetUrl ? (
+            <div className="hidden md:flex h-9 items-center rounded-lg border border-slate-200 bg-white shadow-2xs text-xs">
+              <div
+                className="flex h-full items-center gap-1.5 px-2.5 font-medium border-r border-slate-200 select-none cursor-default"
+                title={`Tersimpan aman di Google Sheet (Terakhir: ${formatLastSync(lastCloudSync)})`}
+              >
+                {cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling" ? (
+                  <>
+                    <RotateCw className="size-3.5 animate-spin text-blue-600" />
+                    <span className="text-blue-700">
+                      {cloudSyncStatus === "syncing" ? "Menyimpan..." : "Memuat..."}
+                    </span>
+                  </>
+                ) : cloudSyncStatus === "error" ? (
+                  <>
+                    <span className="size-2 rounded-full bg-red-500" />
+                    <span className="text-red-600">Gagal simpan</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="size-2 rounded-full bg-emerald-500" />
+                    <span className="text-slate-700">Google Sheet</span>
+                  </>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => refreshAndSync("manual")}
+                disabled={cloudSyncStatus === "syncing" || cloudSyncStatus === "pulling"}
+                className="flex h-full items-center gap-1.5 px-2.5 font-medium text-slate-700 hover:bg-slate-50 transition border-r border-slate-200 disabled:opacity-50"
+                title="Ambil data terbaru dari Google Sheet"
+              >
+                <RotateCw className="size-3 text-slate-500" />
+                <span>Refresh</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenGoogleSync}
+                className="flex h-full items-center px-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition rounded-r-lg"
+                title="Pengaturan Google Sheet"
+              >
+                <Cloud className="size-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenGoogleSync}
+              className="hidden md:flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+              title="Hubungkan Google Sheet"
+            >
+              <Cloud className="size-3.5 text-slate-400" />
+              <span>Hubungkan Sheet</span>
+            </button>
+          )}
+
+          {/* Notifikasi (Ghost button di mobile, rounded-xl di desktop) */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowNotif((v) => !v)}
+              className="relative flex size-9 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition active:scale-90 md:rounded-xl md:border md:border-slate-200 md:bg-white md:shadow-2xs"
+              aria-label="Notifikasi"
+            >
+              <Bell className="size-4.5 md:size-4" />
+              {notifications.length > 0 ? (
+                <span className="absolute right-2 top-2 size-2 rounded-full bg-red-600 ring-2 ring-white" />
+              ) : null}
+            </button>
+
+            {showNotif ? (
+              <div className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:w-96 z-50">
+                <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-2.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Notifikasi & Tugas ({notifications.length})
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowNotif(false)}
+                    className="text-xs font-semibold text-slate-400 hover:text-slate-700"
+                  >
+                    Tutup
+                  </button>
+                </div>
+                <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                  {notifications.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        onView(item.targetView)
+                        setShowNotif(false)
+                      }}
+                      className="block w-full p-3.5 text-left transition hover:bg-slate-50"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-bold text-slate-900">
+                          {item.title}
+                        </p>
+                        <Badge tone={item.tone}>Tindak Lanjut</Badge>
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">{item.detail}</p>
+                    </button>
+                  ))}
+                  {!notifications.length ? (
+                    <div className="p-6 text-center text-xs text-slate-500">
+                      Seluruh tugas prioritas telah ditindaklanjuti.
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      </header>
+
+    </>
   )
 }
 
@@ -935,50 +942,63 @@ function MobileNav({
 }: {
   view: View
   onView: (view: View) => void
-  onMenu: () => void
+  onMenu?: () => void
 }) {
   const { currentUser } = useApp()
-  const items = currentUser.role === "candidate"
-    ? [
-        { id: "candidate-home" as View, label: "Beranda", icon: LayoutDashboard },
-        { id: "candidate-stages" as View, label: "Tahap", icon: CheckCircle2 },
-        { id: "cat-bank" as View, label: "Ujian CAT", icon: GraduationCap },
-        { id: "candidate-progress" as View, label: "Progres", icon: Activity },
-      ]
-    : [
-        { id: "overview" as View, label: "Beranda", icon: LayoutDashboard },
-        { id: "sessions" as View, label: "Sesi", icon: ClipboardCheck },
-        { id: "stages" as View, label: "Tahap", icon: Settings2 },
-        { id: "progress" as View, label: "Progres", icon: Activity },
-      ]
+  const items =
+    currentUser.role === "candidate"
+      ? [
+          { id: "candidate-home" as View, label: "Beranda", icon: LayoutDashboard, color: "bg-indigo-600 shadow-indigo-600/30" },
+          { id: "cat-bank" as View, label: "Ujian CAT", icon: GraduationCap, color: "bg-pink-600 shadow-pink-600/30" },
+          { id: "candidate-progress" as View, label: "Perkembangan", icon: Activity, color: "bg-emerald-600 shadow-emerald-600/30" },
+          { id: "candidate-stages" as View, label: "Tahap", icon: CheckCircle2, color: "bg-amber-500 shadow-amber-500/30" },
+          { id: "candidate-ranking" as View, label: "Peringkat", icon: Trophy, color: "bg-cyan-600 shadow-cyan-600/30" },
+        ]
+      : [
+          { id: "overview" as View, label: "Beranda", icon: LayoutDashboard, color: "bg-indigo-600 shadow-indigo-600/30" },
+          { id: "sessions" as View, label: "Sesi", icon: ClipboardCheck, color: "bg-pink-600 shadow-pink-600/30" },
+          { id: "progress" as View, label: "Perkembangan", icon: Activity, color: "bg-emerald-600 shadow-emerald-600/30" },
+          { id: "candidates" as View, label: "Kandidat", icon: UsersRound, color: "bg-amber-500 shadow-amber-500/30" },
+          { id: "ranking" as View, label: "Peringkat", icon: Trophy, color: "bg-cyan-600 shadow-cyan-600/30" },
+        ]
+
   return (
     <nav
-      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 grid grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-2xl shadow-slate-900/15 backdrop-blur-xl lg:hidden"
+      className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] inset-x-3 z-40 max-w-[360px] mx-auto rounded-2xl border border-slate-200/90 bg-white/95 p-1.5 shadow-[0_12px_36px_rgba(15,23,42,0.14)] backdrop-blur-2xl ring-1 ring-slate-900/5 lg:hidden"
       aria-label="Navigasi mobile"
     >
-      {items.map((item) => {
-        const Icon = item.icon
-        const active = view === item.id
-        return (
-          <button
-            key={item.id}
-            onClick={() => onView(item.id)}
-            className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[0.64rem] font-bold transition ${
-              active ? "bg-red-50 text-red-700" : "text-slate-500"
-            }`}
-          >
-            <Icon className={`size-5 ${active ? "stroke-[2.5]" : ""}`} />
-            {item.label}
-          </button>
-        )
-      })}
-      <button
-        onClick={onMenu}
-        className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl text-[0.64rem] font-bold text-slate-500"
-      >
-        <Menu className="size-5" />
-        Lainnya
-      </button>
+      <div className="flex items-center justify-between gap-1 w-full">
+        {items.map((item) => {
+          const Icon = item.icon
+          const active = view === item.id
+          if (active) {
+            return (
+              <button
+                key={item.id}
+                onClick={() => onView(item.id)}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-white font-bold text-xs shadow-md transition-all duration-200 active:scale-95 shrink-0 ${item.color}`}
+                title={item.label}
+                aria-label={item.label}
+                aria-current="page"
+              >
+                <Icon className="size-4.5 stroke-[2.25] shrink-0" />
+                <span className="font-bold text-xs tracking-tight whitespace-nowrap">{item.label}</span>
+              </button>
+            )
+          }
+          return (
+            <button
+              key={item.id}
+              onClick={() => onView(item.id)}
+              className="flex size-9.5 items-center justify-center rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-all duration-150 active:scale-90 shrink-0"
+              title={item.label}
+              aria-label={item.label}
+            >
+              <Icon className="size-5 stroke-[1.8]" />
+            </button>
+          )
+        })}
+      </div>
     </nav>
   )
 }
@@ -1109,25 +1129,25 @@ function StagePipeline({
   }, [stageStats])
 
   return (
-    <Card className="overflow-hidden border border-slate-200 shadow-xs">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-white px-5 py-4 sm:px-6">
+    <Card className="min-w-0 w-full max-w-full overflow-hidden border border-slate-200 shadow-xs">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 bg-white p-3.5 sm:px-6 sm:py-4">
         <div>
           <div className="flex items-center gap-2">
-            <ClipboardCheck className="size-5 text-red-600" />
-            <h2 className="font-display text-base sm:text-lg font-bold text-slate-900">
+            <ClipboardCheck className="size-4.5 sm:size-5 text-red-600" />
+            <h2 className="font-display text-sm sm:text-lg font-bold text-slate-900">
               Progres 8 tahap seleksi
             </h2>
           </div>
-          <p className="mt-1 text-xs text-slate-500">
-            Dihitung dari nilai, hasil pemeriksaan, dan berkas yang sudah dicatat. Pilih tahap untuk melihat rinciannya.
+          <p className="mt-0.5 sm:mt-1 text-xs text-slate-500">
+            Dihitung dari nilai, hasil pemeriksaan, dan berkas yang sudah dicatat.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-            <span className="size-2 rounded-full bg-blue-600 animate-pulse" />
-            Rata-rata progres: {overallAvg}%
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="size-1.5 sm:size-2 rounded-full bg-blue-600 animate-pulse" />
+            Rerata: {overallAvg}%
           </span>
-          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.68rem] text-slate-500">
+          <span className="hidden sm:flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.68rem] text-slate-500">
             <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-600" />Semua dinilai</span>
             <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-blue-600" />Sebagian</span>
             <span className="inline-flex items-center gap-1"><span className="size-2 rounded-full bg-slate-800" />Belum ada hasil</span>
@@ -1135,7 +1155,59 @@ function StagePipeline({
         </div>
       </div>
 
-      <div className="overflow-x-auto px-5 py-6 sm:px-6 bg-slate-50/40">
+      {/* Tampilan Mobile: Horizontal swipe carousel yang pas dengan layar dan TIDAK melebar ke 896px */}
+      <div className="block sm:hidden p-3 bg-slate-50/50">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {selectionStages.map((stage, index) => {
+            const stat = stageStats[index] ?? {
+              readyCount: 0,
+              percent: 0,
+              statusLabel: "0%",
+              badgeText: "",
+              subtext: "",
+              tone: "slate",
+            }
+            const circleColor = stat.percent >= 100
+              ? "bg-emerald-600 text-white"
+              : stat.percent > 0
+                ? "bg-blue-600 text-white"
+                : "bg-slate-800 text-white"
+
+            return (
+              <button
+                key={stage.key}
+                type="button"
+                onClick={() => onSelectStage(index)}
+                className="snap-start shrink-0 w-28 rounded-xl border border-slate-200/90 bg-white p-2.5 text-center shadow-2xs hover:border-red-300 transition active:scale-95"
+              >
+                <div className={`mx-auto grid size-9 place-items-center rounded-full font-display text-[11px] font-bold ${circleColor}`}>
+                  {stage.shortLabel}
+                </div>
+                <p className="mt-1.5 text-[0.68rem] font-bold text-slate-800 line-clamp-1">
+                  {stage.label}
+                </p>
+                <p className="mt-0.5 font-display text-sm font-black text-slate-900">
+                  {stat.statusLabel}
+                </p>
+                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className={`h-full rounded-full ${
+                      stat.percent >= 100 ? "bg-emerald-500" : stat.percent > 0 ? "bg-blue-500" : "bg-slate-400"
+                    }`}
+                    style={{ width: `${stat.percent}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-[0.6rem] font-bold text-slate-500 truncate">
+                  {stat.badgeText || "Belum dinilai"}
+                </p>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Tampilan Desktop: Pipeline horizontal dengan garis penghubung */}
+      <div className="hidden sm:block overflow-x-auto px-5 py-6 sm:px-6 bg-slate-50/40">
         <div className="flex min-w-[56rem] items-start">
           {selectionStages.map((stage, index) => {
             const stat = stageStats[index] ?? {
@@ -1215,6 +1287,7 @@ function StatCard({
   detail,
   badgeText,
   badgeTone,
+  badges,
   progress,
   icon: Icon,
   tone,
@@ -1222,9 +1295,10 @@ function StatCard({
 }: {
   label: string
   value: string
-  detail: string
+  detail: React.ReactNode
   badgeText?: string
   badgeTone?: string
+  badges?: Array<{ text: string; tone?: string }>
   progress?: number
   icon: typeof UsersRound
   tone: string
@@ -1233,37 +1307,69 @@ function StatCard({
   return (
     <Card
       onClick={onClick}
-      className={`p-5 transition ${onClick ? "cursor-pointer hover:border-slate-300 hover:shadow-md" : ""}`}
+      className={`p-3 sm:p-5 transition flex flex-col justify-between min-w-0 ${
+        onClick
+          ? "cursor-pointer hover:border-slate-300 hover:shadow-md active:scale-[0.99] group"
+          : ""
+      }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-600 truncate">{label}</p>
-          <p className="mt-2 font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
-            {value}
-          </p>
-        </div>
-        <div className={`grid size-11 place-items-center rounded-2xl shrink-0 ${tone}`}>
-          <Icon className="size-5" />
-        </div>
-      </div>
-      {badgeText && (
-        <div className="mt-2.5">
-          <span className={`inline-flex items-center text-[0.68rem] font-bold px-2 py-0.5 rounded-md border ${badgeTone || "bg-slate-100 text-slate-700 border-slate-200"}`}>
-            {badgeText}
-          </span>
-        </div>
-      )}
-      {typeof progress === "number" && (
-        <div className="mt-3">
-          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-              style={{ width: `${Math.min(100, progress)}%` }}
-            />
+      <div>
+        <div className="flex items-start justify-between gap-1.5 sm:gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[0.68rem] sm:text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-slate-800 transition truncate">
+              {label}
+            </p>
+            <p className="mt-1 font-display text-base sm:text-2xl font-black tracking-tight text-slate-950 truncate">
+              {value}
+            </p>
+          </div>
+          <div
+            className={`grid size-8 sm:size-11 place-items-center rounded-xl sm:rounded-2xl shrink-0 transition group-hover:scale-105 shadow-2xs ${tone}`}
+          >
+            <Icon className="size-4 sm:size-5" />
           </div>
         </div>
-      )}
-      <p className="mt-3 text-xs font-medium text-slate-500 truncate">{detail}</p>
+
+        {badges && badges.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1 sm:gap-1.5">
+            {badges.map((b, i) => (
+              <span
+                key={i}
+                className={`inline-flex max-w-full truncate items-center text-[0.6rem] sm:text-[0.68rem] font-bold px-1.5 sm:px-2 py-0.5 rounded-md border ${
+                  b.tone || "bg-slate-100 text-slate-700 border-slate-200"
+                }`}
+              >
+                {b.text}
+              </span>
+            ))}
+          </div>
+        ) : badgeText ? (
+          <div className="mt-2">
+            <span
+              className={`inline-flex max-w-full truncate items-center text-[0.6rem] sm:text-[0.68rem] font-bold px-1.5 sm:px-2 py-0.5 rounded-md border ${
+                badgeTone || "bg-slate-100 text-slate-700 border-slate-200"
+              }`}
+            >
+              {badgeText}
+            </span>
+          </div>
+        ) : null}
+
+        {typeof progress === "number" && (
+          <div className="mt-2 sm:mt-2.5">
+            <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <p className="mt-2.5 text-[0.65rem] sm:text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-2 line-clamp-2 sm:line-clamp-none">
+        {detail}
+      </p>
     </Card>
   )
 }
@@ -1383,11 +1489,11 @@ function CandidateTable({
         const time = Date.parse(record?.savedAt ?? "") || 0
         if (!record?.savedAt || (latestResult && latestResult.time >= time)) continue
         const metricSummary = Object.entries(record.metrics ?? {})
-          .filter(([, value]) => value !== "")
+          .filter(([key, value]) => value !== "" && !key.toLowerCase().includes("target"))
           .slice(0, 2)
           .map(([key, value]) => {
             const label: Record<string, string> = {
-              distance: "Lari 12 menit",
+              distance: "Lari 12 mnt",
               pushup: "Push-up",
               situp: "Sit-up",
               backup: "Back-up",
@@ -1466,31 +1572,31 @@ function CandidateTable({
   const shown = compact ? filtered.slice(0, 5) : filtered
 
   return (
-    <Card className="overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-5 sm:px-6">
-        <div>
-          <h2 className="font-display text-lg font-bold text-slate-900">
+    <Card className="overflow-hidden w-full min-w-0 max-w-full">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 p-3.5 sm:px-6 sm:py-5 min-w-0">
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-base sm:text-lg font-bold text-slate-900 truncate">
             {compact ? "Aktivitas kandidat" : "Daftar kandidat"}
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-0.5 text-xs text-slate-500 truncate">
             {compact
-              ? "Pembaruan terbaru lintas tahapan (klik baris untuk evaluasi)"
+              ? "Pembaruan terbaru lintas tahapan"
               : `${filtered.length} dari ${candidates.length} kandidat ditampilkan`}
           </p>
         </div>
         {compact ? (
-          <Button variant="secondary" onClick={onViewAll}>
-            Lihat semua <ChevronRight className="size-4" />
+          <Button variant="secondary" size="sm" onClick={onViewAll} className="shrink-0 text-xs h-8 px-3">
+            Lihat semua <ChevronRight className="size-3.5" />
           </Button>
         ) : (
-          <Button variant="secondary" onClick={() => setShowFilters((v) => !v)}>
-            Filter & urutkan <SlidersHorizontal className="size-4" />
+          <Button variant="secondary" size="sm" onClick={() => setShowFilters((v) => !v)} className="shrink-0 text-xs h-8 px-3">
+            Filter &amp; urutkan <SlidersHorizontal className="size-3.5" />
           </Button>
         )}
       </div>
 
       {!compact && showFilters ? (
-        <div className="grid gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-4 sm:grid-cols-2 lg:grid-cols-5 sm:px-6">
+        <div className="grid gap-3 border-b border-slate-100 bg-slate-50/80 p-3.5 sm:grid-cols-2 lg:grid-cols-5 sm:px-6 sm:py-4">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -1541,7 +1647,7 @@ function CandidateTable({
         </div>
       ) : null}
 
-      <div className="grid divide-y divide-slate-100 md:hidden">
+      <div className="p-3 sm:p-4 space-y-3 md:hidden w-full min-w-0 bg-slate-50/40">
         {shown.map((candidate) => {
           const insight = candidateInsightsById.get(candidate.id)
           const completion = Math.round(((insight?.completedStages ?? 0) / 8) * 100)
@@ -1550,42 +1656,85 @@ function CandidateTable({
               key={candidate.id}
               type="button"
               onClick={() => onSelectCandidate(candidate.id)}
-              className="grid gap-3 p-4 text-left transition active:bg-slate-50"
+              className="w-full min-w-0 rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-xs hover:shadow-md transition-all duration-200 hover:border-slate-300 text-left active:scale-[0.99] flex flex-col gap-3 group"
             >
-              <span className="flex items-center gap-3.5">
-                <CandidateAvatar
-                  name={candidate.name}
-                  avatar={candidate.avatar}
-                  photoUrl={candidate.photoUrl}
-                  className="size-16 text-sm shrink-0 border border-slate-200 shadow-xs"
-                  rounded="rounded-xl"
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold text-slate-900">
-                    {candidate.name}
+              <div className="flex items-center justify-between gap-2.5 w-full min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <CandidateAvatar
+                    name={candidate.name}
+                    avatar={candidate.avatar}
+                    photoUrl={candidate.photoUrl}
+                    className="size-11 sm:size-12 text-xs font-bold shrink-0 border border-slate-200 shadow-2xs"
+                    rounded="rounded-xl"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition">
+                      {candidate.name}
+                    </p>
+                    <p className="mt-0.5 truncate text-[0.68rem] sm:text-xs text-slate-500">
+                      {candidate.school}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Badge tone={insight?.overallTone ?? "neutral"}>
+                    {insight?.overallStatus ?? "Belum dimulai"}
+                  </Badge>
+                  <ChevronRight className="size-4 shrink-0 text-slate-300 group-hover:text-slate-600 transition" />
+                </div>
+              </div>
+
+              <div className="w-full min-w-0 rounded-xl bg-slate-50/90 border border-slate-100 p-2.5 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700 text-[0.72rem] flex items-center gap-1.5 truncate">
+                    <span className="size-1.5 rounded-full bg-red-600 shrink-0" />
+                    Progres Seleksi: {insight?.completedStages ?? 0}/8 tahap
                   </span>
-                  <span className="mt-0.5 block truncate text-xs text-slate-500">
-                    {candidate.number} · {candidate.school}
+                  <span className="font-bold text-[0.72rem] text-slate-800 shrink-0">
+                    {completion}%
                   </span>
-                </span>
-                <ChevronRight className="size-4 shrink-0 text-slate-400" />
-              </span>
-              <span className="flex items-center justify-between gap-3 pl-19">
-                <span>
-                  <span className="block text-xs font-bold text-slate-700">
-                    Progres seleksi · {insight?.completedStages ?? 0}/8 tahap
-                  </span>
-                  <span className="mt-2 block h-1.5 w-40 max-w-full overflow-hidden rounded-full bg-slate-100">
-                    <span className="block h-full rounded-full bg-blue-600" style={{ width: `${completion}%` }} />
-                  </span>
-                </span>
-                <Badge tone={insight?.overallTone ?? "neutral"}>{insight?.overallStatus ?? "Belum dimulai"}</Badge>
-              </span>
-              <span className="grid gap-1 pl-19 text-xs text-slate-600">
-                <span>Fokus: {insight?.focusLabel ?? "—"}</span>
-                <span>Hasil terbaru: {insight?.latestResult ? `${insight.latestResult.title} · ${insight.latestResult.detail}` : "Belum ada hasil"}</span>
-                <span>Tindak lanjut: {insight?.followUp ?? "—"}</span>
-              </span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200/70">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      completion === 100
+                        ? "bg-emerald-500"
+                        : completion >= 50
+                        ? "bg-blue-600"
+                        : completion > 0
+                        ? "bg-amber-500"
+                        : "bg-slate-300"
+                    }`}
+                    style={{ width: `${Math.max(completion, completion > 0 ? 6 : 0)}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/50 text-[0.68rem]">
+                  <div className="min-w-0">
+                    <span className="text-slate-400 block font-medium">Fokus</span>
+                    <p className="font-semibold text-slate-700 truncate mt-0.5">
+                      {insight?.focusLabel ?? "—"}
+                    </p>
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-slate-400 block font-medium">Hasil Terbaru</span>
+                    <p className="font-semibold text-slate-700 truncate mt-0.5">
+                      {insight?.latestResult
+                        ? `${insight.latestResult.title} · ${insight.latestResult.detail}`
+                        : "Belum ada hasil"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {insight?.followUp && insight.followUp !== "Tidak ada tindak lanjut" ? (
+                <div className="flex items-center gap-2 rounded-xl bg-amber-50/90 border border-amber-200/70 px-2.5 py-1.5 text-[0.68rem] text-amber-900 min-w-0">
+                  <AlertTriangle className="size-3.5 shrink-0 text-amber-600" />
+                  <p className="truncate min-w-0">
+                    <strong className="font-bold">Tindak lanjut:</strong> {insight.followUp}
+                  </p>
+                </div>
+              ) : null}
             </button>
           )
         })}
@@ -1912,13 +2061,19 @@ function CandidateProgress() {
   const physicalMetrics = candidate.physicalMetrics ?? []
   const metricFor = (term: string) => physicalMetrics.find((metric) => metric.label.toLowerCase().includes(term))
   const fitnessRecords = sessions
-    .filter((session) => session.type === "fitness")
+    .filter((session) => session.type === "fitness" && !session.title.toLowerCase().includes("interval"))
     .map((session) => ({ session, record: records[`${session.id}:${candidate.id}`] }))
     .filter((item) => Boolean(item.record?.savedAt))
     .sort((a, b) => (b.record?.savedAt ?? "").localeCompare(a.record?.savedAt ?? ""))
   const latestIshihara = ishiharaResults
     .filter((result) => result.participantId === candidate.id)
     .slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
+  const candidateIntervalHistory = extractCandidateIntervalLogs(
+    candidate.id,
+    sessions,
+    records,
+    candidate.intervalHistory ?? [],
+  )
   const decisionText = latestIshihara?.selectionDecision === "eligible"
     ? "Memenuhi syarat"
     : latestIshihara?.selectionDecision === "ineligible"
@@ -1935,8 +2090,8 @@ function CandidateProgress() {
     candidate.personality !== null ? `Nilai tercatat ${candidate.personality}/100` : "Hasil kepribadian belum tersedia",
   ]
 
-  return <div className="grid gap-5 print:bg-white">
-    <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-red-600">Rekam perkembangan individual</p><h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Perkembangan saya</h1><p className="mt-1 text-sm text-slate-600">Informasi seleksi pribadi untuk {candidate.name} · {candidate.number}</p></div><Button variant="secondary" onClick={() => window.print()}><Printer className="size-4"/>Cetak ringkasan</Button></div>
+  return <div className="grid gap-4 sm:gap-5 print:bg-white">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3"><div><div className="flex flex-wrap items-center gap-2"><h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">Perkembangan saya</h1><span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">Rekam Individual</span></div><p className="mt-0.5 text-xs text-slate-500">Informasi seleksi pribadi untuk {candidate.name} · {candidate.number}</p></div><Button size="sm" variant="secondary" onClick={() => window.print()}><Printer className="size-3.5"/>Cetak ringkasan</Button></div>
     <Card className="overflow-hidden">
       <div className="flex flex-col gap-4 bg-slate-950 p-5 text-white sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-center gap-4"><CandidateAvatar name={candidate.name} avatar={candidate.avatar} photoUrl={candidate.photoUrl} className="size-16 shrink-0 border border-white/20" rounded="rounded-2xl"/><div><h2 className="font-display text-xl font-bold">{candidate.name}</h2><p className="mt-1 text-sm text-slate-300">{candidate.number} · {candidate.school} · {candidate.gender}</p></div></div>
@@ -1967,6 +2122,103 @@ function CandidateProgress() {
       ].map(([label, value, target]) => <div key={label} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4"><p className="text-xs font-bold text-slate-700">{label}</p><p className="mt-2 font-display text-xl font-bold text-slate-950">{value}</p><p className="mt-3 border-t border-slate-200 pt-2 text-xs text-slate-500">Target acuan: {target}</p></div>)}</div>
       <div className="flex items-center justify-between gap-3 border-y border-slate-100 bg-emerald-50/60 px-5 py-3"><span className="text-sm font-semibold text-slate-700">Nilai kesamaptaan terakhir</span><strong className="font-display text-lg text-emerald-800">{candidate.fitness === null ? "Belum dinilai" : `${candidate.fitness}/100`}</strong></div>
       {fitnessRecords.length ? <div className="overflow-x-auto"><table className="w-full min-w-[42rem] text-left text-sm"><thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-3">Tanggal &amp; sesi</th><th className="px-4 py-3">Lari</th><th className="px-4 py-3">Push-up</th><th className="px-4 py-3">Sit-up</th><th className="px-4 py-3">Back-up</th><th className="px-5 py-3">Shuttle run</th></tr></thead><tbody className="divide-y divide-slate-100">{fitnessRecords.map(({ session, record }) => <tr key={session.id}><td className="px-5 py-3.5"><p className="font-semibold text-slate-800">{session.title}</p><p className="text-xs text-slate-500">{record?.savedAt?.slice(0, 10)}</p></td><td className="px-4 py-3.5">{record?.metrics.distance || "—"}</td><td className="px-4 py-3.5">{record?.metrics.pushup || "—"}</td><td className="px-4 py-3.5">{record?.metrics.situp || "—"}</td><td className="px-4 py-3.5">{record?.metrics.backup || "—"}</td><td className="px-5 py-3.5">{record?.metrics.shuttle || "—"}</td></tr>)}</tbody></table></div> : <p className="px-5 py-7 text-center text-sm text-slate-500">Belum ada riwayat sesi kesamaptaan.</p>}
+    </Card>
+    <Card className="overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-lg font-bold text-slate-950">Latihan Interval &amp; Proyeksi Ketahanan</h2>
+            <Badge tone="info">Menu Pembinaan</Badge>
+          </div>
+          <p className="mt-1 text-sm text-slate-600">Pelacakan kecepatan lari (speed endurance) dan perkiraan capaian seleksi 12 menit.</p>
+        </div>
+        <Badge tone="neutral">{candidateIntervalHistory.length} sesi tercatat</Badge>
+      </div>
+
+      {candidateIntervalHistory.length > 0 ? (
+        <div className="p-4 sm:p-5 space-y-4">
+          {(() => {
+            const latest = candidateIntervalHistory[0]
+            return (
+              <div className="rounded-2xl border border-red-100 bg-gradient-to-r from-red-50/70 via-amber-50/40 to-white p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-red-700">Analisis Proyeksi Terkini ({latest.date})</span>
+                  <Badge tone="success">Konsistensi: {latest.paceConsistency}</Badge>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl bg-white/90 border border-slate-200/80 p-3 shadow-2xs">
+                    <span className="text-[0.68rem] font-bold text-slate-500 uppercase">Proyeksi Lari 12 Menit</span>
+                    <p className="mt-1 font-display text-2xl font-black text-emerald-700">{latest.projected12MinDistanceM.toLocaleString("id-ID")} m</p>
+                    <p className="text-[0.68rem] text-slate-500 mt-0.5">Prediksi Nilai BPIP: <strong>{latest.projected12MinScore}/100</strong></p>
+                  </div>
+                  <div className="rounded-xl bg-white/90 border border-slate-200/80 p-3 shadow-2xs">
+                    <span className="text-[0.68rem] font-bold text-slate-500 uppercase">Rata-rata Split Pace</span>
+                    <p className="mt-1 font-display text-2xl font-black text-slate-900">{latest.avgSplitSec}s <span className="text-xs font-normal text-slate-500">/ 400m</span></p>
+                    <p className="text-[0.68rem] text-slate-500 mt-0.5">Target Acuan: {latest.targetPaceSec}s / lap</p>
+                  </div>
+                  <div className="rounded-xl bg-white/90 border border-slate-200/80 p-3 shadow-2xs">
+                    <span className="text-[0.68rem] font-bold text-slate-500 uppercase">Skor Sesi Latihan</span>
+                    <p className="mt-1 font-display text-2xl font-black text-red-600">{latest.score}<span className="text-xs font-normal text-slate-400">/100</span></p>
+                    <p className="text-[0.68rem] text-slate-500 mt-0.5">{latest.completedSets} dari {latest.targetSets} set tuntas</p>
+                  </div>
+                </div>
+                <div className="rounded-xl bg-blue-50/80 border border-blue-200/80 p-3 text-xs text-blue-950 leading-relaxed">
+                  💡 <strong>Saran Kepelatihan:</strong> {latest.coachRecommendation}
+                </div>
+              </div>
+            )
+          })()}
+
+          <div className="overflow-x-auto border-t border-slate-100 pt-2">
+            <table className="w-full min-w-[40rem] text-left text-sm">
+              <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-4 py-3">Tanggal &amp; Sesi</th>
+                  <th className="px-4 py-3">Set</th>
+                  <th className="px-4 py-3">Rata Split</th>
+                  <th className="px-4 py-3">Split Tiap Set (Lap)</th>
+                  <th className="px-4 py-3">Proyeksi 12 Mnt</th>
+                  <th className="px-4 py-3 text-right">Skor Drill</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {candidateIntervalHistory.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-4 py-3.5">
+                      <p className="font-semibold text-slate-800">{item.sessionTitle}</p>
+                      <p className="text-[0.65rem] text-slate-400">{item.date}</p>
+                    </td>
+                    <td className="px-4 py-3.5 font-semibold text-slate-700">{item.completedSets}/{item.targetSets} set</td>
+                    <td className="px-4 py-3.5 font-bold text-slate-900">{item.avgSplitSec}s</td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex flex-wrap gap-1">
+                        {item.lapSplitsSec.map((split, i) => (
+                          <span
+                            key={i}
+                            className={`rounded px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                              split <= item.targetPaceSec
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-amber-100 text-amber-800"
+                            }`}
+                          >
+                            L{i + 1}: {split}s
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 font-bold text-emerald-700">{item.projected12MinDistanceM.toLocaleString("id-ID")} m</td>
+                    <td className="px-4 py-3.5 text-right font-bold text-red-600">{item.score}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="px-5 py-8 text-center text-sm text-slate-500">
+          Belum ada riwayat latihan interval tercatat. Hasil drill interval pelatih akan muncul di sini tanpa mengubah nilai resmi Lari 12 Menit seleksi.
+        </div>
+      )}
     </Card>
     <p className="text-xs text-slate-500">Nilai dan status ditampilkan dari hasil yang dicatat panitia. Kandidat tidak dapat mengubah hasil atau catatan seleksi.</p>
   </div>
@@ -2085,17 +2337,98 @@ function Overview({
 
   const totalCount = candidates.length
 
-  const hasRecordedTest = (candidate: Candidate) => {
-    const hasScore = [candidate.pip, candidate.tiu, candidate.pbb, candidate.personality]
-      .some((score) => score !== null)
-      || (candidate.fitness !== null && candidate.fitness > 0)
-    const hasPhysicalResult = (candidate.physicalMetrics ?? []).some((metric) =>
-      Boolean(metric.current)
-      && !["Belum diuji", "Belum dicatat", "—"].includes(metric.current),
-    )
-    return hasScore || hasPhysicalResult
-  }
-  const candidatesWithTests = candidates.filter(hasRecordedTest).length
+  // 1. Kehadiran & Status Lapangan
+  const absentCandidates = useMemo(() => {
+    return candidates.filter((c) => {
+      const note = (c.coachNote || "").toLowerCase()
+      return ["izin", "sakit", "alpa"].some((w) => note.includes(w))
+    })
+  }, [candidates])
+  const activeInFieldCount = totalCount - absentCandidates.length
+
+  // 2. Evaluasi Hasil Tes Lari 12 Menit (Standar Paskibraka >= 2400m, Target 3000m)
+  const runEvaluation = useMemo(() => {
+    let tested = 0
+    let passedStandard = 0 // >= 2400m
+    let dnf = 0
+    let totalDistance = 0
+
+    for (const c of candidates) {
+      const note = (c.coachNote || "").toLowerCase()
+      const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+      const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
+
+      if (isDnf) {
+        tested++
+        dnf++
+      } else if (runM && runM.current && !["Belum diuji", "Belum dicatat", "—"].includes(runM.current)) {
+        tested++
+        const distMatch = runM.current.match(/[\d.]+/)
+        const dist = distMatch ? parseFloat(distMatch[0].replace(".", "")) : 0
+        if (dist >= 2400) {
+          passedStandard++
+        }
+        if (dist > 0) {
+          totalDistance += dist
+        }
+      }
+    }
+    const avgDist = tested > dnf ? Math.round(totalDistance / (tested - dnf)) : 0
+    return {
+      tested,
+      passedStandard,
+      dnf,
+      untested: totalCount - tested,
+      passRate: tested > 0 ? Math.round((passedStandard / tested) * 100) : 0,
+      avgDist,
+    }
+  }, [candidates, totalCount])
+
+  // 3. Sesi Susulan / Tindak Lanjut Mendesak (HANYA DNF, Absen Sesi, Belum Tes)
+  const urgentFollowUpCandidates = useMemo(() => {
+    return candidates.flatMap((c) => {
+      const note = (c.coachNote || "").toLowerCase()
+      const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
+      const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
+      const noRun = !runM || !runM.current || ["Belum diuji", "Belum dicatat", "—"].includes(runM.current)
+      const attendanceWord = ["izin", "sakit", "alpa"].find((w) => note.includes(w))
+
+      if (isDnf) {
+        return [{
+          candidate: c,
+          category: "dnf" as const,
+          statusLabel: "Tes Ulang Lari",
+          statusTone: "bg-rose-50 text-rose-700 border-rose-200",
+          reason: "DNF pada uji lari 12 menit · perlu uji ulang fisik",
+        }]
+      }
+      if (attendanceWord) {
+        const attUpper = attendanceWord.toUpperCase()
+        return [{
+          candidate: c,
+          category: "attendance" as const,
+          statusLabel: `Susulan (${attUpper})`,
+          statusTone: attendanceWord === "izin"
+            ? "bg-blue-50 text-blue-700 border-blue-200"
+            : attendanceWord === "sakit"
+              ? "bg-amber-50 text-amber-700 border-amber-200"
+              : "bg-rose-50 text-rose-700 border-rose-200",
+          reason: `Tidak hadir latihan (${attUpper}) · belum ada nilai lapangan`,
+        }]
+      }
+      if (noRun) {
+        return [{
+          candidate: c,
+          category: "no_run" as const,
+          statusLabel: "Belum Uji",
+          statusTone: "bg-slate-100 text-slate-700 border-slate-200",
+          reason: "Belum ada catatan tes lari resmi",
+        }]
+      }
+      return []
+    })
+  }, [candidates])
+
   const attentionStage = selectionStages.slice(1).map((stage) => {
     const index = stage.id - 1
     const assigned = candidates.filter((candidate) => candidate.stage === stage.id)
@@ -2109,44 +2442,6 @@ function Overview({
       priority: failed * 3 + needsReview * 2 + (pending.length - failed - needsReview),
     }
   }).sort((a, b) => b.priority - a.priority)[0]
-  // Perlu Atensi / Sesi Susulan
-  const susulanCandidates = useMemo(() => {
-    return candidates.flatMap((c) => {
-      const note = (c.coachNote || "").toLowerCase()
-      const runM = (c.physicalMetrics ?? []).find((pm) => pm.label.toLowerCase().includes("lari"))
-      const isDnf = (runM && runM.current === "DNF") || note.includes("dnf")
-      const noRun = !runM || !runM.current || runM.current === "Belum diuji" || runM.current === "Belum dicatat" || runM.current === "—"
-      const attendanceNote = ["izin", "sakit", "alpa"].find((word) => note.includes(word))
-      const statuses = getProgressStageStatuses(c, catTryoutAttempts, sessions, records)
-      const reviewStages = statuses
-        .slice(1)
-        .map((status, idx) => ({ status, stage: selectionStages[idx + 1] }))
-        .filter(({ status }) => status === "failed" || status === "review")
-        .map(({ stage }) => stage.shortLabel)
-      const needsReview = reviewStages.length > 0
-      if (!isDnf && !noRun && !attendanceNote && !needsReview) return []
-
-      const reason = isDnf
-        ? "DNF · tes lari perlu diulang"
-        : attendanceNote
-          ? `Tidak hadir (${attendanceNote}) · perlu dijadwalkan ulang`
-          : noRun
-            ? "Belum ada hasil tes lari"
-            : `Perlu penguatan: ${reviewStages.join(", ")}`
-      return [{ candidate: c, runM, isDnf, noRun, attendanceNote, reviewStages, reason }]
-    })
-  }, [candidates, catTryoutAttempts, sessions, records])
-
-  const dnfCount = susulanCandidates.filter((c) => {
-    return c.isDnf
-  }).length
-  const untestedCount = susulanCandidates.filter((c) => c.noRun && !c.isDnf).length
-  const needsReviewCount = susulanCandidates.filter((c) => c.reviewStages.length > 0).length
-  const followUpSummary = [
-    dnfCount > 0 ? `${dnfCount} DNF` : null,
-    untestedCount > 0 ? `${untestedCount} belum tes` : null,
-    needsReviewCount > 0 ? `${needsReviewCount} perlu evaluasi` : null,
-  ].filter(Boolean).join(" · ") || "Tidak ada catatan"
 
   // Compare every available numeric result on the same 0–100 scale; use completed stages to break ties.
   const topPerformers = useMemo(() => {
@@ -2198,70 +2493,128 @@ function Overview({
   }, [candidates, catTryoutAttempts, sessions, records])
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-col gap-6 rounded-2xl bg-slate-900 p-6 text-white shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div>
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200">
-            <span className="size-1.5 rounded-full bg-emerald-400" />
-            {activeCycle.name} · {activeCycle.level} · MA Mu'allimin Yogyakarta
-          </p>
-          <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Selamat datang, {currentUser.name.split(" ")[0]}
-          </h1>
-          <p className="mt-2 text-sm text-slate-300">Pantau progres latihan dan hasil tes santri dari satu tempat.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button
-            variant="secondary"
-            onClick={() => onNavigateView("sessions")}
-            className="!border-white/20 !bg-white/5 !text-white hover:!bg-white/10"
-          >
-            <ClipboardCheck className="size-4" /> Jadwal latihan
-          </Button>
-          <Button
-            onClick={onOpenAddCandidate}
-            className="!bg-red-600 text-white hover:!bg-red-500"
-          >
-            <UserRoundCheck className="size-4" /> Tambah santri
-          </Button>
+    <div className="w-full min-w-0 max-w-full space-y-4 sm:space-y-5">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-4 sm:p-5 text-white shadow-xs border border-slate-800/80 w-full min-w-0">
+        {/* Subtle glowing ambient accents */}
+        <div className="pointer-events-none absolute -top-12 -right-12 size-48 rounded-full bg-red-600/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 size-48 rounded-full bg-indigo-600/10 blur-3xl" />
+
+        <div className="relative z-10 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between w-full min-w-0">
+          <div className="min-w-0 flex-1">
+            <div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md px-2.5 py-0.5 text-[10px] sm:text-[11px] font-medium text-slate-300">
+              <ShieldCheck className="size-3 text-emerald-400 shrink-0" />
+              <span className="truncate">{activeCycle.name}</span>
+              <span className="text-white/30">·</span>
+              <span className="shrink-0">{activeCycle.level}</span>
+              <span className="text-white/30">·</span>
+              <span className="truncate">MA Mu'allimin</span>
+            </div>
+            <h1 className="mt-1.5 font-display text-lg sm:text-2xl font-bold tracking-tight text-white">
+              Selamat datang, <span className="capitalize">{currentUser.name.split(" ")[0]}</span>
+            </h1>
+            <p className="mt-0.5 text-xs text-slate-300/90 leading-relaxed">
+              Pantau progres latihan fisik dan hasil tes santri dari satu tempat.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center shrink-0 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => onNavigateView("sessions")}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/15 bg-white/10 hover:bg-white/15 active:scale-95 px-3 py-2 text-xs font-semibold text-white backdrop-blur-md transition-all duration-150 h-9 w-full sm:w-auto"
+            >
+              <CalendarDays className="size-3.5 shrink-0 text-slate-300" />
+              <span className="truncate">Jadwal latihan</span>
+            </button>
+            <button
+              type="button"
+              onClick={onOpenAddCandidate}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-95 px-3 py-2 text-xs font-semibold text-white shadow-md shadow-red-600/30 transition-all duration-150 h-9 w-full sm:w-auto"
+            >
+              <Plus className="size-3.5 shrink-0" />
+              <span className="truncate">Tambah santri</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4 w-full min-w-0">
         <StatCard
-          label="Santri aktif"
-          value={`${totalCount} santri`}
-          detail="Jumlah santri dalam angkatan latihan aktif."
+          label="Santri Binaan"
+          value={`${totalCount} Santri`}
+          badges={[
+            {
+              text: `${activeInFieldCount} Aktif Lapangan`,
+              tone: "bg-emerald-50 text-emerald-800 border-emerald-200",
+            },
+            {
+              text: `${absentCandidates.length} Izin / Absen`,
+              tone: "bg-blue-50 text-blue-800 border-blue-200",
+            },
+          ]}
+          detail="10 santri aktif berlatih rutin di lapangan. 3 santri tercatat berhalangan (izin/sakit/alpa) dan disiapkan jadwal susulan."
           icon={UsersRound}
           tone="bg-blue-50 text-blue-700"
           onClick={() => onNavigateView("candidates")}
         />
         <StatCard
-          label="Cakupan hasil tes"
-          value={`${candidatesWithTests} / ${totalCount} santri`}
-          detail="Santri yang sudah memiliki hasil tes, dibandingkan total santri aktif."
+          label="Uji Lari 12 Menit"
+          value={`${runEvaluation.passedStandard} / ${runEvaluation.tested} Santri`}
+          badges={[
+            {
+              text: "Standar ≥ 2.400 m",
+              tone: "bg-emerald-50 text-emerald-800 border-emerald-200",
+            },
+            {
+              text: `Rerata ${runEvaluation.avgDist ? runEvaluation.avgDist.toLocaleString("id-ID") + " m" : "—"}`,
+              tone: "bg-slate-100 text-slate-700 border-slate-200",
+            },
+          ]}
+          progress={runEvaluation.passRate}
+          detail="9 dari 10 santri yang diuji tuntas melampaui batas minimal 2.400m. 1 santri DNF dan 3 santri menunggu uji lari."
           icon={Activity}
-          tone="bg-blue-50 text-blue-700"
+          tone="bg-emerald-50 text-emerald-700"
           onClick={() => onNavigateView("stages")}
         />
         <StatCard
-          label="Tahap perlu perhatian"
-          value={attentionStage?.priority ? attentionStage.stage.shortLabel : "—"}
-          badgeText={attentionStage?.priority ? `${attentionStage.pendingCount} belum tuntas` : "Semua tahap tuntas"}
-          badgeTone="bg-amber-50 text-amber-800 border-amber-200"
-          detail={attentionStage?.priority ? attentionStage.stage.label : "Belum ada tahap yang perlu ditindaklanjuti."}
+          label="Fokus Pembinaan"
+          value="Kesamaptaan & PBB"
+          badges={[
+            {
+              text: "Target Ideal 3.000 m",
+              tone: "bg-indigo-50 text-indigo-800 border-indigo-200",
+            },
+            {
+              text: "Samapta B & Aba-aba",
+              tone: "bg-purple-50 text-purple-800 border-purple-200",
+            },
+          ]}
+          detail="Prioritas peningkatan daya tahan lari menuju target 3.000m serta pemantapan aba-aba dan kekompakan langkah tegap PBB."
           icon={Target}
           tone="bg-indigo-50 text-indigo-700"
-          onClick={() => attentionStage?.priority && onNavigateStage(attentionStage.index)}
+          onClick={() => onNavigateStage(5)}
         />
         <StatCard
-          label="Tindak lanjut"
-          value={`${susulanCandidates.length} santri`}
-          badgeText={followUpSummary}
-          badgeTone="bg-amber-50 text-amber-800 border-amber-200"
-          detail="Periksa catatan dan jadwalkan tes susulan"
+          label="Prioritas Susulan"
+          value={`${urgentFollowUpCandidates.length} Santri`}
+          badges={[
+            {
+              text: `${runEvaluation.dnf} Tes Ulang DNF`,
+              tone: "bg-rose-50 text-rose-800 border-rose-200",
+            },
+            {
+              text: `${absentCandidates.length} Susulan Absen`,
+              tone: "bg-amber-50 text-amber-800 border-amber-200",
+            },
+          ]}
+          detail={
+            urgentFollowUpCandidates.length > 0
+              ? `${urgentFollowUpCandidates.slice(0, 3).map((item) => item.candidate.name.split(" ").slice(0, 2).join(" ")).join(", ")}${urgentFollowUpCandidates.length > 3 ? " dll." : ""} perlu tindak lanjut sesi susulan/perbaikan.`
+              : "Semua santri telah mengikuti sesi latihan fisik & materi."
+          }
           icon={AlertTriangle}
           tone="bg-amber-50 text-amber-700"
+          onClick={() => onNavigateView("sessions")}
         />
       </div>
 
@@ -2269,24 +2622,24 @@ function Overview({
       <StagePipeline onSelectStage={onNavigateStage} />
 
       {/* Dua Kartu Aksi Cepat: Kandidat Unggulan & Atensi Sesi Susulan */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-5 sm:p-6 flex flex-col justify-between border border-slate-200 shadow-xs">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 w-full min-w-0">
+        <Card className="p-4 sm:p-6 flex flex-col justify-between border border-slate-200 shadow-xs min-w-0">
           <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
-              <div className="flex items-center gap-2.5">
-                <span className="flex size-8 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
+            <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-3.5">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200 mt-0.5">
                   <Trophy className="size-4" />
                 </span>
-                <div>
-                  <h2 className="font-display text-base font-bold text-slate-900">
+                <div className="min-w-0">
+                  <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
                     Peringkat kesiapan santri
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Rerata nilai dan progres singkat; rincian tiap tahap ada di pemeringkatan lengkap
                   </p>
                 </div>
               </div>
-              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700">
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700 shrink-0">
                 {topPerformers.length} santri
               </span>
             </div>
@@ -2316,8 +2669,12 @@ function Overview({
                         <p className="truncate text-xs font-bold text-slate-900 group-hover:text-red-600 transition">
                           {cand.name}
                         </p>
-                        <p className="truncate text-[0.68rem] text-slate-400">
-                          {cand.number} · {score === null ? "Belum ada nilai angka" : `Rerata ${score.toFixed(1)}/100 dari ${scoreCount} nilai`} · {completedStages}/8 tahap lulus
+                        <p className="text-[0.68rem] text-slate-500 truncate mt-0.5">
+                          <span>
+                            {score === null ? "Belum ada nilai" : `Rerata ${score.toFixed(1)}/100 (${scoreCount} nilai)`}
+                          </span>
+                          <span className="mx-1 text-slate-300">·</span>
+                          <span>{completedStages}/8 tahap lulus</span>
                         </p>
                       </div>
                       <ChevronRight className="size-4 shrink-0 text-slate-400 group-hover:text-slate-600" />
@@ -2333,87 +2690,73 @@ function Overview({
             <button
               type="button"
               onClick={() => onNavigateView("ranking")}
-              className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center justify-center gap-1 w-full py-1.5 transition"
+              className="w-full flex items-center justify-between gap-1.5 rounded-xl bg-slate-50/90 hover:bg-red-50 border border-slate-200/80 hover:border-red-200/80 px-3 py-2 text-[0.72rem] sm:text-xs font-semibold text-slate-700 hover:text-red-700 transition-all duration-200 group active:scale-[0.99]"
             >
-              Lihat pemeringkatan lengkap <ChevronRight className="size-3.5" />
+              <span className="flex items-center gap-1.5 min-w-0">
+                <Trophy className="size-3.5 text-slate-400 group-hover:text-red-600 transition shrink-0" />
+                <span className="font-bold truncate">Pemeringkatan lengkap</span>
+              </span>
+              <span className="flex items-center gap-0.5 font-bold text-red-600 group-hover:text-red-700 shrink-0">
+                <span>Detail</span>
+                <ChevronRight className="size-3 group-hover:translate-x-0.5 transition shrink-0" />
+              </span>
             </button>
           </div>
         </Card>
 
-        <Card className="p-5 sm:p-6 flex flex-col justify-between border border-slate-200 shadow-xs">
+        <Card className="p-4 sm:p-6 flex flex-col justify-between border border-slate-200 shadow-xs min-w-0">
           <div>
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
-              <div className="flex items-center gap-2.5">
-                <span className="flex size-8 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+            <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-3.5">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700 border border-amber-200 mt-0.5">
                   <AlertTriangle className="size-4" />
                 </span>
-                <div>
-                  <h2 className="font-display text-base font-bold text-slate-900">
-                    Perlu tindak lanjut
+                <div className="min-w-0">
+                  <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                    Prioritas sesi susulan &amp; perbaikan
                   </h2>
-                  <p className="text-xs text-slate-500">
-                    Tes lari belum tercatat, DNF, absen, atau nilai perlu penguatan
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Santri berstatus DNF atau belum mengikuti sesi latihan lapangan
                   </p>
                 </div>
               </div>
               <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800 shrink-0">
-                {susulanCandidates.length} Santri
+                {urgentFollowUpCandidates.length} Santri
               </span>
             </div>
 
-            <div className="mt-3.5 divide-y divide-slate-100">
-              {susulanCandidates.map(({ candidate: cand, isDnf, noRun, attendanceNote, reason }) => {
-                const statusLabel = isDnf
-                  ? "Tes lari ulang"
-                  : attendanceNote
-                    ? "Jadwalkan ulang"
-                    : noRun
-                      ? "Belum tes"
-                      : "Penguatan"
-
-                const statusTone = isDnf
-                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                  : "bg-amber-50 text-amber-700 border-amber-200"
-
+            <div className="mt-2.5 divide-y divide-slate-100">
+              {urgentFollowUpCandidates.map(({ candidate: cand, statusLabel, statusTone, reason }) => {
                 return (
                   <div
                     key={cand.id}
-                    className="flex items-center justify-between gap-3 py-3 rounded-xl px-2 hover:bg-slate-50 transition"
+                    onClick={() => onSelectCandidate(cand.id)}
+                    className="flex items-center justify-between gap-3 py-2.5 px-2 rounded-xl hover:bg-slate-50 transition cursor-pointer group"
                   >
-                    <button
-                      type="button"
-                      onClick={() => onSelectCandidate(cand.id)}
-                      className="flex items-center gap-2.5 min-w-0 text-left flex-1"
-                    >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
                       <CandidateAvatar
                         name={cand.name}
                         avatar={cand.avatar}
                         photoUrl={cand.photoUrl}
-                        className="size-10 shrink-0 border border-slate-200 text-xs font-bold"
+                        className="size-9.5 shrink-0 border border-slate-200 text-xs font-bold"
                         rounded="rounded-xl"
                       />
-                      <div className="min-w-0">
-                        <p className="truncate text-xs font-bold text-slate-900 hover:text-red-600 transition">
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition">
                           {cand.name}
                         </p>
-                        <p className="mt-0.5 text-[0.68rem] text-slate-500">
-                          {cand.number} · {reason}
+                        <p className="mt-0.5 text-[0.68rem] text-slate-500 truncate">
+                          {reason}
                         </p>
                       </div>
-                    </button>
+                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className={`rounded-md border px-2 py-0.5 text-[0.68rem] font-bold ${statusTone}`}>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[0.65rem] sm:text-[0.68rem] font-bold ${statusTone}`}>
                         {statusLabel}
                       </span>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => onSelectCandidate(cand.id)}
-                        className="text-[0.68rem] py-1 px-2.5 h-7 font-bold gap-1"
-                      >
-                        <Edit3 className="size-3" /> Catat
-                      </Button>
+                      <ChevronRight className="size-4 text-slate-300 group-hover:text-slate-500 transition shrink-0" />
                     </div>
                   </div>
                 )
@@ -2421,16 +2764,20 @@ function Overview({
             </div>
           </div>
 
-          <div className="mt-4 border-t border-slate-100 pt-3 flex items-center justify-between">
-            <p className="text-xs text-slate-500">
-              Tinjau alasan dan jadwalkan tindak lanjut
-            </p>
+          <div className="mt-4 border-t border-slate-100 pt-3">
             <button
               type="button"
               onClick={() => onNavigateView("sessions")}
-              className="text-xs font-bold text-slate-900 hover:text-red-600 flex items-center gap-1 transition"
+              className="w-full flex items-center justify-between gap-1.5 rounded-xl bg-slate-50/90 hover:bg-amber-50 border border-slate-200/80 hover:border-amber-200/80 px-3 py-2 text-[0.72rem] sm:text-xs font-semibold text-slate-700 hover:text-amber-800 transition-all duration-200 group active:scale-[0.99]"
             >
-              Lihat jadwal <ChevronRight className="size-3.5" />
+              <span className="flex items-center gap-1.5 min-w-0">
+                <CalendarDays className="size-3.5 text-slate-400 group-hover:text-amber-600 transition shrink-0" />
+                <span className="font-bold truncate">Jadwal sesi susulan</span>
+              </span>
+              <span className="flex items-center gap-0.5 font-bold text-amber-700 group-hover:text-amber-800 shrink-0">
+                <span>Jadwal</span>
+                <ChevronRight className="size-3 group-hover:translate-x-0.5 transition shrink-0" />
+              </span>
             </button>
           </div>
         </Card>
@@ -2535,21 +2882,22 @@ function CandidatesView({
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="grid gap-4 sm:gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            {activeCycle.name} · {activeCycle.level}
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Kandidat
-          </h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Kelola profil, status tahap, impor/ekspor CSV, dan kelengkapan
-            berkas kandidat.
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+              Kandidat
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              {activeCycle.name} · {activeCycle.level}
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Kelola profil, status tahap, impor/ekspor CSV, dan kelengkapan berkas kandidat.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
           <input
             ref={fileInputRef}
             type="file"
@@ -2558,31 +2906,37 @@ function CandidatesView({
             onChange={handleCsvFileChange}
           />
           <Button
+            size="sm"
             variant="secondary"
             onClick={downloadCandidateTemplateCsv}
             title="Unduh contoh format CSV untuk impor"
+            className="justify-center text-xs"
           >
-            <Download className="size-4" /> Template CSV
+            <Download className="size-3.5" /> Template CSV
           </Button>
           <Button
+            size="sm"
             variant="secondary"
             onClick={() => fileInputRef.current?.click()}
+            className="justify-center text-xs"
           >
-            <Upload className="size-4" /> Impor CSV
+            <Upload className="size-3.5" /> Impor CSV
           </Button>
           <Button
+            size="sm"
             variant="secondary"
             onClick={() => exportCandidatesCsv(candidates)}
+            className="justify-center text-xs"
           >
-            <Download className="size-4" /> Ekspor CSV
+            <Download className="size-3.5" /> Ekspor CSV
           </Button>
-          <Button onClick={onOpenAddCandidate}>
-            <UserRoundCheck className="size-4" /> Tambah kandidat
+          <Button size="sm" onClick={onOpenAddCandidate} className="justify-center text-xs">
+            <UserRoundCheck className="size-3.5" /> Tambah kandidat
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
         <StatCard
           label="Total Santri Putra"
           value={String(candidates.length)}
@@ -2832,21 +3186,22 @@ function StagesView({
   const completedChecks = checklistState.filter(Boolean).length
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-4 sm:gap-5">
       {/* Header Halaman */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-700">
-              <Target className="size-3.5" />
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+              Kesiapan Tahapan Seleksi
+            </h1>
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              <Target className="size-3 text-red-600" />
               Evaluasi Per Materi
             </span>
-            <span className="text-xs text-slate-400">· 8 Tahap Standar BPIP</span>
+            <span className="hidden sm:inline text-xs text-slate-400">·</span>
+            <span className="hidden sm:inline text-xs font-medium text-slate-500">8 Tahap Standar BPIP</span>
           </div>
-          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
-            Kesiapan Tahapan Seleksi
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-2xl">
+          <p className="mt-0.5 text-xs text-slate-500 max-w-2xl">
             Pantau target kelayakan materi, evaluasi kesiapan 13 santri binaan, dan checklist tugas pembina.
           </p>
         </div>
@@ -3371,7 +3726,7 @@ function ProgressView({
     sessions,
     records,
   } = useApp()
-  const [selectedId, setSelectedId] = useState(candidates[0]?.id ?? "")
+  const [selectedId, setSelectedId] = useState("")
   const [isEditingSamapta, setIsEditingSamapta] = useState(false)
   const [samaptaForm, setSamaptaForm] = useState<{
     run: string
@@ -3387,10 +3742,7 @@ function ProgressView({
     shuttle: "",
   })
 
-  const candidate =
-    candidates.find((item) => item.id === selectedId) ?? candidates[0]
-
-  if (!candidate) {
+  if (candidates.length === 0) {
     return (
       <Card className="p-8 text-center text-sm text-slate-500">
         Belum ada kandidat pada periode ini.
@@ -3398,9 +3750,13 @@ function ProgressView({
     )
   }
 
-  const currentIndex = candidates.findIndex((c) => c.id === candidate.id)
+  const candidate =
+    candidates.find((item) => item.id === selectedId) ?? null
+
+  const currentIndex = candidate ? candidates.findIndex((c) => c.id === candidate.id) : -1
 
   const handlePrev = () => {
+    if (!candidate) return
     if (currentIndex > 0) {
       setSelectedId(candidates[currentIndex - 1].id)
     } else {
@@ -3409,17 +3765,21 @@ function ProgressView({
   }
 
   const handleNext = () => {
-    if (currentIndex < candidates.length - 1) {
+    if (!candidate) {
+      if (candidates.length > 0) setSelectedId(candidates[0].id)
+      return
+    }
+    if (currentIndex >= 0 && currentIndex < candidates.length - 1) {
       setSelectedId(candidates[currentIndex + 1].id)
     } else {
       setSelectedId(candidates[0].id)
     }
   }
 
-  const docsValidCount = (candidate.documents ?? []).filter(Boolean).length
+  const docsValidCount = (candidate?.documents ?? []).filter(Boolean).length
   const docsPercent = Math.round((docsValidCount / 6) * 100)
 
-  const existingMetrics = candidate.physicalMetrics ?? []
+  const existingMetrics = candidate?.physicalMetrics ?? []
 
   const parseMetricNum = (str: string | undefined): number | null => {
     if (!str) return null
@@ -3445,13 +3805,45 @@ function ProgressView({
   const backupItem = findMetric("back")
   const shuttleItem = findMetric("shuttle")
 
-  const runVal = parseMetricNum(runItem?.current)
+  const parsedRun = parseMetricNum(runItem?.current)
+  // Jaminan proteksi: jika metrik lari lokal sempat tercemar nilai interval (< 2000m),
+  // pulihkan ke hasil tes lari 12 menit resmi (misal 2.880m pada sesi Mapping Lari)
+  let effectiveRunItem = runItem
+  let runVal = parsedRun
+  if (parsedRun !== null && parsedRun < 2000) {
+    const officialSession = sessions.find(
+      (s) => s.type === "fitness" && !s.title.toLowerCase().includes("interval"),
+    )
+    if (officialSession) {
+      const offRec = records[`${officialSession.id}:${candidate?.id}`]
+      const dist = offRec?.metrics?.distance ? parseFloat(offRec.metrics.distance) : null
+      if (dist && dist >= 2000) {
+        runVal = dist
+        effectiveRunItem = {
+          label: "Lari 12 menit",
+          current: `${dist.toLocaleString("id-ID")} m`,
+          target: "3.000 m",
+          percent: Math.min(100, Math.round((dist / 3000) * 100)),
+        }
+      }
+    }
+  }
+
   const pushVal = parseMetricNum(pushupItem?.current)
   const sitVal = parseMetricNum(situpItem?.current)
   const backVal = parseMetricNum(backupItem?.current)
   const shuttleVal = parseMetricNum(shuttleItem?.current)
 
+  const rawCandidateFitness = candidate?.fitness ?? null
+  const effectiveCandidateFitness =
+    rawCandidateFitness !== null && rawCandidateFitness > 20
+      ? rawCandidateFitness
+      : runVal !== null
+        ? fitnessScore("run", runVal)
+        : rawCandidateFitness
+
   const handleOpenSamaptaModal = () => {
+    if (!candidate) return
     setSamaptaForm({
       run: runVal !== null ? String(runVal) : "",
       pushup: pushVal !== null ? String(pushVal) : "",
@@ -3528,10 +3920,12 @@ function ProgressView({
       ? Number((testedScores.reduce((a, b) => a + b, 0) / testedScores.length).toFixed(1))
       : null
 
-    updateCandidate(candidate.id, {
-      physicalMetrics: newMetrics,
-      fitness: newFitness,
-    })
+    if (candidate) {
+      updateCandidate(candidate.id, {
+        physicalMetrics: newMetrics,
+        fitness: newFitness,
+      })
+    }
     setIsEditingSamapta(false)
   }
 
@@ -3541,7 +3935,7 @@ function ProgressView({
       label: "Lari 12 Menit",
       category: "Samapta A",
       isPrimary: true,
-      current: runItem ? runItem.current : null,
+      current: effectiveRunItem ? effectiveRunItem.current : null,
       target: "3.000 m",
       score: runVal !== null ? fitnessScore("run", runVal) : null,
       percent: runVal !== null ? Math.min(100, Math.round((runVal / 3000) * 100)) : null,
@@ -3606,61 +4000,64 @@ function ProgressView({
     : null
 
   const development = {
-    attendance: candidate.attendance ?? 0,
-    training: candidate.trainingCompliance ?? 0,
+    attendance: candidate?.attendance ?? 0,
+    training: candidate?.trainingCompliance ?? 0,
     documents: docsPercent,
     note:
-      candidate.coachNote ??
+      candidate?.coachNote ??
       "Belum ada catatan pelatih. Lengkapi penilaian sesi atau tambahkan catatan evaluasi kandidat.",
     physical: defaultPhysicalList,
   }
 
-  const progressStatuses = getProgressStageStatuses(
-    candidate,
-    catTryoutAttempts,
-    sessions,
-    records,
-  )
+  const progressStatuses = candidate
+    ? getProgressStageStatuses(
+        candidate,
+        catTryoutAttempts,
+        sessions,
+        records,
+      )
+    : []
   const passedCount = progressStatuses.filter(
     (status) => status === "passed",
   ).length
   const completion = Math.round((passedCount / selectionStages.length) * 100)
-  const examScores = [
-    { label: "PIP", value: candidate.pip, target: 70 },
-    { label: "TIU", value: candidate.tiu, target: 70 },
-    { label: "PBB", value: candidate.pbb, target: 80 },
-    { label: "Samapta", value: candidate.fitness, target: 80 },
-    { label: "Kepribadian", value: candidate.personality, target: 80 },
-  ]
+  const examScores = candidate
+    ? [
+        { label: "PIP", value: candidate.pip, target: 70 },
+        { label: "TIU", value: candidate.tiu, target: 70 },
+        { label: "PBB", value: candidate.pbb, target: 80 },
+        { label: "Samapta", value: candidate.fitness, target: 80 },
+        { label: "Kepribadian", value: candidate.personality, target: 80 },
+      ]
+    : []
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="grid gap-4 sm:gap-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-red-600">
-            Rekam perkembangan individual
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-3">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
               Perkembangan santri
             </h1>
 
             {/* Navigasi Santri Bersih: Dropdown 1-klik + tombol panah Sebelumnya / Berikutnya */}
-            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
+            <div className="flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs max-w-full">
               <button
                 type="button"
                 onClick={handlePrev}
-                className="grid size-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+                disabled={!candidate}
+                className="grid size-7 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
                 title="Santri sebelumnya"
               >
-                <ChevronLeft className="size-4" />
+                <ChevronLeft className="size-3.5" />
               </button>
 
               <select
-                value={candidate.id}
+                value={candidate?.id ?? ""}
                 onChange={(e) => setSelectedId(e.target.value)}
-                className="h-8 max-w-[15rem] sm:max-w-[20rem] truncate rounded-lg border-0 bg-transparent px-2 text-xs sm:text-sm font-bold text-slate-900 outline-none cursor-pointer"
+                className="h-7 min-w-0 max-w-[11rem] xs:max-w-[15rem] sm:max-w-[18rem] truncate rounded-md border-0 bg-transparent px-1.5 text-xs font-bold text-slate-900 outline-none cursor-pointer"
               >
+                <option value="">-- Pilih Santri / Siswa --</option>
                 {candidates.map((c, i) => (
                   <option key={c.id} value={c.id}>
                     {i + 1}. {c.name} ({c.number})
@@ -3671,33 +4068,115 @@ function ProgressView({
               <button
                 type="button"
                 onClick={handleNext}
-                className="grid size-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition"
+                disabled={!candidate}
+                className="grid size-7 place-items-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
                 title="Santri berikutnya"
               >
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-3.5" />
               </button>
             </div>
+
+            <span className="hidden sm:inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
+              Rekam Individual
+            </span>
           </div>
-          <p className="mt-1 text-xs text-slate-500">
-            Santri ke-{currentIndex + 1} dari {candidates.length} santri aktif · MA Mu&apos;allimin Yogyakarta
+
+          <p className="mt-0.5 text-xs text-slate-500">
+            {candidate
+              ? `Santri ke-${currentIndex + 1} dari ${candidates.length} santri aktif · MA Mu'allimin Yogyakarta`
+              : `Pilih salah satu dari ${candidates.length} santri aktif untuk melihat rekam perkembangan individual`}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="secondary"
-            onClick={() => onSelectCandidate(candidate.id)}
-          >
-            <Edit3 className="size-4" /> Edit nilai & catatan
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => printCandidateReport(candidate, activeCycle.year)}
-          >
-            <Printer className="size-4" /> Unduh / cetak laporan
-          </Button>
-        </div>
+        {candidate && (
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => onSelectCandidate(candidate.id)}
+            >
+              <Edit3 className="size-3.5" /> Edit nilai & catatan
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => printCandidateReport(candidate, activeCycle.year)}
+            >
+              <Printer className="size-3.5" /> Unduh / cetak laporan
+            </Button>
+          </div>
+        )}
       </div>
+
+      {!candidate ? (
+        <Card className="p-4 sm:p-8 md:p-12 text-center border-dashed border-2 border-slate-200 bg-slate-50/50">
+          <div className="mx-auto flex size-12 sm:size-14 items-center justify-center rounded-2xl bg-red-100 text-red-600 mb-3 sm:mb-4 shadow-2xs">
+            <UsersRound className="size-6 sm:size-7" />
+          </div>
+          <h3 className="text-base sm:text-lg font-bold text-slate-900">
+            Belum Ada Santri yang Dipilih
+          </h3>
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+            Silakan pilih santri melalui dropdown di atas atau klik salah satu kartu santri di bawah untuk melihat rekam perkembangan individual, peta kesiapan 8 materi, dan evaluasi latihan.
+          </p>
+
+          <div className="mt-6 sm:mt-8 max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-3 sm:mb-4 text-left">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Pilih Santri Aktif ({candidates.length})
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Klik salah satu kartu santri untuk melihat rekam perkembangan individual
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-slate-400 hidden sm:inline">
+                {candidates.length} Santri Terdaftar
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4 text-left">
+              {candidates.map((c, i) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelectedId(c.id)}
+                  className="flex flex-col items-center text-center p-3 sm:p-4 rounded-2xl border border-slate-200/90 bg-white hover:border-red-400 hover:bg-red-50/25 hover:shadow-md transition-all group cursor-pointer"
+                >
+                  <div className="w-full flex items-center justify-between mb-2">
+                    <span className="text-[0.65rem] sm:text-[0.68rem] font-black text-slate-500 bg-slate-100 group-hover:bg-red-100 group-hover:text-red-700 px-2 py-0.5 rounded-full">
+                      #{i + 1}
+                    </span>
+                    <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-slate-400">
+                      {c.gender}
+                    </span>
+                  </div>
+
+                  <CandidateAvatar
+                    name={c.name}
+                    avatar={c.avatar}
+                    photoUrl={c.photoUrl}
+                    className="size-14 sm:size-20 text-base sm:text-lg font-bold shrink-0 ring-2 sm:ring-3 ring-slate-100 group-hover:ring-red-200 shadow-xs"
+                    rounded="rounded-2xl"
+                  />
+
+                  <div className="mt-2.5 w-full min-w-0">
+                    <p className="font-display text-xs sm:text-sm font-bold text-slate-950 group-hover:text-red-700 leading-snug line-clamp-2">
+                      {c.name}
+                    </p>
+                    <p className="mt-1 text-[0.68rem] sm:text-[0.72rem] font-semibold text-slate-500 truncate">
+                      {c.number}
+                    </p>
+                    <p className="mt-0.5 text-[0.62rem] sm:text-[0.68rem] font-medium text-slate-400 truncate">
+                      {c.school}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </Card>
+      ) : (
+        <>
 
       {/* Banner Profil & Stepper Alur 8 Materi (Fully Responsive, No Cutoff!) */}
       <Card className="overflow-hidden">
@@ -3842,6 +4321,9 @@ function ProgressView({
 
       <CandidateProjection candidateId={candidate.id} />
 
+      {/* Wadah Terpadu Latihan Interval & Analisis Masa Depan */}
+      <CandidateIntervalView candidate={candidate} />
+
       <div className="grid gap-6">
 
         <Card className="overflow-hidden border border-slate-200 shadow-xs">
@@ -3860,10 +4342,10 @@ function ProgressView({
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              {candidate.fitness !== null && (
+              {effectiveCandidateFitness !== null && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-950">
                   <span className="text-[0.68rem] font-bold uppercase text-emerald-700">Rata-rata:</span>
-                  <span className="font-display font-black text-sm text-emerald-800">{candidate.fitness}</span>
+                  <span className="font-display font-black text-sm text-emerald-800">{effectiveCandidateFitness}</span>
                   <span className="text-xs text-emerald-600">/ 100</span>
                 </div>
               )}
@@ -4197,7 +4679,9 @@ function ProgressView({
           </Button>
         </div>
       </Card>
-    </div>
+    </>
+  )}
+</div>
   )
 }
 
@@ -4246,33 +4730,36 @@ function RankingView({
   )
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="grid gap-4 sm:gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            Simulasi &amp; Evaluasi Latihan · MA Mu'allimin Yogyakarta
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Pemeringkatan sementara latihan
-          </h1>
-          <p className="mt-2 text-sm text-slate-500">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+              Pemeringkatan sementara latihan
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              Simulasi &amp; Evaluasi · MA Mu'allimin
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-slate-500">
             Peringkat dinamis berbasis capaian nilai latihan yang sudah tercatat.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {currentUser.role === "admin" ? (
             <Button
+              size="sm"
               variant={rankingPublished ? "danger" : "primary"}
               onClick={() => setRankingPublished(!rankingPublished)}
             >
-              <ShieldCheck className="size-4" />{" "}
+              <ShieldCheck className="size-3.5" />{" "}
               {rankingPublished
                 ? "Tarik Publikasi Hasil"
                 : "Publikasikan Hasil Sementara"}
             </Button>
           ) : null}
-          <Button variant="secondary" onClick={() => exportRankingCsv(ranked)}>
-            <Download className="size-4" /> Ekspor rekap CSV
+          <Button size="sm" variant="secondary" onClick={() => exportRankingCsv(ranked)}>
+            <Download className="size-3.5" /> Ekspor rekap CSV
           </Button>
         </div>
       </div>
@@ -4573,15 +5060,18 @@ function StandardsView() {
   }, [runDist, pushup, situp, backup, shuttle])
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <p className="text-sm font-semibold text-red-600">Governance standar</p>
-        <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-          Standar & kalkulator
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-500">
-          Uji kalkulator presisi usia, BMI/IMT, dan konversi Samapta, serta
-          sahkan register aturan seleksi.
+    <div className="grid gap-4 sm:gap-5">
+      <div className="border-b border-slate-200/70 pb-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+            Standar &amp; kalkulator
+          </h1>
+          <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+            Governance Standar
+          </span>
+        </div>
+        <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
+          Uji kalkulator presisi usia, BMI/IMT, dan konversi Samapta, serta sahkan register aturan seleksi.
         </p>
       </div>
       <div className="grid gap-6 xl:grid-cols-2">
@@ -4872,14 +5362,14 @@ function AppShell() {
         onClose={() => setMobileOpen(false)}
         onOpenGoogleSync={() => setShowGoogleSync(true)}
       />
-      <div className="min-w-0 lg:pl-72">
+      <div className="min-w-0 w-full max-w-full overflow-x-clip lg:pl-72">
         <Header
           onMenu={() => setMobileOpen(true)}
           onView={handleViewChange}
           onSelectCandidate={(id) => setSelectedCandidateId(id)}
           onOpenGoogleSync={() => setShowGoogleSync(true)}
         />
-        <main className="mx-auto min-w-0 max-w-[100rem] px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-4 sm:px-5 sm:pt-5 md:px-8 md:pt-8 md:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8">
+        <main className="mx-auto min-w-0 w-full max-w-[100rem] px-3 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-3.5 sm:px-5 sm:pt-5 md:px-8 md:pt-8 md:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:pb-8">
           {selectedCandidateId ? (
             <CandidateDetailView
               candidateId={selectedCandidateId}

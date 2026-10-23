@@ -106,18 +106,19 @@ function DataTable({ headers, rows }: { headers: string[], rows: TableRows }) {
 export default function GuideView() {
   const [tab, setTab] = useState<Tab>("architecture")
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="grid gap-4 sm:gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
         <div>
-          <p className="text-sm font-semibold text-red-600">
-            Basis pengetahuan pelatih
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-slate-950">
-            Panduan Seleksi 2026/2027
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm text-slate-500">
-            Referensi kronologis, standar latihan, dan matriks lapangan yang
-            menjadi dasar seluruh form simulasi.
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+              Panduan Seleksi 2026/2027
+            </h1>
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+              Basis Pengetahuan Pelatih
+            </span>
+          </div>
+          <p className="mt-0.5 max-w-3xl text-xs text-slate-500">
+            Referensi kronologis, standar latihan, dan matriks lapangan yang menjadi dasar seluruh form simulasi.
           </p>
         </div>
         <Badge tone="warning">Baseline internal · perlu pengesahan</Badge>
