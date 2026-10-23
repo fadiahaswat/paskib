@@ -123,7 +123,7 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4 w-full min-w-0 max-w-full">
       {/* Top Banner & Insight Compact */}
       <Card className="overflow-hidden border border-slate-200/90 bg-white shadow-2xs rounded-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-b border-slate-100 bg-white px-4 py-3 sm:px-5 sm:py-3.5">
@@ -399,10 +399,10 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
 
       {/* Card Utama: Proyeksi Ke Depan & Analisis Daya Tahan (Forward Analysis) */}
       {latestLog ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs w-full min-w-0 max-w-full overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4 min-w-0">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
                 <h4 className="font-display text-base font-bold text-slate-900">
                   Analisis Ke Depan &amp; Proyeksi Seleksi Resmi
                 </h4>
@@ -414,19 +414,19 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
             </div>
           </div>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:gap-4 lg:grid-cols-3 min-w-0">
             {/* Box 1: Prediksi Lari 12 Menit */}
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 space-y-3">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 space-y-3 min-w-0">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-600">Prediksi Lari 12 Menit</span>
                 <Gauge className="size-4 text-emerald-600" />
               </div>
               <div>
-                <p className="font-display text-3xl font-black text-slate-900">
+                <p className="font-display text-2xl sm:text-3xl font-black text-slate-900">
                   {latestLog.projected12MinDistanceM.toLocaleString("id-ID")}{" "}
                   <span className="text-sm font-semibold text-slate-400">meter</span>
                 </p>
-                <div className="mt-2 flex items-center gap-2">
+                <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold text-emerald-700">
                     Skor BPIP: {latestLog.projected12MinScore}/100
                   </span>
@@ -455,13 +455,13 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
             </div>
 
             {/* Box 2: Target Pacing Lap Realistis */}
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 space-y-3">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 space-y-3 min-w-0">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-600">Rekomendasi Pacing Seleksi</span>
                 <Flame className="size-4 text-amber-500" />
               </div>
               <div>
-                <p className="font-display text-3xl font-black text-slate-900">
+                <p className="font-display text-2xl sm:text-3xl font-black text-slate-900">
                   {latestLog.avgSplitSec}s{" "}
                   <span className="text-sm font-semibold text-slate-400">/ 400m</span>
                 </p>
@@ -479,7 +479,7 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
             </div>
 
             {/* Box 3: Konsistensi & Fatigue */}
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 space-y-3">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4 space-y-3 min-w-0">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-600">Konsistensi &amp; Ketahanan</span>
                 <Target className="size-4 text-blue-600" />
@@ -510,7 +510,7 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
           </div>
 
           {/* AI Coach Recommendation Box */}
-          <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4">
+          <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 min-w-0">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-xl bg-blue-600 text-white shadow-xs">
                 <Award className="size-4" />
@@ -553,10 +553,10 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
       )}
 
       {/* Riwayat Sesi Interval & Breakdown Split Tiap Lap */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xs">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-          <div>
-            <h4 className="font-display text-base font-bold text-slate-900">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xs w-full min-w-0 max-w-full">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3 sm:px-5 sm:py-4 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h4 className="font-display text-sm sm:text-base font-bold text-slate-900">
               Riwayat Sesi Latihan Interval Santri
             </h4>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -567,123 +567,213 @@ export function CandidateIntervalView({ candidate }: CandidateIntervalViewProps)
         </div>
 
         {history.length > 0 ? (
-          <div className="overflow-x-auto w-full min-w-0 max-w-full">
-            <table className="w-full min-w-[50rem] text-left text-xs">
-              <thead className="bg-slate-50 font-bold uppercase tracking-wider text-slate-500">
-                <tr>
-                  <th className="px-5 py-3">Tanggal &amp; Sesi</th>
-                  <th className="px-3 py-3">Set / Total</th>
-                  <th className="px-3 py-3">Rata-rata Split</th>
-                  <th className="px-4 py-3">Split per Lap (Detik)</th>
-                  <th className="px-3 py-3">Konsistensi</th>
-                  <th className="px-3 py-3">Proyeksi 12 Mnt</th>
-                  <th className="px-3 py-3">Skor</th>
-                  <th className="px-4 py-3 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {history.map((log) => {
-                  return (
-                    <tr key={log.id} className="hover:bg-slate-50/60 transition">
-                      <td className="px-5 py-3.5">
-                        <p className="font-bold text-slate-900">{log.sessionTitle}</p>
-                        <p className="text-[0.68rem] text-slate-500 flex items-center gap-1 mt-0.5">
-                          <Calendar className="size-3" /> {log.date}
-                        </p>
-                        {log.note ? (
-                          <p className="text-[0.68rem] text-slate-600 italic mt-0.5 max-w-xs">
-                            &ldquo;{log.note}&rdquo;
+          <>
+            {/* Tampilan Desktop: Tabel Lengkap */}
+            <div className="hidden sm:block overflow-x-auto w-full min-w-0 max-w-full">
+              <table className="w-full min-w-[50rem] text-left text-xs">
+                <thead className="bg-slate-50 font-bold uppercase tracking-wider text-slate-500">
+                  <tr>
+                    <th className="px-5 py-3">Tanggal &amp; Sesi</th>
+                    <th className="px-3 py-3">Set / Total</th>
+                    <th className="px-3 py-3">Rata-rata Split</th>
+                    <th className="px-4 py-3">Split per Lap (Detik)</th>
+                    <th className="px-3 py-3">Konsistensi</th>
+                    <th className="px-3 py-3">Proyeksi 12 Mnt</th>
+                    <th className="px-3 py-3">Skor</th>
+                    <th className="px-4 py-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {history.map((log) => {
+                    return (
+                      <tr key={log.id} className="hover:bg-slate-50/60 transition">
+                        <td className="px-5 py-3.5">
+                          <p className="font-bold text-slate-900">{log.sessionTitle}</p>
+                          <p className="text-[0.68rem] text-slate-500 flex items-center gap-1 mt-0.5">
+                            <Calendar className="size-3" /> {log.date}
                           </p>
-                        ) : null}
-                      </td>
+                          {log.note ? (
+                            <p className="text-[0.68rem] text-slate-600 italic mt-0.5 max-w-xs">
+                              &ldquo;{log.note}&rdquo;
+                            </p>
+                          ) : null}
+                        </td>
 
-                      <td className="px-3 py-3.5 whitespace-nowrap">
-                        <span className="font-bold text-slate-800">
-                          {log.completedSets} / {log.targetSets} Set
-                        </span>
-                        <p className="text-[0.65rem] text-slate-500">
-                          {log.totalDistance}m ({log.distancePerSet}m/set)
-                        </p>
-                      </td>
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <span className="font-bold text-slate-800">
+                            {log.completedSets} / {log.targetSets} Set
+                          </span>
+                          <p className="text-[0.65rem] text-slate-500">
+                            {log.totalDistance}m ({log.distancePerSet}m/set)
+                          </p>
+                        </td>
 
-                      <td className="px-3 py-3.5 whitespace-nowrap">
-                        <strong className="font-display text-sm font-black text-slate-900">
-                          {log.avgSplitSec}s
-                        </strong>
-                        <p className="text-[0.65rem] text-slate-500">
-                          Target: {log.targetPaceSec}s
-                        </p>
-                      </td>
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <strong className="font-display text-sm font-black text-slate-900">
+                            {log.avgSplitSec}s
+                          </strong>
+                          <p className="text-[0.65rem] text-slate-500">
+                            Target: {log.targetPaceSec}s
+                          </p>
+                        </td>
 
-                      <td className="px-4 py-3.5">
-                        <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
-                          {log.lapSplitsSec.length > 0 ? (
-                            log.lapSplitsSec.map((split, i) => {
-                              const isFaster = split <= log.targetPaceSec
-                              const isNear = split <= log.targetPaceSec * 1.05
-                              return (
-                                <span
-                                  key={i}
-                                  className={`rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
-                                    isFaster
-                                      ? "bg-emerald-100 text-emerald-800"
-                                      : isNear
-                                        ? "bg-amber-100 text-amber-800"
-                                        : "bg-rose-100 text-rose-800"
-                                  }`}
-                                  title={`Lap ${i + 1}: ${split}s`}
-                                >
-                                  L{i + 1}: {split}s
-                                </span>
-                              )
-                            })
-                          ) : (
-                            <span className="text-slate-400 italic">Tidak dicatat per lap</span>
-                          )}
-                        </div>
-                      </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
+                            {log.lapSplitsSec.length > 0 ? (
+                              log.lapSplitsSec.map((split, i) => {
+                                const isFaster = split <= log.targetPaceSec
+                                const isNear = split <= log.targetPaceSec * 1.05
+                                return (
+                                  <span
+                                    key={i}
+                                    className={`rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold ${
+                                      isFaster
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : isNear
+                                          ? "bg-amber-100 text-amber-800"
+                                          : "bg-rose-100 text-rose-800"
+                                    }`}
+                                    title={`Lap ${i + 1}: ${split}s`}
+                                  >
+                                    L{i + 1}: {split}s
+                                  </span>
+                                )
+                              })
+                            ) : (
+                              <span className="text-slate-400 italic">Tidak dicatat per lap</span>
+                            )}
+                          </div>
+                        </td>
 
-                      <td className="px-3 py-3.5 whitespace-nowrap">
-                        <span className="text-xs font-semibold text-slate-700">
-                          {log.paceConsistency}
-                        </span>
-                      </td>
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <span className="text-xs font-semibold text-slate-700">
+                            {log.paceConsistency}
+                          </span>
+                        </td>
 
-                      <td className="px-3 py-3.5 whitespace-nowrap">
-                        <strong className="font-bold text-emerald-700">
-                          {log.projected12MinDistanceM.toLocaleString("id-ID")} m
-                        </strong>
-                        <p className="text-[0.65rem] text-slate-500">
-                          Skor: {log.projected12MinScore}/100
-                        </p>
-                      </td>
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <strong className="font-bold text-emerald-700">
+                            {log.projected12MinDistanceM.toLocaleString("id-ID")} m
+                          </strong>
+                          <p className="text-[0.65rem] text-slate-500">
+                            Skor: {log.projected12MinScore}/100
+                          </p>
+                        </td>
 
-                      <td className="px-3 py-3.5 whitespace-nowrap">
-                        <span className="rounded-lg bg-red-50 border border-red-200 px-2 py-1 font-display font-extrabold text-red-700">
-                          {log.score}
-                        </span>
-                      </td>
+                        <td className="px-3 py-3.5 whitespace-nowrap">
+                          <span className="rounded-lg bg-red-50 border border-red-200 px-2 py-1 font-display font-extrabold text-red-700">
+                            {log.score}
+                          </span>
+                        </td>
 
-                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm("Hapus catatan sesi latihan interval ini?")) {
-                              deleteIntervalLog(candidate.id, log.id)
-                            }
-                          }}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
-                          title="Hapus riwayat sesi ini"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                        <td className="px-4 py-3.5 text-right whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm("Hapus catatan sesi latihan interval ini?")) {
+                                deleteIntervalLog(candidate.id, log.id)
+                              }
+                            }}
+                            className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                            title="Hapus riwayat sesi ini"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Tampilan Mobile: Kartu Vertikal Ringkas & Responsif */}
+            <div className="sm:hidden divide-y divide-slate-100 w-full min-w-0">
+              {history.map((log) => (
+                <div key={log.id} className="p-3.5 space-y-2.5 w-full min-w-0">
+                  <div className="flex items-start justify-between gap-2 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-xs text-slate-900 leading-snug break-words">
+                        {log.sessionTitle}
+                      </p>
+                      <p className="text-[0.68rem] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <Calendar className="size-3 shrink-0" /> {log.date}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="rounded-lg bg-red-50 border border-red-200 px-2 py-0.5 font-display font-extrabold text-xs text-red-700">
+                        {log.score}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm("Hapus catatan sesi latihan interval ini?")) {
+                            deleteIntervalLog(candidate.id, log.id)
+                          }
+                        }}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition"
+                        title="Hapus riwayat sesi ini"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Grid 2 Kolom Ringkas */}
+                  <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-50/80 p-2.5 border border-slate-100 text-xs">
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase font-semibold">Set / Total</p>
+                      <p className="font-bold text-slate-800">
+                        {log.completedSets}/{log.targetSets} Set
+                      </p>
+                      <p className="text-[10px] text-slate-500">{log.totalDistance}m ({log.distancePerSet}m/set)</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-400 uppercase font-semibold">Rata-rata Split</p>
+                      <p className="font-display font-bold text-slate-900">{log.avgSplitSec}s</p>
+                      <p className="text-[10px] text-slate-500">Tgt: {log.targetPaceSec}s · {log.paceConsistency}</p>
+                    </div>
+                    <div className="col-span-2 pt-1 border-t border-slate-200/60 flex items-center justify-between">
+                      <span className="text-[10px] font-semibold text-slate-500">Proyeksi 12 Menit:</span>
+                      <strong className="text-xs font-bold text-emerald-700">
+                        {log.projected12MinDistanceM.toLocaleString("id-ID")} m ({log.projected12MinScore}/100)
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Split per lap badges */}
+                  {log.lapSplitsSec.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      {log.lapSplitsSec.map((split, i) => {
+                        const isFaster = split <= log.targetPaceSec
+                        const isNear = split <= log.targetPaceSec * 1.05
+                        return (
+                          <span
+                            key={i}
+                            className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
+                              isFaster
+                                ? "bg-emerald-100 text-emerald-800"
+                                : isNear
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-rose-100 text-rose-800"
+                            }`}
+                          >
+                            L{i + 1}: {split}s
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {log.note && (
+                    <p className="text-[11px] text-slate-600 italic leading-snug">
+                      &ldquo;{log.note}&rdquo;
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="p-8 text-center text-xs text-slate-500">
             Belum ada riwayat sesi latihan interval yang tersimpan untuk santri ini.

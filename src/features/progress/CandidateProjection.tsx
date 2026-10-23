@@ -361,7 +361,7 @@ export default function CandidateProjection({
   }
 
   return (
-    <div className="grid gap-6 min-w-0 max-w-full">
+    <div className="flex flex-col gap-6 w-full min-w-0 max-w-full">
       {candidate && anthroEval ? (
         <Card className="overflow-hidden min-w-0 max-w-full border border-slate-200/90 shadow-2xs rounded-2xl">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">

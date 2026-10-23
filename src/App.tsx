@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react"
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
   Bell,
   BookOpenCheck,
   CalendarDays,
@@ -4116,17 +4117,17 @@ function ProgressView({
     : []
 
   return (
-    <div className="grid gap-4 sm:gap-5">
+    <div className="flex flex-col gap-4 sm:gap-5 w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Wadah Header Perkembangan Santri Berstandar Desain Identik Kandidat & Sesi */}
       <Card className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs w-full min-w-0">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
           <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 border border-red-100 shadow-2xs">
-              <TrendingUp className="size-5.5 stroke-[2.2]" />
+            <span className="flex size-10 sm:size-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 border border-red-100 shadow-2xs">
+              <TrendingUp className="size-5 sm:size-5.5 stroke-[2.2]" />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-display text-lg sm:text-xl font-bold tracking-tight text-slate-950">
+                <h1 className="font-display text-base sm:text-xl font-bold tracking-tight text-slate-950">
                   Perkembangan Santri
                 </h1>
                 <span className="inline-flex items-center rounded-md bg-red-50 border border-red-200/80 px-2.5 py-0.5 text-xs font-bold text-red-700">
@@ -4140,47 +4141,45 @@ function ProgressView({
               </p>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto min-w-0">
-            {/* Navigasi Dropdown Santri */}
-            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-1 shadow-2xs w-full sm:w-auto min-w-0 max-w-full overflow-hidden">
+        {candidate && (
+          <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between gap-3 min-w-0">
+            {/* Yang Kiri: Kembali */}
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setSelectedId("")}
+              className="gap-1.5 text-xs font-bold shrink-0"
+            >
+              <ArrowLeft className="size-3.5" /> Kembali
+            </Button>
+
+            {/* Yang Kanan: Cuman Sevron Kiri Kanan */}
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50/80 p-1 shadow-2xs shrink-0">
               <button
                 type="button"
                 onClick={handlePrev}
                 disabled={!candidate}
-                className="grid size-8 sm:size-9 place-items-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
+                className="grid size-8 sm:size-9 place-items-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none"
                 title="Santri sebelumnya"
               >
                 <ChevronLeft className="size-4" />
               </button>
 
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <select
-                  value={candidate?.id ?? ""}
-                  onChange={(e) => setSelectedId(e.target.value)}
-                  className="h-8 sm:h-9 w-full min-w-0 max-w-full bg-transparent px-1.5 text-xs sm:text-sm font-semibold text-slate-900 outline-none cursor-pointer truncate"
-                >
-                  <option value="">-- Pilih Santri / Siswa --</option>
-                  {candidates.map((c, i) => (
-                    <option key={c.id} value={c.id}>
-                      {i + 1}. {c.name} ({c.number})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <button
                 type="button"
                 onClick={handleNext}
                 disabled={!candidate}
-                className="grid size-8 sm:size-9 place-items-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none shrink-0"
+                className="grid size-8 sm:size-9 place-items-center rounded-lg text-slate-600 hover:bg-white hover:text-slate-900 transition disabled:opacity-30 disabled:pointer-events-none"
                 title="Santri berikutnya"
               >
                 <ChevronRight className="size-4" />
               </button>
             </div>
           </div>
-        </div>
+        )}
       </Card>
 
       {!candidate ? (
@@ -4396,9 +4395,9 @@ function ProgressView({
       {/* Wadah Terpadu Latihan Interval & Analisis Masa Depan */}
       <CandidateIntervalView candidate={candidate} />
 
-      <div className="grid gap-6">
+      <div className="flex flex-col gap-6 w-full min-w-0 max-w-full">
 
-        <Card className="overflow-hidden border border-slate-200/90 shadow-2xs rounded-2xl">
+        <Card className="overflow-hidden border border-slate-200/90 shadow-2xs rounded-2xl w-full min-w-0 max-w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 border-b border-slate-100 bg-white px-4 py-3 sm:px-5 sm:py-3.5">
             <div className="flex items-center gap-2.5">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 border border-red-100">
