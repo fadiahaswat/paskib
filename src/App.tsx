@@ -91,7 +91,6 @@ import {
   LoginScreen,
 } from "./features/users/UsersAndAuditModal"
 import { GoogleSheetSyncModal } from "./components/GoogleSheetSyncModal"
-import { PwaInstallBanner } from "./components/PwaInstallBanner"
 import { formatLastSync } from "./lib/googleSheetSync"
 import logoUrl from "./assets/BACAPASMUIN.webp"
 import {
@@ -8090,8 +8089,6 @@ function AppShell() {
         open={showGoogleSync}
         onClose={() => setShowGoogleSync(false)}
       />
-
-      <PwaInstallBanner />
 
       {toast ? (
         <div className="fixed bottom-20 right-4 z-50 flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white shadow-2xl lg:bottom-6 lg:right-6">
