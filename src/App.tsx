@@ -129,14 +129,13 @@ const navSections: NavSection[] = [
     title: "Pendidikan & Latihan",
     items: [
       { id: "overview", label: "Ringkasan", icon: LayoutDashboard },
-      { id: "sessions", label: "Sesi & latihan", icon: ClipboardCheck },
       { id: "candidates", label: "Kandidat", icon: UsersRound, hasCount: true },
+      { id: "sessions", label: "Sesi & latihan", icon: ClipboardCheck },
       { id: "progress", label: "Perkembangan", icon: Activity },
-      { id: "cat-bank", label: "CAT Tryout (PIP & TIU)", icon: GraduationCap },
     ],
   },
   {
-    title: "Seleksi",
+    title: "Tahapan Seleksi",
     items: [
       { id: "stages", label: "Tahapan seleksi", icon: Settings2 },
       { id: "ranking", label: "Pemeringkatan sementara", icon: Trophy },
@@ -148,12 +147,18 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: "Panduan",
+    title: "Uji Kesiapan & Medis",
+    items: [
+      { id: "cat-bank", label: "CAT Tryout (PIP & TIU)", icon: GraduationCap },
+      { id: "anamnesis", label: "Screening Kesehatan", icon: HeartPulse },
+      { id: "ishihara", label: "Tes buta warna", icon: Eye },
+    ],
+  },
+  {
+    title: "Panduan & Regulasi",
     items: [
       { id: "guide", label: "Panduan lengkap", icon: BookOpenCheck },
       { id: "documents", label: "Dokumen & regulasi", icon: FileCheck2 },
-      { id: "anamnesis", label: "Screening Kesehatan", icon: HeartPulse },
-      { id: "ishihara", label: "Tes buta warna", icon: Eye },
     ],
   },
   {
@@ -2524,10 +2529,16 @@ function CandidateHome({ onNavigate }: { onNavigate: (view: View) => void }) {
   // 4 Pillars of Readiness
   const docCount = (candidate.documents ?? []).filter(Boolean).length
   const docPercent = Math.round((docCount / 6) * 100)
-  const pipScore = latestAttempt ? latestAttempt.pipScore : (candidate.pip ?? 0)
-  const tiuScore = latestAttempt
-    ? latestAttempt.tiuScoreScaled
-    : (candidate.tiu ?? 0)
+  const hasPipAttempt =
+    latestAttempt &&
+    ((latestAttempt.pipAnswers && Object.keys(latestAttempt.pipAnswers).length > 0) ||
+      (typeof latestAttempt.pipScore === "number" && latestAttempt.pipScore > 0))
+  const hasTiuAttempt =
+    latestAttempt &&
+    ((latestAttempt.tiuAnswers && Object.keys(latestAttempt.tiuAnswers).length > 0) ||
+      (typeof latestAttempt.tiuScoreScaled === "number" && latestAttempt.tiuScoreScaled > 0))
+  const pipScore = (hasPipAttempt ? latestAttempt?.pipScore : undefined) ?? candidate.pip ?? 0
+  const tiuScore = (hasTiuAttempt ? latestAttempt?.tiuScoreScaled : undefined) ?? candidate.tiu ?? 0
   const fitnessVal =
     candidate.fitness !== null
       ? candidate.fitness
@@ -4575,10 +4586,20 @@ function Overview({
                 entry !== null,
             )
             .sort((a, b) => b.time - a.time)[0]?.score
+        const hasPip =
+          latestAttempt &&
+          ((latestAttempt.pipAnswers && Object.keys(latestAttempt.pipAnswers).length > 0) ||
+            (typeof latestAttempt.pipScore === "number" && latestAttempt.pipScore > 0))
+        const hasTiu =
+          latestAttempt &&
+          ((latestAttempt.tiuAnswers && Object.keys(latestAttempt.tiuAnswers).length > 0) ||
+            (typeof latestAttempt.tiuScoreScaled === "number" && latestAttempt.tiuScoreScaled > 0))
         const pipScore =
-          latestAttempt?.pipScore ?? candidate.pip ?? latestSessionScore("pip")
+          (hasPip ? latestAttempt?.pipScore : undefined) ??
+          candidate.pip ??
+          latestSessionScore("pip")
         const tiuScore =
-          latestAttempt?.tiuScoreScaled ??
+          (hasTiu ? latestAttempt?.tiuScoreScaled : undefined) ??
           candidate.tiu ??
           latestSessionScore("tiu")
         const values = [

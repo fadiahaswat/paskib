@@ -43,10 +43,19 @@ export function getProgressStageStatuses(
   const medicalRecord = latestSessionRecord(candidate.id, "medical", sessions, records)
   const paradeRecord = latestSessionRecord(candidate.id, "parade", sessions, records)
 
+  const hasPipAttempt =
+    latestAttempt &&
+    ((latestAttempt.pipAnswers && Object.keys(latestAttempt.pipAnswers).length > 0) ||
+      (typeof latestAttempt.pipScore === "number" && latestAttempt.pipScore > 0))
+  const hasTiuAttempt =
+    latestAttempt &&
+    ((latestAttempt.tiuAnswers && Object.keys(latestAttempt.tiuAnswers).length > 0) ||
+      (typeof latestAttempt.tiuScoreScaled === "number" && latestAttempt.tiuScoreScaled > 0))
+
   return [
     validDocuments === 6 ? "passed" : validDocuments > 0 ? "active" : "locked",
-    scoreToStageStatus(latestAttempt?.pipScore ?? candidate.pip, 70),
-    scoreToStageStatus(latestAttempt?.tiuScoreScaled ?? candidate.tiu, 70),
+    scoreToStageStatus(hasPipAttempt ? latestAttempt?.pipScore : candidate.pip, 70),
+    scoreToStageStatus(hasTiuAttempt ? latestAttempt?.tiuScoreScaled : candidate.tiu, 70),
     resultToStageStatus(medicalRecord?.result),
     paradeRecord?.savedAt
       ? resultToStageStatus(paradeRecord.result)

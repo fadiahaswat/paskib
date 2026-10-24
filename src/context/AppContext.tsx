@@ -390,6 +390,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
+    const isCatAydinFixedV1 = typeof window !== "undefined" && !localStorage.getItem("paska-cat-aydin-fixed-v1")
+    if (isCatAydinFixedV1) {
+      try {
+        localStorage.setItem("paska-cat-aydin-fixed-v1", "true")
+      } catch {}
+    }
+
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
     const baseList = !loaded || loaded.length === 0 ? seededCandidates : loaded
     // Ensure all 13 seeded candidates are always present
@@ -464,8 +471,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           : {}),
         cycleId: c.cycleId === "cycle-2026-kab" ? "cycle-2027-kab" : (c.cycleId || "cycle-2027-kab"),
-        pip: c.pip ?? null,
-        tiu: c.tiu ?? null,
+        pip: (c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN"))) ? null : (c.pip ?? null),
+        tiu: (c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN"))) ? null : (c.tiu ?? null),
         pbb: c.pbb ?? null,
         fitness: candidateFitness,
         personality: c.personality ?? null,
@@ -474,10 +481,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
             ? c.documents
             : match?.documents ?? [true, true, true, true, true, true],
         stage: typeof c.stage === "number" ? c.stage : (match ? match.stage : 1),
-        stageStatuses:
-          Array.isArray(c.stageStatuses) && c.stageStatuses.length === 8
+        stageStatuses: (c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN")))
+          ? ["passed", "active", "active", "active", "active", "review", "review", "active"]
+          : (Array.isArray(c.stageStatuses) && c.stageStatuses.length === 8
             ? c.stageStatuses
-            : match?.stageStatuses ?? ["active", "locked", "locked", "locked", "locked", "locked", "locked", "locked"],
+            : match?.stageStatuses ?? ["active", "locked", "locked", "locked", "locked", "locked", "locked", "locked"]),
         coachNote: c.coachNote ?? match?.coachNote ?? "",
         physicalMetrics: metrics,
         intervalHistory: (Array.isArray(c.intervalHistory)
@@ -496,7 +504,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   const [catTryoutAttempts, setCatTryoutAttempts] = useState<CatTryoutAttempt[]>(() =>
     loadStorage<CatTryoutAttempt[]>("paska-cat-tryout-attempts", []).filter(
-      (attempt) => !legacyDemoCatAttemptIds.has(attempt.id),
+      (attempt) =>
+        !legacyDemoCatAttemptIds.has(attempt.id) &&
+        !attempt.candidateName?.includes("AYDIN") &&
+        attempt.candidateId !== "cand-1792581418049-g66",
     ),
   )
   const [stageChecklists, setStageChecklists] =
@@ -1026,12 +1037,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const stageStatuses: StageStatus[] = [
             ...(c.stageStatuses ?? Array<StageStatus>(8).fill("locked")),
           ]
-          if (attempt.pipStatus) stageStatuses[1] = attempt.pipStatus
-          if (attempt.tiuStatus) stageStatuses[2] = attempt.tiuStatus
+          const hasPipAttempt =
+            (attempt.pipAnswers && Object.keys(attempt.pipAnswers).length > 0) ||
+            (typeof attempt.pipScore === "number" && attempt.pipScore > 0)
+          const hasTiuAttempt =
+            (attempt.tiuAnswers && Object.keys(attempt.tiuAnswers).length > 0) ||
+            (typeof attempt.tiuScoreScaled === "number" && attempt.tiuScoreScaled > 0)
+
+          if (hasPipAttempt && attempt.pipStatus) stageStatuses[1] = attempt.pipStatus
+          if (hasTiuAttempt && attempt.tiuStatus) stageStatuses[2] = attempt.tiuStatus
+
           return {
             ...c,
-            pip: attempt.pipScore,
-            tiu: attempt.tiuScoreScaled,
+            pip: hasPipAttempt ? attempt.pipScore : (c.pip ?? attempt.pipScore),
+            tiu: hasTiuAttempt ? attempt.tiuScoreScaled : (c.tiu ?? attempt.tiuScoreScaled),
             stageStatuses,
             updatedAt: "Baru saja",
           }
@@ -1043,8 +1062,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       let updatedRecords = { ...records }
       let recordsModified = false
       if (candId && candId !== "coach-self") {
+        const hasPipAttempt =
+          (attempt.pipAnswers && Object.keys(attempt.pipAnswers).length > 0) ||
+          (typeof attempt.pipScore === "number" && attempt.pipScore > 0)
+        const hasTiuAttempt =
+          (attempt.tiuAnswers && Object.keys(attempt.tiuAnswers).length > 0) ||
+          (typeof attempt.tiuScoreScaled === "number" && attempt.tiuScoreScaled > 0)
+
         for (const sess of sessions) {
           if (["cat", "pip", "tiu"].includes(sess.type) && sess.participantIds.includes(candId)) {
+            // Jangan override sesi jika sesi spesifik tidak dikerjakan dalam attempt ini
+            if (sess.type === "tiu" && !hasTiuAttempt) continue
+            if (sess.type === "pip" && !hasPipAttempt) continue
+
             const recKey = `${sess.id}:${candId}`
             const oldRec = updatedRecords[recKey]
             const scoreVal = sess.type === "pip"
@@ -2867,28 +2897,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const localCand = localCandMap.get(c.id)
             const att = latestAttemptByCand.get(c.id)
 
-            // Pertahankan nilai PIP/TIU yang sah (apakah dari cloud, lokal, atau riwayat attempt terbaru)
-            const pipScore =
-              c.pip !== null && c.pip !== undefined
-                ? c.pip
-                : localCand?.pip !== null && localCand?.pip !== undefined
-                  ? localCand.pip
-                  : att?.pipScore ?? null
+            const hasPipAttempt =
+              att &&
+              ((att.pipAnswers && Object.keys(att.pipAnswers).length > 0) ||
+                (typeof att.pipScore === "number" && att.pipScore > 0))
+            const hasTiuAttempt =
+              att &&
+              ((att.tiuAnswers && Object.keys(att.tiuAnswers).length > 0) ||
+                (typeof att.tiuScoreScaled === "number" && att.tiuScoreScaled > 0))
+            const isAydinGhost = c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN"))
 
-            const tiuScore =
-              c.tiu !== null && c.tiu !== undefined
+            // Pertahankan nilai PIP/TIU yang sah:
+            // 1. Dari cloud (jika tidak null)
+            // 2. Dari riwayat attempt CAT yang valid
+            // 3. Jangan warisi ghost score jika kandidat adalah Yusuf Aydin yang belum ujian
+            const pipScore = isAydinGhost && !hasPipAttempt
+              ? null
+              : c.pip !== null && c.pip !== undefined
+                ? c.pip
+                : hasPipAttempt
+                  ? (att?.pipScore ?? null)
+                  : null
+
+            const tiuScore = isAydinGhost && !hasTiuAttempt
+              ? null
+              : c.tiu !== null && c.tiu !== undefined
                 ? c.tiu
-                : localCand?.tiu !== null && localCand?.tiu !== undefined
-                  ? localCand.tiu
-                  : att?.tiuScoreScaled ?? null
+                : hasTiuAttempt
+                  ? (att?.tiuScoreScaled ?? null)
+                  : null
 
             const stageStatuses: StageStatus[] = [
-              ...(c.stageStatuses ??
-                localCand?.stageStatuses ??
-                Array<StageStatus>(8).fill("active")),
+              ...(isAydinGhost
+                ? ["passed", "active", "active", "active", "active", "review", "review", "active"]
+                : (c.stageStatuses ??
+                  localCand?.stageStatuses ??
+                  Array<StageStatus>(8).fill("active"))),
             ]
-            if (att?.pipStatus) stageStatuses[1] = att.pipStatus
-            if (att?.tiuStatus) stageStatuses[2] = att.tiuStatus
+            if (hasPipAttempt && att?.pipStatus) stageStatuses[1] = att.pipStatus
+            if (hasTiuAttempt && att?.tiuStatus) stageStatuses[2] = att.tiuStatus
 
             return {
               ...c,

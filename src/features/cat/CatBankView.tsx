@@ -612,10 +612,15 @@ export default function CatBankView() {
     return [...visibleCandidates].sort((a, b) => {
       const attemptA = latestAttemptByCandidate.get(a.id)
       const attemptB = latestAttemptByCandidate.get(b.id)
-      const pipA = attemptA?.pipScore ?? a.pip ?? -1
-      const tiuA = attemptA?.tiuScoreScaled ?? a.tiu ?? -1
-      const pipB = attemptB?.pipScore ?? b.pip ?? -1
-      const tiuB = attemptB?.tiuScoreScaled ?? b.tiu ?? -1
+      const hasPipA = attemptA && ((attemptA.pipAnswers && Object.keys(attemptA.pipAnswers).length > 0) || (typeof attemptA.pipScore === "number" && attemptA.pipScore > 0))
+      const hasTiuA = attemptA && ((attemptA.tiuAnswers && Object.keys(attemptA.tiuAnswers).length > 0) || (typeof attemptA.tiuScoreScaled === "number" && attemptA.tiuScoreScaled > 0))
+      const hasPipB = attemptB && ((attemptB.pipAnswers && Object.keys(attemptB.pipAnswers).length > 0) || (typeof attemptB.pipScore === "number" && attemptB.pipScore > 0))
+      const hasTiuB = attemptB && ((attemptB.tiuAnswers && Object.keys(attemptB.tiuAnswers).length > 0) || (typeof attemptB.tiuScoreScaled === "number" && attemptB.tiuScoreScaled > 0))
+
+      const pipA = (hasPipA ? attemptA?.pipScore : undefined) ?? a.pip ?? -1
+      const tiuA = (hasTiuA ? attemptA?.tiuScoreScaled : undefined) ?? a.tiu ?? -1
+      const pipB = (hasPipB ? attemptB?.pipScore : undefined) ?? b.pip ?? -1
+      const tiuB = (hasTiuB ? attemptB?.tiuScoreScaled : undefined) ?? b.tiu ?? -1
 
       const bothPassedA = pipA >= 70 && tiuA >= 70
       const bothPassedB = pipB >= 70 && tiuB >= 70
@@ -828,6 +833,10 @@ export default function CatBankView() {
     currentAttemptIdRef.current = attemptId
     const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19)
 
+    const existingTiu = (!isCoachTest && selectedCandidate?.tiu !== undefined && selectedCandidate?.tiu !== null) ? selectedCandidate.tiu : null
+    const existingTiuRaw = existingTiu !== null ? Math.round(existingTiu / 2) : 0
+    const existingTiuStatus: "passed" | "failed" = existingTiu !== null ? (existingTiu >= 70 ? "passed" : "failed") : "failed"
+
     // Simpan data tryout PIP ke catatan riwayat secara instan
     const pipAttempt: CatTryoutAttempt = {
       id: attemptId,
@@ -845,11 +854,11 @@ export default function CatBankView() {
       pipCorrect,
       pipScore,
       pipStatus: pipPassed ? "passed" : "failed",
-      tiuCorrect: 0,
-      tiuScoreRaw: 0,
-      tiuScoreScaled: 0,
-      tiuStatus: "failed",
-      combinedScore: pipScore,
+      tiuCorrect: existingTiuRaw,
+      tiuScoreRaw: existingTiuRaw,
+      tiuScoreScaled: existingTiu ?? 0,
+      tiuStatus: existingTiuStatus,
+      combinedScore: existingTiu !== null ? Math.round((pipScore + existingTiu) / 2) : pipScore,
       startedAt: tryoutStartTime || nowStr,
       finalizedAt: nowStr,
     }
@@ -3440,8 +3449,10 @@ export default function CatBankView() {
               <tbody className="divide-y divide-slate-100">
                 {recapCandidates.map((cand) => {
                   const latestAttempt = latestAttemptByCandidate.get(cand.id)
-                  const pipScore = latestAttempt?.pipScore ?? cand.pip
-                  const tiuScore = latestAttempt?.tiuScoreScaled ?? cand.tiu
+                  const hasPip = latestAttempt && ((latestAttempt.pipAnswers && Object.keys(latestAttempt.pipAnswers).length > 0) || (typeof latestAttempt.pipScore === "number" && latestAttempt.pipScore > 0))
+                  const hasTiu = latestAttempt && ((latestAttempt.tiuAnswers && Object.keys(latestAttempt.tiuAnswers).length > 0) || (typeof latestAttempt.tiuScoreScaled === "number" && latestAttempt.tiuScoreScaled > 0))
+                  const pipScore = (hasPip ? latestAttempt?.pipScore : undefined) ?? cand.pip
+                  const tiuScore = (hasTiu ? latestAttempt?.tiuScoreScaled : undefined) ?? cand.tiu
                   const pipPass = pipScore !== null && pipScore >= 70
                   const tiuPass = tiuScore !== null && tiuScore >= 70
                   const combined =

@@ -105,7 +105,23 @@ function doPost(e) {
           if (!attemptMap[incItem.id]) { mergedAttempts.push(incItem); attemptMap[incItem.id] = incItem; }
           else {
             for (var ma = 0; ma < mergedAttempts.length; ma++) {
-              if (mergedAttempts[ma].id === incItem.id) { mergedAttempts[ma] = incItem; break; }
+              if (mergedAttempts[ma].id === incItem.id) {
+                var oldAtt = mergedAttempts[ma];
+                var incHasTiu = (incItem.tiuAnswers && Object.keys(incItem.tiuAnswers).length > 0) || (incItem.tiuScoreScaled && incItem.tiuScoreScaled > 0);
+                var oldHasTiu = (oldAtt.tiuAnswers && Object.keys(oldAtt.tiuAnswers).length > 0) || (oldAtt.tiuScoreScaled && oldAtt.tiuScoreScaled > 0);
+                if (!incHasTiu && oldHasTiu) {
+                  incItem.tiuAnswers = oldAtt.tiuAnswers;
+                  incItem.tiuCorrect = oldAtt.tiuCorrect;
+                  incItem.tiuScoreRaw = oldAtt.tiuScoreRaw;
+                  incItem.tiuScoreScaled = oldAtt.tiuScoreScaled;
+                  incItem.tiuStatus = oldAtt.tiuStatus;
+                  if (incItem.pipScore !== null && incItem.pipScore !== undefined && oldAtt.tiuScoreScaled) {
+                    incItem.combinedScore = Math.round((incItem.pipScore + oldAtt.tiuScoreScaled) / 2);
+                  }
+                }
+                mergedAttempts[ma] = incItem;
+                break;
+              }
             }
           }
         }
