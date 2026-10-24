@@ -1,5 +1,5 @@
 // BACAPASMUIN Service Worker - PWA Offline Caching
-const CACHE_NAME = "bacapasmuin-pwa-v1"
+const CACHE_NAME = "bacapasmuin-pwa-v2"
 
 const STATIC_PRECACHE = [
   "/",
