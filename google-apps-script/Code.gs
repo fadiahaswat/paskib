@@ -98,18 +98,90 @@ function doPost(e) {
     var state = payload.data || payload;
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var rawSheet = getOrCreateSheet(ss, "_DATABASE_BACKUP", false);
 
-    // 1. Simpan full JSON state ke sheet _DATABASE_BACKUP HANYA jika payload valid (ada kandidat/periode/sesi)
-    if (state && (state.candidates || state.cycles || state.sessions || state.schedules)) {
-      var rawSheet = getOrCreateSheet(ss, "_DATABASE_BACKUP", false);
+    // Baca data eksisting dari sheet _DATABASE_BACKUP untuk smart merge
+    var existingRawData = readLargeTextFromSheet(rawSheet);
+    var existingState = null;
+    if (existingRawData && existingRawData.trim().length > 0) {
+      try {
+        existingState = JSON.parse(existingRawData);
+      } catch (err) {
+        existingState = null;
+      }
+    }
+
+    // Smart merge catTryoutAttempts: pertahankan semua riwayat CAT yang sudah masuk
+    var mergedAttempts = [];
+    var attemptMap = {};
+    if (existingState && Array.isArray(existingState.catTryoutAttempts)) {
+      for (var ea = 0; ea < existingState.catTryoutAttempts.length; ea++) {
+        var aItem = existingState.catTryoutAttempts[ea];
+        if (aItem && aItem.id) {
+          attemptMap[aItem.id] = aItem;
+          mergedAttempts.push(aItem);
+        }
+      }
+    }
+    if (state && Array.isArray(state.catTryoutAttempts)) {
+      for (var ia = 0; ia < state.catTryoutAttempts.length; ia++) {
+        var incItem = state.catTryoutAttempts[ia];
+        if (incItem && incItem.id) {
+          if (!attemptMap[incItem.id]) {
+            mergedAttempts.push(incItem);
+            attemptMap[incItem.id] = incItem;
+          } else {
+            for (var ma = 0; ma < mergedAttempts.length; ma++) {
+              if (mergedAttempts[ma].id === incItem.id) {
+                mergedAttempts[ma] = incItem;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (state) {
+      state.catTryoutAttempts = mergedAttempts;
+    }
+
+    // Smart merge Candidates (Jangan timpa nilai PIP/TIU yang sudah ada dengan null dari perangkat yang terlambat)
+    if (state && state.candidates && Array.isArray(state.candidates)) {
+      var existCandMap = {};
+      if (existingState && Array.isArray(existingState.candidates)) {
+        for (var ec = 0; ec < existingState.candidates.length; ec++) {
+          var exc = existingState.candidates[ec];
+          if (exc.id) existCandMap[exc.id] = exc;
+          if (exc.number) existCandMap[exc.number] = exc;
+        }
+      }
+      for (var sc = 0; sc < state.candidates.length; sc++) {
+        var cand = state.candidates[sc];
+        var oldCand = existCandMap[cand.id] || (cand.number ? existCandMap[cand.number] : null);
+        if (oldCand) {
+          if ((cand.pip === null || cand.pip === undefined) && (oldCand.pip !== null && oldCand.pip !== undefined)) {
+            cand.pip = oldCand.pip;
+          }
+          if ((cand.tiu === null || cand.tiu === undefined) && (oldCand.tiu !== null && oldCand.tiu !== undefined)) {
+            cand.tiu = oldCand.tiu;
+          }
+        }
+      }
+    }
+
+    // 1. Simpan full JSON state ke sheet _DATABASE_BACKUP HANYA jika payload valid (ada kandidat/periode/sesi/cat)
+    if (state && (state.candidates || state.cycles || state.sessions || state.schedules || (state.catTryoutAttempts && state.catTryoutAttempts.length > 0))) {
       var jsonString = JSON.stringify(state);
       writeLargeTextToSheet(rawSheet, jsonString);
     }
 
     // 2. Format tab-tab human-readable di Google Sheet
     if (state.candidates && Array.isArray(state.candidates)) {
-      renderCandidatesSheet(ss, state.candidates);
+      renderCandidatesSheet(ss, state.candidates, state.catTryoutAttempts || []);
     }
+
+    // Render Tab Hasil CAT Visual
+    renderCatTryoutsSheet(ss, state.catTryoutAttempts || [], state.candidates || []);
 
     if (state.sessions && Array.isArray(state.sessions)) {
       renderSessionsSheet(ss, state.sessions, state.records || {});
@@ -126,9 +198,10 @@ function doPost(e) {
     return createJsonResponse({
       ok: true,
       action: action,
-      message: "Data berhasil disimpan ke Google Sheet!",
+      message: "Data berhasil disimpan & disinkronkan ke Google Sheet!",
       stats: {
         candidates: state.candidates ? state.candidates.length : 0,
+        catAttempts: state.catTryoutAttempts ? state.catTryoutAttempts.length : 0,
         sessions: state.sessions ? state.sessions.length : 0,
         schedules: state.schedules ? state.schedules.length : 0
       },
@@ -147,9 +220,30 @@ function doPost(e) {
 /**
  * Render Tab Kandidat
  */
-function renderCandidatesSheet(ss, candidates) {
+function renderCandidatesSheet(ss, candidates, attempts) {
   var sheet = getOrCreateSheet(ss, "Kandidat", true);
   sheet.clear();
+
+  // Create latest attempt lookup
+  var latestAttemptMap = {};
+  if (attempts && Array.isArray(attempts)) {
+    for (var a = 0; a < attempts.length; a++) {
+      var att = attempts[a];
+      var cid = att.candidateId;
+      var cname = (att.candidateName || "").trim().toLowerCase();
+      var attTime = att.finalizedAt || att.startedAt || "";
+      if (cid) {
+        if (!latestAttemptMap[cid] || attTime > (latestAttemptMap[cid].finalizedAt || "")) {
+          latestAttemptMap[cid] = att;
+        }
+      }
+      if (cname) {
+        if (!latestAttemptMap[cname] || attTime > (latestAttemptMap[cname].finalizedAt || "")) {
+          latestAttemptMap[cname] = att;
+        }
+      }
+    }
+  }
 
   var headers = [
     "No", "ID", "Nomor Peserta", "Nama Lengkap", "Gender", 
@@ -181,8 +275,16 @@ function renderCandidatesSheet(ss, candidates) {
     var docsCount = Array.isArray(docs) ? docs.filter(Boolean).length : 0;
     var docsStatus = docsCount === 6 ? "Lengkap (6/6)" : (docsCount + "/6 Berkas");
 
-    var valPip = (c.pip !== undefined && c.pip !== null) ? c.pip : (scores.pip !== undefined ? scores.pip : "-");
-    var valTiu = (c.tiu !== undefined && c.tiu !== null) ? c.tiu : (scores.tiu !== undefined ? scores.tiu : "-");
+    var candAttempt = latestAttemptMap[c.id] || latestAttemptMap[(c.name || "").trim().toLowerCase()];
+
+    var valPip = (c.pip !== undefined && c.pip !== null) ? c.pip : 
+      (candAttempt && candAttempt.pipScore !== undefined && candAttempt.pipScore !== null ? candAttempt.pipScore :
+      (scores.pip !== undefined ? scores.pip : "-"));
+
+    var valTiu = (c.tiu !== undefined && c.tiu !== null) ? c.tiu : 
+      (candAttempt && candAttempt.tiuScoreScaled !== undefined && candAttempt.tiuScoreScaled !== null ? candAttempt.tiuScoreScaled :
+      (scores.tiu !== undefined ? scores.tiu : "-"));
+
     var valPbb = (c.pbb !== undefined && c.pbb !== null) ? c.pbb : (scores.pbb !== undefined ? scores.pbb : "-");
     var valSamapta = (c.fitness !== undefined && c.fitness !== null) ? c.fitness : (scores.samapta !== undefined ? scores.samapta : "-");
     var valPersonality = (c.personality !== undefined && c.personality !== null) ? c.personality : (scores.personality !== undefined ? scores.personality : "-");
@@ -221,6 +323,96 @@ function renderCandidatesSheet(ss, candidates) {
   headerRange.setFontColor("#FFFFFF");
   headerRange.setFontWeight("bold");
   sheet.setFrozenRows(1);
+}
+
+/**
+ * Render Tab Hasil CAT (PIP & TIU)
+ */
+function renderCatTryoutsSheet(ss, attempts, candidates) {
+  var sheet = getOrCreateSheet(ss, "Hasil_CAT", true);
+  sheet.clear();
+
+  var headers = [
+    "No", "ID Percobaan", "Nomor Peserta", "Nama Santri / Kandidat", 
+    "Asal Sekolah / Grup", "Paket Ujian", "Percobaan Ke", 
+    "Skor PIP (0-100)", "Status PIP (PG 70)", 
+    "TIU Mentah (0-50)", "TIU Skala 100", "Status TIU (PG 70)", 
+    "Nilai Rata-Rata", "Status Akhir", "Waktu Selesai"
+  ];
+
+  var rows = [headers];
+
+  var candidateMap = {};
+  if (candidates && Array.isArray(candidates)) {
+    for (var k = 0; k < candidates.length; k++) {
+      var cand = candidates[k];
+      if (cand.id) candidateMap[cand.id] = cand;
+      if (cand.name) candidateMap[cand.name.trim().toLowerCase()] = cand;
+    }
+  }
+
+  var list = (attempts && Array.isArray(attempts)) ? attempts.slice() : [];
+  list.sort(function(a, b) {
+    var ta = a.finalizedAt || a.startedAt || "";
+    var tb = b.finalizedAt || b.startedAt || "";
+    return tb.localeCompare(ta);
+  });
+
+  for (var i = 0; i < list.length; i++) {
+    var att = list[i];
+    var cInfo = candidateMap[att.candidateId] || candidateMap[(att.candidateName || "").trim().toLowerCase()] || {};
+    var candNumber = cInfo.number || att.candidateNumber || "-";
+    var candName = att.candidateName || cInfo.name || "Peserta";
+    var candGroup = att.candidateGroup || cInfo.school || "-";
+    
+    var pipScore = (att.pipScore !== undefined && att.pipScore !== null) ? att.pipScore : "-";
+    var pipStatus = att.pipStatus === "passed" ? "Lolos PG" : (att.pipStatus === "failed" ? "Remedial" : (typeof pipScore === "number" && pipScore >= 70 ? "Lolos PG" : "Remedial"));
+    
+    var tiuRaw = (att.tiuScoreRaw !== undefined && att.tiuScoreRaw !== null) ? att.tiuScoreRaw : "-";
+    var tiuScaled = (att.tiuScoreScaled !== undefined && att.tiuScoreScaled !== null) ? att.tiuScoreScaled : "-";
+    var tiuStatus = att.tiuStatus === "passed" ? "Lolos PG" : (att.tiuStatus === "failed" ? "Remedial" : (typeof tiuScaled === "number" && tiuScaled >= 70 ? "Lolos PG" : "Remedial"));
+    
+    var combined = att.combinedScore;
+    if (combined === undefined || combined === null) {
+      if (typeof pipScore === "number" && typeof tiuScaled === "number") {
+        combined = Math.round((pipScore + tiuScaled) / 2);
+      } else {
+        combined = "-";
+      }
+    }
+
+    var finalStatus = (pipStatus === "Lolos PG" && tiuStatus === "Lolos PG") ? "Lolos Kedua Sesi" : "Belum Memenuhi";
+
+    rows.push([
+      i + 1,
+      att.id || "",
+      candNumber,
+      candName,
+      candGroup,
+      att.packageName || "Paket Standar BPIP",
+      att.attemptNumber || 1,
+      pipScore,
+      pipStatus,
+      tiuRaw,
+      tiuScaled,
+      tiuStatus,
+      combined,
+      finalStatus,
+      att.finalizedAt || att.startedAt || new Date().toISOString()
+    ]);
+  }
+
+  sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+
+  // Styling Header
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground("#4F46E5"); // Indigo-600
+  headerRange.setFontColor("#FFFFFF");
+  headerRange.setFontWeight("bold");
+  sheet.setFrozenRows(1);
+  try {
+    sheet.autoResizeColumns(1, headers.length);
+  } catch (e) {}
 }
 
 /**

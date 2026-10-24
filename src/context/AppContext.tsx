@@ -964,7 +964,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
 
   const saveToCloud = useCallback(
-    (override?: Partial<AppDatabaseState>): Promise<{ ok: boolean, message: string }> => {
+    (
+      override?: Partial<AppDatabaseState>,
+      immediate: boolean = false,
+    ): Promise<{ ok: boolean, message: string }> => {
       if (override) {
         pendingSaveOverrideRef.current = {
           ...pendingSaveOverrideRef.current,
@@ -973,6 +976,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       if (saveDebounceTimerRef.current) {
         window.clearTimeout(saveDebounceTimerRef.current)
+      }
+      if (immediate) {
+        const toSave = { ...pendingSaveOverrideRef.current }
+        pendingSaveOverrideRef.current = {}
+        return executePushToCloud(toSave)
       }
       return new Promise((resolve) => {
         saveDebounceTimerRef.current = window.setTimeout(async () => {
@@ -1000,13 +1008,60 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const saveCatTryoutAttempt = useCallback(
     (attempt: CatTryoutAttempt) => {
-      const updated = [
+      const updatedAttempts = [
         attempt,
         ...stateRef.current.catTryoutAttempts.filter((item) => item.id !== attempt.id),
       ]
-      stateRef.current = { ...stateRef.current, catTryoutAttempts: updated }
-      setCatTryoutAttempts(updated)
-      void saveToCloud({ catTryoutAttempts: updated })
+
+      // Sinkronkan langsung ke kandidat terkait jika bukan simulasi mandiri pelatih
+      const candId = attempt.candidateId
+      let updatedCandidates = stateRef.current.allCandidates
+      if (
+        candId &&
+        candId !== "coach-self" &&
+        updatedCandidates.some((c) => c.id === candId)
+      ) {
+        updatedCandidates = updatedCandidates.map((c) => {
+          if (c.id !== candId) return c
+          const stageStatuses: StageStatus[] = [
+            ...(c.stageStatuses ?? Array<StageStatus>(8).fill("locked")),
+          ]
+          if (attempt.pipStatus) stageStatuses[1] = attempt.pipStatus
+          if (attempt.tiuStatus) stageStatuses[2] = attempt.tiuStatus
+          return {
+            ...c,
+            pip: attempt.pipScore,
+            tiu: attempt.tiuScoreScaled,
+            stageStatuses,
+            updatedAt: "Baru saja",
+          }
+        })
+        setAllCandidates(updatedCandidates)
+      }
+
+      stateRef.current = {
+        ...stateRef.current,
+        catTryoutAttempts: updatedAttempts,
+        allCandidates: updatedCandidates,
+      }
+      setCatTryoutAttempts(updatedAttempts)
+
+      try {
+        localStorage.setItem(
+          "paska-cat-tryout-attempts",
+          JSON.stringify(updatedAttempts),
+        )
+        localStorage.setItem(
+          "paska-clean-candidates",
+          JSON.stringify(updatedCandidates),
+        )
+      } catch {}
+
+      // Push instan (immediate) ke cloud tanpa menunggu debounce agar tersimpan langsung di Google Sheet
+      void saveToCloud(
+        { catTryoutAttempts: updatedAttempts, candidates: updatedCandidates },
+        true,
+      )
     },
     [saveToCloud],
   )
@@ -1762,6 +1817,105 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           } else if (sessionType === "medical") {
             stageIndex = 3
+            const existingMetrics = cand.physicalMetrics ?? []
+            const bp =
+              metrics.bloodPressure ||
+              (metrics.systolic && metrics.diastolic
+                ? `${metrics.systolic}/${metrics.diastolic} mmHg`
+                : "")
+            const pulse = metrics.pulse ? `${metrics.pulse} bpm` : ""
+            const eye =
+              metrics.ishiharaDetail ||
+              (metrics.ishiharaStatus === "normal"
+                ? "Bebas Buta Warna (Ishihara)"
+                : metrics.ishiharaStatus
+                  ? "Buta Warna (TMS)"
+                  : "")
+            const teeth =
+              metrics.kariesActive === "bebas"
+                ? `Bebas Karies${metrics.cavityCount ? ` (${metrics.cavityCount} tambalan)` : ""}`
+                : metrics.kariesActive === "parah"
+                  ? "Karies Parah"
+                  : ""
+            const ent =
+              metrics.tonsil === "normal" &&
+              metrics.nasalPolyp === "bebas" &&
+              metrics.tympanic === "utuh"
+                ? "THT Sehat (Utuh)"
+                : metrics.tonsil === "t3_t4"
+                  ? "Tonsilitis T3-T4"
+                  : metrics.nasalPolyp === "ada"
+                    ? "Ada Polip Hidung"
+                    : metrics.tympanic === "robek_congek"
+                      ? "Congek / Gendang Robek"
+                      : ""
+            const anam = metrics.anamnesis ? `${metrics.anamnesis} YA` : ""
+
+            const filteredMetrics = existingMetrics.filter(
+              (m) =>
+                ![
+                  "tekanan darah",
+                  "tensi",
+                  "nadi",
+                  "ishihara",
+                  "mata",
+                  "gigi",
+                  "tht",
+                  "anamnesis",
+                ].some((k) => m.label.toLowerCase().includes(k)),
+            )
+
+            if (bp) {
+              filteredMetrics.push({
+                label: "Tekanan Darah",
+                current: bp,
+                target: "110/70–125/85 mmHg",
+                percent: 100,
+              })
+            }
+            if (pulse) {
+              filteredMetrics.push({
+                label: "Nadi Istirahat",
+                current: pulse,
+                target: "60–85 bpm",
+                percent: 100,
+              })
+            }
+            if (eye) {
+              filteredMetrics.push({
+                label: "Mata & Ishihara",
+                current: eye,
+                target: "Visus 6/6 · Normal",
+                percent: 100,
+              })
+            }
+            if (teeth) {
+              filteredMetrics.push({
+                label: "Kesehatan Gigi",
+                current: teeth,
+                target: "Karies ≤5 · Depan Utuh",
+                percent: 100,
+              })
+            }
+            if (ent) {
+              filteredMetrics.push({
+                label: "THT & Pernapasan",
+                current: ent,
+                target: "Bebas T3-T4 / Polip",
+                percent: 100,
+              })
+            }
+            if (anam) {
+              const anamScore = Number(metrics.anamnesisScore) || 100
+              filteredMetrics.push({
+                label: "Anamnesis Rikkes",
+                current: `${anam} (Skor ${anamScore})`,
+                target: "≤5 YA · 0 Kritis",
+                percent: anamScore,
+              })
+            }
+
+            patch.physicalMetrics = filteredMetrics
           } else if (sessionType === "parade") {
             stageIndex = 4
             const h = Number(metrics.height)
@@ -2583,68 +2737,102 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       try {
         const s = stateRef.current
-        const currentHash = computeDataHash()
-        const hasLocalChanges =
-          Boolean(lastSyncedHash.current) &&
-          currentHash !== lastSyncedHash.current
 
-        // Jika ada perubahan data lokal dan bukan saat pertama buka, simpan perubahan ke Google Sheet
-        if (hasLocalChanges && reason !== "initial") {
-          const stateToPush: AppDatabaseState = {
-            candidates: s.allCandidates,
-            catTryoutAttempts: s.catTryoutAttempts,
-            cycles: s.cycles,
-            activeCycleId: s.activeCycleId,
-            sessions: s.sessions,
-            records: s.records,
-            schedules: s.schedules,
-            questions: s.questions,
-            supportingDocs: s.supportingDocs,
-            standardRules: s.standardRules,
-            stageChecklists: s.stageChecklists,
-            users: s.users.filter((u) => u.role !== "candidate"),
-            auditLogs: s.auditLogs,
-            rankingPublished: s.rankingPublished,
-            ishiharaSessions: s.ishiharaSessions,
-            ishiharaAllowlist: s.ishiharaAllowlist,
-            ishiharaResults: s.ishiharaResults,
-          }
-          await pushStateToGoogleSheet(stateToPush, targetUrl)
-        }
-
-        // Ambil data terbaru dari Google Sheet
+        // 1. Tarik data terbaru dari Google Sheet terlebih dahulu (Pull First)
+        // Hal ini krusial agar perangkat pelatih TIDAK menimpa hasil tes santri dari perangkat lain
         const res = await pullStateFromGoogleSheet(targetUrl)
         if (res.ok && res.data) {
           const d = res.data
-          let sanitizedCandidates = s.allCandidates
-          if (Array.isArray(d.candidates) && d.candidates.length > 0) {
-            sanitizedCandidates = d.candidates.map((c: Candidate) => {
-              const verified = seededCandidates.find((sc) => sc.number === c.number)
-              return {
-                ...c,
-                ...(verified
-                  ? {
-                      nik: verified.nik,
-                      birthDate: verified.birthDate,
-                      origin: verified.origin,
-                      className: verified.className,
-                      studentNumber: verified.studentNumber,
-                    }
-                  : {}),
-                documents:
-                  Array.isArray(c.documents) && c.documents.length === 6
-                    ? c.documents
-                    : (c.documents ?? [false, false, false, false, false, false]),
-              }
-            })
-            setAllCandidates(sanitizedCandidates)
-          }
-          if (Array.isArray(d.catTryoutAttempts))
-            setCatTryoutAttempts(
-              d.catTryoutAttempts.filter(
+
+          // Smart merge catTryoutAttempts: gabungkan yang di cloud dan lokal (union by id)
+          const localAttempts = s.catTryoutAttempts || []
+          const cloudAttempts = Array.isArray(d.catTryoutAttempts)
+            ? d.catTryoutAttempts.filter(
                 (attempt: CatTryoutAttempt) => !legacyDemoCatAttemptIds.has(attempt.id),
-              ),
-            )
+              )
+            : []
+          const attemptMap = new Map<string, CatTryoutAttempt>()
+          for (const att of cloudAttempts) attemptMap.set(att.id, att)
+          for (const att of localAttempts) {
+            if (!attemptMap.has(att.id)) attemptMap.set(att.id, att)
+          }
+          const mergedAttempts = Array.from(attemptMap.values()).sort(
+            (a, b) => (b.finalizedAt || "").localeCompare(a.finalizedAt || ""),
+          )
+
+          // Map percobaan terbaru per kandidat untuk backfill nilai jika profil kandidat belum terisi
+          const latestAttemptByCand = new Map<string, CatTryoutAttempt>()
+          for (const att of mergedAttempts) {
+            const cid = att.candidateId
+            if (
+              cid &&
+              (!latestAttemptByCand.has(cid) ||
+                (att.finalizedAt || "") >
+                  (latestAttemptByCand.get(cid)?.finalizedAt || ""))
+            ) {
+              latestAttemptByCand.set(cid, att)
+            }
+          }
+
+          // Smart merge candidates
+          const baseCandList =
+            Array.isArray(d.candidates) && d.candidates.length > 0
+              ? d.candidates
+              : s.allCandidates
+          const localCandMap = new Map<string, Candidate>()
+          for (const c of s.allCandidates) localCandMap.set(c.id, c)
+
+          const sanitizedCandidates = baseCandList.map((c: Candidate) => {
+            const verified = seededCandidates.find((sc) => sc.number === c.number)
+            const localCand = localCandMap.get(c.id)
+            const att = latestAttemptByCand.get(c.id)
+
+            // Pertahankan nilai PIP/TIU yang sah (apakah dari cloud, lokal, atau riwayat attempt terbaru)
+            const pipScore =
+              c.pip !== null && c.pip !== undefined
+                ? c.pip
+                : localCand?.pip !== null && localCand?.pip !== undefined
+                  ? localCand.pip
+                  : att?.pipScore ?? null
+
+            const tiuScore =
+              c.tiu !== null && c.tiu !== undefined
+                ? c.tiu
+                : localCand?.tiu !== null && localCand?.tiu !== undefined
+                  ? localCand.tiu
+                  : att?.tiuScoreScaled ?? null
+
+            const stageStatuses: StageStatus[] = [
+              ...(c.stageStatuses ??
+                localCand?.stageStatuses ??
+                Array<StageStatus>(8).fill("active")),
+            ]
+            if (att?.pipStatus) stageStatuses[1] = att.pipStatus
+            if (att?.tiuStatus) stageStatuses[2] = att.tiuStatus
+
+            return {
+              ...c,
+              ...(verified
+                ? {
+                    nik: verified.nik,
+                    birthDate: verified.birthDate,
+                    origin: verified.origin,
+                    className: verified.className,
+                    studentNumber: verified.studentNumber,
+                  }
+                : {}),
+              pip: pipScore,
+              tiu: tiuScore,
+              stageStatuses,
+              documents:
+                Array.isArray(c.documents) && c.documents.length === 6
+                  ? c.documents
+                  : (c.documents ?? [false, false, false, false, false, false]),
+            }
+          })
+
+          setAllCandidates(sanitizedCandidates)
+          setCatTryoutAttempts(mergedAttempts)
           if (Array.isArray(d.cycles) && d.cycles.length > 0) setCycles(d.cycles)
           if (d.activeCycleId) setActiveCycleId(d.activeCycleId)
           if (Array.isArray(d.sessions)) setSessions(d.sessions)
@@ -2676,20 +2864,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(d.ishiharaAllowlist)) setIshiharaAllowlist(d.ishiharaAllowlist)
           if (Array.isArray(d.ishiharaResults)) setIshiharaResults(d.ishiharaResults)
 
-          lastSyncedHash.current = JSON.stringify({
+          const newSyncedHash = JSON.stringify({
             c: sanitizedCandidates,
-            cat: d.catTryoutAttempts || [],
-            s: d.sessions || [],
-            r: d.records || {},
-            sch: d.schedules || [],
-            q: d.questions || [],
-            d: d.supportingDocs || [],
-            st: d.standardRules || [],
-            ch: d.stageChecklists || defaultChecklists,
-            ish: d.ishiharaSessions || [],
-            alw: d.ishiharaAllowlist || [],
-            res: d.ishiharaResults || [],
+            cat: mergedAttempts,
+            s: d.sessions || s.sessions,
+            r: d.records || s.records,
+            sch: d.schedules || s.schedules,
+            q: d.questions || s.questions,
+            d: d.supportingDocs || s.supportingDocs,
+            st: d.standardRules || s.standardRules,
+            ch: d.stageChecklists || s.stageChecklists || defaultChecklists,
+            ish: d.ishiharaSessions || s.ishiharaSessions || [],
+            alw: d.ishiharaAllowlist || s.ishiharaAllowlist || [],
+            res: d.ishiharaResults || s.ishiharaResults || [],
           })
+          lastSyncedHash.current = newSyncedHash
+
+          // Jika ada attempt lokal yang belum ada di cloud, dorong data gabungan ke cloud
+          if (mergedAttempts.length > cloudAttempts.length) {
+            const mergedStateToPush: AppDatabaseState = {
+              candidates: sanitizedCandidates,
+              catTryoutAttempts: mergedAttempts,
+              cycles: d.cycles || s.cycles,
+              activeCycleId: d.activeCycleId || s.activeCycleId,
+              sessions: d.sessions || s.sessions,
+              records: d.records || s.records,
+              schedules: d.schedules || s.schedules,
+              questions: d.questions || s.questions,
+              supportingDocs: d.supportingDocs || s.supportingDocs,
+              standardRules: d.standardRules || s.standardRules,
+              stageChecklists: d.stageChecklists || s.stageChecklists,
+              users: s.users.filter((u) => u.role !== "candidate"),
+              auditLogs: d.auditLogs || s.auditLogs,
+              rankingPublished: d.rankingPublished !== undefined ? d.rankingPublished : s.rankingPublished,
+              ishiharaSessions: d.ishiharaSessions || s.ishiharaSessions,
+              ishiharaAllowlist: d.ishiharaAllowlist || s.ishiharaAllowlist,
+              ishiharaResults: d.ishiharaResults || s.ishiharaResults,
+            }
+            await pushStateToGoogleSheet(mergedStateToPush, targetUrl)
+          }
 
           setCloudSyncStatus("synced")
           const now = new Date().toISOString()
@@ -2699,7 +2912,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             logAudit(
               "SYNC_GOOGLE_SHEET",
               "Google Sheet",
-              `Sinkronisasi ${sanitizedCandidates.length} kandidat berhasil`,
+              `Sinkronisasi ${sanitizedCandidates.length} kandidat & ${mergedAttempts.length} riwayat CAT berhasil`,
             )
           }
         } else if (res.ok && !res.data) {
@@ -2725,7 +2938,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               ishiharaResults: s.ishiharaResults,
             }
             await pushStateToGoogleSheet(stateToPush, targetUrl)
-            lastSyncedHash.current = currentHash
+            lastSyncedHash.current = computeDataHash()
           }
           setCloudSyncStatus("synced")
         } else {

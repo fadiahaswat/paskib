@@ -9,6 +9,7 @@ import {
   Target,
 } from "lucide-react"
 import { Badge, Card } from "../../components/ui"
+import { useApp } from "../../context/AppContext"
 import {
   administrationDocuments,
   anamnesisItems,
@@ -104,6 +105,8 @@ function DataTable({ headers, rows }: { headers: string[], rows: TableRows }) {
 }
 
 export default function GuideView() {
+  const { currentUser } = useApp()
+  const isCandidate = currentUser.role === "candidate"
   const [tab, setTab] = useState<Tab>("architecture")
   return (
     <div className="grid gap-4 sm:gap-5">
@@ -115,28 +118,36 @@ export default function GuideView() {
               <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
                 Panduan Seleksi 2026/2027
               </h1>
-              <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
-                Basis Pengetahuan Pelatih
-              </span>
+              {!isCandidate && (
+                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+                  Basis Pengetahuan Pelatih
+                </span>
+              )}
             </div>
             <p className="mt-1 max-w-3xl text-xs text-slate-500">
               Referensi kronologis, standar latihan, dan matriks lapangan yang menjadi dasar seluruh form simulasi.
             </p>
           </div>
-          <Badge tone="warning" className="shrink-0">Baseline internal · perlu pengesahan</Badge>
+          {!isCandidate && (
+            <Badge tone="warning" className="shrink-0">
+              Baseline internal · perlu pengesahan
+            </Badge>
+          )}
         </div>
       </Card>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
-        <div className="flex gap-3">
-          <ShieldAlert className="mt-0.5 size-5 shrink-0" />
-          <p>
-            Angka mengikuti dokumen yang diberikan, tetapi tidak otomatis
-            dianggap ketentuan resmi BPIP 2026/2027. Konflik cutoff usia dan
-            tabel parsial harus disahkan sebelum eliminasi produksi.
-          </p>
+      {!isCandidate && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
+          <div className="flex gap-3">
+            <ShieldAlert className="mt-0.5 size-5 shrink-0" />
+            <p>
+              Angka mengikuti dokumen yang diberikan, tetapi tidak otomatis
+              dianggap ketentuan resmi BPIP 2026/2027. Konflik cutoff usia dan
+              tabel parsial harus disahkan sebelum eliminasi produksi.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <Card className="overflow-hidden">
         <div className="flex overflow-x-auto border-b border-slate-200">

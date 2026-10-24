@@ -109,8 +109,9 @@ const CatBankView = lazy(() => import("./features/cat/CatBankView"))
 const DocumentsView = lazy(() => import("./features/documents/DocumentsView"))
 const IshiharaView = lazy(() => import("./features/ishihara/IshiharaView"))
 const UsersAuditView = lazy(() => import("./features/users/UsersAuditView"))
+const AnamnesisView = lazy(() => import("./features/medical/AnamnesisView"))
 
-export type View = "overview" | "candidate-home" | "candidate-stages" | "candidate-results" | "candidate-progress" | "candidate-ranking" | "sessions" | "guide" | "stages" | "candidates" | "progress" | "ranking" | "standards" | "cat-bank" | "documents" | "ishihara" | "users-audit"
+export type View = "overview" | "candidate-home" | "candidate-stages" | "candidate-results" | "candidate-progress" | "candidate-ranking" | "sessions" | "guide" | "stages" | "candidates" | "progress" | "ranking" | "standards" | "cat-bank" | "documents" | "ishihara" | "users-audit" | "anamnesis"
 
 type NavItem = {
   id: View
@@ -152,7 +153,8 @@ const navSections: NavSection[] = [
     items: [
       { id: "guide", label: "Panduan lengkap", icon: BookOpenCheck },
       { id: "documents", label: "Dokumen & regulasi", icon: FileCheck2 },
-      { id: "ishihara", label: "Tes buta warna (Ishihara)", icon: Eye },
+      { id: "anamnesis", label: "Screening Kesehatan", icon: HeartPulse },
+      { id: "ishihara", label: "Tes buta warna", icon: Eye },
     ],
   },
   {
@@ -169,20 +171,26 @@ const navSections: NavSection[] = [
 
 const candidateNavSections: NavSection[] = [
   {
-    title: "Portal kandidat",
+    title: "Aktivitas & Pantauan",
     items: [
       { id: "candidate-home", label: "Beranda saya", icon: LayoutDashboard },
       { id: "candidate-stages", label: "Tahapan seleksi", icon: CheckCircle2 },
       { id: "candidate-progress", label: "Perkembangan saya", icon: Activity },
       { id: "candidate-ranking", label: "Peringkat sementara", icon: Trophy },
+    ],
+  },
+  {
+    title: "Latihan & Simulasi",
+    items: [
       { id: "cat-bank", label: "Latihan & ujian CAT", icon: GraduationCap },
       { id: "candidate-results", label: "Hasil & riwayat", icon: Activity },
+      { id: "anamnesis", label: "Screening Kesehatan", icon: HeartPulse },
+      { id: "ishihara", label: "Tes Buta Warna", icon: Eye },
       {
         id: "standards",
         label: "Kalkulator Nilai BPIP",
         icon: SlidersHorizontal,
       },
-      { id: "ishihara", label: "Tes Buta Warna (Ishihara)", icon: Eye },
     ],
   },
   {
@@ -3951,7 +3959,7 @@ function CandidateResults({
 }: {
   onNavigate: (view: View) => void
 }) {
-  const { currentUser, candidates, catTryoutAttempts } = useApp()
+  const { currentUser, candidates, catTryoutAttempts, sessions, records, ishiharaResults } = useApp()
   const candidate = candidates.find(
     (item) => item.id === currentUser.candidateId,
   )
@@ -3975,6 +3983,45 @@ function CandidateResults({
     )
   }
 
+  // Rekam Medis & Anamnesis Mandiri
+  const medicalSession = sessions.find((s) => s.type === "medical")
+  const medicalKey = medicalSession ? `${medicalSession.id}:${candidate.id}` : ""
+  const medicalRecord = medicalKey ? records[medicalKey] : undefined
+
+  let localAnamnesis: {
+    score?: number
+    yesCount?: number
+    status?: string
+    savedAt?: string
+  } | null = null
+  try {
+    const stored = localStorage.getItem(`paska-anamnesis-${candidate.id}`)
+    if (stored) {
+      localAnamnesis = JSON.parse(stored)
+    }
+  } catch {}
+
+  const anamnesisScore =
+    medicalRecord?.metrics?.anamnesisScore !== undefined
+      ? Number(medicalRecord.metrics.anamnesisScore)
+      : localAnamnesis?.score !== undefined
+        ? Number(localAnamnesis.score)
+        : null
+
+  const anamnesisYesCount =
+    medicalRecord?.metrics?.anamnesis !== undefined
+      ? Number(medicalRecord.metrics.anamnesis)
+      : localAnamnesis?.yesCount !== undefined
+        ? Number(localAnamnesis.yesCount)
+        : null
+
+  const anamnesisStatus =
+    medicalRecord?.metrics?.anamnesisStatus || localAnamnesis?.status || null
+
+  const latestIshihara = ishiharaResults
+    ?.filter((r) => r.participantId === candidate.id)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
+
   const latest = attempts[0]
   return (
     <div className="grid gap-5">
@@ -3992,9 +4039,126 @@ function CandidateResults({
               Hanya hasil ujian Anda yang ditampilkan di halaman ini.
             </p>
           </div>
-          <Button variant="secondary" onClick={() => onNavigate("cat-bank")} className="shrink-0">
-            <GraduationCap className="size-4" /> Buka CAT
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="secondary" onClick={() => onNavigate("anamnesis")}>
+              <HeartPulse className="size-4 text-red-600" /> Screening Kesehatan
+            </Button>
+            <Button variant="secondary" onClick={() => onNavigate("cat-bank")}>
+              <GraduationCap className="size-4" /> Buka CAT
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Sub-Nilai Rikkes & Rekam Anamnesis Card */}
+      <Card className="p-5 sm:p-6 border-slate-200/90 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-red-200/80 bg-red-50 px-2 py-0.5 text-2xs font-bold text-red-700 uppercase tracking-wide">
+                <HeartPulse className="size-3 text-red-600" /> Tahap 4 · Pemeriksaan Kesehatan (Rikkes)
+              </span>
+              {anamnesisScore !== null ? (
+                <Badge
+                  tone={
+                    anamnesisStatus === "passed"
+                      ? "success"
+                      : anamnesisStatus === "failed"
+                        ? "danger"
+                        : "warning"
+                  }
+                >
+                  {anamnesisStatus === "passed"
+                    ? "Memenuhi Syarat (Laik)"
+                    : anamnesisStatus === "failed"
+                      ? "TMS Kritis"
+                      : "Perlu Tinjau Medis"}
+                </Badge>
+              ) : (
+                <Badge tone="neutral">Belum Skrining</Badge>
+              )}
+            </div>
+            <h2 className="mt-1.5 font-display text-lg sm:text-xl font-bold text-slate-950">
+              Sub-Nilai Rikkes: Screening Kesehatan
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Nilai riwayat kesehatan 21 penyakit dan tes Ishihara yang tersinkronisasi ke Tahap 4.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onNavigate("anamnesis")}
+            className="shrink-0 text-xs font-bold"
+          >
+            <HeartPulse className="size-3.5 text-red-600" />
+            {anamnesisScore !== null ? "Ubah Screening Kesehatan" : "Isi Screening Kesehatan"}
           </Button>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {/* Nilai Anamnesis */}
+          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+            <p className="text-xs font-semibold text-slate-500">Sub-Nilai Anamnesis</p>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className={`font-display text-2xl font-bold ${
+                anamnesisScore === null
+                  ? "text-slate-400"
+                  : anamnesisScore >= 70
+                    ? "text-emerald-700"
+                    : anamnesisScore === 0
+                      ? "text-red-600"
+                      : "text-amber-700"
+              }`}>
+                {anamnesisScore !== null ? anamnesisScore : "—"}
+              </span>
+              <span className="text-xs text-slate-400">/100</span>
+            </div>
+            <p className="mt-1 text-2xs text-slate-500">
+              {anamnesisScore !== null
+                ? `${anamnesisYesCount ?? 0} dari 21 keluhan YA (Maks. 5)`
+                : "Belum mengisi kuesioner"}
+            </p>
+          </div>
+
+          {/* Tes Buta Warna Ishihara */}
+          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+            <p className="text-xs font-semibold text-slate-500">Sub-Nilai Ishihara (Mata)</p>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className={`font-display text-2xl font-bold ${
+                latestIshihara
+                  ? latestIshihara.screeningInterpretation === "normal"
+                    ? "text-emerald-700"
+                    : "text-rose-700"
+                  : "text-slate-400"
+              }`}>
+                {latestIshihara ? `${latestIshihara.accuracy}%` : "—"}
+              </span>
+              {latestIshihara ? (
+                <span className="text-xs text-slate-400">akurasi</span>
+              ) : null}
+            </div>
+            <p className="mt-1 text-2xs text-slate-500">
+              {latestIshihara ? latestIshihara.interpretationLabel : "Belum mengikuti tes Ishihara"}
+            </p>
+          </div>
+
+          {/* Status Kelayakan Tahap 4 */}
+          <div className="rounded-2xl bg-emerald-50/70 p-4 border border-emerald-100">
+            <p className="text-xs font-semibold text-emerald-800">Status Tahap 4 (Rikkes)</p>
+            <p className="mt-1 font-display text-base font-bold text-emerald-950">
+              {candidate.stageStatuses[3] === "passed"
+                ? "Lolos Standar Medis"
+                : candidate.stageStatuses[3] === "failed"
+                  ? "Tidak Memenuhi Syarat"
+                  : candidate.stageStatuses[3] === "review"
+                    ? "Perlu Verifikasi Dokter"
+                    : "Menunggu Penilaian"}
+            </p>
+            <p className="mt-1 text-2xs text-emerald-800/80 leading-relaxed truncate">
+              {candidate.coachNote || "Disinkronkan otomatis saat formulir disimpan."}
+            </p>
+          </div>
         </div>
       </Card>
 
@@ -7555,32 +7719,32 @@ function StandardsView() {
         </div>
       </Card>
 
-      <Card className="overflow-hidden">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-display text-lg font-bold text-slate-900">
-            Register aturan & pengesahan standar
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Versi standar: Draft BPIP 2026/2027 · Klik &ldquo;Ubah Status /
-            Sahkan&rdquo; untuk mencatat pengesahan approver.
-          </p>
-        </div>
-        <div className="divide-y divide-slate-100">
-          {standardRules.map((rule) => (
-            <div key={rule.id} className="px-6 py-4">
-              <div className="grid gap-3 md:grid-cols-[1.1fr_1.3fr_auto_auto] md:items-center">
-                <div>
-                  <p className="text-sm font-bold text-slate-900">
-                    {rule.name}
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-400">
-                    Approver: {rule.approver ?? "—"} · Ref:{" "}
-                    {rule.reference ?? "—"}
-                  </p>
-                </div>
-                <p className="text-sm text-slate-600">{rule.value}</p>
-                <Badge tone={rule.tone}>{rule.status}</Badge>
-                {!isCandidate ? (
+      {!isCandidate && (
+        <Card className="overflow-hidden">
+          <div className="border-b border-slate-100 px-6 py-5">
+            <h2 className="font-display text-lg font-bold text-slate-900">
+              Register aturan & pengesahan standar
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Versi standar: Draft BPIP 2026/2027 · Klik &ldquo;Ubah Status /
+              Sahkan&rdquo; untuk mencatat pengesahan approver.
+            </p>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {standardRules.map((rule) => (
+              <div key={rule.id} className="px-6 py-4">
+                <div className="grid gap-3 md:grid-cols-[1.1fr_1.3fr_auto_auto] md:items-center">
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      {rule.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Approver: {rule.approver ?? "—"} · Ref:{" "}
+                      {rule.reference ?? "—"}
+                    </p>
+                  </div>
+                  <p className="text-sm text-slate-600">{rule.value}</p>
+                  <Badge tone={rule.tone}>{rule.status}</Badge>
                   <Button
                     variant="secondary"
                     className="!px-3 !py-1.5 !text-xs"
@@ -7594,60 +7758,56 @@ function StandardsView() {
                       ? "Tutup"
                       : "Sahkan / Ubah Status"}
                   </Button>
-                ) : (
-                  <span className="text-2xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                    Standar Resmi
-                  </span>
-                )}
-              </div>
-
-              {editingRuleId === rule.id ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3">
-                  <Input
-                    label="Nama pengesah (Approver)"
-                    value={ruleApprover}
-                    onChange={(e) => setRuleApprover(e.target.value)}
-                  />
-                  <Input
-                    label="Referensi regulasi / SK"
-                    value={ruleRef}
-                    onChange={(e) => setRuleRef(e.target.value)}
-                  />
-                  <div className="flex items-end gap-2">
-                    <Button
-                      onClick={() => {
-                        updateStandardRule(rule.id, {
-                          status: "Terverifikasi internal",
-                          tone: "success",
-                          approver: ruleApprover,
-                          reference: ruleRef,
-                        })
-                        setEditingRuleId(null)
-                      }}
-                    >
-                      <CheckCircle2 className="size-4" /> Sahkan Verified
-                    </Button>
-                    <Button
-                      variant="danger"
-                      onClick={() => {
-                        updateStandardRule(rule.id, {
-                          status: "Belum terverifikasi",
-                          tone: "warning",
-                          approver: ruleApprover,
-                          reference: ruleRef,
-                        })
-                        setEditingRuleId(null)
-                      }}
-                    >
-                      Set Draft
-                    </Button>
-                  </div>
                 </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </Card>
+
+                {editingRuleId === rule.id ? (
+                  <div className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3">
+                    <Input
+                      label="Nama pengesah (Approver)"
+                      value={ruleApprover}
+                      onChange={(e) => setRuleApprover(e.target.value)}
+                    />
+                    <Input
+                      label="Referensi regulasi / SK"
+                      value={ruleRef}
+                      onChange={(e) => setRuleRef(e.target.value)}
+                    />
+                    <div className="flex items-end gap-2">
+                      <Button
+                        onClick={() => {
+                          updateStandardRule(rule.id, {
+                            status: "Terverifikasi internal",
+                            tone: "success",
+                            approver: ruleApprover,
+                            reference: ruleRef,
+                          })
+                          setEditingRuleId(null)
+                        }}
+                      >
+                        <CheckCircle2 className="size-4" /> Sahkan Verified
+                      </Button>
+                      <Button
+                        variant="danger"
+                        onClick={() => {
+                          updateStandardRule(rule.id, {
+                            status: "Belum terverifikasi",
+                            tone: "warning",
+                            approver: ruleApprover,
+                            reference: ruleRef,
+                          })
+                          setEditingRuleId(null)
+                        }}
+                      >
+                        Set Draft
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   )
 }
@@ -7681,6 +7841,7 @@ function AppShell() {
         "guide",
         "documents",
         "ishihara",
+        "anamnesis",
       ]
       if (!allowedViews.includes(view)) {
         setView("candidate-home")
@@ -7820,6 +7981,11 @@ function AppShell() {
                     <IshiharaView />
                   </Suspense>
                 )
+              ) : null}
+              {view === "anamnesis" ? (
+                <Suspense fallback={<PageLoader />}>
+                  <AnamnesisView onNavigate={handleViewChange} />
+                </Suspense>
               ) : null}
               {view === "users-audit" ? (
                 <Suspense fallback={<PageLoader />}>

@@ -751,14 +751,6 @@ export default function CatBankView() {
       showToast("Silakan pilih santri / peserta terlebih dahulu.", "warning")
       return
     }
-    // Pelatih/Admin TIDAK PERLU menunggu jadwal CAT
-    if (!isCoachOrAdmin && !activeCatSchedule) {
-      showToast(
-        "CAT hanya dapat dimulai pada jadwal yang ditetapkan admin/pelatih.",
-        "warning",
-      )
-      return
-    }
     const qs = prepareExamQuestions("pip", packageConfig.pipQuestionCount)
     if (qs.length === 0) {
       showToast("Tidak ada butir soal PIP aktif untuk memulai ujian.", "danger")
@@ -2040,10 +2032,7 @@ export default function CatBankView() {
 
                   <Button
                     onClick={() => startPipSession()}
-                    disabled={
-                      !isCoachOrAdmin &&
-                      (!selectedCandidate || !activeCatSchedule)
-                    }
+                    disabled={!selectedCandidate}
                     className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     <Play className="size-4" /> Mulai sesi 1 · PIP
@@ -2184,60 +2173,60 @@ export default function CatBankView() {
                 <div
                   className={
                     packageConfig.examBrowserLock
-                      ? "shrink-0 flex flex-wrap items-center justify-between gap-3 bg-slate-950 px-4 py-3 sm:px-6 text-white border-b border-slate-800 shadow-md"
-                      : "flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 p-4 text-white shadow-lg"
+                      ? "shrink-0 flex items-center justify-between gap-2 bg-slate-950 px-3 py-2 sm:px-5 sm:py-2.5 text-white border-b border-slate-800 shadow-md select-none"
+                      : "flex items-center justify-between gap-2 rounded-2xl bg-slate-900 p-3 sm:p-4 text-white shadow-lg"
                   }
                 >
-                  <div className="flex items-center gap-3">
+                  {/* LEFT: CANDIDATE INFO & SESSION BADGE */}
+                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                     <Badge
                       tone={sessionPhase === "pip" ? "danger" : "info"}
-                      className="text-xs font-black"
+                      className="text-2xs font-extrabold px-2 py-0.5 whitespace-nowrap shrink-0"
                     >
-                      {sessionPhase === "pip"
-                        ? "SESI 1: CAT PIP"
-                        : "SESI 2: CAT TIU"}
+                      <span className="sm:hidden">{sessionPhase === "pip" ? "PIP" : "TIU"}</span>
+                      <span className="hidden sm:inline">
+                        {sessionPhase === "pip" ? "SESI 1: PIP" : "SESI 2: TIU"}
+                      </span>
                     </Badge>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-white">
-                          {selectedCandidate?.name ?? "Peserta"}{" "}
-                          <span className="text-slate-400 font-normal">
-                            ({selectedCandidate?.number ?? "—"})
-                          </span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <h3 className="text-xs sm:text-sm font-bold text-white truncate leading-tight">
+                          {selectedCandidate?.name ?? "Peserta"}
                         </h3>
+                        <span className="hidden md:inline text-slate-400 font-normal text-2xs truncate">
+                          ({selectedCandidate?.number ?? "—"})
+                        </span>
                         {packageConfig.examBrowserLock && (
-                          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-2xs font-bold text-emerald-400 border border-emerald-500/20">
-                            <Lock className="size-3" />
-                            Exam Browser Aktif
+                          <span className="hidden sm:inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-bold text-emerald-400 border border-emerald-500/20 whitespace-nowrap shrink-0">
+                            <Lock className="size-2.5" />
+                            Exam Browser
                           </span>
                         )}
                       </div>
-                      <p className="text-2xs text-slate-400">
-                        {packageConfig.packageName} ·{" "}
-                        {sessionPhase === "pip"
-                          ? "Pancasila & TWK"
-                          : "Intelegensia Umum"}
+                      <p className="hidden sm:block text-3xs text-slate-400 truncate leading-tight mt-0.5">
+                        {packageConfig.packageName}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 sm:gap-3">
+                  {/* RIGHT: VIOLATION PILL, TIMER & ACTIONS */}
+                  <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
                     {/* VIOLATION COUNTER PILL */}
                     {packageConfig.examBrowserLock && (
                       <div
-                        className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold border transition ${
+                        className={`flex items-center gap-1 rounded-lg px-2 py-1 text-2xs font-bold border transition whitespace-nowrap shrink-0 ${
                           violationCount > 0
                             ? "bg-red-500/20 text-red-300 border-red-500/40 animate-pulse"
-                            : "bg-slate-800/80 text-slate-300 border-slate-700"
+                            : "bg-slate-800/90 text-slate-300 border-slate-700"
                         }`}
-                        title="Peringatan Pelanggaran Protokol Ujian"
+                        title="Batas Pelanggaran Integritas"
                       >
                         <ShieldAlert
-                          className={`size-3.5 ${violationCount > 0 ? "text-red-400" : "text-slate-400"}`}
+                          className={`size-3 shrink-0 ${violationCount > 0 ? "text-red-400" : "text-slate-400"}`}
                         />
                         <span>
-                          Pelanggaran: {violationCount}/
-                          {packageConfig.maxViolations || 3}
+                          <span className="hidden md:inline">Pelanggaran: </span>
+                          {violationCount}/{packageConfig.maxViolations || 3}
                         </span>
                       </div>
                     )}
@@ -2247,32 +2236,29 @@ export default function CatBankView() {
                       <button
                         type="button"
                         onClick={enterFullscreen}
-                        className="flex items-center gap-1.5 rounded-lg bg-amber-500/20 px-2.5 py-1 text-xs font-bold text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition cursor-pointer"
+                        className="flex items-center gap-1 rounded-lg bg-amber-500/20 px-2 py-1 text-2xs font-bold text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition cursor-pointer whitespace-nowrap shrink-0"
                         title="Masuk kembali ke mode Layar Penuh"
                       >
-                        <Maximize2 className="size-3.5" />
+                        <Maximize2 className="size-3 shrink-0" />
                         <span className="hidden sm:inline">Layar Penuh</span>
                       </button>
                     )}
 
                     {/* AUTOSAVE PILL */}
-                    <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-300 border border-slate-700">
+                    <div className="hidden lg:flex items-center gap-1 text-3xs text-slate-300 whitespace-nowrap shrink-0">
                       {isSavingAnswer ? (
-                        <>
-                          <RefreshCw className="size-3.5 animate-spin text-amber-400" />
-                          <span className="text-amber-300">Menyimpan...</span>
-                        </>
+                        <RefreshCw className="size-3 animate-spin text-amber-400" />
                       ) : (
-                        <>
-                          <Check className="size-3.5 text-emerald-400" />
-                          <span className="text-emerald-300">Tersimpan</span>
-                        </>
+                        <Check className="size-3 text-emerald-400" />
                       )}
+                      <span className={isSavingAnswer ? "text-amber-300" : "text-emerald-300"}>
+                        {isSavingAnswer ? "Simpan..." : "Tersimpan"}
+                      </span>
                     </div>
 
                     {/* TIMER COUNTDOWN */}
                     <div
-                      className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 sm:px-4 sm:py-2 font-display text-sm sm:text-base font-black tracking-wider transition ${
+                      className={`flex items-center gap-1 sm:gap-1.5 rounded-lg px-2 py-1 sm:px-2.5 sm:py-1 font-display text-xs sm:text-sm font-black tracking-wider transition whitespace-nowrap shrink-0 ${
                         secondsLeft <= 60
                           ? "bg-red-600 text-white animate-pulse"
                           : secondsLeft <= 300
@@ -2280,16 +2266,18 @@ export default function CatBankView() {
                             : "bg-slate-800 text-amber-400 border border-slate-700"
                       }`}
                     >
-                      <Clock className="size-4" />
+                      <Clock className="size-3 sm:size-3.5 shrink-0" />
                       <span>{formatTimer(secondsLeft)}</span>
                     </div>
 
+                    {/* SUBMIT BUTTON */}
                     <Button
                       variant="danger"
                       onClick={() => setShowConfirmSubmitModal(true)}
-                      className="!px-3.5 !py-1.5 sm:!px-4 sm:!py-2 !text-xs font-bold"
+                      className="!px-2.5 !py-1 sm:!px-3 sm:!py-1 !text-2xs sm:!text-xs font-bold whitespace-nowrap shrink-0"
                     >
-                      Selesaikan Sesi
+                      <span className="sm:hidden">Selesai</span>
+                      <span className="hidden sm:inline">Selesaikan Sesi</span>
                     </Button>
                   </div>
                 </div>
@@ -2542,59 +2530,63 @@ export default function CatBankView() {
           {/* -------------------- 3. INTER-SESSION GATE: PIP FINALIZED -------------------- */}
           {sessionPhase === "pip-final" && (
             <Card className="overflow-hidden border-slate-200">
-              <div className="bg-slate-950 p-6 sm:p-8 text-white">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="bg-slate-950 p-4 sm:p-5 text-white">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <Badge
-                      tone={currentPipResults.passed ? "success" : "danger"}
-                      className="text-xs font-bold px-3 py-1"
-                    >
-                      {currentPipResults.passed
-                        ? "LOLOS PASSING GRADE PIP (≥ 70)"
-                        : "BELUM MEMENUHI PASSING GRADE PIP (< 70)"}
-                    </Badge>
-                    <h2 className="mt-3 font-display text-2xl sm:text-3xl font-extrabold text-white">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        tone={currentPipResults.passed ? "success" : "danger"}
+                        className="text-2xs font-extrabold uppercase px-2 py-0.5 whitespace-nowrap"
+                      >
+                        {currentPipResults.passed
+                          ? "LOLOS PASSING GRADE PIP (≥ 70)"
+                          : "BELUM MEMENUHI PASSING GRADE (< 70)"}
+                      </Badge>
+                      <span className="text-2xs text-slate-400">·</span>
+                      <span className="text-2xs text-slate-300 truncate">
+                        {selectedCandidate?.name ?? "Peserta"}
+                      </span>
+                    </div>
+                    <h2 className="mt-1.5 font-display text-lg sm:text-xl font-extrabold text-white">
                       Hasil Sesi 1: CAT PIP Selesai
                     </h2>
-                    <p className="mt-1 text-xs sm:text-sm text-slate-300">
-                      Peserta:{" "}
-                      <strong>{selectedCandidate?.name ?? "Peserta"}</strong> (
-                      {selectedCandidate?.school ?? "—"})
-                    </p>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center sm:text-right">
-                    <p className="text-2xs font-bold uppercase tracking-wider text-slate-400">
-                      Skor Akhir PIP
-                    </p>
-                    <p className="font-display text-4xl sm:text-5xl font-black text-amber-400">
-                      {currentPipResults.score}
-                      <span className="text-base font-normal text-slate-400">
-                        {" "}
-                        / 100
-                      </span>
-                    </p>
-                    <p className="text-xs text-slate-300 mt-1">
-                      {currentPipResults.correct} dari 50 soal benar (&times;2
-                      poin)
-                    </p>
+                  {/* COMPACT PIP SCORE PILL */}
+                  <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-center sm:text-right flex items-center gap-3">
+                    <div>
+                      <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">
+                        Skor PIP
+                      </p>
+                      <div className="flex items-baseline gap-1">
+                        <span className="font-display text-2xl sm:text-3xl font-black text-amber-400">
+                          {currentPipResults.score}
+                        </span>
+                        <span className="text-xs text-slate-400">/ 100</span>
+                      </div>
+                    </div>
+                    <div className="border-l border-white/10 pl-3 text-left">
+                      <p className="text-2xs font-bold text-white">
+                        {currentPipResults.correct} / 50 Benar
+                      </p>
+                      <p className="text-3xs text-slate-400">&times; 2 poin per butir</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-xl bg-white/10 p-4 text-xs text-slate-200 leading-relaxed border border-white/10">
-                  <strong className="text-emerald-300">
-                    Nilai PIP Berhasil Disimpan Permanen:
-                  </strong>{" "}
-                  Skor PIP Anda ({currentPipResults.score}/100) sudah tersimpan di sistem dan profil. Silakan pelajari dan tandai pembahasan butir soal di buku catatan Anda dengan tenang. Anda dapat langsung melanjutkan ke Sesi TIU atau melanjutkannya nanti tanpa takut data hilang.
+                <div className="mt-3 rounded-lg bg-emerald-950/40 border border-emerald-800/40 p-2.5 text-xs text-emerald-200 flex items-center gap-2">
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
+                  <p className="text-2xs leading-tight">
+                    <strong className="text-emerald-300">Skor PIP tersimpan aman:</strong> Anda dapat langsung melanjutkan ke Sesi TIU atau menandai buku materi di bawah ini.
+                  </p>
                 </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3">
+                <div className="mt-3.5 flex flex-wrap items-center gap-2">
                   <Button
                     onClick={startTiuSession}
-                    className="!px-6 !py-3 !text-sm font-bold bg-purple-600 hover:bg-purple-700 shadow-md cursor-pointer"
+                    className="!px-4 !py-2 !text-xs font-bold bg-purple-600 hover:bg-purple-700 shadow-md cursor-pointer"
                   >
-                    <Play className="size-4" /> Lanjut ke Sesi 2: CAT TIU (30
-                    Menit)
+                    <Play className="size-3.5" /> Lanjut ke Sesi 2: CAT TIU (30 Menit)
                   </Button>
 
                   <Button
@@ -2612,7 +2604,7 @@ export default function CatBankView() {
                         )
                       }
                     }}
-                    className="bg-white/10 text-white hover:bg-white/20 !text-xs cursor-pointer"
+                    className="bg-white/10 text-white hover:bg-white/20 !text-xs !py-2 cursor-pointer"
                   >
                     Simpan &amp; Lanjutkan TIU Nanti
                   </Button>
@@ -2620,7 +2612,7 @@ export default function CatBankView() {
               </div>
 
               {/* REVIEW ACCORDION FOR PIP */}
-              <div className="p-6 divide-y divide-slate-100 max-h-96 overflow-y-auto">
+              <div className="p-4 sm:p-5 divide-y divide-slate-100 max-h-80 overflow-y-auto">
                 <h4 className="pb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
                   Ringkasan Jawaban Butir Soal Sesi 1 (PIP)
                 </h4>
@@ -2653,192 +2645,198 @@ export default function CatBankView() {
 
           {/* -------------------- 4. TRYOUT COMPLETED SCREEN (COMBINED REPORT) -------------------- */}
           {sessionPhase === "completed" && (
-            <div className="grid gap-6">
+            <div className="grid gap-4">
               {/* TOP HEADER RESULTS CARD */}
               <Card className="overflow-hidden border-slate-200">
-                <div className="bg-slate-950 p-6 sm:p-8 text-white">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="bg-slate-950 p-4 sm:p-5 text-white">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Badge
                           tone={
                             currentPipResults.passed && currentTiuResults.passed
                               ? "success"
                               : "warning"
                           }
-                          className="text-xs font-black px-3 py-1"
+                          className="text-2xs font-bold px-2 py-0.5 whitespace-nowrap"
                         >
                           {currentPipResults.passed && currentTiuResults.passed
                             ? "LOLOS KEDUA SESI TRYOUT (BPIP)"
-                            : "SELESAI — MEMERLUKAN PENGUATAN"}
+                            : "SELESAI — BUTUH PENGUATAN"}
                         </Badge>
-                        <span className="text-xs text-slate-400">·</span>
-                        <span className="text-xs text-slate-300">
+                        <span className="text-2xs text-slate-400">·</span>
+                        <span className="text-2xs text-slate-300 whitespace-nowrap">
                           2 Sesi Berurutan Selesai
                         </span>
                       </div>
 
-                      <h2 className="mt-3 font-display text-2xl sm:text-3xl font-extrabold text-white">
+                      <h2 className="mt-1.5 font-display text-lg sm:text-xl font-bold text-white">
                         Laporan Evaluasi Lengkap CAT BPIP
                       </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-slate-300">
+                      <p className="mt-0.5 text-xs text-slate-300">
                         Santri / Peserta:{" "}
                         <strong>{selectedCandidate?.name ?? "Peserta"}</strong>{" "}
-                        ({selectedCandidate?.school ?? "—"})
+                        <span className="text-slate-400">
+                          ({selectedCandidate?.school ?? "—"})
+                        </span>
                       </p>
                     </div>
 
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center sm:text-right">
-                      <p className="text-2xs font-bold uppercase tracking-wider text-slate-400">
-                        Nilai Gabungan Skala 100
-                      </p>
-                      <p className="font-display text-4xl sm:text-5xl font-black text-amber-400">
-                        {combinedTryoutScore}
-                        <span className="text-base font-normal text-slate-400">
-                          {" "}
-                          / 100
-                        </span>
-                      </p>
-                      <p className="text-xs text-slate-300 mt-1">
-                        Rata-rata terbobot PIP &amp; TIU
-                      </p>
+                    {/* ACTION BUTTONS (IN HEADER) */}
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      {isCoachSelfTest ? (
+                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30 px-2.5 py-1 text-2xs text-amber-200 font-medium">
+                          <ShieldCheck className="size-3.5 text-amber-400 shrink-0" />
+                          <span>Uji Coba Pelatih — Tersimpan di Riwayat</span>
+                        </div>
+                      ) : (
+                        <Button
+                          onClick={handleSyncToCandidateProfile}
+                          className="!px-3 !py-1.5 !text-xs font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap"
+                        >
+                          <Save className="size-3.5" /> Sinkronkan ke Profil
+                        </Button>
+                      )}
+
+                      <Button
+                        variant="secondary"
+                        onClick={() => setSessionPhase("idle")}
+                        className="bg-white/10 text-white hover:bg-white/20 !px-3 !py-1.5 !text-xs whitespace-nowrap"
+                      >
+                        <RotateCcw className="size-3.5" /> Mulai Baru
+                      </Button>
                     </div>
                   </div>
 
-                  {/* DUAL METRIC CARDS */}
-                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                    {/* PIP SCORECARD */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                  {/* UNIFIED 3-COLUMN METRICS (COMPACT) */}
+                  <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {/* NILAI GABUNGAN */}
+                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 sm:p-3.5 flex flex-col justify-between">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-300">
-                          Sesi 1: Pancasila &amp; Wawasan (PIP)
+                        <span className="text-2xs font-bold uppercase tracking-wider text-amber-300">
+                          Nilai Gabungan
+                        </span>
+                        <span className="rounded bg-amber-400/20 px-1.5 py-0.5 text-3xs font-extrabold uppercase text-amber-300">
+                          Skala 100
+                        </span>
+                      </div>
+                      <div className="my-1.5 flex items-baseline gap-1">
+                        <span className="font-display text-2xl sm:text-3xl font-black text-amber-400">
+                          {combinedTryoutScore}
+                        </span>
+                        <span className="text-xs font-normal text-slate-400">
+                          / 100
+                        </span>
+                      </div>
+                      <p className="text-3xs text-amber-200/80 border-t border-amber-500/20 pt-1.5">
+                        Rata-rata terbobot PIP &amp; TIU
+                      </p>
+                    </div>
+
+                    {/* SESI 1: PIP */}
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-3.5 flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xs font-bold text-slate-300">
+                          Sesi 1: Pancasila (PIP)
                         </span>
                         <Badge
                           tone={currentPipResults.passed ? "success" : "danger"}
+                          className="text-3xs px-1.5 py-0.5"
                         >
                           {currentPipResults.passed ? "Lolos PG" : "Remedial"}
                         </Badge>
                       </div>
-                      <div className="mt-2 flex items-baseline justify-between">
-                        <span className="font-display text-3xl font-black text-white">
-                          {currentPipResults.score}
+                      <div className="my-1.5 flex items-baseline justify-between">
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-display text-2xl sm:text-3xl font-black text-white">
+                            {currentPipResults.score}
+                          </span>
                           <span className="text-xs font-normal text-slate-400">
-                            {" "}
                             / 100
                           </span>
-                        </span>
-                        <span className="text-xs text-slate-300">
-                          {currentPipResults.correct} / 50 Soal Benar (&times;2)
+                        </div>
+                        <span className="text-2xs text-slate-300 font-medium">
+                          {currentPipResults.correct} / 50 Benar
                         </span>
                       </div>
-                      <p className="mt-2 text-2xs text-slate-400 border-t border-white/10 pt-2">
-                        Passing Grade: &ge; {packageConfig.pipPassingGrade} ·
-                        Materi: Sejarah, Sila, UUD, NKRI
+                      <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
+                        Passing Grade: &ge; {packageConfig.pipPassingGrade}
                       </p>
                     </div>
 
-                    {/* TIU SCORECARD */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    {/* SESI 2: TIU */}
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-3.5 flex flex-col justify-between">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-300">
-                          Sesi 2: Intelegensia Umum (TIU)
+                        <span className="text-2xs font-bold text-slate-300">
+                          Sesi 2: Intelegensia (TIU)
                         </span>
                         <Badge
                           tone={currentTiuResults.passed ? "success" : "danger"}
+                          className="text-3xs px-1.5 py-0.5"
                         >
                           {currentTiuResults.passed ? "Lolos PG" : "Remedial"}
                         </Badge>
                       </div>
-                      <div className="mt-2 flex items-baseline justify-between">
-                        <span className="font-display text-3xl font-black text-white">
-                          {currentTiuResults.scaled}
+                      <div className="my-1.5 flex items-baseline justify-between">
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-display text-2xl sm:text-3xl font-black text-white">
+                            {currentTiuResults.scaled}
+                          </span>
                           <span className="text-xs font-normal text-slate-400">
-                            {" "}
                             / 100
                           </span>
-                        </span>
-                        <span className="text-xs text-slate-300">
-                          Skor Mentah: {currentTiuResults.raw} / 50 (&times;2)
+                        </div>
+                        <span className="text-2xs text-slate-300 font-medium">
+                          {currentTiuResults.raw} / 50 Mentah
                         </span>
                       </div>
-                      <p className="mt-2 text-2xs text-slate-400 border-t border-white/10 pt-2">
-                        Passing Grade: &ge; {packageConfig.tiuPassingGrade} ·
-                        Materi: Verbal, Numerik, Logika
+                      <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
+                        Passing Grade: &ge; {packageConfig.tiuPassingGrade}
                       </p>
                     </div>
-                  </div>
-
-                  {/* ACTION BUTTONS */}
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    {isCoachSelfTest ? (
-                      <div className="inline-flex items-center gap-2 rounded-xl bg-amber-500/20 border border-amber-400/30 px-4 py-2.5 text-xs text-amber-200 font-semibold">
-                        <ShieldCheck className="size-4 text-amber-400 shrink-0" />
-                        <span>
-                          Mode Uji Coba Mandiri Pelatih — Hasil tersimpan di
-                          riwayat tanpa mengubah profil santri.
-                        </span>
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={handleSyncToCandidateProfile}
-                        className="!px-5 !py-2.5 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700"
-                      >
-                        <Save className="size-4" /> Sinkronkan Nilai ke Profil
-                        Siswa
-                      </Button>
-                    )}
-
-                    <Button
-                      variant="secondary"
-                      onClick={() => setSessionPhase("idle")}
-                      className="bg-white/10 text-white hover:bg-white/20 !text-xs"
-                    >
-                      <RotateCcw className="size-4" /> Ulangi / Mulai Paket Baru
-                    </Button>
                   </div>
                 </div>
 
                 {/* DETAILED QUESTIONS REVIEW & EXPLANATIONS */}
-                <div className="p-6">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                     <div>
-                      <h3 className="font-display text-base font-bold text-slate-900">
+                      <h3 className="font-display text-sm sm:text-base font-bold text-slate-900">
                         Tinjauan Pembahasan &amp; Kunci Jawaban Lengkap
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Pelajari butir soal dan rasionalisasi pembahasan untuk
-                        evaluasi pembinaan.
+                        Pelajari butir soal dan rasionalisasi pembahasan untuk evaluasi pembinaan.
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 rounded-xl bg-slate-100 p-1">
+                    <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 w-full sm:w-auto shrink-0">
                       <button
                         type="button"
                         onClick={() => setReviewTab("pip")}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                        className={`flex-1 sm:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                           reviewTab === "pip"
                             ? "bg-white text-slate-900 shadow-2xs"
                             : "text-slate-600 hover:text-slate-900"
                         }`}
                       >
-                        Pembahasan PIP (50 Soal)
+                        Pembahasan PIP (50)
                       </button>
                       <button
                         type="button"
                         onClick={() => setReviewTab("tiu")}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                        className={`flex-1 sm:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                           reviewTab === "tiu"
                             ? "bg-white text-slate-900 shadow-2xs"
                             : "text-slate-600 hover:text-slate-900"
                         }`}
                       >
-                        Pembahasan TIU (50 Soal)
+                        Pembahasan TIU (50)
                       </button>
                     </div>
                   </div>
 
                   {/* QUESTIONS LIST ACCORDING TO ACTIVE REVIEW TAB */}
-                  <div className="mt-4 divide-y divide-slate-100 max-h-[32rem] overflow-y-auto pr-2">
+                  <div className="mt-3 divide-y divide-slate-100 max-h-[32rem] overflow-y-auto pr-2">
                     {(reviewTab === "pip"
                       ? pipExamQuestions
                       : tiuExamQuestions
@@ -2850,21 +2848,21 @@ export default function CatBankView() {
                       const isCorrect = userAns === q.correctIndex
 
                       return (
-                        <div key={q.id} className="py-4">
+                        <div key={q.id} className="py-3">
                           <div className="flex items-start justify-between gap-3">
                             <span className="text-xs font-bold text-slate-900">
                               Nomor {idx + 1} · {q.category}
                             </span>
-                            <Badge tone={isCorrect ? "success" : "danger"}>
+                            <Badge tone={isCorrect ? "success" : "danger"} className="text-3xs px-2 py-0.5">
                               {isCorrect ? "Jawaban Benar" : "Salah / Kosong"}
                             </Badge>
                           </div>
 
-                          <p className="mt-1.5 text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+                          <p className="mt-1 text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
                             {q.question}
                           </p>
 
-                          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                          <div className="mt-2.5 flex flex-wrap gap-2 text-xs">
                             <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-slate-700">
                               Pilihan Peserta:{" "}
                               <strong>
@@ -2882,7 +2880,7 @@ export default function CatBankView() {
                             </span>
                           </div>
 
-                          <div className="mt-2.5 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
+                          <div className="mt-2 rounded-xl bg-slate-50 p-2.5 text-xs leading-relaxed text-slate-700">
                             <strong className="text-slate-900">
                               Pembahasan:
                             </strong>{" "}
@@ -4145,24 +4143,25 @@ export default function CatBankView() {
             </div>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Button
-                variant="secondary"
+              <button
+                type="button"
                 onClick={() => setShowPipResultModal(false)}
-                className="w-full !py-2.5 bg-slate-800 hover:bg-slate-700 text-white !text-xs font-bold cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 text-xs font-bold transition cursor-pointer"
               >
-                <BookOpenCheck className="size-4 mr-1.5" />
-                Tinjau Pembahasan Soal
-              </Button>
-              <Button
+                <BookOpenCheck className="size-4 shrink-0" />
+                <span>Tinjau Pembahasan Soal</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   setShowPipResultModal(false)
                   startTiuSession()
                 }}
-                className="w-full !py-2.5 bg-purple-600 hover:bg-purple-700 text-white !text-xs font-bold shadow-lg shadow-purple-600/30 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-600/30 transition cursor-pointer"
               >
-                <Play className="size-4 mr-1.5" />
-                Lanjut ke Sesi 2 (TIU)
-              </Button>
+                <Play className="size-4 shrink-0 fill-current" />
+                <span>Lanjut ke Sesi 2 (TIU)</span>
+              </button>
             </div>
           </div>
         </div>
@@ -4287,12 +4286,14 @@ export default function CatBankView() {
             </div>
 
             <div className="mt-6 flex items-center justify-end gap-3">
-              <Button
+              <button
+                type="button"
                 onClick={() => setShowTiuResultModal(false)}
-                className="w-full !py-2.5 bg-slate-800 hover:bg-slate-700 text-white !text-xs font-bold cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 text-xs font-bold transition cursor-pointer"
               >
-                Lihat Laporan Evaluasi &amp; Pembahasan Lengkap
-              </Button>
+                <BookOpenCheck className="size-4 shrink-0" />
+                <span>Lihat Laporan Evaluasi &amp; Pembahasan Lengkap</span>
+              </button>
             </div>
           </div>
         </div>
@@ -4353,16 +4354,17 @@ export default function CatBankView() {
 
             <div className="mt-6 flex items-center justify-end">
               {violationCount < (packageConfig.maxViolations || 3) ? (
-                <Button
+                <button
+                  type="button"
                   onClick={() => {
                     setShowViolationModal(false)
                     enterFullscreen()
                   }}
-                  className="w-full !py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold !text-xs shadow-lg shadow-red-600/30 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition cursor-pointer"
                 >
-                  <Maximize2 className="size-4 mr-1.5" />
-                  Kembali ke Ujian &amp; Layar Penuh
-                </Button>
+                  <Maximize2 className="size-4 shrink-0" />
+                  <span>Kembali ke Ujian &amp; Layar Penuh</span>
+                </button>
               ) : (
                 <div className="flex items-center gap-2 text-xs font-bold text-red-400">
                   <RefreshCw className="size-4 animate-spin" />

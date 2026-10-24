@@ -532,30 +532,38 @@ function getDetailedStageAnalysis(
         (ishihara.screeningInterpretation === "normal" ||
           ishihara.selectionDecision === "eligible")
 
+      const anamMetric = candidate.physicalMetrics?.find((m) =>
+        m.label.toLowerCase().includes("anamnesis"),
+      )
+
       const metricLabel = ishihara
         ? isNormal
-          ? "Ishihara: Bebas Buta Warna"
-          : `Ishihara: Catatan Khusus`
-        : hasMedicalHistory
-          ? "Rikkes Awal Tercatat"
-          : "Belum Ada Rekam Rikkes"
+          ? `Ishihara: Bebas Buta Warna${anamMetric ? ` · ${anamMetric.current}` : ""}`
+          : `Ishihara: Catatan Khusus${anamMetric ? ` · ${anamMetric.current}` : ""}`
+        : anamMetric
+          ? `Anamnesis: ${anamMetric.current}`
+          : hasMedicalHistory
+            ? "Rikkes Awal Tercatat"
+            : "Belum Ada Rekam Rikkes"
       const metricBadgeClass = ishihara
         ? isNormal
           ? "bg-emerald-100 text-emerald-800"
           : "bg-rose-100 text-rose-800"
-        : hasMedicalHistory
-          ? "bg-blue-100 text-blue-800"
-          : "bg-slate-100 text-slate-700"
+        : anamMetric
+          ? (anamMetric.percent >= 70 ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800")
+          : hasMedicalHistory
+            ? "bg-blue-100 text-blue-800"
+            : "bg-slate-100 text-slate-700"
 
       let analysis = ""
       let coachConsideration = ""
       let mismatchWarning: string | undefined
 
-      if (!ishihara && !hasMedicalHistory) {
+      if (!ishihara && !hasMedicalHistory && !anamMetric) {
         analysis =
-          "Belum ada catatan skrining kesehatan fisik (Rikkes) maupun tes buta warna Ishihara yang terdata di sistem."
+          "Belum ada catatan skrining kesehatan fisik (Rikkes), Screening Kesehatan mandiri, maupun tes buta warna Ishihara yang terdata di sistem."
         coachConsideration =
-          "Jadwalkan pemeriksaan kesehatan umum (tensi darah istirahat, visus mata, THT, gigi, dan uji Ishihara 14 plat) sebelum latihan beban fisik tinggi."
+          "Arahkan santri/kandidat mengisi Screening Kesehatan di portal dan jadwalkan pemeriksaan kesehatan umum sebelum latihan fisik tinggi."
         if (status === "passed") {
           mismatchWarning =
             'Perhatian: Status ditandai "Siap", namun belum ada catatan pemeriksaan medis/buta warna resmi.'
@@ -566,7 +574,10 @@ function getDetailedStageAnalysis(
             ? "Skrining Ishihara: Lolos / Bebas Buta Warna (14/14 benar)."
             : `Skrining Ishihara: Catatan (${ishihara.interpretationLabel}). Perlu pemeriksaan dokter spesialis mata.`
           : "Tes Ishihara belum terekam."
-        analysis = `${ishiharaText} Kondisi fisik dan tensi darah dalam pemantauan tim pelatih.`
+        const anamText = anamMetric
+          ? `Sub-nilai Screening Kesehatan: ${anamMetric.current}.`
+          : "Screening Kesehatan belum diisi."
+        analysis = `${ishiharaText} ${anamText} Kondisi fisik dan tensi darah dalam pemantauan tim pelatih.`
         coachConsideration =
           "Pastikan santri menjaga pola hidrasi, istirahat teratur minimal 7 jam per malam, dan asupan gizi seimbang."
       }

@@ -356,15 +356,19 @@ export default function IshiharaView() {
     currentUser.candidateId ?? candidates[0]?.id ?? "",
   )
 
+  const [mode, setMode] = useState<TestMode>(isCandidate ? "standard" : "quick")
+  const [timerEnabled, setTimerEnabled] = useState(false)
+  const [secondsPerPlate, setSecondsPerPlate] = useState(5)
+
   useEffect(() => {
-    if (isCandidate && currentUser.candidateId) {
-      setSelectedCandidateId(currentUser.candidateId)
+    if (isCandidate) {
+      if (currentUser.candidateId) {
+        setSelectedCandidateId(currentUser.candidateId)
+      }
       setActiveTab("runner")
+      setMode("standard")
     }
   }, [currentUser.candidateId, isCandidate])
-  const [mode, setMode] = useState<TestMode>("quick")
-  const [timerEnabled, setTimerEnabled] = useState(true)
-  const [secondsPerPlate, setSecondsPerPlate] = useState(5)
 
   // State Sesi Berjalan
   const [isStarted, setIsStarted] = useState(false)
@@ -621,8 +625,9 @@ export default function IshiharaView() {
   // Generate Soal Berikutnya
   const generateNextQuestion = useCallback(
     (index: number) => {
+      const effectiveMode = isCandidate ? "standard" : mode
       let target: number
-      if (mode === "standard") {
+      if (effectiveMode === "standard") {
         const plate =
           OFFICIAL_ISHIHARA_PLATES[index % OFFICIAL_ISHIHARA_PLATES.length]
         target = plate.number
@@ -651,15 +656,16 @@ export default function IshiharaView() {
         drawIshiharaPlate(target)
       }, 50)
     },
-    [mode, secondsPerPlate, drawIshiharaPlate],
+    [isCandidate, mode, secondsPerPlate, drawIshiharaPlate],
   )
 
   // Memulai Tes
   const handleStartTest = () => {
+    const effectiveMode = isCandidate ? "standard" : mode
     let qCount = 10
-    if (mode === "standard") qCount = OFFICIAL_ISHIHARA_PLATES.length
-    if (mode === "marathon") qCount = 50
-    if (mode === "quick") qCount = 10
+    if (effectiveMode === "standard") qCount = OFFICIAL_ISHIHARA_PLATES.length
+    if (effectiveMode === "marathon") qCount = 50
+    if (effectiveMode === "quick") qCount = 10
 
     setTotalQuestions(qCount)
     setCurrentIndex(0)
@@ -846,7 +852,7 @@ export default function IshiharaView() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-                Sistem Skrining Ishihara
+                {isCandidate ? "Tes Buta Warna" : "Skrining Buta Warna"}
               </h1>
               <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
                 <Eye className="size-3 text-red-600" /> Rikkes Tahap 4
@@ -939,12 +945,7 @@ export default function IshiharaView() {
             <FileSpreadsheet className="size-3.5" /> Rekap & Laporan Seleksi
           </button>
         </div>
-      ) : (
-        <p className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
-          Tes ini hanya menggunakan profil Anda. Hasil seleksi akan terlihat
-          pada ringkasan tahapan setelah dicatat.
-        </p>
-      )}
+      ) : null}
 
       {/* Tab Content */}
       {activeTab === "sessions" && (
@@ -992,133 +993,164 @@ export default function IshiharaView() {
               <Card className="lg:col-span-2 p-6 flex flex-col justify-between">
                 <div>
                   <h2 className="font-display text-lg font-bold text-slate-900">
-                    Pilih Mode Simulasi Ishihara
+                    {isCandidate
+                      ? "Format Uji Rikkes Ishihara Resmi"
+                      : "Pilih Mode Simulasi Ishihara"}
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Pilih format pengujian sesuai kebutuhan latihan atau
-                    pemeriksaan berkala santri.
+                    {isCandidate
+                      ? "Standar resmi pemeriksaan persepsi warna Calon Paskibraka sesuai protokol medis BPIP."
+                      : "Pilih format pengujian sesuai kebutuhan latihan atau pemeriksaan berkala santri."}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-5">
-                    {/* Mode 1: Cepat (10 Soal) */}
-                    <button
-                      type="button"
-                      onClick={() => setMode("quick")}
-                      className={`rounded-xl border p-4 text-left transition ${
-                        mode === "quick"
-                          ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                      }`}
-                    >
-                      <span className="inline-block rounded-md bg-red-100 px-2 py-0.5 text-2xs font-bold text-red-700">
-                        Cepat &amp; Praktis
-                      </span>
-                      <h3 className="font-bold text-sm text-slate-900 mt-2">
-                        Latihan 10 Soal Acak
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Screening cepat dengan 10 piringan acak procedurally
-                        generated.
-                      </p>
-                    </button>
+                  {isCandidate ? (
+                    /* Khusus Kandidat: Terkunci pada Standar 25 Piringan Resmi (Tidak Bisa Memilih Mode Lain) */
+                    <div className="mt-5 rounded-2xl border-2 border-brand-500/40 bg-gradient-to-br from-brand-50/70 to-blue-50/40 p-5 shadow-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-100 px-2.5 py-1 text-xs font-bold text-blue-800">
+                          <Eye className="size-3.5 text-blue-700" /> Standar Dokter Mata
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-3 py-0.5 text-2xs font-extrabold uppercase tracking-wide text-brand-800">
+                          Format Wajib Calon Paskibraka
+                        </span>
+                      </div>
 
-                    {/* Mode 2: Marathon (Ribuan Soal Acak) */}
-                    <button
-                      type="button"
-                      onClick={() => setMode("marathon")}
-                      className={`rounded-xl border p-4 text-left transition ${
-                        mode === "marathon"
-                          ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                      }`}
-                    >
-                      <span className="inline-block rounded-md bg-amber-100 px-2 py-0.5 text-2xs font-bold text-amber-800">
-                        Ribuan Soal Acak
-                      </span>
-                      <h3 className="font-bold text-sm text-slate-900 mt-2">
-                        Maraton 50 Soal Intensif
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Uji ketahanan fokus visual dengan variasi angka 1–99
-                        tanpa batas.
-                      </p>
-                    </button>
-
-                    {/* Mode 3: Standar Medis 38 Plat */}
-                    <button
-                      type="button"
-                      onClick={() => setMode("standard")}
-                      className={`rounded-xl border p-4 text-left transition ${
-                        mode === "standard"
-                          ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                      }`}
-                    >
-                      <span className="inline-block rounded-md bg-blue-100 px-2 py-0.5 text-2xs font-bold text-blue-800">
-                        Standar Dokter Mata
-                      </span>
-                      <h3 className="font-bold text-sm text-slate-900 mt-2">
+                      <h3 className="font-display text-lg font-extrabold text-slate-950 mt-3">
                         Standar 25 Piringan Resmi
                       </h3>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Piringan referensi buku Ishihara resmi (termasuk plat
-                        diagnostik Protan/Deutan).
+                      <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                        Piringan referensi buku Ishihara resmi (termasuk plat diagnostik Protan/Deutan). Format pengujian dikunci secara baku untuk seluruh Calon Paskibraka demi objektivitas dan keabsahan rekam medis Rikkes Tahap 4.
                       </p>
-                    </button>
-                  </div>
 
-                  {/* Opsi Timer & Kecepatan */}
-                  <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id="timer-toggle"
-                        checked={timerEnabled}
-                        onChange={(e) => setTimerEnabled(e.target.checked)}
-                        className="size-4 rounded border-slate-300 accent-red-600"
-                      />
-                      <label
-                        htmlFor="timer-toggle"
-                        className="text-xs font-semibold text-slate-700 cursor-pointer"
-                      >
-                        Aktifkan batas waktu baca piringan (Standar medis: 3–5
-                        detik)
-                      </label>
-                    </div>
-
-                    {timerEnabled ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-500">Durasi:</span>
-                        <select
-                          value={secondsPerPlate}
-                          onChange={(e) =>
-                            setSecondsPerPlate(Number(e.target.value))
-                          }
-                          className="h-8 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-800 outline-none"
-                        >
-                          <option value={3}>3 Detik (Sangat Ketat)</option>
-                          <option value={5}>5 Detik (Standar BPIP)</option>
-                          <option value={8}>8 Detik (Santai)</option>
-                        </select>
+                      <div className="mt-4 pt-3.5 border-t border-brand-200/60 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-700">
+                        <div className="flex items-center gap-2">
+                          <span className="size-2 rounded-full bg-brand-600 shrink-0" />
+                          <span>Jumlah Soal: <strong>25 Piringan Standar BPIP</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="size-2 rounded-full bg-brand-600 shrink-0" />
+                          <span>Batas Waktu: <strong>{timerEnabled ? `${secondsPerPlate} Detik / Piringan` : "Tidak Dibatasi (Mandiri)"}</strong></span>
+                        </div>
                       </div>
-                    ) : null}
-                  </div>
+                    </div>
+                  ) : (
+                    /* Pilihan Mode untuk Pelatih / Admin */
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-5">
+                      {/* Mode 1: Cepat (10 Soal) */}
+                      <button
+                        type="button"
+                        onClick={() => setMode("quick")}
+                        className={`rounded-xl border p-4 text-left transition ${
+                          mode === "quick"
+                            ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="inline-block rounded-md bg-red-100 px-2 py-0.5 text-2xs font-bold text-red-700">
+                          Cepat &amp; Praktis
+                        </span>
+                        <h3 className="font-bold text-sm text-slate-900 mt-2">
+                          Latihan 10 Soal Acak
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Screening cepat dengan 10 piringan acak procedurally
+                          generated.
+                        </p>
+                      </button>
+
+                      {/* Mode 2: Marathon (Ribuan Soal Acak) */}
+                      <button
+                        type="button"
+                        onClick={() => setMode("marathon")}
+                        className={`rounded-xl border p-4 text-left transition ${
+                          mode === "marathon"
+                            ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="inline-block rounded-md bg-amber-100 px-2 py-0.5 text-2xs font-bold text-amber-800">
+                          Ribuan Soal Acak
+                        </span>
+                        <h3 className="font-bold text-sm text-slate-900 mt-2">
+                          Maraton 50 Soal Intensif
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Uji ketahanan fokus visual dengan variasi angka 1–99
+                          tanpa batas.
+                        </p>
+                      </button>
+
+                      {/* Mode 3: Standar Medis 25 Plat */}
+                      <button
+                        type="button"
+                        onClick={() => setMode("standard")}
+                        className={`rounded-xl border p-4 text-left transition ${
+                          mode === "standard"
+                            ? "border-red-600 bg-red-50/70 ring-2 ring-red-100 shadow-xs"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="inline-block rounded-md bg-blue-100 px-2 py-0.5 text-2xs font-bold text-blue-800">
+                          Standar Dokter Mata
+                        </span>
+                        <h3 className="font-bold text-sm text-slate-900 mt-2">
+                          Standar 25 Piringan Resmi
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Piringan referensi buku Ishihara resmi (termasuk plat
+                          diagnostik Protan/Deutan).
+                        </p>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Opsi Timer & Kecepatan (Hanya dapat diatur Pelatih / Admin) */}
+                  {!isCandidate && (
+                    <div className="mt-6 pt-5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="timer-toggle"
+                          checked={timerEnabled}
+                          onChange={(e) => setTimerEnabled(e.target.checked)}
+                          className="size-4 rounded border-slate-300 accent-red-600"
+                        />
+                        <label
+                          htmlFor="timer-toggle"
+                          className="text-xs font-semibold text-slate-700 cursor-pointer"
+                        >
+                          Aktifkan batas waktu baca piringan (Standar medis: 3–5
+                          detik)
+                        </label>
+                      </div>
+
+                      {timerEnabled ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-slate-500">Durasi:</span>
+                          <select
+                            value={secondsPerPlate}
+                            onChange={(e) =>
+                              setSecondsPerPlate(Number(e.target.value))
+                            }
+                            className="h-8 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-bold text-slate-800 outline-none"
+                          >
+                            <option value={3}>3 Detik (Sangat Ketat)</option>
+                            <option value={5}>5 Detik (Standar BPIP)</option>
+                            <option value={8}>8 Detik (Santai)</option>
+                          </select>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <div className="text-xs text-slate-500">
-                    Santri terpilih:{" "}
-                    <strong className="text-slate-900 font-bold">
-                      {selectedCandidate.name}
-                    </strong>{" "}
-                    ({selectedCandidate.school})
-                  </div>
+                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
                   <Button
                     onClick={handleStartTest}
-                    className="bg-red-600 hover:bg-red-700 text-white font-bold h-10 px-6 gap-2 shadow-sm"
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 gap-2 shadow-sm whitespace-nowrap w-full sm:w-auto justify-center cursor-pointer"
                   >
-                    <Play className="size-4 fill-white" />
-                    Mulai Tes Ishihara Sekarang
+                    <Play className="size-4 fill-white shrink-0" />
+                    <span>Mulai Tes Buta Warna</span>
                   </Button>
                 </div>
               </Card>
@@ -1284,15 +1316,18 @@ export default function IshiharaView() {
                   <button
                     type="button"
                     onClick={() => handleAnswer(null)}
-                    className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-bold text-xs text-slate-700 flex items-center justify-center gap-2 transition"
+                    className="w-full min-h-11 py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-xs font-semibold text-slate-700 flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs"
                   >
-                    <HelpCircle className="size-4 text-slate-500" />
-                    Tidak Ada Angka / Tidak Terbaca (Tekan X / Spasi)
+                    <HelpCircle className="size-4 text-slate-400 shrink-0" />
+                    <span className="font-bold">Tidak Ada Angka / Tidak Terbaca</span>
+                    <span className="hidden sm:inline-block rounded bg-slate-200/80 px-1.5 py-0.5 text-3xs font-medium text-slate-500">
+                      X / Spasi
+                    </span>
                   </button>
                 </div>
 
                 {/* Tombol Batalkan Tes */}
-                <div className="mt-4 text-center">
+                <div className="mt-3.5 text-center">
                   <button
                     type="button"
                     onClick={() => {
@@ -1301,7 +1336,7 @@ export default function IshiharaView() {
                         setIsFinished(false)
                       }
                     }}
-                    className="text-2xs text-slate-400 hover:text-red-600 hover:underline"
+                    className="text-2xs font-medium text-slate-400 hover:text-red-600 hover:underline transition cursor-pointer"
                   >
                     Batalkan Sesi Tes
                   </button>

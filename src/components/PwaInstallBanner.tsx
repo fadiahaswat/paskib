@@ -79,54 +79,62 @@ export const PwaInstallBanner: React.FC = () => {
   if (!showBanner) return null
 
   return (
-    <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:max-w-md z-50 animate-in fade-in slide-in-from-bottom-5 duration-300">
-      <div className="bg-slate-900/95 backdrop-blur-md border border-red-500/30 text-white p-4 rounded-2xl shadow-2xl shadow-red-950/40 relative">
+    <div className="fixed bottom-3 right-3 left-3 sm:left-auto sm:max-w-sm z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
+      <div className="bg-slate-900/95 backdrop-blur-md border border-slate-700/80 text-white p-3 sm:p-3.5 rounded-xl shadow-xl relative">
         <button
           onClick={handleDismiss}
-          className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800"
+          className="absolute top-2 right-2 text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-800 cursor-pointer"
           aria-label="Tutup"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3.5 h-3.5" />
         </button>
 
-        <div className="flex items-start gap-3.5 pr-6">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center shrink-0 shadow-md shadow-red-600/30 border border-red-400/30">
-            <Smartphone className="w-5 h-5 text-white" />
+        <div className="flex items-start gap-2.5 pr-5">
+          <div className="size-8 rounded-lg bg-red-600/90 flex items-center justify-center shrink-0 border border-red-500/30">
+            <Smartphone className="w-4 h-4 text-white" />
           </div>
 
-          <div className="flex-1">
-            <h4 className="font-semibold text-sm text-slate-100 flex items-center gap-1.5">
-              Pasang Aplikasi Mandiri
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <h4 className="font-bold text-xs text-slate-100 truncate">
+                Pasang Aplikasi Mandiri
+              </h4>
+              <span className="text-3xs uppercase font-extrabold px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/30 shrink-0">
                 PWA
               </span>
-            </h4>
-            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-              Jalankan BACAPASMUIN lebih cepat langsung dari layar utama tanpa bilah browser.
+            </div>
+            <p className="text-2xs text-slate-300 mt-0.5 leading-snug">
+              Buka BACAPASMUIN langsung dari layar utama tanpa bilah browser.
             </p>
 
             {showIosGuide ? (
-              <div className="mt-3 p-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-slate-200 space-y-1.5 animate-in fade-in duration-200">
-                <p className="font-medium text-amber-400 flex items-center gap-1">
-                  <Share className="w-3.5 h-3.5" /> Cara pasang di iPhone/iPad:
+              <div className="mt-2 p-2 rounded-lg bg-slate-800/90 border border-slate-700 text-2xs text-slate-200 space-y-1 animate-in fade-in duration-200">
+                <p className="font-semibold text-amber-400 flex items-center gap-1">
+                  <Share className="w-3 h-3" /> Cara pasang di iPhone/iPad:
                 </p>
                 <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
                   <li>Ketuk tombol <strong>Bagikan (Share)</strong> di Safari</li>
-                  <li>Gulir ke bawah, pilih <strong>&apos;Tambah ke Layar Utama&apos;</strong></li>
+                  <li>Pilih <strong>&apos;Tambah ke Layar Utama&apos;</strong></li>
                 </ol>
+                <button
+                  onClick={handleDismiss}
+                  className="mt-1 text-3xs font-semibold text-slate-400 hover:text-white cursor-pointer"
+                >
+                  Tutup Panduan
+                </button>
               </div>
             ) : (
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-2.5 flex items-center gap-2">
                 <button
                   onClick={handleInstallClick}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-xs font-semibold rounded-xl transition-all shadow-md shadow-red-600/20"
+                  className="inline-flex items-center gap-1 px-3 py-1 bg-red-600 hover:bg-red-500 active:scale-95 text-white text-2xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer shadow-xs"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  {isIos ? "Petunjuk Pasang" : "Pasang Sekarang"}
+                  <Download className="w-3 h-3" />
+                  <span>{isIos ? "Petunjuk Pasang" : "Pasang Sekarang"}</span>
                 </button>
                 <button
                   onClick={handleDismiss}
-                  className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                  className="px-2.5 py-1 text-2xs font-medium text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap cursor-pointer"
                 >
                   Nanti Saja
                 </button>

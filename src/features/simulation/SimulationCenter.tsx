@@ -27,7 +27,9 @@ import {
   Save,
   Search,
   ShieldCheck,
+  Smile,
   Sparkles,
+  Stethoscope,
   Target,
   Trash2,
   UserRound,
@@ -247,7 +249,7 @@ const definitions: globalThis.Record<SessionType, {
   medical: {
     label: "Sesi Rikkes",
     group: "Seleksi",
-    description: "Pemeriksaan vital dan survei anamnesis.",
+    description: "5 Pilar Klinis (Tensi, Nadi, Mata/Ishihara, Gigi, THT) & 21 Anamnesis.",
     icon: HeartPulse,
     tone: "bg-red-50 text-red-700",
     fields: [
@@ -804,6 +806,7 @@ export default function SimulationCenter() {
     records,
     setRecords,
     saveToCloud,
+    ishiharaResults,
   } = useApp()
 
   const [sessionId, setSessionId] = useState(sessions[0]?.id ?? "")
@@ -1229,6 +1232,253 @@ export default function SimulationCenter() {
       criticalAnamnesis.has(index) &&
       record.metrics[`anamnesis-${index}`] === "yes",
   )
+
+  // 1. Data Hasil Tes Ishihara (Buta Warna) dari Portal
+  const candidateIshihara = useMemo(() => {
+    if (!candidate?.id || !ishiharaResults) return null
+    return ishiharaResults.find((res) => res.participantId === candidate.id) || null
+  }, [candidate?.id, ishiharaResults])
+
+  // 2. Data Cek Anamnesis Mandiri dari Portal
+  const candidatePortalAnamnesis = useMemo(() => {
+    if (!candidate?.id) return null
+    try {
+      const histRaw = localStorage.getItem(`paska-anamnesis-history-${candidate.id}`)
+      if (histRaw) {
+        const hist = JSON.parse(histRaw)
+        if (Array.isArray(hist) && hist.length > 0) {
+          return {
+            answers: hist[0].answers ?? {},
+            score: hist[0].score ?? 100,
+            yesCount: hist[0].yesCount ?? 0,
+            criticalCount: hist[0].criticalCount ?? 0,
+            status: (hist[0].status as "passed" | "review" | "failed") ?? "passed",
+            timestamp: hist[0].timestamp ?? "",
+            source: "Riwayat Portal Mandiri",
+          }
+        }
+      }
+      const savedRaw = localStorage.getItem(`paska-anamnesis-${candidate.id}`)
+      if (savedRaw) {
+        const saved = JSON.parse(savedRaw)
+        return {
+          answers: (saved.answers as Record<string, "yes" | "no">) ?? {},
+          score: saved.score ?? 100,
+          yesCount: saved.yesCount ?? 0,
+          criticalCount: saved.criticalCount ?? 0,
+          status: (saved.status as "passed" | "review" | "failed") ?? "passed",
+          timestamp: saved.savedAt ?? "",
+          source: "Portal Mandiri",
+        }
+      }
+      const rikkesKey = `session-rikkes-tahap4:${candidate.id}`
+      const rec = records[rikkesKey]
+      if (rec && rec.metrics) {
+        const answers: Record<string, "yes" | "no"> = {}
+        anamnesisItems.forEach((_, i) => {
+          const val = rec.metrics[`anamnesis-${i}`]
+          if (val === "yes" || val === "no") answers[String(i)] = val
+        })
+        if (Object.keys(answers).length > 0) {
+          return {
+            answers,
+            score: Number(rec.metrics.anamnesisScore) || 100,
+            yesCount: Number(rec.metrics.anamnesis) || 0,
+            criticalCount: rec.metrics.anamnesisCritical === "yes" ? 1 : 0,
+            status: ((rec.metrics.anamnesisStatus as any) || "passed") as "passed" | "review" | "failed",
+            timestamp: rec.metrics.anamnesisCompletedAt || rec.savedAt || "",
+            source: "Sesi Rikkes Tahap 4",
+          }
+        }
+      }
+    } catch {
+      // Ignore
+    }
+    return null
+  }, [candidate?.id, records])
+
+  // 3. Evaluasi Diagnostik Lengkap Rikkes Sesuai 5 Pilar BPIP
+  const rikkesEval = useMemo(() => {
+    if (session.type !== "medical") return null
+
+    const m = record.metrics
+    const tmsReasons: string[] = []
+    const reviewWarnings: string[] = []
+
+    // 1. TEKANAN DARAH
+    let sys = parseFloat(m.systolic || "")
+    let dia = parseFloat(m.diastolic || "")
+    if ((isNaN(sys) || isNaN(dia)) && m.bloodPressure) {
+      const parts = m.bloodPressure.split("/")
+      if (parts.length === 2) {
+        sys = parseFloat(parts[0].trim())
+        dia = parseFloat(parts[1].trim())
+      }
+    }
+
+    let bpCategory: "normal" | "tolerance" | "failed" | "hypotension" | "empty" = "empty"
+    if (!isNaN(sys) && !isNaN(dia) && sys > 0 && dia > 0) {
+      if (sys > 140 || dia > 90) {
+        bpCategory = "failed"
+        tmsReasons.push(
+          `Tekanan darah tinggi > 140/90 mmHg (${Math.round(sys)}/${Math.round(dia)} mmHg) — MUTLAK GUGUR tensi tinggi`,
+        )
+      } else if (sys > 125 || dia > 85) {
+        bpCategory = "tolerance"
+        reviewWarnings.push(
+          `Tekanan darah di batas maksimal toleransi (${Math.round(sys)}/${Math.round(dia)} mmHg, maks 130/90). Perlu istirahat & ukur ulang.`,
+        )
+      } else if (sys < 100 || dia < 60) {
+        bpCategory = "hypotension"
+        reviewWarnings.push(
+          `Hipotensi (${Math.round(sys)}/${Math.round(dia)} mmHg < 100/60). Waspada pusing/sinkop di lapangan.`,
+        )
+      } else {
+        bpCategory = "normal"
+      }
+    }
+
+    // 2. DENYUT NADI ISTIRAHAT
+    const pulse = parseFloat(m.pulse || "")
+    const rhythm = m.pulseRhythm ?? "sinus"
+    let pulseCategory: "normal" | "arrhythmia" | "tachycardia" | "bradycardia" | "empty" = "empty"
+
+    if (rhythm === "arrhythmia") {
+      pulseCategory = "arrhythmia"
+      tmsReasons.push("Irama denyut nadi ARITMIA (tidak teratur) — Tidak memenuhi syarat kardiovaskular")
+    } else if (!isNaN(pulse) && pulse > 0) {
+      if (pulse > 100) {
+        pulseCategory = "tachycardia"
+        tmsReasons.push(`Denyut nadi istirahat takikardia (${Math.round(pulse)} bpm > 100 bpm)`)
+      } else if (pulse > 85) {
+        pulseCategory = "tachycardia"
+        reviewWarnings.push(`Denyut nadi istirahat (${Math.round(pulse)} bpm) di atas batas normal 85 bpm`)
+      } else if (pulse < 60) {
+        pulseCategory = "bradycardia"
+        reviewWarnings.push(`Denyut nadi istirahat bradikardia (${Math.round(pulse)} bpm < 60 bpm)`)
+      } else {
+        pulseCategory = "normal"
+      }
+    }
+
+    // 3. MATA & PENGLIHATAN
+    const ishihara =
+      m.ishiharaStatus ??
+      (candidateIshihara
+        ? candidateIshihara.screeningInterpretation === "normal" ||
+          candidateIshihara.selectionDecision === "eligible"
+          ? "normal"
+          : "partial"
+        : "normal")
+    const minus = parseFloat(m.refractionMinus || "0")
+    let eyeCategory: "normal" | "tolerance" | "failed" = "normal"
+
+    if (ishihara === "partial" || ishihara === "total") {
+      eyeCategory = "failed"
+      tmsReasons.push(
+        `Buta warna ${ishihara === "total" ? "Total" : "Parsial"} (Uji Ishihara) — MUTLAK GUGUR`,
+      )
+    } else if (minus > 1.0) {
+      eyeCategory = "failed"
+      tmsReasons.push(
+        `Refraksi mata minus/silinder (${minus.toFixed(2)} D) melebihi toleransi maksimal 1.0 dioptri`,
+      )
+    } else if (minus > 0 && minus <= 1.0) {
+      eyeCategory = "tolerance"
+      reviewWarnings.push(
+        `Koreksi visus minus ringan (${minus.toFixed(2)} D) dalam toleransi maksimal 1.0 D`,
+      )
+    }
+
+    // 4. KESEHATAN GIGI & MULUT
+    const karies = m.kariesActive ?? "bebas"
+    const cavityCount = parseInt(m.cavityCount || "0", 10) || 0
+    const cavityFilled = m.cavityFilled ?? "yes"
+    const frontTeeth = m.frontTeeth ?? "utuh"
+    const occlusion = m.occlusion ?? "normal"
+    let teethCategory: "normal" | "tolerance" | "failed" = "normal"
+
+    if (karies === "parah") {
+      teethCategory = "failed"
+      tmsReasons.push("Terdapat karies aktif parah pada gigi/rongga mulut")
+    }
+    if (cavityCount > 5) {
+      teethCategory = "failed"
+      tmsReasons.push(`Gigi berlubang melebihi batas (${cavityCount} gigi > batas maksimal 5 gigi)`)
+    } else if (cavityCount > 0 && cavityFilled === "no") {
+      teethCategory = "failed"
+      tmsReasons.push(`Terdapat ${cavityCount} gigi berlubang yang belum ditambal sebelum seleksi`)
+    }
+    if (frontTeeth === "ompong_patah") {
+      teethCategory = "failed"
+      tmsReasons.push("Gigi depan ompong/patah tanpa gigi tiruan estetik permanen — MUTLAK GUGUR")
+    }
+    if (occlusion === "maloklusi_parah") {
+      teethCategory = teethCategory === "failed" ? "failed" : "tolerance"
+      reviewWarnings.push("Maloklusi parah (susunan gigi rawan penalti evaluasi)")
+    }
+
+    // 5. THT & PERNAPASAN
+    const tonsil = m.tonsil ?? "normal"
+    const polyp = m.nasalPolyp ?? "bebas"
+    const tympanic = m.tympanic ?? "utuh"
+    let entCategory: "normal" | "failed" = "normal"
+
+    if (tonsil === "t3_t4") {
+      entCategory = "failed"
+      tmsReasons.push("Tonsilitis kronis T3–T4 (amandel membesar parah) — MUTLAK GUGUR")
+    }
+    if (polyp === "ada") {
+      entCategory = "failed"
+      tmsReasons.push("Terdapat polip hidung — MUTLAK GUGUR")
+    }
+    if (tympanic === "robek_congek") {
+      entCategory = "failed"
+      tmsReasons.push("Membran timpani robek / riwayat congek (otitis media) — MUTLAK GUGUR")
+    }
+
+    // 6. ANAMNESIS
+    if (medicalCritical) {
+      tmsReasons.push("Riwayat penyakit kritis pada survei Anamnesis (Asma/Jantung/Epilepsi/Narkoba) — Hard-lock gugur")
+    }
+    if (medicalYesCount > 5) {
+      reviewWarnings.push(`Survei anamnesis melebihi ambang batas (${medicalYesCount} YA > 5 keluhan)`)
+    }
+
+    let finalDecision: "passed" | "review" | "failed" = "passed"
+    if (tmsReasons.length > 0) {
+      finalDecision = "failed"
+    } else if (reviewWarnings.length > 0) {
+      finalDecision = "review"
+    } else {
+      finalDecision = "passed"
+    }
+
+    return {
+      finalDecision,
+      tmsReasons,
+      reviewWarnings,
+      bpCategory,
+      pulseCategory,
+      eyeCategory,
+      teethCategory,
+      entCategory,
+      sys: !isNaN(sys) ? sys : null,
+      dia: !isNaN(dia) ? dia : null,
+      pulse: !isNaN(pulse) ? pulse : null,
+      rhythm,
+      ishihara,
+      minus,
+      karies,
+      cavityCount,
+      cavityFilled,
+      frontTeeth,
+      occlusion,
+      tonsil,
+      polyp,
+      tympanic,
+    }
+  }, [record.metrics, session.type, candidateIshihara, medicalCritical, medicalYesCount])
   const isIntervalSession = session.title.toLowerCase().includes("interval")
   const activeFitnessTests: string[] =
     session.type === "fitness"
@@ -1783,32 +2033,37 @@ export default function SimulationCenter() {
         }
       case "medical":
         return {
-          title: "Standar Rikkes & Kesehatan Mata",
+          title: "Standar Rikkes BPIP (Tahap 4)",
           badge: "Pemeriksaan Kesehatan",
           items: [
             {
-              label: "Antropometri TB/BB",
-              target: "TB ≥ 170cm",
-              sub: "Khusus Putra (170–180 cm) · BMI 18.5 - 25.0",
+              label: "Tekanan Darah",
+              target: "110/70–125/85",
+              sub: "Maks. 130/90 · >140/90 Mutlak Gugur",
             },
             {
-              label: "Ishihara Buta Warna",
-              target: "24 Plat",
-              sub: "Wajib Bebas Buta Warna",
+              label: "Nadi Istirahat",
+              target: "60–85 bpm",
+              sub: "Sinus Reguler · Tanpa Aritmia",
             },
             {
-              label: "Tensi & Jantung",
-              target: "120/80 mmHg",
-              sub: "Kardiovaskular prima",
+              label: "Mata & Ishihara",
+              target: "Visus 6/6",
+              sub: "Toleransi ≤1D · Bebas Buta Warna",
             },
             {
-              label: "Postur & Rangka",
-              target: "Normal",
-              sub: "Bebas kaki O/X, skoliosis, varises",
+              label: "Gigi & Mulut",
+              target: "≤5 Gigi Ditambal",
+              sub: "Gigi Depan Utuh · Bebas Maloklusi Berat",
+            },
+            {
+              label: "THT & Pernapasan",
+              target: "T0–T2 Tenang",
+              sub: "Bebas Amandel T3-T4 · Polip · Congek",
             },
           ],
           guideline:
-            "Pemeriksaan kesehatan awal memastikan santri memiliki ketahanan fisik bebas kendala klinis.",
+            "Standar Medis Rikkes BPIP mewajibkan 5 pilar organ vital di atas berada pada rentang sehat dan maksimal 5 YA tanpa keluhan kritis pada 21 anamnesis.",
         }
       case "interview":
         return {
@@ -3670,6 +3925,791 @@ export default function SimulationCenter() {
                           />
                         )}
                       </div>
+                    ) : session.type === "medical" ? (
+                      /* RIKKES CLINICAL 5-PILLAR INPUTS & PORTAL INTEGRATION */
+                      <div className="mt-4 space-y-4">
+                        {/* PORTAL INTEGRATION NOTIFICATION BAR */}
+                        <div className="grid gap-2.5 sm:grid-cols-2">
+                          {/* Portal Ishihara Banner */}
+                          <div
+                            className={`flex flex-col justify-between gap-2 rounded-2xl border p-3.5 transition ${
+                              candidateIshihara
+                                ? candidateIshihara.screeningInterpretation === "normal" ||
+                                  candidateIshihara.selectionDecision === "eligible"
+                                  ? "border-emerald-200 bg-emerald-50/70 text-emerald-950"
+                                  : "border-rose-200 bg-rose-50/70 text-rose-950"
+                                : "border-slate-200 bg-slate-50 text-slate-700"
+                            }`}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <Eye
+                                className={`size-4 mt-0.5 shrink-0 ${
+                                  candidateIshihara
+                                    ? candidateIshihara.screeningInterpretation === "normal" ||
+                                      candidateIshihara.selectionDecision === "eligible"
+                                      ? "text-emerald-600"
+                                      : "text-rose-600"
+                                    : "text-slate-400"
+                                }`}
+                              />
+                              <div>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">
+                                    Portal Tes Ishihara (Mata)
+                                  </span>
+                                  {candidateIshihara ? (
+                                    <span
+                                      className={`rounded-md px-1.5 py-0.2 text-3xs font-extrabold uppercase ${
+                                        candidateIshihara.screeningInterpretation === "normal" ||
+                                        candidateIshihara.selectionDecision === "eligible"
+                                          ? "bg-emerald-200/70 text-emerald-800"
+                                          : "bg-rose-200/70 text-rose-800"
+                                      }`}
+                                    >
+                                      Terkoneksi
+                                    </span>
+                                  ) : (
+                                    <span className="rounded-md bg-slate-200 px-1.5 py-0.2 text-3xs font-semibold text-slate-600">
+                                      Belum Ada
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-0.5 text-xs font-semibold">
+                                  {candidateIshihara
+                                    ? `Akurasi ${candidateIshihara.accuracy}% · ${candidateIshihara.interpretationLabel}`
+                                    : "Kandidat belum mengikuti tes buta warna Ishihara di portal."}
+                                </p>
+                              </div>
+                            </div>
+                            {candidateIshihara ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const isNormal =
+                                    candidateIshihara.screeningInterpretation === "normal" ||
+                                    candidateIshihara.selectionDecision === "eligible"
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      ishiharaStatus: isNormal ? "normal" : "partial",
+                                      ishiharaDetail: `${candidateIshihara.accuracy}% (${candidateIshihara.interpretationLabel})`,
+                                    },
+                                  })
+                                  showToast(
+                                    `Hasil Ishihara portal (${candidateIshihara.accuracy}%) berhasil disinkronkan.`,
+                                    "success",
+                                  )
+                                }}
+                                className="inline-flex items-center justify-center gap-1.5 self-start rounded-xl border border-emerald-300 bg-white px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-50 active:scale-95 transition"
+                              >
+                                <Zap className="size-3 text-amber-500" />
+                                Sinkronkan Hasil Ishihara
+                              </button>
+                            ) : null}
+                          </div>
+
+                          {/* Portal Anamnesis Banner */}
+                          <div
+                            className={`flex flex-col justify-between gap-2 rounded-2xl border p-3.5 transition ${
+                              candidatePortalAnamnesis
+                                ? candidatePortalAnamnesis.criticalCount > 0
+                                  ? "border-rose-200 bg-rose-50/70 text-rose-950"
+                                  : candidatePortalAnamnesis.yesCount > 5
+                                    ? "border-amber-200 bg-amber-50/70 text-amber-950"
+                                    : "border-emerald-200 bg-emerald-50/70 text-emerald-950"
+                                : "border-slate-200 bg-slate-50 text-slate-700"
+                            }`}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <HeartPulse
+                                className={`size-4 mt-0.5 shrink-0 ${
+                                  candidatePortalAnamnesis
+                                    ? candidatePortalAnamnesis.criticalCount > 0
+                                      ? "text-rose-600"
+                                      : "text-emerald-600"
+                                    : "text-slate-400"
+                                }`}
+                              />
+                              <div>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">
+                                    Portal Anamnesis Mandiri
+                                  </span>
+                                  {candidatePortalAnamnesis ? (
+                                    <span className="rounded-md bg-emerald-200/70 px-1.5 py-0.2 text-3xs font-extrabold uppercase text-emerald-800">
+                                      Terkoneksi
+                                    </span>
+                                  ) : (
+                                    <span className="rounded-md bg-slate-200 px-1.5 py-0.2 text-3xs font-semibold text-slate-600">
+                                      Belum Ada
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-0.5 text-xs font-semibold">
+                                  {candidatePortalAnamnesis
+                                    ? `${candidatePortalAnamnesis.yesCount} dari 21 keluhan YA (Skor ${candidatePortalAnamnesis.score}/100)`
+                                    : "Kandidat belum mengisi formulir screening kesehatan di portal."}
+                                </p>
+                              </div>
+                            </div>
+                            {candidatePortalAnamnesis ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const nextMetrics = { ...record.metrics }
+                                  anamnesisItems.forEach((_, i) => {
+                                    nextMetrics[`anamnesis-${i}`] =
+                                      candidatePortalAnamnesis.answers[String(i)] || "no"
+                                  })
+                                  nextMetrics.anamnesis = String(candidatePortalAnamnesis.yesCount)
+                                  nextMetrics.anamnesisScore = String(candidatePortalAnamnesis.score)
+                                  nextMetrics.anamnesisStatus = candidatePortalAnamnesis.status
+                                  patchRecord({ metrics: nextMetrics })
+                                  showToast(
+                                    `21 Jawaban Anamnesis (${candidatePortalAnamnesis.yesCount} YA) berhasil disinkronkan dari portal!`,
+                                    "success",
+                                  )
+                                }}
+                                className="inline-flex items-center justify-center gap-1.5 self-start rounded-xl border border-emerald-300 bg-white px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-50 active:scale-95 transition"
+                              >
+                                <Zap className="size-3 text-amber-500" />
+                                Tarik 21 Jawaban Portal
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {/* PILAR 1: KARDIOVASKULAR (TENSI & NADI) */}
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                            <div className="flex items-center gap-2">
+                              <Activity className="size-4 text-red-600" />
+                              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                                1. Kardiovaskular (Tekanan Darah &amp; Nadi)
+                              </span>
+                            </div>
+                            <span className="text-3xs font-semibold text-slate-500">
+                              Normal: 110/70 s.d. 125/85 mmHg · Nadi: 60–85 bpm Sinus
+                            </span>
+                          </div>
+
+                          <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
+                            {/* Input Tekanan Darah (Tensi) */}
+                            <div className="space-y-2 rounded-xl bg-white p-3 border border-slate-200 shadow-2xs">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-slate-800">
+                                  Tekanan Darah (Tensi)
+                                </label>
+                                {rikkesEval && rikkesEval.bpCategory !== "empty" ? (
+                                  <span
+                                    className={`rounded-md px-2 py-0.5 text-3xs font-bold ${
+                                      rikkesEval.bpCategory === "normal"
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : rikkesEval.bpCategory === "failed"
+                                          ? "bg-rose-100 text-rose-800 font-extrabold"
+                                          : "bg-amber-100 text-amber-800"
+                                    }`}
+                                  >
+                                    {rikkesEval.bpCategory === "normal"
+                                      ? "Rentang Normal"
+                                      : rikkesEval.bpCategory === "failed"
+                                        ? "MUTLAK GUGUR (>140/90)"
+                                        : rikkesEval.bpCategory === "tolerance"
+                                          ? "Batas Maks. (130/90)"
+                                          : "Hipotensi (<100/60)"}
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <span className="text-3xs font-semibold text-slate-500">
+                                    Sistol (mmHg)
+                                  </span>
+                                  <input
+                                    type="number"
+                                    placeholder="120"
+                                    value={
+                                      record.metrics.systolic ??
+                                      (record.metrics.bloodPressure?.split("/")[0] ?? "")
+                                    }
+                                    onChange={(e) => {
+                                      const sVal = e.target.value
+                                      const dVal =
+                                        record.metrics.diastolic ??
+                                        (record.metrics.bloodPressure?.split("/")[1] ?? "80")
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          systolic: sVal,
+                                          diastolic: dVal,
+                                          bloodPressure: `${sVal}/${dVal}`,
+                                        },
+                                      })
+                                    }}
+                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                                  />
+                                </div>
+                                <div>
+                                  <span className="text-3xs font-semibold text-slate-500">
+                                    Diastol (mmHg)
+                                  </span>
+                                  <input
+                                    type="number"
+                                    placeholder="80"
+                                    value={
+                                      record.metrics.diastolic ??
+                                      (record.metrics.bloodPressure?.split("/")[1] ?? "")
+                                    }
+                                    onChange={(e) => {
+                                      const dVal = e.target.value
+                                      const sVal =
+                                        record.metrics.systolic ??
+                                        (record.metrics.bloodPressure?.split("/")[0] ?? "120")
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          systolic: sVal,
+                                          diastolic: dVal,
+                                          bloodPressure: `${sVal}/${dVal}`,
+                                        },
+                                      })
+                                    }}
+                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Quick Tensi presets */}
+                              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                <span className="text-3xs text-slate-400">Pilihan Cepat:</span>
+                                {[
+                                  { s: "115", d: "75" },
+                                  { s: "120", d: "80" },
+                                  { s: "125", d: "85" },
+                                  { s: "130", d: "90" },
+                                  { s: "145", d: "95" },
+                                ].map((p) => (
+                                  <button
+                                    key={`${p.s}/${p.d}`}
+                                    type="button"
+                                    onClick={() =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          systolic: p.s,
+                                          diastolic: p.d,
+                                          bloodPressure: `${p.s}/${p.d}`,
+                                        },
+                                      })
+                                    }
+                                    className="rounded-lg bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-3xs font-semibold text-slate-700 transition"
+                                  >
+                                    {p.s}/{p.d}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Input Nadi Istirahat & Irama */}
+                            <div className="space-y-2 rounded-xl bg-white p-3 border border-slate-200 shadow-2xs">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-slate-800">
+                                  Denyut Nadi Istirahat
+                                </label>
+                                {rikkesEval && rikkesEval.pulseCategory !== "empty" ? (
+                                  <span
+                                    className={`rounded-md px-2 py-0.5 text-3xs font-bold ${
+                                      rikkesEval.pulseCategory === "normal"
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : rikkesEval.pulseCategory === "arrhythmia"
+                                          ? "bg-rose-100 text-rose-800 font-extrabold"
+                                          : "bg-amber-100 text-amber-800"
+                                    }`}
+                                  >
+                                    {rikkesEval.pulseCategory === "normal"
+                                      ? "60–85 bpm Sinus"
+                                      : rikkesEval.pulseCategory === "arrhythmia"
+                                        ? "ARITMIA (GUGUR)"
+                                        : rikkesEval.pulseCategory === "tachycardia"
+                                          ? "Takikardia (>85)"
+                                          : "Bradikardia (<60)"}
+                                  </span>
+                                ) : null}
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2 items-center">
+                                <NumberStepper
+                                  label="Frekuensi"
+                                  unit="bpm"
+                                  value={record.metrics.pulse ?? ""}
+                                  placeholder="72"
+                                  quickAdds={[2, 5]}
+                                  onChange={(val) =>
+                                    patchRecord({
+                                      metrics: { ...record.metrics, pulse: val },
+                                    })
+                                  }
+                                />
+                                <div>
+                                  <span className="text-3xs font-semibold text-slate-500">
+                                    Irama Sinus
+                                  </span>
+                                  <div className="mt-1 flex gap-1">
+                                    {[
+                                      { id: "sinus", label: "Sinus Reguler" },
+                                      { id: "arrhythmia", label: "Aritmia" },
+                                    ].map((opt) => {
+                                      const isSel =
+                                        (record.metrics.pulseRhythm ?? "sinus") === opt.id
+                                      return (
+                                        <button
+                                          key={opt.id}
+                                          type="button"
+                                          onClick={() =>
+                                            patchRecord({
+                                              metrics: {
+                                                ...record.metrics,
+                                                pulseRhythm: opt.id,
+                                              },
+                                            })
+                                          }
+                                          className={`flex-1 min-h-10 rounded-xl px-2 text-2xs font-bold transition ${
+                                            isSel
+                                              ? opt.id === "sinus"
+                                                ? "bg-emerald-600 text-white shadow-xs"
+                                                : "bg-rose-600 text-white shadow-xs"
+                                              : "border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                                          }`}
+                                        >
+                                          {opt.label}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PILAR 2: MATA & PENGLIHATAN */}
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                            <div className="flex items-center gap-2">
+                              <Eye className="size-4 text-blue-600" />
+                              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                                2. Mata &amp; Penglihatan
+                              </span>
+                            </div>
+                            <span className="text-3xs font-semibold text-slate-500">
+                              Visus 6/6 (Toleransi minus ≤1.0D) · Buta Warna Mutlak Gugur
+                            </span>
+                          </div>
+
+                          <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
+                            {/* Tajam Penglihatan & Minus */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Visus Mata &amp; Toleransi Refraksi (Minus/Silindris)
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <span className="text-3xs text-slate-500 font-semibold">
+                                    Visus Tanpa Kacamata
+                                  </span>
+                                  <select
+                                    value={record.metrics.visusRight ?? "6/6"}
+                                    onChange={(e) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          visusRight: e.target.value,
+                                          visusLeft: e.target.value,
+                                        },
+                                      })
+                                    }
+                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800"
+                                  >
+                                    <option value="6/6">6/6 (Normal Sempurna)</option>
+                                    <option value="6/7.5">6/7.5 (Minus Ringan)</option>
+                                    <option value="6/9">6/9 (Batas Toleransi ≤1D)</option>
+                                    <option value="6/12">6/12 (&gt; 1D - TMS)</option>
+                                  </select>
+                                </div>
+                                <div>
+                                  <span className="text-3xs text-slate-500 font-semibold">
+                                    Besaran Minus (Dioptri)
+                                  </span>
+                                  <select
+                                    value={record.metrics.refractionMinus ?? "0.0"}
+                                    onChange={(e) =>
+                                      patchRecord({
+                                        metrics: {
+                                          ...record.metrics,
+                                          refractionMinus: e.target.value,
+                                        },
+                                      })
+                                    }
+                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800"
+                                  >
+                                    <option value="0.0">0.0 D (Normal Bebas Minus)</option>
+                                    <option value="0.25">-0.25 D (Toleransi)</option>
+                                    <option value="0.50">-0.50 D (Toleransi)</option>
+                                    <option value="0.75">-0.75 D (Toleransi)</option>
+                                    <option value="1.00">-1.00 D (Batas Maksimal)</option>
+                                    <option value="1.50">-1.50 D (&gt; 1D MUTLAK GUGUR)</option>
+                                    <option value="2.00">-2.00 D (&gt; 1D MUTLAK GUGUR)</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Uji Ishihara Buta Warna */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-bold text-slate-800">
+                                  Uji Ishihara (14/24 Plates)
+                                </label>
+                                <span className="rounded-md bg-rose-100 text-rose-800 text-3xs font-extrabold px-1.5 py-0.5">
+                                  Buta Warna Mutlak Gugur
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 mt-1">
+                                {[
+                                  { id: "normal", label: "Normal (Bebas Buta Warna)" },
+                                  { id: "partial", label: "Buta Warna Parsial / Total" },
+                                ].map((opt) => {
+                                  const cur =
+                                    record.metrics.ishiharaStatus ??
+                                    (candidateIshihara
+                                      ? candidateIshihara.screeningInterpretation === "normal" ||
+                                        candidateIshihara.selectionDecision === "eligible"
+                                        ? "normal"
+                                        : "partial"
+                                      : "normal")
+                                  const isSel = cur === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            ishiharaStatus: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`min-h-11 rounded-xl text-xs font-bold transition active:scale-95 ${
+                                        isSel
+                                          ? opt.id === "normal"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : "bg-rose-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PILAR 3: KESEHATAN GIGI & MULUT */}
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                            <div className="flex items-center gap-2">
+                              <Smile className="size-4 text-emerald-600" />
+                              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                                3. Kesehatan Gigi &amp; Mulut
+                              </span>
+                            </div>
+                            <span className="text-3xs font-semibold text-slate-500">
+                              Karies ≤ 5 gigi sudah ditambal · Gigi depan utuh · Bebas maloklusi parah
+                            </span>
+                          </div>
+
+                          <div className="mt-3.5 grid gap-3 sm:grid-cols-3">
+                            {/* Karies & Gigi Berlubang */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Gigi Berlubang (Maks. 5)
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <NumberStepper
+                                  label="Jumlah"
+                                  unit="gigi"
+                                  min={0}
+                                  max={20}
+                                  value={record.metrics.cavityCount ?? "0"}
+                                  placeholder="0"
+                                  quickAdds={[1, 2]}
+                                  onChange={(val) =>
+                                    patchRecord({
+                                      metrics: { ...record.metrics, cavityCount: val },
+                                    })
+                                  }
+                                />
+                                <div>
+                                  <span className="text-3xs font-semibold text-slate-500">
+                                    Penambalan
+                                  </span>
+                                  <div className="mt-1 flex flex-col gap-1">
+                                    {[
+                                      { id: "yes", label: "Sudah Ditambal" },
+                                      { id: "no", label: "Belum Ditambal" },
+                                    ].map((opt) => {
+                                      const isSel =
+                                        (record.metrics.cavityFilled ?? "yes") === opt.id
+                                      return (
+                                        <button
+                                          key={opt.id}
+                                          type="button"
+                                          onClick={() =>
+                                            patchRecord({
+                                              metrics: {
+                                                ...record.metrics,
+                                                cavityFilled: opt.id,
+                                              },
+                                            })
+                                          }
+                                          className={`rounded-lg py-1 px-2 text-2xs font-bold transition ${
+                                            isSel
+                                              ? opt.id === "yes"
+                                                ? "bg-emerald-600 text-white"
+                                                : "bg-rose-600 text-white"
+                                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                          }`}
+                                        >
+                                          {opt.label}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Gigi Depan */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Gigi Depan
+                              </label>
+                              <div className="flex flex-col gap-1.5 mt-1">
+                                {[
+                                  { id: "utuh", label: "Utuh / Normal" },
+                                  { id: "tiruan_permanen", label: "Gigi Tiruan Estetik Permanen" },
+                                  { id: "ompong_patah", label: "Ompong / Patah Tanpa Tiruan" },
+                                ].map((opt) => {
+                                  const isSel =
+                                    (record.metrics.frontTeeth ?? "utuh") === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            frontTeeth: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                        isSel
+                                          ? opt.id === "ompong_patah"
+                                            ? "bg-rose-600 text-white shadow-xs"
+                                            : "bg-emerald-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Susunan Gigi / Oklusi */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Susunan Gigi (Oklusi)
+                              </label>
+                              <div className="flex flex-col gap-1.5 mt-1">
+                                {[
+                                  { id: "normal", label: "Normal & Rapi" },
+                                  { id: "maloklusi_ringan", label: "Maloklusi Ringan (Toleransi)" },
+                                  { id: "maloklusi_parah", label: "Maloklusi Parah (Rawan Penalti)" },
+                                ].map((opt) => {
+                                  const isSel =
+                                    (record.metrics.occlusion ?? "normal") === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            occlusion: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                        isSel
+                                          ? opt.id === "normal"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : opt.id === "maloklusi_ringan"
+                                              ? "bg-amber-600 text-white shadow-xs"
+                                              : "bg-rose-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PILAR 4: THT & PERNAPASAN */}
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                            <div className="flex items-center gap-2">
+                              <Stethoscope className="size-4 text-purple-600" />
+                              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                                4. THT &amp; Pernapasan
+                              </span>
+                            </div>
+                            <span className="text-3xs font-semibold text-slate-500">
+                              Bebas amandel T3-T4 · Bebas polip hidung · Membran timpani utuh tanpa congek
+                            </span>
+                          </div>
+
+                          <div className="mt-3.5 grid gap-3 sm:grid-cols-3">
+                            {/* Amandel / Tonsilitis */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Amandel / Tonsil
+                              </label>
+                              <div className="flex flex-col gap-1.5 mt-1">
+                                {[
+                                  { id: "normal", label: "T0–T2 Tenang (Normal)" },
+                                  { id: "t3_t4", label: "Tonsilitis T3–T4 (GUGUR)" },
+                                ].map((opt) => {
+                                  const isSel = (record.metrics.tonsil ?? "normal") === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            tonsil: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                        isSel
+                                          ? opt.id === "normal"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : "bg-rose-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Polip Hidung */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Polip Hidung
+                              </label>
+                              <div className="flex flex-col gap-1.5 mt-1">
+                                {[
+                                  { id: "bebas", label: "Bebas Polip Hidung (Normal)" },
+                                  { id: "ada", label: "Ada Polip Hidung (GUGUR)" },
+                                ].map((opt) => {
+                                  const isSel =
+                                    (record.metrics.nasalPolyp ?? "bebas") === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            nasalPolyp: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                        isSel
+                                          ? opt.id === "bebas"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : "bg-rose-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Membran Timpani / Telinga */}
+                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                              <label className="text-xs font-bold text-slate-800">
+                                Membran Timpani &amp; Riwayat Telinga
+                              </label>
+                              <div className="flex flex-col gap-1.5 mt-1">
+                                {[
+                                  { id: "utuh", label: "Utuh & Bersih (Normal)" },
+                                  { id: "robek_congek", label: "Robek / Congek (GUGUR)" },
+                                ].map((opt) => {
+                                  const isSel =
+                                    (record.metrics.tympanic ?? "utuh") === opt.id
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() =>
+                                        patchRecord({
+                                          metrics: {
+                                            ...record.metrics,
+                                            tympanic: opt.id,
+                                          },
+                                        })
+                                      }
+                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                        isSel
+                                          ? opt.id === "utuh"
+                                            ? "bg-emerald-600 text-white shadow-xs"
+                                            : "bg-rose-600 text-white shadow-xs"
+                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                      }`}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     ) : (
                       /* GENERIC / INTERVIEW FIELDS */
                       <div className="mt-3 grid gap-4 md:grid-cols-3">
@@ -3809,6 +4849,31 @@ export default function SimulationCenter() {
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
+                            {candidatePortalAnamnesis ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const patched: Record<string, string> = {
+                                    ...record.metrics,
+                                  }
+                                  anamnesisItems.forEach((_, i) => {
+                                    patched[`anamnesis-${i}`] =
+                                      candidatePortalAnamnesis.answers[String(i)] || "no"
+                                  })
+                                  patched.anamnesis = String(candidatePortalAnamnesis.yesCount)
+                                  patched.anamnesisScore = String(candidatePortalAnamnesis.score)
+                                  patched.anamnesisStatus = candidatePortalAnamnesis.status
+                                  patchRecord({ metrics: patched })
+                                  showToast(
+                                    `21 Jawaban Anamnesis (${candidatePortalAnamnesis.yesCount} YA) disinkronkan dari portal!`,
+                                    "success",
+                                  )
+                                }}
+                                className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-800 transition active:scale-95"
+                              >
+                                ⚡ Tarik dari Portal Mandiri
+                              </button>
+                            ) : null}
                             <button
                               type="button"
                               onClick={() => {
@@ -4013,6 +5078,122 @@ export default function SimulationCenter() {
                               </div>
                             ))}
                         </div>
+                      </div>
+                    ) : null}
+
+                    {/* Live Evaluasi Diagnostik Kelayakan Rikkes BPIP */}
+                    {session.type === "medical" && rikkesEval ? (
+                      <div
+                        className={`mt-4 rounded-2xl border p-4 shadow-2xs transition ${
+                          rikkesEval.finalDecision === "failed"
+                            ? "border-rose-300 bg-rose-50/80"
+                            : rikkesEval.finalDecision === "review"
+                              ? "border-amber-300 bg-amber-50/80"
+                              : "border-emerald-300 bg-emerald-50/80"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <Stethoscope
+                              className={`size-5 ${
+                                rikkesEval.finalDecision === "failed"
+                                  ? "text-rose-600"
+                                  : rikkesEval.finalDecision === "review"
+                                    ? "text-amber-600"
+                                    : "text-emerald-600"
+                              }`}
+                            />
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                                Diagnostik Kelayakan Rikkes BPIP (Tahap 4)
+                              </p>
+                              <p className="text-2xs text-slate-500">
+                                Evaluasi terintegrasi 5 pilar klinis, tes Ishihara, &amp; 21 anamnesis.
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              tone={
+                                rikkesEval.finalDecision === "failed"
+                                  ? "danger"
+                                  : rikkesEval.finalDecision === "review"
+                                    ? "warning"
+                                    : "success"
+                              }
+                            >
+                              {rikkesEval.finalDecision === "failed"
+                                ? "🔴 MUTLAK GUGUR (TMS)"
+                                : rikkesEval.finalDecision === "review"
+                                  ? "🟡 PERLU TINJAU MEDIS"
+                                  : "🟢 MEMENUHI SYARAT (LAIK)"}
+                            </Badge>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const noteSummary =
+                                  rikkesEval.tmsReasons.length > 0
+                                    ? `TMS Rikkes: ${rikkesEval.tmsReasons.join("; ")}`
+                                    : rikkesEval.reviewWarnings.length > 0
+                                      ? `Tinjau Medis: ${rikkesEval.reviewWarnings.join("; ")}`
+                                      : "Laik Rikkes: Memenuhi seluruh 5 pilar klinis BPIP dan anamnesis aman."
+                                patchRecord({
+                                  result: rikkesEval.finalDecision,
+                                  note: record.note?.trim()
+                                    ? record.note
+                                    : noteSummary,
+                                })
+                                showToast(
+                                  `Status Rikkes "${rikkesEval.finalDecision.toUpperCase()}" otomatis diterapkan!`,
+                                  "success",
+                                )
+                              }}
+                              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-bold shadow-xs active:scale-95 transition"
+                            >
+                              <Sparkles className="size-3.5 text-amber-300" />
+                              Terapkan ke Keputusan
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Rincian Alasan Gugur atau Catatan */}
+                        {rikkesEval.tmsReasons.length > 0 ? (
+                          <div className="mt-3 space-y-1.5 rounded-xl border border-rose-300/80 bg-rose-100/70 p-3 text-xs text-rose-950">
+                            <p className="font-bold flex items-center gap-1.5 text-rose-800">
+                              <XCircle className="size-4 shrink-0 text-rose-600" />
+                              Kriteria Mutlak Gugur (TMS) Terdeteksi:
+                            </p>
+                            <ul className="list-disc list-inside space-y-1 text-2xs sm:text-xs">
+                              {rikkesEval.tmsReasons.map((r, i) => (
+                                <li key={i} className="font-semibold text-rose-900">
+                                  {r}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : rikkesEval.reviewWarnings.length > 0 ? (
+                          <div className="mt-3 space-y-1.5 rounded-xl border border-amber-300/80 bg-amber-100/70 p-3 text-xs text-amber-950">
+                            <p className="font-bold flex items-center gap-1.5 text-amber-800">
+                              <AlertCircle className="size-4 shrink-0 text-amber-600" />
+                              Catatan Batas Toleransi / Remedial Medis:
+                            </p>
+                            <ul className="list-disc list-inside space-y-1 text-2xs sm:text-xs">
+                              {rikkesEval.reviewWarnings.map((w, i) => (
+                                <li key={i} className="text-amber-900">
+                                  {w}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : (
+                          <div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-100/70 p-2.5 text-xs text-emerald-950 font-medium">
+                            <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                            <span>
+                              Kandidat memenuhi seluruh kriteria kesehatan fisik resmi BPIP: Tensi 110/70–125/85, Nadi 60–85 bpm Sinus Reguler, Visus 6/6 Bebas Buta Warna, Gigi rapi tanpa karies aktif, THT bersih, dan Anamnesis aman.
+                            </span>
+                          </div>
+                        )}
                       </div>
                     ) : null}
                   </>

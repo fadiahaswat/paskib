@@ -166,18 +166,37 @@ export function StageCards({
       num: 4,
       shortLabel: "RIK",
       name: "Kesehatan & Rikkes",
-      value: medicalRecord
-        ? medicalRecord.result === "passed"
-          ? "Laik"
-          : medicalRecord.result === "failed"
-            ? "Tidak Laik"
-            : medicalRecord.result === "review"
-              ? "Perlu Tinjau"
-              : "Proses"
-        : "—",
-      unit: "",
-      target: 85,
-      targetText: "Laik",
+      value: (() => {
+        const anamMetric = candidate.physicalMetrics?.find((m) =>
+          m.label.toLowerCase().includes("anamnesis"),
+        )
+        const score = medicalRecord?.metrics?.anamnesisScore || (anamMetric ? anamMetric.percent : null)
+        if (score !== null && score !== undefined) return `${score}`
+        return medicalRecord
+          ? medicalRecord.result === "passed"
+            ? "Laik"
+            : medicalRecord.result === "failed"
+              ? "Tidak Laik"
+              : medicalRecord.result === "review"
+                ? "Perlu Tinjau"
+                : "Proses"
+          : candidate.stageStatuses[3] === "passed"
+            ? "Laik"
+            : candidate.stageStatuses[3] === "failed"
+              ? "Tidak Laik"
+              : candidate.stageStatuses[3] === "review"
+                ? "Perlu Tinjau"
+                : "—"
+      })(),
+      unit: (() => {
+        const anamMetric = candidate.physicalMetrics?.find((m) =>
+          m.label.toLowerCase().includes("anamnesis"),
+        )
+        const score = medicalRecord?.metrics?.anamnesisScore || (anamMetric ? anamMetric.percent : null)
+        return score !== null && score !== undefined ? "/ 100" : ""
+      })(),
+      target: 70,
+      targetText: "≥ 70 (Laik)",
       status: medicalRecord
         ? medicalRecord.result === "passed"
           ? "Memenuhi"
@@ -186,17 +205,35 @@ export function StageCards({
             : medicalRecord.result === "review"
               ? "Perlu Tinjau"
               : "Proses"
-        : "Belum Dinilai",
+        : candidate.stageStatuses[3] === "passed"
+          ? "Memenuhi"
+          : candidate.stageStatuses[3] === "failed"
+            ? "Tidak Memenuhi"
+            : candidate.stageStatuses[3] === "review"
+              ? "Perlu Tinjau"
+              : "Belum Dinilai",
       tone: medicalRecord
         ? medicalRecord.result === "passed"
-          ? "success" as const
+          ? ("success" as const)
           : medicalRecord.result === "failed"
-            ? "danger" as const
-            : "warning" as const
-        : "neutral" as const,
+            ? ("danger" as const)
+            : ("warning" as const)
+        : candidate.stageStatuses[3] === "passed"
+          ? ("success" as const)
+          : candidate.stageStatuses[3] === "failed"
+            ? ("danger" as const)
+            : candidate.stageStatuses[3] === "review"
+              ? ("warning" as const)
+              : ("neutral" as const),
       dotColor: "bg-emerald-500",
       color: "emerald" as LineChartColor,
-      chartValues: [],
+      chartValues: (() => {
+        const anamMetric = candidate.physicalMetrics?.find((m) =>
+          m.label.toLowerCase().includes("anamnesis"),
+        )
+        const score = medicalRecord?.metrics?.anamnesisScore || (anamMetric ? anamMetric.percent : null)
+        return score !== null && score !== undefined ? [Number(score)] : []
+      })(),
     },
     {
       num: 5,
