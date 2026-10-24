@@ -376,6 +376,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
+    const isScoreRepairedV8 = typeof window !== "undefined" && !localStorage.getItem("paska-samapta-score-repair-v8")
+    if (isScoreRepairedV8) {
+      try {
+        localStorage.setItem("paska-samapta-score-repair-v8", "true")
+      } catch {}
+    }
+
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
     const baseList = !loaded || loaded.length === 0 ? seededCandidates : loaded
     // Ensure all 13 seeded candidates are always present
@@ -413,15 +420,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ? parseFloat(seededRunMetric.current.replace(/\./g, "").replace(/[^\d.]/g, ""))
           : null
 
+        // Perbaikan anomali: jika nilai fitness saat ini anomali (< 50) padahal santri memiliki data lari resmi >= 2000m,
+        // atau jika terkena kontaminasi riwayat sesi sebelumnya, pulihkan ke nilai resmi standar BPIP.
+        const isAnomalousScore =
+          candidateFitness !== null &&
+          candidateFitness < 50 &&
+          ((runMetricDist !== null && runMetricDist >= 2000) || (seededDist !== null && seededDist >= 2000))
+
         if (
-          seededDist &&
-          seededDist >= 2000 &&
-          (runMetricDist === null || runMetricDist < 2000 || isIntervalPurgedV7)
+          (seededDist &&
+            seededDist >= 2000 &&
+            (runMetricDist === null || runMetricDist < 2000 || isIntervalPurgedV7 || isScoreRepairedV8)) ||
+          isAnomalousScore
         ) {
-          // Pulihkan kembali ke hasil tes resmi Lari 12 Menit yang sah (misal 2.880 m untuk Devga, 2.740 m untuk Alfan)
+          // Pulihkan kembali ke hasil tes resmi Lari 12 Menit yang sah (misal 2.880 m untuk Devga, 2.740 m untuk Alfan, 2.710 m untuk Ihsan)
           metrics = match.physicalMetrics
-          if (match.fitness) {
+          if (match.fitness !== undefined && match.fitness !== null) {
             candidateFitness = match.fitness
+          } else if (seededDist) {
+            candidateFitness = fitnessScore("run", seededDist)
           }
         }
       }

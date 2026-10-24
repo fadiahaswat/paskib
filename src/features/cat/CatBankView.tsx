@@ -154,6 +154,38 @@ export default function CatBankView() {
     currentUser.candidateId || "",
   )
 
+  const isCoachOrAdmin = currentUser.role !== "candidate"
+  const isCoachSelfTest = isCoachOrAdmin && (!selectedCandidateId || selectedCandidateId === "coach-self")
+
+  // Profil simulasi mandiri pelatih (agar tidak mencemari data santri asli)
+  const coachSelfCandidate: Candidate = useMemo(
+    () => ({
+      id: currentUser.id || "coach-self",
+      number: "PELATIH",
+      name: `${currentUser.name} (Pelatih)`,
+      school: currentUser.title || "Tim Pelatih / Pembina",
+      gender: "Putra",
+      birthDate: "1990-01-01",
+      avatar: currentUser.avatar || "CP",
+      status: "verified",
+      currentStage: 1,
+      stage1Status: "passed",
+      stage2Status: "passed",
+      stage3Status: "passed",
+      stage4Status: "passed",
+      stage5Status: "passed",
+      stage6Status: "passed",
+      stage7Status: "passed",
+      stages: [],
+      pip: null,
+      tiu: null,
+      notes: "Mode Uji Coba Mandiri Pelatih",
+      registeredAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }),
+    [currentUser],
+  )
+
   // Automatically bind to candidate's own profile when logged in as candidate
   useEffect(() => {
     if (currentUser.role === "candidate" && currentUser.candidateId) {
@@ -161,10 +193,16 @@ export default function CatBankView() {
     }
   }, [currentUser])
   const selectedCandidate = useMemo(
-    () => (currentUser.role === "candidate"
-      ? candidates.find((c) => c.id === currentUser.candidateId)
-      : candidates.find((c) => c.id === selectedCandidateId)) ?? null,
-    [candidates, currentUser.role, currentUser.candidateId, selectedCandidateId],
+    () => {
+      if (currentUser.role === "candidate") {
+        return candidates.find((c) => c.id === currentUser.candidateId) ?? null
+      }
+      if (isCoachSelfTest) {
+        return coachSelfCandidate
+      }
+      return candidates.find((c) => c.id === selectedCandidateId) ?? null
+    },
+    [candidates, currentUser.role, currentUser.candidateId, isCoachSelfTest, coachSelfCandidate, selectedCandidateId],
   )
 
   // Question orders per attempt (maintains shuffle stability across session recovery)
@@ -194,7 +232,7 @@ export default function CatBankView() {
 
   const visibleCatSchedules = sessions.filter((session) =>
     session.type === "cat" && session.participantIds.includes(
-      currentUser.role === "candidate" ? currentUser.candidateId || "" : selectedCandidateId,
+      currentUser.role === "candidate" ? currentUser.candidateId || "" : (isCoachSelfTest ? "" : selectedCandidateId),
     ),
   )
   const now = Date.now()
@@ -216,10 +254,10 @@ export default function CatBankView() {
     for (const attempt of attempts) {
       const candidate = candidates.find((item) => item.id === attempt.candidateId) ??
         candidates.find((item) => item.name.trim().toLocaleLowerCase() === attempt.candidateName.trim().toLocaleLowerCase())
-      if (!candidate) continue
-      const current = latest.get(candidate.id)
+      const targetId = candidate ? candidate.id : attempt.candidateId
+      const current = latest.get(targetId)
       if (!current || attempt.finalizedAt > current.finalizedAt) {
-        latest.set(candidate.id, attempt)
+        latest.set(targetId, attempt)
       }
     }
     return latest
@@ -248,7 +286,7 @@ export default function CatBankView() {
   }, [candidates, currentUser.role, currentUser.candidateId, latestAttemptByCandidate])
 
   const getLatestSessionScore = (type: "pip" | "tiu") => {
-    if (!selectedCandidate) return null
+    if (!selectedCandidate || isCoachSelfTest) return null
     return sessions
       .filter((session) => session.type === type)
       .map((session) => {
@@ -333,12 +371,21 @@ export default function CatBankView() {
   // --------------------------------------------------------------------------
   // START SESSION 1: PIP
   // --------------------------------------------------------------------------
-  function startPipSession() {
-    if (!selectedCandidate) {
-      showToast("Silakan pilih santri / peserta terlebih dahulu sebelum memulai ujian.", "warning")
+  function startPipSession(targetCandidateId?: string) {
+    const effectiveCandidateId = targetCandidateId ?? selectedCandidateId
+    const effectiveIsCoachSelf = isCoachOrAdmin && (!effectiveCandidateId || effectiveCandidateId === "coach-self")
+    const effectiveCandidate = effectiveIsCoachSelf
+      ? coachSelfCandidate
+      : currentUser.role === "candidate"
+        ? (candidates.find((c) => c.id === currentUser.candidateId) ?? null)
+        : (candidates.find((c) => c.id === effectiveCandidateId) ?? null)
+
+    if (!effectiveCandidate) {
+      showToast("Silakan pilih santri / peserta terlebih dahulu.", "warning")
       return
     }
-    if (!activeCatSchedule) {
+    // Pelatih/Admin TIDAK PERLU menunggu jadwal CAT
+    if (!isCoachOrAdmin && !activeCatSchedule) {
       showToast("CAT hanya dapat dimulai pada jadwal yang ditetapkan admin/pelatih.", "warning")
       return
     }
@@ -347,6 +394,9 @@ export default function CatBankView() {
       showToast("Tidak ada butir soal PIP aktif untuk memulai ujian.", "danger")
       return
     }
+    if (targetCandidateId && targetCandidateId !== selectedCandidateId) {
+      setSelectedCandidateId(targetCandidateId)
+    }
     setPipExamQuestions(qs)
     setPipCurrentIdx(0)
     setPipAnswers({})
@@ -354,9 +404,16 @@ export default function CatBankView() {
     setSecondsLeft(packageConfig.pipDurationSec)
     setIsTimerRunning(true)
     setSessionPhase("pip")
-    if (activeCatSchedule) setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "active" } : session))
+    if (!effectiveIsCoachSelf && activeCatSchedule) {
+      setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "active" } : session))
+    }
     setTryoutStartTime(new Date().toISOString().replace("T", " ").substring(0, 19))
-    showToast("Sesi 1: CAT PIP dimulai. Waktu 45 menit berjalan.", "info")
+    showToast(
+      effectiveIsCoachSelf
+        ? "Sesi 1: CAT PIP dimulai (Mode Pelatih)."
+        : "Sesi 1: CAT PIP dimulai. Waktu 45 menit berjalan.",
+      "info",
+    )
   }
 
   // --------------------------------------------------------------------------
@@ -395,7 +452,11 @@ export default function CatBankView() {
     setIsTimerRunning(false)
     setShowConfirmSubmitModal(false)
     setSessionPhase("completed")
-    if (activeCatSchedule) setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "completed" } : session))
+    
+    const isCoachTest = isCoachSelfTest || !candidates.some((c) => c.id === selectedCandidate?.id)
+    if (!isCoachTest && activeCatSchedule) {
+      setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "completed" } : session))
+    }
 
     // Calculate final scores according to PRD 4.3 formulas:
     // PIP: S_pip = 2 * C_pip (Max 100)
@@ -417,14 +478,15 @@ export default function CatBankView() {
     const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19)
 
     // Count attempts for this candidate
-    const prevAttempts = attempts.filter((a) => a.candidateId === selectedCandidate?.id)
+    const targetCandidateId = isCoachTest ? (currentUser.id || "coach-self") : (selectedCandidate?.id ?? "cand-001")
+    const prevAttempts = attempts.filter((a) => a.candidateId === targetCandidateId)
     const attemptNumber = prevAttempts.length + 1
 
     const newAttempt: CatTryoutAttempt = {
       id: `att-${Date.now()}`,
-      candidateId: selectedCandidate?.id ?? "cand-001",
-      candidateName: selectedCandidate?.name ?? "Peserta Tryout",
-      candidateGroup: selectedCandidate?.school ?? "Grup Mandiri",
+      candidateId: targetCandidateId,
+      candidateName: isCoachTest ? `${currentUser.name} (Simulasi Pelatih)` : (selectedCandidate?.name ?? "Peserta Tryout"),
+      candidateGroup: isCoachTest ? (currentUser.title || "Tim Pelatih / Pembina") : (selectedCandidate?.school ?? "Grup Mandiri"),
       packageName: packageConfig.packageName,
       attemptNumber,
       pipAnswers,
@@ -443,9 +505,8 @@ export default function CatBankView() {
 
     saveCatTryoutAttempt(newAttempt)
 
-    // Auto-sync ke profil kandidat (nilai PIP/TIU + status tahap) agar tampil di dasbor
-    // pelatih dan terkirim ke Google Sheet tanpa perlu klik manual.
-    if (selectedCandidate) {
+    // Auto-sync ke profil kandidat (Hanya jika peserta riil, bukan simulasi pelatih)
+    if (!isCoachTest && selectedCandidate) {
       updateCandidate(selectedCandidate.id, { pip: pipScore, tiu: tiuScoreScaled })
       updateCandidateStage(
         selectedCandidate.id,
@@ -465,11 +526,16 @@ export default function CatBankView() {
       )
     }
     logAudit(
-      "Tryout CAT Selesai",
-      selectedCandidate?.name ?? "Peserta",
+      isCoachTest ? "Simulasi Tryout CAT Pelatih" : "Tryout CAT Selesai",
+      isCoachTest ? currentUser.name : (selectedCandidate?.name ?? "Peserta"),
       `PIP: ${pipScore}/100 (${pipPassed ? "Lolos" : "Remedial"}), TIU: ${tiuScoreScaled}/100 (${tiuPassed ? "Lolos" : "Remedial"})`,
     )
-    showToast("Seluruh paket Tryout CAT selesai dievaluasi!", "success")
+    showToast(
+      isCoachTest
+        ? "Simulasi CAT Pelatih selesai! Skor Anda telah dievaluasi."
+        : "Seluruh paket Tryout CAT selesai dievaluasi!",
+      "success",
+    )
   }
 
   // --------------------------------------------------------------------------
@@ -514,7 +580,10 @@ export default function CatBankView() {
   // SYNC SCORE TO CANDIDATE PROFILE (Stages 2 & 3)
   // --------------------------------------------------------------------------
   function handleSyncToCandidateProfile() {
-    if (!selectedCandidate) return
+    if (isCoachSelfTest || !selectedCandidate || !candidates.some((c) => c.id === selectedCandidate.id)) {
+      showToast("Mode Uji Coba Mandiri: Data simulasi pelatih tidak dapat disinkronkan ke profil santri.", "info")
+      return
+    }
     const pipPass = currentPipResults.passed
     const tiuPass = currentTiuResults.passed
 
@@ -851,119 +920,141 @@ export default function CatBankView() {
   return (
     <div className="grid gap-4 sm:gap-5">
       {/* ======================= TOP NAVIGATION & BANNER ======================= */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-200/70 pb-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950">
-              CAT Tryout PIP &amp; TIU
-            </h1>
-            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
-              <Zap className="size-3 text-red-600" /> BPIP PRD 1.1
-            </span>
-            <span className="hidden sm:inline text-xs text-slate-400">·</span>
-            <span className="hidden sm:inline text-xs font-semibold text-slate-500">
-              Tryout Sekuensial (PIP 45m &rarr; TIU 30m)
-            </span>
+      <Card className="p-4 sm:p-6 border-slate-200/90 shadow-sm">
+        <div className="flex items-start gap-3.5 sm:gap-4">
+          <div className="grid size-10 sm:size-12 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-red-50 text-red-600 ring-1 ring-red-600/15">
+            <GraduationCap className="size-5 sm:size-6" />
           </div>
-          <p className="mt-0.5 text-xs text-slate-500">
-            {currentUser.role === "candidate"
-              ? "Kerjakan ujian Anda dengan tenang. Jawaban tersimpan otomatis dan hasil dapat dilihat setelah sesi selesai."
-              : "Pilih peserta, jalankan PIP lalu TIU, kemudian tinjau hasil dan riwayat percobaan."}
-          </p>
-        </div>
-      </div>
-
-      {/* NAVIGATION GROUPED BY USER FLOW */}
-      <nav aria-label="Navigasi CAT" className="grid gap-2.5 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div>
-          <p className="mb-1 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Alur ujian</p>
-          <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-xl bg-slate-100 p-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab("tryout")}
-            className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
-              activeTab === "tryout"
-                ? "bg-white text-slate-950 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <Play className="size-3.5 text-red-600" />
-            <span>Simulasi Ujian</span>
-            {sessionPhase !== "idle" && (
-              <span className="size-2 rounded-full bg-red-600 animate-pulse" />
-            )}
-          </button>
-
-          {currentUser.role !== "candidate" && (
-            <>
-              <button
-                type="button"
-                onClick={() => setActiveTab("rekap")}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
-                  activeTab === "rekap"
-                    ? "bg-white text-slate-950 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <UsersRound className="size-3.5 text-emerald-600" />
-                <span>Rekap Santri ({attempts.length})</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("history")}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${
-                  activeTab === "history"
-                    ? "bg-white text-slate-950 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <History className="size-3.5 text-indigo-600" />
-                <span>Rekap &amp; riwayat ({attempts.length})</span>
-              </button>
-            </>
-          )}
-          </div>
-        </div>
-
-        {currentUser.role !== "candidate" && (
-          <div>
-            <p className="mb-1 px-1 text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Perangkat pelatih</p>
-            <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("pip-bank")
-                  setCategoryFilter("all")
-                  setSearch("")
-                }}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${activeTab === "pip-bank" ? "bg-blue-50 text-blue-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-              >
-                <BookOpenCheck className="size-3.5 text-blue-600" /> Bank PIP ({pipActiveCount})
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab("tiu-bank")
-                  setCategoryFilter("all")
-                  setSearch("")
-                }}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${activeTab === "tiu-bank" ? "bg-purple-50 text-purple-800 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-              >
-                <Calculator className="size-3.5 text-purple-600" /> Bank TIU ({tiuActiveCount})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("settings")}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-bold transition ${activeTab === "settings" ? "bg-slate-100 text-slate-900 shadow-xs" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-                title="Konfigurasi paket dan formula"
-              >
-                <Settings2 className="size-3.5 text-slate-500" /> Paket
-              </button>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="font-display text-xl sm:text-2xl font-extrabold tracking-tight text-slate-950">
+                CAT Tryout PIP &amp; TIU
+              </h1>
+              <span className="hidden sm:inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                Tryout Sekuensial (PIP 45m &rarr; TIU 30m)
+              </span>
             </div>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed">
+              {currentUser.role === "candidate"
+                ? "Kerjakan ujian Anda dengan tenang. Jawaban tersimpan otomatis dan hasil dapat dilihat setelah sesi selesai."
+                : "Pilih peserta, jalankan PIP lalu TIU, kemudian tinjau hasil dan riwayat percobaan."}
+            </p>
           </div>
-        )}
-      </nav>
+        </div>
+
+        {/* NAVIGATION GROUPED BY USER FLOW */}
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <nav aria-label="Navigasi CAT" className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+            <div className="min-w-0">
+              <span className="mb-1.5 block text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                Alur Ujian
+              </span>
+              <div className={`grid gap-1 sm:gap-1.5 rounded-xl bg-slate-100/90 p-1 sm:p-1.5 ${currentUser.role === "candidate" ? "grid-cols-1 max-w-xs" : "grid-cols-3"}`}>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("tryout")}
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                    activeTab === "tryout"
+                      ? "bg-white text-slate-950 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                  }`}
+                >
+                  <Play className="size-3.5 shrink-0 text-red-600" />
+                  <span className="whitespace-nowrap">Simulasi<span className="hidden sm:inline"> Ujian</span></span>
+                  {sessionPhase !== "idle" && (
+                    <span className="size-2 shrink-0 rounded-full bg-red-600 animate-pulse" />
+                  )}
+                </button>
+
+                {currentUser.role !== "candidate" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("rekap")}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                        activeTab === "rekap"
+                          ? "bg-white text-slate-950 shadow-xs"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                      }`}
+                    >
+                      <UsersRound className="size-3.5 shrink-0 text-emerald-600" />
+                      <span className="whitespace-nowrap">Rekap<span className="hidden sm:inline"> Santri ({attempts.length})</span></span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("history")}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                        activeTab === "history"
+                          ? "bg-white text-slate-950 shadow-xs"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                      }`}
+                    >
+                      <History className="size-3.5 shrink-0 text-indigo-600" />
+                      <span className="whitespace-nowrap">Riwayat<span className="hidden sm:inline"> Sesi ({attempts.length})</span></span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {currentUser.role !== "candidate" && (
+              <div className="min-w-0">
+                <span className="mb-1.5 block text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                  Perangkat Pelatih
+                </span>
+                <div className="grid grid-cols-3 gap-1 sm:gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/70 p-1 sm:p-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("pip-bank")
+                      setCategoryFilter("all")
+                      setSearch("")
+                    }}
+                    className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                      activeTab === "pip-bank"
+                        ? "bg-blue-600 text-white shadow-xs"
+                        : "text-slate-700 hover:bg-white hover:text-slate-900"
+                    }`}
+                  >
+                    <BookOpenCheck className={`size-3.5 shrink-0 ${activeTab === "pip-bank" ? "text-white" : "text-blue-600"}`} />
+                    <span className="whitespace-nowrap"><span className="hidden sm:inline">Bank </span>PIP</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab("tiu-bank")
+                      setCategoryFilter("all")
+                      setSearch("")
+                    }}
+                    className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                      activeTab === "tiu-bank"
+                        ? "bg-purple-600 text-white shadow-xs"
+                        : "text-slate-700 hover:bg-white hover:text-slate-900"
+                    }`}
+                  >
+                    <Calculator className={`size-3.5 shrink-0 ${activeTab === "tiu-bank" ? "text-white" : "text-purple-600"}`} />
+                    <span className="whitespace-nowrap"><span className="hidden sm:inline">Bank </span>TIU</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("settings")}
+                    className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                      activeTab === "settings"
+                        ? "bg-slate-800 text-white shadow-xs"
+                        : "text-slate-700 hover:bg-white hover:text-slate-900"
+                    }`}
+                    title="Konfigurasi paket dan formula"
+                  >
+                    <Settings2 className={`size-3.5 shrink-0 ${activeTab === "settings" ? "text-white" : "text-slate-500"}`} />
+                    <span className="whitespace-nowrap"><span className="hidden sm:inline">Pengaturan </span>Paket</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </nav>
+        </div>
+      </Card>
 
       {/* ===================================================================== */}
       {/* TAB 1: TRYOUT ENGINE (IDLE LOBBY, PIP EXAM, INTER-SESSION, TIU, RESULT) */}
@@ -1001,16 +1092,21 @@ export default function CatBankView() {
                     <label className="grid min-w-0 gap-1.5 text-xs font-bold text-slate-700">
                       Peserta
                       <select
+                        id="cat-candidate-select"
                         value={selectedCandidateId}
                         onChange={(e) => setSelectedCandidateId(e.target.value)}
                         className="min-h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 cursor-pointer"
                       >
-                        <option value="">-- Pilih Santri / Siswa --</option>
-                        {candidates.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} ({c.number}) · {c.school}
-                          </option>
-                        ))}
+                        <option value="">Saya sendiri (Uji coba pelatih)</option>
+                        {candidates.length > 0 && (
+                          <optgroup label="Pilih Santri / Siswa">
+                            {candidates.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name} ({c.number}) · {c.school}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
                       </select>
                     </label>
                   )}
@@ -1037,8 +1133,8 @@ export default function CatBankView() {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="text-sm font-bold text-slate-900">Jadwal CAT</h3>
                         <Badge tone={activeCatSchedule ? "success" : "neutral"}>
-                          {!selectedCandidate
-                            ? "Pilih peserta"
+                          {isCoachSelfTest
+                            ? "Bebas jadwal"
                             : activeCatSchedule
                               ? "Sedang berlangsung"
                               : displayedCatSchedule
@@ -1046,16 +1142,20 @@ export default function CatBankView() {
                                 : "Belum terjadwal"}
                         </Badge>
                       </div>
-                      {displayedCatSchedule ? (
+                      {isCoachSelfTest ? (
+                        <p className="mt-1 text-xs text-slate-500">
+                          Uji coba mandiri pelatih. Ujian dapat dimulai kapan saja.
+                        </p>
+                      ) : displayedCatSchedule ? (
                         <>
                           <p className="mt-1 text-xs font-semibold text-slate-700">{displayedCatSchedule.title}</p>
                           <p className="mt-0.5 text-xs text-slate-500">{displayedCatSchedule.date} · {displayedCatSchedule.time} · {displayedCatSchedule.location}</p>
                         </>
                       ) : (
                         <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          {!selectedCandidate
-                            ? "Silakan pilih peserta di atas untuk melihat jadwal CAT yang tersedia."
-                            : "Belum ada jadwal untuk peserta ini. Admin/pelatih mengaturnya melalui Sesi seleksi & latihan."}
+                          {isCoachOrAdmin
+                            ? "Pelatih dapat langsung memulai ujian tanpa menunggu jadwal."
+                            : "Belum ada jadwal untuk peserta ini."}
                         </p>
                       )}
                     </div>
@@ -1121,11 +1221,11 @@ export default function CatBankView() {
                   </div>
 
                   <Button
-                    onClick={startPipSession}
-                    disabled={!selectedCandidate || !activeCatSchedule}
+                    onClick={() => startPipSession()}
+                    disabled={!isCoachOrAdmin && (!selectedCandidate || !activeCatSchedule)}
                     className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                   >
-                    <Play className="size-4" /> {!selectedCandidate ? "Pilih peserta terlebih dahulu" : activeCatSchedule ? "Mulai sesi 1 · PIP" : "Menunggu jadwal CAT"}
+                    <Play className="size-4" /> Mulai sesi 1 · PIP
                   </Button>
                 </div>
               </Card>
@@ -1151,7 +1251,7 @@ export default function CatBankView() {
                           </h4>
                           <p className="text-xs text-slate-500">{selectedCandidate.school}</p>
                           <p className="text-[0.68rem] font-semibold text-slate-400">
-                            Nomor: {selectedCandidate.number}
+                            {isCoachSelfTest ? "Peran: Pelatih / Pembina" : `Nomor: ${selectedCandidate.number}`}
                           </p>
                         </div>
                       </div>
@@ -1684,12 +1784,19 @@ export default function CatBankView() {
 
                   {/* ACTION BUTTONS */}
                   <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <Button
-                      onClick={handleSyncToCandidateProfile}
-                      className="!px-5 !py-2.5 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700"
-                    >
-                      <Save className="size-4" /> Sinkronkan Nilai ke Profil Siswa
-                    </Button>
+                    {isCoachSelfTest ? (
+                      <div className="inline-flex items-center gap-2 rounded-xl bg-amber-500/20 border border-amber-400/30 px-4 py-2.5 text-xs text-amber-200 font-semibold">
+                        <ShieldCheck className="size-4 text-amber-400 shrink-0" />
+                        <span>Mode Uji Coba Mandiri Pelatih — Hasil tersimpan di riwayat tanpa mengubah profil santri.</span>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleSyncToCandidateProfile}
+                        className="!px-5 !py-2.5 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        <Save className="size-4" /> Sinkronkan Nilai ke Profil Siswa
+                      </Button>
+                    )}
 
                     <Button
                       variant="secondary"
@@ -1799,53 +1906,115 @@ export default function CatBankView() {
       {/* ===================================================================== */}
       {activeTab === "pip-bank" && (
         <div className="grid gap-5">
-          {/* OVERVIEW CARDS */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-4 border-slate-200">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Total Butir Soal PIP
+          {/* OVERVIEW CARDS: 1 BARIS (3 KOLOM) RINGKAS & SEDERHANA */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+            <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
+              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                Total Soal
               </span>
-              <p className="mt-2 font-display text-2xl font-black text-slate-950">
-                {pipActiveCount}{" "}
-                <span className="text-xs font-semibold text-slate-400">soal aktif</span>
+              <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
+                {pipActiveCount}
               </p>
-              <p className="mt-1 text-[0.68rem] text-slate-500">
-                Target paket: 50 butir soal lengkap
+              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+                50 per paket
               </p>
             </Card>
 
-            <Card className="p-4 border-slate-200">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Passing Grade Resmi
+            <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
+              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                Passing Grade
               </span>
-              <p className="mt-2 font-display text-2xl font-black text-emerald-700">
-                &ge; 70.0 <span className="text-xs font-semibold text-slate-400">/ 100</span>
+              <p className="mt-1 font-display text-lg sm:text-2xl font-black text-emerald-600">
+                &ge; 70
               </p>
-              <p className="mt-1 text-[0.68rem] text-slate-500">
-                Minimal 35 butir benar (&times;2 poin)
+              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+                Min. 35 benar
               </p>
             </Card>
 
-            <Card className="p-4 border-slate-200">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Durasi Ujian Resmi
+            <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
+              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                Durasi Ujian
               </span>
-              <p className="mt-2 font-display text-2xl font-black text-slate-950">
-                45 Menit <span className="text-xs font-semibold text-slate-400">/ sesi</span>
+              <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
+                45 Menit
               </p>
-              <p className="mt-1 text-[0.68rem] text-slate-500">
-                Timer server &amp; submit otomatis
+              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+                Timer otomatis
               </p>
             </Card>
+          </div>
 
-            <Card className="p-4 border-slate-200 flex flex-col justify-between">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Aksi Cepat PIP
+          {/* DOMAIN FILTER PILLS IN CONTAINER */}
+          <Card className="p-3 sm:p-4 border-slate-200/90 shadow-2xs">
+            <div className="flex items-center gap-1.5 mb-2.5 px-0.5">
+              <Filter className="size-3.5 text-slate-400" />
+              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                Filter Domain Materi PIP
               </span>
-              <div className="mt-2 flex items-center gap-2">
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setCategoryFilter("all")}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  categoryFilter === "all"
+                    ? "bg-slate-900 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
+                }`}
+              >
+                <span>Semua Domain</span>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  categoryFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
+                }`}>
+                  {questions.filter((q) => q.type === "pip").length}
+                </span>
+              </button>
+
+              {pipCategories.map((cat) => {
+                const count = questions.filter(
+                  (q) => q.type === "pip" && q.category === cat,
+                ).length
+                const isActive = categoryFilter === cat
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategoryFilter(cat)}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      isActive
+                        ? "bg-red-600 text-white shadow-xs ring-2 ring-red-600/20"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                      isActive ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </Card>
+
+          {/* SEARCH & QUESTIONS LIST */}
+          <Card className="overflow-hidden border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4">
+              <div className="relative flex-1 min-w-[200px] max-w-md">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari butir soal PIP, opsi, pasal, atau materi..."
+                  className="!pl-9 !text-xs"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   onClick={() => openCreateQuestion("pip")}
-                  className="!px-3 !py-1.5 !text-xs flex-1"
+                  className="!px-3 !py-1.5 !text-xs font-bold"
                 >
                   <Plus className="size-3.5" /> Tambah Soal
                 </Button>
@@ -1856,85 +2025,6 @@ export default function CatBankView() {
                   title="Sinkronkan seluruh soal standar PIP dan TIU"
                 >
                   <RefreshCw className="size-3.5" /> Standar
-                </Button>
-              </div>
-            </Card>
-          </div>
-
-          {/* DOMAIN FILTER PILLS */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setCategoryFilter("all")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                categoryFilter === "all"
-                  ? "bg-slate-900 text-white shadow-2xs"
-                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              Semua Domain PIP ({questions.filter((q) => q.type === "pip").length})
-            </button>
-            {pipCategories.map((cat) => {
-              const count = questions.filter(
-                (q) => q.type === "pip" && q.category === cat,
-              ).length
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                    categoryFilter === cat
-                      ? "bg-red-600 text-white shadow-2xs"
-                      : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {cat} ({count})
-                </button>
-              )
-            })}
-          </div>
-
-          {/* SEARCH & QUESTIONS LIST */}
-          <Card className="overflow-hidden border-slate-200">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4">
-              <div className="relative flex-1 min-w-[240px] max-w-md">
-                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cari dari 1.039 butir soal PIP, opsi, pasal, atau materi..."
-                  className="!pl-9 !text-xs"
-                />
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-600">
-                <span>
-                  Menampilkan{" "}
-                  <strong>
-                    {pipQuestionsList.length === 0
-                      ? 0
-                      : (bankPage - 1) * bankPageSize + 1}
-                    –
-                    {Math.min(bankPage * bankPageSize, pipQuestionsList.length)}
-                  </strong>{" "}
-                  dari <strong>{pipQuestionsList.length}</strong> soal PIP
-                </span>
-                <Button
-                  variant="secondary"
-                  disabled={bankPage <= 1}
-                  onClick={() => setBankPage((p) => Math.max(1, p - 1))}
-                  className="!px-2.5 !py-1 !text-xs"
-                >
-                  <ArrowLeft className="size-3.5" />
-                </Button>
-                <span className="font-bold text-slate-900">
-                  Hal {bankPage} / {pipTotalPages}
-                </span>
-                <Button
-                  variant="secondary"
-                  disabled={bankPage >= pipTotalPages}
-                  onClick={() => setBankPage((p) => Math.min(pipTotalPages, p + 1))}
-                  className="!px-2.5 !py-1 !text-xs"
-                >
-                  <ArrowRight className="size-3.5" />
                 </Button>
               </div>
             </div>
@@ -2047,53 +2137,115 @@ export default function CatBankView() {
       {/* ===================================================================== */}
       {activeTab === "tiu-bank" && (
         <div className="grid gap-5">
-          {/* OVERVIEW CARDS */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-4 border-slate-200">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Total Butir Soal TIU
+          {/* OVERVIEW CARDS: 1 BARIS (3 KOLOM) RINGKAS & SEDERHANA */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
+            <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
+              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                Total Soal
               </span>
-              <p className="mt-2 font-display text-2xl font-black text-slate-950">
-                {tiuActiveCount}{" "}
-                <span className="text-xs font-semibold text-slate-400">soal aktif</span>
+              <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
+                {tiuActiveCount}
               </p>
-              <p className="mt-1 text-[0.68rem] text-slate-500">
-                Verbal, Numerik, Logika &amp; Analitis
+              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+                50 per paket
               </p>
             </Card>
 
-            <Card className="p-4 border-slate-200">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Passing Grade Resmi
+            <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
+              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                Passing Grade
               </span>
-              <p className="mt-2 font-display text-2xl font-black text-emerald-700">
-                &ge; 70.0 <span className="text-xs font-semibold text-slate-400">/ 100</span>
+              <p className="mt-1 font-display text-lg sm:text-2xl font-black text-emerald-600">
+                &ge; 70
               </p>
-              <p className="mt-1 text-[0.68rem] text-slate-500">
-                Skor mentah &ge; 35 (skala 100: skor &times; 2)
+              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+                Min. 35 benar
               </p>
             </Card>
 
-            <Card className="p-4 border-slate-200">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Durasi Ujian Resmi
+            <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
+              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                Durasi Ujian
               </span>
-              <p className="mt-2 font-display text-2xl font-black text-slate-950">
-                30 Menit <span className="text-xs font-semibold text-slate-400">/ sesi</span>
+              <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
+                30 Menit
               </p>
-              <p className="mt-1 text-[0.68rem] text-slate-500">
-                50 butir pilihan ganda A–E
+              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+                Timer otomatis
               </p>
             </Card>
+          </div>
 
-            <Card className="p-4 border-slate-200 flex flex-col justify-between">
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
-                Aksi Cepat TIU
+          {/* SUBMATERI FILTER PILLS IN CONTAINER */}
+          <Card className="p-3 sm:p-4 border-slate-200/90 shadow-2xs">
+            <div className="flex items-center gap-1.5 mb-2.5 px-0.5">
+              <Filter className="size-3.5 text-slate-400" />
+              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                Filter Submateri Soal TIU
               </span>
-              <div className="mt-2 flex items-center gap-2">
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setCategoryFilter("all")}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                  categoryFilter === "all"
+                    ? "bg-slate-900 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
+                }`}
+              >
+                <span>Semua Submateri</span>
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                  categoryFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
+                }`}>
+                  {questions.filter((q) => q.type === "tiu").length}
+                </span>
+              </button>
+
+              {tiuCategories.map((cat) => {
+                const count = questions.filter(
+                  (q) => q.type === "tiu" && q.category === cat,
+                ).length
+                const isActive = categoryFilter === cat
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCategoryFilter(cat)}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                      isActive
+                        ? "bg-purple-600 text-white shadow-xs ring-2 ring-purple-600/20"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900"
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                      isActive ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </Card>
+
+          {/* SEARCH & QUESTIONS LIST */}
+          <Card className="overflow-hidden border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4">
+              <div className="relative flex-1 min-w-[200px] max-w-md">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari butir soal TIU, opsi, rumus, atau logika..."
+                  className="!pl-9 !text-xs"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   onClick={() => openCreateQuestion("tiu")}
-                  className="!px-3 !py-1.5 !text-xs flex-1"
+                  className="!px-3 !py-1.5 !text-xs font-bold"
                 >
                   <Plus className="size-3.5" /> Tambah Soal
                 </Button>
@@ -2104,85 +2256,6 @@ export default function CatBankView() {
                   title="Sinkronkan butir soal standar BPIP"
                 >
                   <RefreshCw className="size-3.5" /> Standar
-                </Button>
-              </div>
-            </Card>
-          </div>
-
-          {/* SUBMATERI FILTER PILLS */}
-          <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1">
-            <button
-              onClick={() => setCategoryFilter("all")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition whitespace-nowrap ${
-                categoryFilter === "all"
-                  ? "bg-slate-900 text-white shadow-2xs"
-                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              Semua TIU ({questions.filter((q) => q.type === "tiu").length})
-            </button>
-            {tiuCategories.map((cat) => {
-              const count = questions.filter(
-                (q) => q.type === "tiu" && q.category === cat,
-              ).length
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
-                  className={`rounded-xl px-2.5 py-1 text-[0.68rem] font-bold transition whitespace-nowrap ${
-                    categoryFilter === cat
-                      ? "bg-purple-600 text-white shadow-2xs"
-                      : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {cat} ({count})
-                </button>
-              )
-            })}
-          </div>
-
-          {/* SEARCH & QUESTIONS LIST */}
-          <Card className="overflow-hidden border-slate-200">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4">
-              <div className="relative flex-1 min-w-[240px] max-w-md">
-                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cari dari 150 butir soal TIU, opsi, rumus, atau logika..."
-                  className="!pl-9 !text-xs"
-                />
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-600">
-                <span>
-                  Menampilkan{" "}
-                  <strong>
-                    {tiuQuestionsList.length === 0
-                      ? 0
-                      : (bankPage - 1) * bankPageSize + 1}
-                    –
-                    {Math.min(bankPage * bankPageSize, tiuQuestionsList.length)}
-                  </strong>{" "}
-                  dari <strong>{tiuQuestionsList.length}</strong> soal TIU
-                </span>
-                <Button
-                  variant="secondary"
-                  disabled={bankPage <= 1}
-                  onClick={() => setBankPage((p) => Math.max(1, p - 1))}
-                  className="!px-2.5 !py-1 !text-xs"
-                >
-                  <ArrowLeft className="size-3.5" />
-                </Button>
-                <span className="font-bold text-slate-900">
-                  Hal {bankPage} / {tiuTotalPages}
-                </span>
-                <Button
-                  variant="secondary"
-                  disabled={bankPage >= tiuTotalPages}
-                  onClick={() => setBankPage((p) => Math.min(tiuTotalPages, p + 1))}
-                  className="!px-2.5 !py-1 !text-xs"
-                >
-                  <ArrowRight className="size-3.5" />
                 </Button>
               </div>
             </div>
