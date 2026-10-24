@@ -47,17 +47,17 @@ function SectionTitle({
   detail: string
 }) {
   return (
-    <div>
+    <Card className="p-4 sm:p-5 border-slate-200/90 shadow-2xs">
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-red-600">
         {eyebrow}
       </p>
-      <h2 className="mt-1 font-display text-2xl font-bold text-slate-950">
+      <h2 className="mt-1 font-display text-xl sm:text-2xl font-bold text-slate-950">
         {title}
       </h2>
-      <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-500">
+      <p className="mt-1 text-xs sm:text-sm leading-relaxed text-slate-500">
         {detail}
       </p>
-    </div>
+    </Card>
   )
 }
 
@@ -107,22 +107,25 @@ export default function GuideView() {
   const [tab, setTab] = useState<Tab>("architecture")
   return (
     <div className="grid gap-4 sm:gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-              Panduan Seleksi 2026/2027
-            </h1>
-            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
-              Basis Pengetahuan Pelatih
-            </span>
+      {/* Wadah Header Panduan Seleksi */}
+      <Card className="p-4 sm:p-5 border-slate-200/90 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+                Panduan Seleksi 2026/2027
+              </h1>
+              <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+                Basis Pengetahuan Pelatih
+              </span>
+            </div>
+            <p className="mt-1 max-w-3xl text-xs text-slate-500">
+              Referensi kronologis, standar latihan, dan matriks lapangan yang menjadi dasar seluruh form simulasi.
+            </p>
           </div>
-          <p className="mt-0.5 max-w-3xl text-xs text-slate-500">
-            Referensi kronologis, standar latihan, dan matriks lapangan yang menjadi dasar seluruh form simulasi.
-          </p>
+          <Badge tone="warning" className="shrink-0">Baseline internal · perlu pengesahan</Badge>
         </div>
-        <Badge tone="warning">Baseline internal · perlu pengesahan</Badge>
-      </div>
+      </Card>
 
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
         <div className="flex gap-3">

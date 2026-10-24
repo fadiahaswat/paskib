@@ -91,6 +91,7 @@ import {
   LoginScreen,
 } from "./features/users/UsersAndAuditModal"
 import { GoogleSheetSyncModal } from "./components/GoogleSheetSyncModal"
+import { PwaInstallBanner } from "./components/PwaInstallBanner"
 import { formatLastSync } from "./lib/googleSheetSync"
 import logoUrl from "./assets/BACAPASMUIN.webp"
 import {
@@ -3923,10 +3924,6 @@ function CandidateProgress() {
           </div>
         )}
       </Card>
-      <p className="text-xs text-slate-500">
-        Nilai dan status ditampilkan dari hasil yang dicatat panitia. Kandidat
-        tidak dapat mengubah hasil atau catatan seleksi.
-      </p>
     </div>
   )
 }
@@ -3981,22 +3978,25 @@ function CandidateResults({
   const latest = attempts[0]
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-blue-700">
-            Ruang pribadi · {candidate.number}
-          </p>
-          <h1 className="mt-1 font-display text-2xl font-bold text-slate-950 sm:text-3xl">
-            Hasil &amp; riwayat
-          </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Hanya hasil ujian Anda yang ditampilkan di halaman ini.
-          </p>
+      {/* Wadah Header Hasil & Riwayat */}
+      <Card className="p-4 sm:p-5 border-slate-200/90 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-blue-700">
+              Ruang pribadi · {candidate.number}
+            </p>
+            <h1 className="mt-1 font-display text-xl sm:text-2xl font-bold text-slate-950">
+              Hasil &amp; riwayat
+            </h1>
+            <p className="mt-1 text-xs sm:text-sm text-slate-500">
+              Hanya hasil ujian Anda yang ditampilkan di halaman ini.
+            </p>
+          </div>
+          <Button variant="secondary" onClick={() => onNavigate("cat-bank")} className="shrink-0">
+            <GraduationCap className="size-4" /> Buka CAT
+          </Button>
         </div>
-        <Button variant="secondary" onClick={() => onNavigate("cat-bank")}>
-          <GraduationCap className="size-4" /> Buka CAT
-        </Button>
-      </div>
+      </Card>
 
       {latest ? (
         <Card className="p-5 sm:p-6">
@@ -7378,7 +7378,8 @@ function StandardsView() {
 
   return (
     <div className="grid gap-4 sm:gap-5">
-      <div className="border-b border-slate-200/70 pb-3">
+      {/* Wadah Header Kalkulator Nilai & Standar BPIP */}
+      <Card className="p-4 sm:p-5 border-slate-200/90 shadow-2xs">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
             {isCandidate
@@ -7389,12 +7390,12 @@ function StandardsView() {
             {isCandidate ? "Simulasi Mandiri Santri" : "Governance Standar"}
           </span>
         </div>
-        <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
+        <p className="mt-1 max-w-2xl text-xs text-slate-500">
           {isCandidate
             ? "Simulasikan capaian kesamaptaan fisik, cek antropometri BMI/IMT ideal, serta pelajari standar kelulusan resmi BPIP."
             : "Uji kalkulator presisi usia, BMI/IMT, dan konversi Samapta, serta sahkan register aturan seleksi."}
         </p>
-      </div>
+      </Card>
       <div className="grid gap-6 xl:grid-cols-2">
         <Card className="p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
@@ -7854,6 +7855,8 @@ function AppShell() {
         open={showGoogleSync}
         onClose={() => setShowGoogleSync(false)}
       />
+
+      <PwaInstallBanner />
 
       {toast ? (
         <div className="fixed bottom-20 right-4 z-50 flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white shadow-2xl lg:bottom-6 lg:right-6">

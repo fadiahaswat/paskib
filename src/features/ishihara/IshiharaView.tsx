@@ -840,49 +840,51 @@ export default function IshiharaView() {
 
   return (
     <div className="grid gap-4 sm:gap-5">
-      {/* Header Halaman */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/70 pb-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
-              Sistem Skrining Ishihara
-            </h1>
-            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
-              <Eye className="size-3 text-red-600" /> Rikkes Tahap 4
-            </span>
-            <span className="hidden sm:inline text-xs text-slate-400">·</span>
-            <span className="hidden sm:inline text-xs font-medium text-slate-500">
-              PRD Version 1.1
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-slate-500 max-w-2xl">
-            Mendukung pelaksanaan terstruktur berbasis Google Sheet &amp; Google
-            Apps Script, dengan pemisahan peran admin/operator.
-          </p>
-        </div>
-
-        {activeTab === "runner" &&
-          !isCandidate && /* Pemilihan Santri yang Dites */
-          (
-            <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1 shadow-2xs">
-              <span className="text-xs font-semibold text-slate-500 pl-1.5">
-                Santri yang dites:
+      {/* Wadah Header Halaman Ishihara */}
+      <Card className="p-4 sm:p-5 border-slate-200/90 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
+                Sistem Skrining Ishihara
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/10">
+                <Eye className="size-3 text-red-600" /> Rikkes Tahap 4
               </span>
-              <select
-                value={selectedCandidateId}
-                onChange={(e) => setSelectedCandidateId(e.target.value)}
-                disabled={isStarted}
-                className="h-7 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-slate-800 outline-none focus:border-red-400"
-              >
-                {candidates.map((cand) => (
-                  <option key={cand.id} value={cand.id}>
-                    {cand.name} ({cand.number})
-                  </option>
-                ))}
-              </select>
+              <span className="hidden sm:inline text-xs text-slate-400">·</span>
+              <span className="hidden sm:inline text-xs font-medium text-slate-500">
+                PRD Version 1.1
+              </span>
             </div>
-          )}
-      </div>
+            <p className="mt-1 text-xs text-slate-500 max-w-2xl">
+              Mendukung pelaksanaan terstruktur berbasis Google Sheet &amp; Google
+              Apps Script, dengan pemisahan peran admin/operator.
+            </p>
+          </div>
+
+          {activeTab === "runner" &&
+            !isCandidate && /* Pemilihan Santri yang Dites */
+            (
+              <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1 shadow-2xs">
+                <span className="text-xs font-semibold text-slate-500 pl-1.5">
+                  Santri yang dites:
+                </span>
+                <select
+                  value={selectedCandidateId}
+                  onChange={(e) => setSelectedCandidateId(e.target.value)}
+                  disabled={isStarted}
+                  className="h-7 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs font-bold text-slate-800 outline-none focus:border-red-400"
+                >
+                  {candidates.map((cand) => (
+                    <option key={cand.id} value={cand.id}>
+                      {cand.name} ({cand.number})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+        </div>
+      </Card>
 
       {/* Tab Navigasi Modul Ishihara */}
       {!isCandidate ? (
