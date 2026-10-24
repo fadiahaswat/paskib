@@ -807,6 +807,7 @@ export default function SimulationCenter() {
     setRecords,
     saveToCloud,
     ishiharaResults,
+    catTryoutAttempts,
   } = useApp()
 
   const [sessionId, setSessionId] = useState(sessions[0]?.id ?? "")
@@ -1297,7 +1298,101 @@ export default function SimulationCenter() {
     return null
   }, [candidate?.id, records])
 
-  // 3. Evaluasi Diagnostik Lengkap Rikkes Sesuai 5 Pilar BPIP
+  // 3. Data Hasil Tryout CAT dari Portal
+  const candidateCatAttempt = useMemo(() => {
+    if (!candidate?.id) return null
+    const matched = (catTryoutAttempts || []).filter(
+      (a) => a.candidateId === candidate.id,
+    )
+    if (matched.length > 0) {
+      return [...matched].sort((a, b) =>
+        (b.finalizedAt || "").localeCompare(a.finalizedAt || ""),
+      )[0]
+    }
+    if (candidate.pip !== null || candidate.tiu !== null) {
+      const pipS = candidate.pip ?? 0
+      const tiuS = candidate.tiu ?? 0
+      const comb = Math.round((pipS + tiuS) / 2)
+      return {
+        id: `synth-${candidate.id}`,
+        candidateId: candidate.id,
+        candidateName: candidate.name,
+        candidateGroup: candidate.school,
+        packageName: "Simulasi CAT Mandiri",
+        attemptNumber: 1,
+        pipAnswers: {},
+        tiuAnswers: {},
+        pipCorrect: Math.round(pipS / 2),
+        pipScore: pipS,
+        pipStatus: (pipS >= 70 ? "passed" : "failed") as "passed" | "failed",
+        tiuCorrect: Math.round(tiuS / 2),
+        tiuScoreRaw: Math.round(tiuS / 2),
+        tiuScoreScaled: tiuS,
+        tiuStatus: (tiuS >= 70 ? "passed" : "failed") as "passed" | "failed",
+        combinedScore: comb,
+        startedAt: "",
+        finalizedAt: candidate.updatedAt || "",
+      }
+    }
+    return null
+  }, [candidate?.id, candidate?.pip, candidate?.tiu, candidate?.name, candidate?.school, candidate?.updatedAt, catTryoutAttempts])
+
+  // Sinkronkan semua nilai tryout santri yang sudah ada ke sesi CAT ini
+  const syncAllCatTryoutsToSession = () => {
+    let count = 0
+    let nextRecords = { ...records }
+    for (const cand of sessionCandidates) {
+      const matched = (catTryoutAttempts || []).filter((a) => a.candidateId === cand.id)
+      const attempt = matched.length > 0
+        ? [...matched].sort((a, b) => (b.finalizedAt || "").localeCompare(a.finalizedAt || ""))[0]
+        : null
+
+      const pS = attempt ? attempt.pipScore : (cand.pip ?? null)
+      const tS = attempt ? attempt.tiuScoreScaled : (cand.tiu ?? null)
+
+      if (pS !== null || tS !== null) {
+        const pipScore = pS ?? 0
+        const tiuScore = tS ?? 0
+        const comb = attempt?.combinedScore ?? Math.round((pipScore + tiuScore) / 2)
+        const scoreVal = session.type === "pip" ? pipScore : session.type === "tiu" ? tiuScore : comb
+        const isPassed = session.type === "pip" ? pipScore >= 70 : session.type === "tiu" ? tiuScore >= 70 : (pipScore >= 70 && tiuScore >= 70)
+        
+        const recKey = `${session.id}:${cand.id}`
+        const oldRec = nextRecords[recKey]
+        nextRecords[recKey] = {
+          ...(oldRec ?? {
+            attendance: "hadir",
+            discipline: "4",
+            focus: "4",
+            stamina: "4",
+            note: "",
+          }),
+          attendance: "hadir",
+          result: isPassed ? "passed" : "review",
+          metrics: {
+            ...(oldRec?.metrics ?? {}),
+            score: String(scoreVal),
+            pipScore: String(pipScore),
+            tiuScore: String(tiuScore),
+            duration: "PIP 45m · TIU 30m",
+            tryoutAttemptId: attempt?.id,
+          },
+          savedAt: attempt?.finalizedAt || new Date().toISOString(),
+        }
+        count++
+      }
+    }
+
+    if (count > 0) {
+      setRecords(nextRecords)
+      saveToCloud({ records: nextRecords })
+      showToast(`Berhasil menyinkronkan ${count} nilai tryout santri ke sesi ini!`, "success")
+    } else {
+      showToast("Belum ada santri yang menyelesaikan tryout di portal CAT.", "info")
+    }
+  }
+
+  // 4. Evaluasi Diagnostik Lengkap Rikkes Sesuai 5 Pilar BPIP
   const rikkesEval = useMemo(() => {
     if (session.type !== "medical") return null
 
@@ -1998,24 +2093,27 @@ export default function SimulationCenter() {
           guideline:
             "Standar kelulusan PBB minimal 75.0. Penilaian menitikberatkan ketegapan postur dan keseragaman tempo.",
         }
+      case "cat":
       case "pip":
       case "tiu":
         return {
           title: "Standar Ujian CAT Terstandarisasi",
           badge:
-            session.type === "pip"
-              ? "CAT PIP (Pancasila)"
-              : "CAT TIU (Intelegensia)",
+            session.type === "cat"
+              ? "CAT Terpadu (PIP & TIU)"
+              : session.type === "pip"
+                ? "CAT PIP (Pancasila)"
+                : "CAT TIU (Intelegensia)",
           items: [
             {
               label: "Jumlah Soal",
-              target: "100 Soal",
-              sub: "Pilihan ganda CAT BPIP",
+              target: session.type === "cat" ? "100 Soal" : "50 Soal",
+              sub: session.type === "cat" ? "50 PIP + 50 TIU" : "Pilihan ganda CAT BPIP",
             },
             {
               label: "Alokasi Waktu",
-              target: "90 Menit",
-              sub: "Rata-rata 54 dtk per butir",
+              target: session.type === "cat" ? "75 Menit" : session.type === "pip" ? "45 Menit" : "30 Menit",
+              sub: session.type === "cat" ? "45m PIP + 30m TIU" : "Rata-rata 54 dtk per butir",
             },
             {
               label: "Passing Grade",
@@ -2029,7 +2127,7 @@ export default function SimulationCenter() {
             },
           ],
           guideline:
-            "Peserta wajib melampaui passing grade 70.0 untuk dapat direkomendasikan ke tahapan parade berikutnya.",
+            "Peserta wajib melampaui passing grade 70.0 untuk PIP dan TIU untuk dapat direkomendasikan ke tahapan parade berikutnya.",
         }
       case "medical":
         return {
@@ -2809,6 +2907,18 @@ export default function SimulationCenter() {
                     Izin/Absen
                   </span>
                 </div>
+              )}
+
+              {["cat", "pip", "tiu"].includes(session.type) && (
+                <button
+                  type="button"
+                  onClick={syncAllCatTryoutsToSession}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 px-2.5 py-1 text-2xs font-bold transition active:scale-95 ml-auto"
+                  title="Tarik nilai tryout santri yang sudah selesai di portal mandiri ke sesi ini"
+                >
+                  <Sparkles className="size-3.5 text-red-600" />
+                  <span>Sinkronkan Hasil Tryout Portal</span>
+                </button>
               )}
             </div>
           </div>
@@ -3849,80 +3959,351 @@ export default function SimulationCenter() {
                           />
                         </div>
                       </div>
-                    ) : session.type === "pip" || session.type === "tiu" ? (
-                      /* CAT PIP & TIU INPUTS */
+                    ) : session.type === "cat" || session.type === "pip" || session.type === "tiu" ? (
+                      /* CAT PIP & TIU INPUTS & PORTAL INTEGRATION */
                       <div className="mt-4 space-y-4">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <NumberStepper
-                            label="Nilai CAT (0 - 100)"
-                            unit="poin"
-                            min={0}
-                            max={100}
-                            value={record.metrics.score ?? ""}
-                            placeholder="80"
-                            quickAdds={[5, 10]}
-                            onChange={(val) =>
-                              patchRecord({
-                                metrics: { ...record.metrics, score: val },
-                              })
-                            }
-                          />
-                          <NumberStepper
-                            label="Jumlah Jawaban Benar (0 - 50)"
-                            unit="soal"
-                            min={0}
-                            max={50}
-                            value={record.metrics.correct ?? ""}
-                            placeholder="40"
-                            quickAdds={[1, 5]}
-                            onChange={(val) => {
-                              const num = parseFloat(val) || 0
-                              const calculatedScore = String(
-                                Math.min(100, num * 2),
-                              )
-                              patchRecord({
-                                metrics: {
-                                  ...record.metrics,
-                                  correct: val,
-                                  score:
-                                    !record.metrics.score ||
-                                    record.metrics.score === ""
-                                      ? calculatedScore
-                                      : record.metrics.score,
-                                },
-                              })
-                            }}
-                          />
+                        {/* PORTAL TRYOUT CAT INTEGRATION CARD */}
+                        <div
+                          className={`rounded-2xl border p-4 transition ${
+                            candidateCatAttempt
+                              ? (candidateCatAttempt.pipScore >= 70 && candidateCatAttempt.tiuScoreScaled >= 70) ||
+                                (session.type === "pip" && candidateCatAttempt.pipScore >= 70) ||
+                                (session.type === "tiu" && candidateCatAttempt.tiuScoreScaled >= 70)
+                                ? "border-emerald-200 bg-emerald-50/70 text-emerald-950"
+                                : "border-amber-200 bg-amber-50/70 text-amber-950"
+                              : "border-slate-200 bg-slate-50 text-slate-700"
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span
+                                className={`grid size-9.5 shrink-0 place-items-center rounded-xl ${
+                                  candidateCatAttempt
+                                    ? "bg-white text-emerald-600 shadow-2xs"
+                                    : "bg-slate-200 text-slate-500"
+                                }`}
+                              >
+                                <BookOpenCheck className="size-5" />
+                              </span>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">
+                                    Hasil Tryout Portal Mandiri
+                                  </span>
+                                  {candidateCatAttempt ? (
+                                    <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-3xs font-extrabold uppercase text-emerald-800">
+                                      Terkoneksi (Percobaan #{candidateCatAttempt.attemptNumber})
+                                    </span>
+                                  ) : (
+                                    <span className="rounded-md bg-slate-200 px-2 py-0.5 text-3xs font-semibold text-slate-600">
+                                      Belum Ada Nilai di Portal
+                                    </span>
+                                  )}
+                                </div>
+                                {candidateCatAttempt ? (
+                                  <div className="mt-1 flex flex-wrap items-center gap-2.5 text-xs font-semibold">
+                                    <span>
+                                      PIP:{" "}
+                                      <strong className="text-slate-900 font-bold">
+                                        {candidateCatAttempt.pipScore}/100
+                                      </strong>{" "}
+                                      <span
+                                        className={
+                                          candidateCatAttempt.pipScore >= 70
+                                            ? "text-emerald-700 font-bold"
+                                            : "text-amber-700 font-bold"
+                                        }
+                                      >
+                                        ({candidateCatAttempt.pipScore >= 70 ? "Lolos" : "Remedial"})
+                                      </span>
+                                    </span>
+                                    <span className="text-slate-300">·</span>
+                                    <span>
+                                      TIU:{" "}
+                                      <strong className="text-slate-900 font-bold">
+                                        {candidateCatAttempt.tiuScoreScaled}/100
+                                      </strong>{" "}
+                                      <span
+                                        className={
+                                          candidateCatAttempt.tiuScoreScaled >= 70
+                                            ? "text-emerald-700 font-bold"
+                                            : "text-amber-700 font-bold"
+                                        }
+                                      >
+                                        ({candidateCatAttempt.tiuScoreScaled >= 70 ? "Lolos" : "Remedial"})
+                                      </span>
+                                    </span>
+                                    <span className="text-slate-300">·</span>
+                                    <span>
+                                      Rata-rata:{" "}
+                                      <strong className="text-emerald-700 font-bold">
+                                        {candidateCatAttempt.combinedScore ??
+                                          Math.round(
+                                            (candidateCatAttempt.pipScore +
+                                              candidateCatAttempt.tiuScoreScaled) /
+                                              2,
+                                          )}
+                                      </strong>
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    Santri belum menyelesaikan simulasi ujian di portal CAT. Anda dapat menginput nilai manual di bawah atau menunggu santri menyelesaikan tryout.
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            {candidateCatAttempt && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const pS = candidateCatAttempt.pipScore
+                                  const tS = candidateCatAttempt.tiuScoreScaled
+                                  const comb =
+                                    candidateCatAttempt.combinedScore ??
+                                    Math.round((pS + tS) / 2)
+                                  const scoreToApply =
+                                    session.type === "pip"
+                                      ? String(pS)
+                                      : session.type === "tiu"
+                                        ? String(tS)
+                                        : String(comb)
+                                  const isPass =
+                                    session.type === "pip"
+                                      ? pS >= 70
+                                      : session.type === "tiu"
+                                        ? tS >= 70
+                                        : pS >= 70 && tS >= 70
+                                  patchRecord({
+                                    result: isPass ? "passed" : "review",
+                                    metrics: {
+                                      ...record.metrics,
+                                      score: scoreToApply,
+                                      pipScore: String(pS),
+                                      tiuScore: String(tS),
+                                      duration: "PIP 45m · TIU 30m",
+                                      tryoutAttemptId: candidateCatAttempt.id,
+                                    },
+                                  })
+                                  showToast(
+                                    "Nilai tryout portal santri berhasil diterapkan ke sesi!",
+                                    "success",
+                                  )
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-bold text-emerald-800 shadow-2xs hover:bg-emerald-50 active:scale-95 transition cursor-pointer"
+                              >
+                                <Sparkles className="size-3.5 text-emerald-600" />
+                                Terapkan Nilai Tryout Ini
+                              </button>
+                            )}
+                          </div>
                         </div>
 
-                        {session.type === "pip" ? (
-                          <Input
-                            label="Waktu Selesai (Durasi)"
-                            placeholder="Contoh: 38 menit"
-                            value={record.metrics.duration ?? ""}
-                            onChange={(e) =>
-                              patchRecord({
-                                metrics: {
-                                  ...record.metrics,
-                                  duration: e.target.value,
-                                },
-                              })
-                            }
-                          />
+                        {session.type === "cat" ? (
+                          /* SESI CAT TERPADU (PIP + TIU) */
+                          <div className="space-y-4">
+                            <div className="grid gap-3 sm:grid-cols-3">
+                              <NumberStepper
+                                label="Nilai PIP (Pancasila & TWK)"
+                                unit="poin"
+                                min={0}
+                                max={100}
+                                value={
+                                  record.metrics.pipScore ??
+                                  (candidateCatAttempt ? String(candidateCatAttempt.pipScore) : "")
+                                }
+                                placeholder="70"
+                                quickAdds={[5, 10]}
+                                hint="Ambang batas ≥ 70"
+                                onChange={(val) => {
+                                  const pS = Number(val) || 0
+                                  const tS =
+                                    Number(
+                                      record.metrics.tiuScore ||
+                                        (candidateCatAttempt ? candidateCatAttempt.tiuScoreScaled : 0),
+                                    ) || 0
+                                  const avg = Math.round((pS + tS) / 2)
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      pipScore: val,
+                                      score: String(avg),
+                                    },
+                                    result: pS >= 70 && tS >= 70 ? "passed" : "review",
+                                  })
+                                }}
+                              />
+                              <NumberStepper
+                                label="Nilai TIU (Intelegensia)"
+                                unit="poin"
+                                min={0}
+                                max={100}
+                                value={
+                                  record.metrics.tiuScore ??
+                                  (candidateCatAttempt ? String(candidateCatAttempt.tiuScoreScaled) : "")
+                                }
+                                placeholder="70"
+                                quickAdds={[5, 10]}
+                                hint="Ambang batas ≥ 70"
+                                onChange={(val) => {
+                                  const tS = Number(val) || 0
+                                  const pS =
+                                    Number(
+                                      record.metrics.pipScore ||
+                                        (candidateCatAttempt ? candidateCatAttempt.pipScore : 0),
+                                    ) || 0
+                                  const avg = Math.round((pS + tS) / 2)
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      tiuScore: val,
+                                      score: String(avg),
+                                    },
+                                    result: pS >= 70 && tS >= 70 ? "passed" : "review",
+                                  })
+                                }}
+                              />
+                              <NumberStepper
+                                label="Nilai Rata-rata CAT"
+                                unit="poin"
+                                min={0}
+                                max={100}
+                                value={
+                                  record.metrics.score ??
+                                  (record.metrics.pipScore && record.metrics.tiuScore
+                                    ? String(
+                                        Math.round(
+                                          (Number(record.metrics.pipScore) +
+                                            Number(record.metrics.tiuScore)) /
+                                            2,
+                                        ),
+                                      )
+                                    : candidateCatAttempt
+                                      ? String(
+                                          candidateCatAttempt.combinedScore ??
+                                            Math.round(
+                                              (candidateCatAttempt.pipScore +
+                                                candidateCatAttempt.tiuScoreScaled) /
+                                                2,
+                                            ),
+                                        )
+                                      : "")
+                                }
+                                placeholder="80"
+                                quickAdds={[5, 10]}
+                                hint="Skor kumulatif gabungan"
+                                onChange={(val) =>
+                                  patchRecord({
+                                    metrics: { ...record.metrics, score: val },
+                                  })
+                                }
+                              />
+                            </div>
+
+                            <Input
+                              label="Alokasi Waktu Ujian (Durasi)"
+                              placeholder="PIP 45 menit · TIU 30 menit"
+                              value={record.metrics.duration ?? "PIP 45 menit · TIU 30 menit"}
+                              onChange={(e) =>
+                                patchRecord({
+                                  metrics: {
+                                    ...record.metrics,
+                                    duration: e.target.value,
+                                  },
+                                })
+                              }
+                            />
+                          </div>
                         ) : (
-                          <Input
-                            label="Materi Terlemah (Opsional)"
-                            placeholder="Contoh: Silogisme / Figural"
-                            value={record.metrics.weakness ?? ""}
-                            onChange={(e) =>
-                              patchRecord({
-                                metrics: {
-                                  ...record.metrics,
-                                  weakness: e.target.value,
-                                },
-                              })
-                            }
-                          />
+                          /* SESI SPESIFIK PIP ATAU TIU SAJA */
+                          <div className="space-y-4">
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <NumberStepper
+                                label={`Nilai ${session.type.toUpperCase()} (0 - 100)`}
+                                unit="poin"
+                                min={0}
+                                max={100}
+                                value={
+                                  record.metrics.score ??
+                                  (candidateCatAttempt
+                                    ? String(
+                                        session.type === "pip"
+                                          ? candidateCatAttempt.pipScore
+                                          : candidateCatAttempt.tiuScoreScaled,
+                                      )
+                                    : "")
+                                }
+                                placeholder="80"
+                                quickAdds={[5, 10]}
+                                hint="Passing grade ≥ 70"
+                                onChange={(val) => {
+                                  const num = Number(val) || 0
+                                  patchRecord({
+                                    metrics: { ...record.metrics, score: val },
+                                    result: num >= 70 ? "passed" : "review",
+                                  })
+                                }}
+                              />
+                              <NumberStepper
+                                label="Jumlah Jawaban Benar (0 - 50)"
+                                unit="soal"
+                                min={0}
+                                max={50}
+                                value={record.metrics.correct ?? ""}
+                                placeholder="40"
+                                quickAdds={[1, 5]}
+                                onChange={(val) => {
+                                  const num = parseFloat(val) || 0
+                                  const calculatedScore = String(
+                                    Math.min(100, num * 2),
+                                  )
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      correct: val,
+                                      score:
+                                        !record.metrics.score ||
+                                        record.metrics.score === ""
+                                          ? calculatedScore
+                                          : record.metrics.score,
+                                    },
+                                    result: Number(calculatedScore) >= 70 ? "passed" : "review",
+                                  })
+                                }}
+                              />
+                            </div>
+
+                            {session.type === "pip" ? (
+                              <Input
+                                label="Waktu Selesai (Durasi)"
+                                placeholder="Contoh: 38 menit"
+                                value={record.metrics.duration ?? ""}
+                                onChange={(e) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      duration: e.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            ) : (
+                              <Input
+                                label="Materi Terlemah (Opsional)"
+                                placeholder="Contoh: Silogisme / Figural"
+                                value={record.metrics.weakness ?? ""}
+                                onChange={(e) =>
+                                  patchRecord({
+                                    metrics: {
+                                      ...record.metrics,
+                                      weakness: e.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            )}
+                          </div>
                         )}
                       </div>
                     ) : session.type === "medical" ? (

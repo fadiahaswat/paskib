@@ -159,7 +159,7 @@ export default function CatBankView() {
     tiuDurationSec: 30 * 60, // 30 minutes = 1800s
     tiuPassingGrade: 70, // /100 (raw >= 35)
     shuffleQuestions: true,
-    maxAttempts: 3,
+    maxAttempts: 0, // 0 = Bebas / Tanpa Batas (Unlimited)
     examBrowserLock: true,
     maxViolations: 3,
   }
@@ -167,7 +167,14 @@ export default function CatBankView() {
   const [packageConfig, setPackageConfig] = useState(() => {
     try {
       const saved = localStorage.getItem("paska-cat-package-config")
-      if (saved) return { ...DEFAULT_PACKAGE_CONFIG, ...JSON.parse(saved) }
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        // Migrasi jika sebelumnya tersimpan angka 3 bawaan lama menjadi 0 (Unlimited)
+        if (parsed.maxAttempts === 3) {
+          parsed.maxAttempts = 0
+        }
+        return { ...DEFAULT_PACKAGE_CONFIG, ...parsed }
+      }
     } catch {}
     return DEFAULT_PACKAGE_CONFIG
   })
@@ -1909,8 +1916,9 @@ export default function CatBankView() {
                       {packageConfig.packageName}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Maks. {packageConfig.maxAttempts} kali percobaan · Acak
-                      butir aktif
+                      {packageConfig.maxAttempts === 0
+                        ? "Latihan Bebas (Tanpa Batas Percobaan) · Acak butir aktif"
+                        : `Maks. ${packageConfig.maxAttempts} kali percobaan · Acak butir aktif`}
                     </p>
                   </div>
                 </div>
@@ -3982,20 +3990,30 @@ export default function CatBankView() {
                 </label>
 
                 <label className="flex items-center justify-between text-xs font-bold text-slate-700">
-                  <span>Batas Maksimum Percobaan Santri</span>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={packageConfig.maxAttempts}
-                    onChange={(e) =>
-                      setPackageConfig((p) => ({
-                        ...p,
-                        maxAttempts: Number(e.target.value),
-                      }))
-                    }
-                    className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-xs text-right font-bold"
-                  />
+                  <div>
+                    <span>Batas Maksimum Percobaan Santri</span>
+                    <p className="text-2xs font-normal text-slate-500">
+                      Setel 0 untuk mode Bebas / Tanpa Batas (Unlimited)
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min={0}
+                      max={99}
+                      value={packageConfig.maxAttempts}
+                      onChange={(e) =>
+                        setPackageConfig((p) => ({
+                          ...p,
+                          maxAttempts: Math.max(0, Number(e.target.value)),
+                        }))
+                      }
+                      className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-xs text-right font-bold"
+                    />
+                    <span className="text-2xs font-semibold text-slate-500">
+                      {packageConfig.maxAttempts === 0 ? "Bebas" : "kali"}
+                    </span>
+                  </div>
                 </label>
 
                 <div className="border-t border-slate-100 pt-3 space-y-3">

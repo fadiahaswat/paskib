@@ -1039,6 +1039,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setAllCandidates(updatedCandidates)
       }
 
+      // Sinkronkan juga otomatis ke sesi evaluasi lapangan (SimulationCenter) jika ada sesi CAT terkait
+      let updatedRecords = { ...records }
+      let recordsModified = false
+      if (candId && candId !== "coach-self") {
+        for (const sess of sessions) {
+          if (["cat", "pip", "tiu"].includes(sess.type) && sess.participantIds.includes(candId)) {
+            const recKey = `${sess.id}:${candId}`
+            const oldRec = updatedRecords[recKey]
+            const scoreVal = sess.type === "pip"
+              ? attempt.pipScore
+              : sess.type === "tiu"
+              ? attempt.tiuScoreScaled
+              : (attempt.combinedScore ?? Math.round(((attempt.pipScore ?? 0) + (attempt.tiuScoreScaled ?? 0)) / 2))
+
+            const isPassed = sess.type === "pip"
+              ? attempt.pipStatus === "passed"
+              : sess.type === "tiu"
+              ? attempt.tiuStatus === "passed"
+              : (attempt.pipStatus === "passed" && attempt.tiuStatus === "passed")
+
+            updatedRecords[recKey] = {
+              ...(oldRec ?? {
+                attendance: "hadir",
+                discipline: "4",
+                focus: "4",
+                stamina: "4",
+                note: "",
+              }),
+              attendance: "hadir",
+              result: isPassed ? "passed" : "review",
+              metrics: {
+                ...(oldRec?.metrics ?? {}),
+                score: String(scoreVal),
+                pipScore: String(attempt.pipScore ?? ""),
+                tiuScore: String(attempt.tiuScoreScaled ?? ""),
+                duration: "PIP 45m · TIU 30m",
+                tryoutAttemptId: attempt.id,
+              },
+              savedAt: attempt.finalizedAt || new Date().toISOString(),
+            }
+            recordsModified = true
+          }
+        }
+      }
+      if (recordsModified) {
+        setRecords(updatedRecords)
+        try {
+          localStorage.setItem("paska-clean-records", JSON.stringify(updatedRecords))
+        } catch {}
+      }
+
       stateRef.current = {
         ...stateRef.current,
         catTryoutAttempts: updatedAttempts,
@@ -1059,7 +1110,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       // Push instan (immediate) ke cloud tanpa menunggu debounce agar tersimpan langsung di Google Sheet
       void saveToCloud(
-        { catTryoutAttempts: updatedAttempts, candidates: updatedCandidates },
+        {
+          catTryoutAttempts: updatedAttempts,
+          candidates: updatedCandidates,
+          ...(recordsModified ? { records: updatedRecords } : {}),
+        },
         true,
       )
     },
@@ -1812,9 +1867,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 : metrics.correct
                   ? Number(metrics.correct) * 2
                   : null
-            if (score !== null && Number.isFinite(score)) {
-              patch.tiu = Math.min(100, Math.max(0, score))
+          } else if (sessionType === "cat") {
+            if (metrics.pipScore !== undefined && metrics.pipScore !== "") {
+              const pScore = Number(metrics.pipScore)
+              if (Number.isFinite(pScore)) patch.pip = Math.min(100, Math.max(0, pScore))
             }
+            if (metrics.tiuScore !== undefined && metrics.tiuScore !== "") {
+              const tScore = Number(metrics.tiuScore)
+              if (Number.isFinite(tScore)) patch.tiu = Math.min(100, Math.max(0, tScore))
+            }
+            if (metrics.score !== undefined && metrics.score !== "") {
+              const score = Number(metrics.score)
+              if (Number.isFinite(score)) {
+                if (patch.pip === undefined && cand.pip == null) patch.pip = score
+                if (patch.tiu === undefined && cand.tiu == null) patch.tiu = score
+              }
+            }
+            const pipVal = patch.pip ?? cand.pip ?? 0
+            const tiuVal = patch.tiu ?? cand.tiu ?? 0
+            const nextStageStatuses: StageStatus[] = [
+              ...(cand.stageStatuses ?? Array<StageStatus>(8).fill("locked")),
+            ]
+            if (patch.pip !== undefined || cand.pip != null) {
+              nextStageStatuses[1] = pipVal >= 70 ? "passed" : "review"
+            }
+            if (patch.tiu !== undefined || cand.tiu != null) {
+              nextStageStatuses[2] = tiuVal >= 70 ? "passed" : "review"
+            }
+            patch.stageStatuses = nextStageStatuses
           } else if (sessionType === "medical") {
             stageIndex = 3
             const existingMetrics = cand.physicalMetrics ?? []
