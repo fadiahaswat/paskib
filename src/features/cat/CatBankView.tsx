@@ -40,10 +40,20 @@ import {
   X,
   Zap,
 } from "lucide-react"
-import { Badge, Button, CandidateAvatar, Card, Input } from "../../components/ui"
+import {
+  Badge,
+  Button,
+  CandidateAvatar,
+  Card,
+  Input,
+} from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { standardCatQuestions } from "../../data/catQuestions"
-import type { Candidate, CatQuestion, CatTryoutAttempt } from "../../domain/selection"
+import type {
+  Candidate,
+  CatQuestion,
+  CatTryoutAttempt,
+} from "../../domain/selection"
 
 // ============================================================================
 // CATEGORY DEFINITIONS
@@ -113,7 +123,9 @@ export default function CatBankView() {
   // NAVIGATION & TAB STATE
   // --------------------------------------------------------------------------
   const [activeTab, setActiveTab] = useState<MainTab>("tryout")
-  const [editingAttempt, setEditingAttempt] = useState<CatTryoutAttempt | null>(null)
+  const [editingAttempt, setEditingAttempt] = useState<CatTryoutAttempt | null>(
+    null,
+  )
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [search, setSearch] = useState("")
   const [bankPage, setBankPage] = useState<number>(1)
@@ -134,7 +146,7 @@ export default function CatBankView() {
   // --------------------------------------------------------------------------
   // PACKAGE CONFIGURATION (PRD Section 4)
   // --------------------------------------------------------------------------
-  const [packageConfig, setPackageConfig] = useState({
+  const DEFAULT_PACKAGE_CONFIG = {
     packageName: "Paket Tryout CAT BPIP (PIP & TIU) 2026",
     pipQuestionCount: 50,
     pipDurationSec: 45 * 60, // 45 minutes = 2700s
@@ -144,7 +156,21 @@ export default function CatBankView() {
     tiuPassingGrade: 70, // /100 (raw >= 35)
     shuffleQuestions: true,
     maxAttempts: 3,
+  }
+
+  const [packageConfig, setPackageConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem("paska-cat-package-config")
+      if (saved) return { ...DEFAULT_PACKAGE_CONFIG, ...JSON.parse(saved) }
+    } catch {}
+    return DEFAULT_PACKAGE_CONFIG
   })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("paska-cat-package-config", JSON.stringify(packageConfig))
+    } catch {}
+  }, [packageConfig])
 
   // --------------------------------------------------------------------------
   // TRYOUT SESSION STATE (Two sequential sessions)
@@ -155,18 +181,39 @@ export default function CatBankView() {
   )
 
   const isCoachOrAdmin = currentUser.role !== "candidate"
-  const isCoachSelfTest = isCoachOrAdmin && (!selectedCandidateId || selectedCandidateId === "coach-self")
+  const isCoachSelfTest =
+    isCoachOrAdmin &&
+    (!selectedCandidateId || selectedCandidateId === "coach-self")
 
   // Profil simulasi mandiri pelatih (agar tidak mencemari data santri asli)
-  const coachSelfCandidate: Candidate = useMemo(
-    () => ({
+  const coachSelfCandidate: Candidate = useMemo(() => {
+    const isUrl = Boolean(
+      currentUser.avatar &&
+        (currentUser.avatar.startsWith("http://") ||
+          currentUser.avatar.startsWith("https://") ||
+          currentUser.avatar.startsWith("data:") ||
+          currentUser.avatar.startsWith("/")),
+    )
+    const initials = currentUser.name
+      ? currentUser.name
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((p) => p[0])
+          .join("")
+          .toUpperCase()
+      : "CA"
+
+    return {
       id: currentUser.id || "coach-self",
       number: "PELATIH",
       name: `${currentUser.name} (Pelatih)`,
       school: currentUser.title || "Tim Pelatih / Pembina",
       gender: "Putra",
       birthDate: "1990-01-01",
-      avatar: currentUser.avatar || "CP",
+      avatar: isUrl ? initials : currentUser.avatar || initials,
+      photoUrl: isUrl ? currentUser.avatar : undefined,
       status: "verified",
       currentStage: 1,
       stage1Status: "passed",
@@ -182,9 +229,8 @@ export default function CatBankView() {
       notes: "Mode Uji Coba Mandiri Pelatih",
       registeredAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }),
-    [currentUser],
-  )
+    }
+  }, [currentUser])
 
   // Automatically bind to candidate's own profile when logged in as candidate
   useEffect(() => {
@@ -192,18 +238,22 @@ export default function CatBankView() {
       setSelectedCandidateId(currentUser.candidateId)
     }
   }, [currentUser])
-  const selectedCandidate = useMemo(
-    () => {
-      if (currentUser.role === "candidate") {
-        return candidates.find((c) => c.id === currentUser.candidateId) ?? null
-      }
-      if (isCoachSelfTest) {
-        return coachSelfCandidate
-      }
-      return candidates.find((c) => c.id === selectedCandidateId) ?? null
-    },
-    [candidates, currentUser.role, currentUser.candidateId, isCoachSelfTest, coachSelfCandidate, selectedCandidateId],
-  )
+  const selectedCandidate = useMemo(() => {
+    if (currentUser.role === "candidate") {
+      return candidates.find((c) => c.id === currentUser.candidateId) ?? null
+    }
+    if (isCoachSelfTest) {
+      return coachSelfCandidate
+    }
+    return candidates.find((c) => c.id === selectedCandidateId) ?? null
+  }, [
+    candidates,
+    currentUser.role,
+    currentUser.candidateId,
+    isCoachSelfTest,
+    coachSelfCandidate,
+    selectedCandidateId,
+  ])
 
   // Question orders per attempt (maintains shuffle stability across session recovery)
   const [pipExamQuestions, setPipExamQuestions] = useState<CatQuestion[]>([])
@@ -226,23 +276,47 @@ export default function CatBankView() {
   const [, refreshScheduleClock] = useState(0)
 
   useEffect(() => {
-    const timer = window.setInterval(() => refreshScheduleClock((value) => value + 1), 30_000)
+    const timer = window.setInterval(
+      () => refreshScheduleClock((value) => value + 1),
+      30_000,
+    )
     return () => window.clearInterval(timer)
   }, [])
 
-  const visibleCatSchedules = sessions.filter((session) =>
-    session.type === "cat" && session.participantIds.includes(
-      currentUser.role === "candidate" ? currentUser.candidateId || "" : (isCoachSelfTest ? "" : selectedCandidateId),
-    ),
+  const visibleCatSchedules = sessions.filter(
+    (session) =>
+      session.type === "cat" &&
+      session.participantIds.includes(
+        currentUser.role === "candidate"
+          ? currentUser.candidateId || ""
+          : isCoachSelfTest
+            ? ""
+            : selectedCandidateId,
+      ),
   )
   const now = Date.now()
   const activeCatSchedule = visibleCatSchedules.find((schedule) => {
-    const start = new Date(`${schedule.date}T${schedule.time}`).getTime()
-    return schedule.status !== "completed" && now >= start && now <= start + 75 * 60 * 1000
+    if (schedule.status === "completed") return false
+    const dateStr = schedule.date
+    if (!dateStr) return false
+    const startOfScheduleDay = new Date(`${dateStr}T00:00:00`).getTime()
+    const endOfScheduleDay = new Date(`${dateStr}T23:59:59.999`).getTime()
+    // Sesi aktif dan dapat dimulai sepanjang hari pelaksanaan (sampai 23:59:59)
+    return now >= startOfScheduleDay && now <= endOfScheduleDay
   })
-  const displayedCatSchedule = activeCatSchedule ?? [...visibleCatSchedules]
-    .filter((schedule) => schedule.status !== "completed" && new Date(`${schedule.date}T${schedule.time}`).getTime() > now)
-    .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())[0]
+  const displayedCatSchedule =
+    activeCatSchedule ??
+    [...visibleCatSchedules]
+      .filter((schedule) => {
+        if (schedule.status === "completed") return false
+        const endOfScheduleDay = new Date(`${schedule.date}T23:59:59.999`).getTime()
+        return endOfScheduleDay > now
+      })
+      .sort(
+        (a, b) =>
+          new Date(`${a.date}T${a.time || "00:00"}`).getTime() -
+          new Date(`${b.date}T${b.time || "00:00"}`).getTime(),
+      )[0]
 
   // Review & Explanation Modal / Tab
   const [reviewTab, setReviewTab] = useState<"pip" | "tiu">("pip")
@@ -252,8 +326,13 @@ export default function CatBankView() {
   const latestAttemptByCandidate = useMemo(() => {
     const latest = new Map<string, CatTryoutAttempt>()
     for (const attempt of attempts) {
-      const candidate = candidates.find((item) => item.id === attempt.candidateId) ??
-        candidates.find((item) => item.name.trim().toLocaleLowerCase() === attempt.candidateName.trim().toLocaleLowerCase())
+      const candidate =
+        candidates.find((item) => item.id === attempt.candidateId) ??
+        candidates.find(
+          (item) =>
+            item.name.trim().toLocaleLowerCase() ===
+            attempt.candidateName.trim().toLocaleLowerCase(),
+        )
       const targetId = candidate ? candidate.id : attempt.candidateId
       const current = latest.get(targetId)
       if (!current || attempt.finalizedAt > current.finalizedAt) {
@@ -264,9 +343,12 @@ export default function CatBankView() {
   }, [attempts, candidates])
 
   const recapCandidates = useMemo(() => {
-    const visibleCandidates = currentUser.role === "candidate" && currentUser.candidateId
-      ? candidates.filter((candidate) => candidate.id === currentUser.candidateId)
-      : candidates
+    const visibleCandidates =
+      currentUser.role === "candidate" && currentUser.candidateId
+        ? candidates.filter(
+            (candidate) => candidate.id === currentUser.candidateId,
+          )
+        : candidates
     return [...visibleCandidates].sort((a, b) => {
       const attemptA = latestAttemptByCandidate.get(a.id)
       const attemptB = latestAttemptByCandidate.get(b.id)
@@ -274,8 +356,10 @@ export default function CatBankView() {
       const tiuA = attemptA?.tiuScoreScaled ?? a.tiu
       const pipB = attemptB?.pipScore ?? b.pip
       const tiuB = attemptB?.tiuScoreScaled ?? b.tiu
-      const combinedA = pipA !== null && tiuA !== null ? (pipA + tiuA) / 2 : null
-      const combinedB = pipB !== null && tiuB !== null ? (pipB + tiuB) / 2 : null
+      const combinedA =
+        pipA !== null && tiuA !== null ? (pipA + tiuA) / 2 : null
+      const combinedB =
+        pipB !== null && tiuB !== null ? (pipB + tiuB) / 2 : null
       if (combinedA === null || combinedB === null) {
         if (combinedA === null && combinedB !== null) return 1
         if (combinedA !== null && combinedB === null) return -1
@@ -283,7 +367,12 @@ export default function CatBankView() {
       }
       return combinedB - combinedA
     })
-  }, [candidates, currentUser.role, currentUser.candidateId, latestAttemptByCandidate])
+  }, [
+    candidates,
+    currentUser.role,
+    currentUser.candidateId,
+    latestAttemptByCandidate,
+  ])
 
   const getLatestSessionScore = (type: "pip" | "tiu") => {
     if (!selectedCandidate || isCoachSelfTest) return null
@@ -292,22 +381,36 @@ export default function CatBankView() {
       .map((session) => {
         const record = records[`${session.id}:${selectedCandidate.id}`]
         if (!record?.savedAt) return null
-        const score = record.metrics.score !== undefined && record.metrics.score !== ""
-          ? Number(record.metrics.score)
-          : record.metrics.correct !== undefined && record.metrics.correct !== ""
-            ? Number(record.metrics.correct) * 2
-            : null
+        const score =
+          record.metrics.score !== undefined && record.metrics.score !== ""
+            ? Number(record.metrics.score)
+            : record.metrics.correct !== undefined &&
+                record.metrics.correct !== ""
+              ? Number(record.metrics.correct) * 2
+              : null
         return score !== null && Number.isFinite(score)
           ? { score, time: Date.parse(record.savedAt) || 0 }
           : null
       })
-      .filter((entry): entry is { score: number; time: number } => entry !== null)
+      .filter(
+        (entry): entry is { score: number; time: number } => entry !== null,
+      )
       .sort((a, b) => b.time - a.time)[0]?.score
   }
 
-  const latestSelectedAttempt = selectedCandidate ? latestAttemptByCandidate.get(selectedCandidate.id) : null
-  const currentPipScore = selectedCandidate ? (latestSelectedAttempt?.pipScore ?? selectedCandidate.pip ?? getLatestSessionScore("pip")) : null
-  const currentTiuScore = selectedCandidate ? (latestSelectedAttempt?.tiuScoreScaled ?? selectedCandidate.tiu ?? getLatestSessionScore("tiu")) : null
+  const latestSelectedAttempt = selectedCandidate
+    ? latestAttemptByCandidate.get(selectedCandidate.id)
+    : null
+  const currentPipScore = selectedCandidate
+    ? (latestSelectedAttempt?.pipScore ??
+      selectedCandidate.pip ??
+      getLatestSessionScore("pip"))
+    : null
+  const currentTiuScore = selectedCandidate
+    ? (latestSelectedAttempt?.tiuScoreScaled ??
+      selectedCandidate.tiu ??
+      getLatestSessionScore("tiu"))
+    : null
 
   // --------------------------------------------------------------------------
   // TIMER TICK ENGINE
@@ -333,10 +436,16 @@ export default function CatBankView() {
   const handleTimeExpired = useCallback(() => {
     if (sessionPhase === "pip") {
       finalizePipSession()
-      showToast("Waktu Sesi 1 (PIP) habis. Sesi otomatis diselesaikan.", "warning")
+      showToast(
+        "Waktu Sesi 1 (PIP) habis. Sesi otomatis diselesaikan.",
+        "warning",
+      )
     } else if (sessionPhase === "tiu") {
       finalizeTiuSession()
-      showToast("Waktu Sesi 2 (TIU) habis. Sesi otomatis diselesaikan.", "warning")
+      showToast(
+        "Waktu Sesi 2 (TIU) habis. Sesi otomatis diselesaikan.",
+        "warning",
+      )
     }
   }, [sessionPhase])
 
@@ -348,7 +457,10 @@ export default function CatBankView() {
     const pool = questions.filter((q) => {
       if (q.type !== type || q.status !== "active") return false
       const canonicalQuestion = q.question
-        .replace(/^(Pilih jawaban yang tepat\. |Cermati pertanyaan berikut\. |Manakah jawaban yang benar\? |Jawablah pertanyaan ini\. |Dalam pengetahuan umum, |Informasi yang tepat untuk pertanyaan berikut adalah: |Tentukan jawaban yang sesuai\. |Pertanyaan: |Pilih satu jawaban paling tepat\. )/i, "")
+        .replace(
+          /^(Pilih jawaban yang tepat\. |Cermati pertanyaan berikut\. |Manakah jawaban yang benar\? |Jawablah pertanyaan ini\. |Dalam pengetahuan umum, |Informasi yang tepat untuk pertanyaan berikut adalah: |Tentukan jawaban yang sesuai\. |Pertanyaan: |Pilih satu jawaban paling tepat\. )/i,
+          "",
+        )
         .toLocaleLowerCase()
         .replace(/[^\p{L}\p{N}]+/gu, " ")
         .trim()
@@ -373,7 +485,9 @@ export default function CatBankView() {
   // --------------------------------------------------------------------------
   function startPipSession(targetCandidateId?: string) {
     const effectiveCandidateId = targetCandidateId ?? selectedCandidateId
-    const effectiveIsCoachSelf = isCoachOrAdmin && (!effectiveCandidateId || effectiveCandidateId === "coach-self")
+    const effectiveIsCoachSelf =
+      isCoachOrAdmin &&
+      (!effectiveCandidateId || effectiveCandidateId === "coach-self")
     const effectiveCandidate = effectiveIsCoachSelf
       ? coachSelfCandidate
       : currentUser.role === "candidate"
@@ -386,7 +500,10 @@ export default function CatBankView() {
     }
     // Pelatih/Admin TIDAK PERLU menunggu jadwal CAT
     if (!isCoachOrAdmin && !activeCatSchedule) {
-      showToast("CAT hanya dapat dimulai pada jadwal yang ditetapkan admin/pelatih.", "warning")
+      showToast(
+        "CAT hanya dapat dimulai pada jadwal yang ditetapkan admin/pelatih.",
+        "warning",
+      )
       return
     }
     const qs = prepareExamQuestions("pip", packageConfig.pipQuestionCount)
@@ -405,9 +522,17 @@ export default function CatBankView() {
     setIsTimerRunning(true)
     setSessionPhase("pip")
     if (!effectiveIsCoachSelf && activeCatSchedule) {
-      setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "active" } : session))
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === activeCatSchedule.id
+            ? { ...session, status: "active" }
+            : session,
+        ),
+      )
     }
-    setTryoutStartTime(new Date().toISOString().replace("T", " ").substring(0, 19))
+    setTryoutStartTime(
+      new Date().toISOString().replace("T", " ").substring(0, 19),
+    )
     showToast(
       effectiveIsCoachSelf
         ? "Sesi 1: CAT PIP dimulai (Mode Pelatih)."
@@ -423,7 +548,10 @@ export default function CatBankView() {
     setIsTimerRunning(false)
     setShowConfirmSubmitModal(false)
     setSessionPhase("pip-final")
-    showToast("Sesi 1 (PIP) telah final. Skor PIP segera dipublikasikan.", "success")
+    showToast(
+      "Sesi 1 (PIP) telah final. Skor PIP segera dipublikasikan.",
+      "success",
+    )
   }
 
   // --------------------------------------------------------------------------
@@ -452,10 +580,17 @@ export default function CatBankView() {
     setIsTimerRunning(false)
     setShowConfirmSubmitModal(false)
     setSessionPhase("completed")
-    
-    const isCoachTest = isCoachSelfTest || !candidates.some((c) => c.id === selectedCandidate?.id)
+
+    const isCoachTest =
+      isCoachSelfTest || !candidates.some((c) => c.id === selectedCandidate?.id)
     if (!isCoachTest && activeCatSchedule) {
-      setSessions((prev) => prev.map((session) => session.id === activeCatSchedule.id ? { ...session, status: "completed" } : session))
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === activeCatSchedule.id
+            ? { ...session, status: "completed" }
+            : session,
+        ),
+      )
     }
 
     // Calculate final scores according to PRD 4.3 formulas:
@@ -478,15 +613,23 @@ export default function CatBankView() {
     const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19)
 
     // Count attempts for this candidate
-    const targetCandidateId = isCoachTest ? (currentUser.id || "coach-self") : (selectedCandidate?.id ?? "cand-001")
-    const prevAttempts = attempts.filter((a) => a.candidateId === targetCandidateId)
+    const targetCandidateId = isCoachTest
+      ? currentUser.id || "coach-self"
+      : (selectedCandidate?.id ?? "cand-001")
+    const prevAttempts = attempts.filter(
+      (a) => a.candidateId === targetCandidateId,
+    )
     const attemptNumber = prevAttempts.length + 1
 
     const newAttempt: CatTryoutAttempt = {
       id: `att-${Date.now()}`,
       candidateId: targetCandidateId,
-      candidateName: isCoachTest ? `${currentUser.name} (Simulasi Pelatih)` : (selectedCandidate?.name ?? "Peserta Tryout"),
-      candidateGroup: isCoachTest ? (currentUser.title || "Tim Pelatih / Pembina") : (selectedCandidate?.school ?? "Grup Mandiri"),
+      candidateName: isCoachTest
+        ? `${currentUser.name} (Simulasi Pelatih)`
+        : (selectedCandidate?.name ?? "Peserta Tryout"),
+      candidateGroup: isCoachTest
+        ? currentUser.title || "Tim Pelatih / Pembina"
+        : (selectedCandidate?.school ?? "Grup Mandiri"),
       packageName: packageConfig.packageName,
       attemptNumber,
       pipAnswers,
@@ -507,7 +650,10 @@ export default function CatBankView() {
 
     // Auto-sync ke profil kandidat (Hanya jika peserta riil, bukan simulasi pelatih)
     if (!isCoachTest && selectedCandidate) {
-      updateCandidate(selectedCandidate.id, { pip: pipScore, tiu: tiuScoreScaled })
+      updateCandidate(selectedCandidate.id, {
+        pip: pipScore,
+        tiu: tiuScoreScaled,
+      })
       updateCandidateStage(
         selectedCandidate.id,
         1,
@@ -528,7 +674,9 @@ export default function CatBankView() {
     logAudit(
       isCoachTest ? "Simulasi Tryout CAT Pelatih" : "Tryout CAT Selesai",
       isCoachTest ? currentUser.name : (selectedCandidate?.name ?? "Peserta"),
-      `PIP: ${pipScore}/100 (${pipPassed ? "Lolos" : "Remedial"}), TIU: ${tiuScoreScaled}/100 (${tiuPassed ? "Lolos" : "Remedial"})`,
+      `PIP: ${pipScore}/100 (${
+        pipPassed ? "Lolos" : "Remedial"
+      }), TIU: ${tiuScoreScaled}/100 (${tiuPassed ? "Lolos" : "Remedial"})`,
     )
     showToast(
       isCoachTest
@@ -542,7 +690,8 @@ export default function CatBankView() {
   // CALCULATED SCORES FOR CURRENT SESSION
   // --------------------------------------------------------------------------
   const currentPipResults = useMemo(() => {
-    if (pipExamQuestions.length === 0) return { correct: 0, total: 50, score: 0, passed: false }
+    if (pipExamQuestions.length === 0)
+      return { correct: 0, total: 50, score: 0, passed: false }
     const correct = pipExamQuestions.filter(
       (q) => pipAnswers[q.id] === q.correctIndex,
     ).length
@@ -580,8 +729,15 @@ export default function CatBankView() {
   // SYNC SCORE TO CANDIDATE PROFILE (Stages 2 & 3)
   // --------------------------------------------------------------------------
   function handleSyncToCandidateProfile() {
-    if (isCoachSelfTest || !selectedCandidate || !candidates.some((c) => c.id === selectedCandidate.id)) {
-      showToast("Mode Uji Coba Mandiri: Data simulasi pelatih tidak dapat disinkronkan ke profil santri.", "info")
+    if (
+      isCoachSelfTest ||
+      !selectedCandidate ||
+      !candidates.some((c) => c.id === selectedCandidate.id)
+    ) {
+      showToast(
+        "Mode Uji Coba Mandiri: Data simulasi pelatih tidak dapat disinkronkan ke profil santri.",
+        "info",
+      )
       return
     }
     const pipPass = currentPipResults.passed
@@ -684,7 +840,11 @@ export default function CatBankView() {
   // --------------------------------------------------------------------------
   // QUESTION ANSWER SELECTION HANDLER (WITH AUTOSAVE VISUAL)
   // --------------------------------------------------------------------------
-  function handleSelectOption(qId: string, optIdx: number, session: "pip" | "tiu") {
+  function handleSelectOption(
+    qId: string,
+    optIdx: number,
+    session: "pip" | "tiu",
+  ) {
     setIsSavingAnswer(true)
     if (session === "pip") {
       setPipAnswers((prev) => ({ ...prev, [qId]: optIdx }))
@@ -700,7 +860,9 @@ export default function CatBankView() {
   // QUESTION FORM MODAL (ADD / EDIT)
   // --------------------------------------------------------------------------
   const [showQuestionModal, setShowQuestionModal] = useState(false)
-  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null)
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(
+    null,
+  )
   const [qForm, setQForm] = useState({
     type: "pip" as "pip" | "tiu",
     category: pipCategories[0],
@@ -784,8 +946,12 @@ export default function CatBankView() {
   }
 
   function handleRestoreStandardQuestions() {
-    const standardPipCount = standardCatQuestions.filter((question) => question.type === "pip").length
-    const standardTiuCount = standardCatQuestions.filter((question) => question.type === "tiu").length
+    const standardPipCount = standardCatQuestions.filter(
+      (question) => question.type === "pip",
+    ).length
+    const standardTiuCount = standardCatQuestions.filter(
+      (question) => question.type === "tiu",
+    ).length
     if (
       confirm(
         `Terapkan bank standar terbaru: ${standardPipCount} PIP dan ${standardTiuCount} TIU? Soal standar lama yang berulang akan dibersihkan; soal buatan sendiri tetap dipertahankan.`,
@@ -805,7 +971,10 @@ export default function CatBankView() {
     event.preventDefault()
     if (!editingAttempt) return
     const pipScore = Math.max(0, Math.min(100, Number(editingAttempt.pipScore)))
-    const tiuScoreScaled = Math.max(0, Math.min(100, Number(editingAttempt.tiuScoreScaled)))
+    const tiuScoreScaled = Math.max(
+      0,
+      Math.min(100, Number(editingAttempt.tiuScoreScaled)),
+    )
     if (!Number.isFinite(pipScore) || !Number.isFinite(tiuScoreScaled)) {
       showToast("Nilai PIP dan TIU harus berupa angka 0–100.", "warning")
       return
@@ -815,23 +984,47 @@ export default function CatBankView() {
       ...editingAttempt,
       pipCorrect: Math.round(pipScore / 2),
       pipScore,
-      pipStatus: pipScore >= packageConfig.pipPassingGrade ? "passed" : "failed",
+      pipStatus:
+        pipScore >= packageConfig.pipPassingGrade ? "passed" : "failed",
       tiuCorrect: Math.round(tiuScoreScaled / 2),
       tiuScoreRaw: Math.round(tiuScoreScaled / 2),
       tiuScoreScaled,
-      tiuStatus: tiuScoreScaled >= packageConfig.tiuPassingGrade ? "passed" : "failed",
+      tiuStatus:
+        tiuScoreScaled >= packageConfig.tiuPassingGrade ? "passed" : "failed",
       combinedScore: Number(((pipScore + tiuScoreScaled) / 2).toFixed(1)),
     }
     saveCatTryoutAttempt(updatedAttempt)
 
-    const candidate = candidates.find((item) => item.id === updatedAttempt.candidateId) ??
-      candidates.find((item) => item.name.trim().toLocaleLowerCase() === updatedAttempt.candidateName.trim().toLocaleLowerCase())
-    if (candidate && latestAttemptByCandidate.get(candidate.id)?.id === updatedAttempt.id) {
+    const candidate =
+      candidates.find((item) => item.id === updatedAttempt.candidateId) ??
+      candidates.find(
+        (item) =>
+          item.name.trim().toLocaleLowerCase() ===
+          updatedAttempt.candidateName.trim().toLocaleLowerCase(),
+      )
+    if (
+      candidate &&
+      latestAttemptByCandidate.get(candidate.id)?.id === updatedAttempt.id
+    ) {
       updateCandidate(candidate.id, { pip: pipScore, tiu: tiuScoreScaled })
-      updateCandidateStage(candidate.id, 1, updatedAttempt.pipStatus, `Nilai CAT PIP diperbarui menjadi ${pipScore}/100`)
-      updateCandidateStage(candidate.id, 2, updatedAttempt.tiuStatus, `Nilai CAT TIU diperbarui menjadi ${tiuScoreScaled}/100`)
+      updateCandidateStage(
+        candidate.id,
+        1,
+        updatedAttempt.pipStatus,
+        `Nilai CAT PIP diperbarui menjadi ${pipScore}/100`,
+      )
+      updateCandidateStage(
+        candidate.id,
+        2,
+        updatedAttempt.tiuStatus,
+        `Nilai CAT TIU diperbarui menjadi ${tiuScoreScaled}/100`,
+      )
     }
-    logAudit("Perbarui Hasil CAT", updatedAttempt.candidateName, `PIP ${pipScore}, TIU ${tiuScoreScaled}, percobaan ${updatedAttempt.attemptNumber}`)
+    logAudit(
+      "Perbarui Hasil CAT",
+      updatedAttempt.candidateName,
+      `PIP ${pipScore}, TIU ${tiuScoreScaled}, percobaan ${updatedAttempt.attemptNumber}`,
+    )
     showToast("Hasil CAT berhasil diperbarui.", "success")
     setEditingAttempt(null)
   }
@@ -842,7 +1035,8 @@ export default function CatBankView() {
   const pipQuestionsList = useMemo(() => {
     return questions.filter((q) => {
       if (q.type !== "pip") return false
-      if (categoryFilter !== "all" && q.category !== categoryFilter) return false
+      if (categoryFilter !== "all" && q.category !== categoryFilter)
+        return false
       if (search.trim()) {
         const term = search.toLowerCase()
         return (
@@ -859,7 +1053,8 @@ export default function CatBankView() {
   const tiuQuestionsList = useMemo(() => {
     return questions.filter((q) => {
       if (q.type !== "tiu") return false
-      if (categoryFilter !== "all" && q.category !== categoryFilter) return false
+      if (categoryFilter !== "all" && q.category !== categoryFilter)
+        return false
       if (search.trim()) {
         const term = search.toLowerCase()
         return (
@@ -873,20 +1068,30 @@ export default function CatBankView() {
     })
   }, [questions, categoryFilter, search])
 
-  const pipTotalPages = Math.max(1, Math.ceil(pipQuestionsList.length / bankPageSize))
+  const pipTotalPages = Math.max(
+    1,
+    Math.ceil(pipQuestionsList.length / bankPageSize),
+  )
   const pipPagedList = useMemo(() => {
     const start = (bankPage - 1) * bankPageSize
     return pipQuestionsList.slice(start, start + bankPageSize)
   }, [pipQuestionsList, bankPage, bankPageSize])
 
-  const tiuTotalPages = Math.max(1, Math.ceil(tiuQuestionsList.length / bankPageSize))
+  const tiuTotalPages = Math.max(
+    1,
+    Math.ceil(tiuQuestionsList.length / bankPageSize),
+  )
   const tiuPagedList = useMemo(() => {
     const start = (bankPage - 1) * bankPageSize
     return tiuQuestionsList.slice(start, start + bankPageSize)
   }, [tiuQuestionsList, bankPage, bankPageSize])
 
-  const pipActiveCount = questions.filter((q) => q.type === "pip" && q.status === "active").length
-  const tiuActiveCount = questions.filter((q) => q.type === "tiu" && q.status === "active").length
+  const pipActiveCount = questions.filter(
+    (q) => q.type === "pip" && q.status === "active",
+  ).length
+  const tiuActiveCount = questions.filter(
+    (q) => q.type === "tiu" && q.status === "active",
+  ).length
 
   // Helper formatting for timer mm:ss
   const formatTimer = (sec: number) => {
@@ -905,7 +1110,8 @@ export default function CatBankView() {
 
   const currentAnswersMap = sessionPhase === "pip" ? pipAnswers : tiuAnswers
   const currentFlaggedMap = sessionPhase === "pip" ? pipFlagged : tiuFlagged
-  const currentExamQuestionsList = sessionPhase === "pip" ? pipExamQuestions : tiuExamQuestions
+  const currentExamQuestionsList =
+    sessionPhase === "pip" ? pipExamQuestions : tiuExamQuestions
   const currentExamIdx = sessionPhase === "pip" ? pipCurrentIdx : tiuCurrentIdx
 
   // Total answers & flags count
@@ -944,63 +1150,80 @@ export default function CatBankView() {
 
         {/* NAVIGATION GROUPED BY USER FLOW */}
         <div className="mt-4 pt-4 border-t border-slate-100">
-          <nav aria-label="Navigasi CAT" className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+          <nav
+            aria-label="Navigasi CAT"
+            className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6"
+          >
             <div className="min-w-0">
-              <span className="mb-1.5 block text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+              <span className="mb-1.5 block text-2xs font-bold uppercase tracking-wider text-slate-400">
                 Alur Ujian
               </span>
-              <div className={`grid gap-1 sm:gap-1.5 rounded-xl bg-slate-100/90 p-1 sm:p-1.5 ${currentUser.role === "candidate" ? "grid-cols-1 max-w-xs" : "grid-cols-3"}`}>
+              <div
+                className={`grid gap-1 sm:gap-1.5 rounded-xl bg-slate-100/90 p-1 sm:p-1.5 ${
+                  currentUser.role === "candidate"
+                    ? "grid-cols-2 max-w-sm"
+                    : "grid-cols-3"
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => setActiveTab("tryout")}
-                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold transition text-center ${
                     activeTab === "tryout"
                       ? "bg-white text-slate-950 shadow-xs"
                       : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                   }`}
                 >
                   <Play className="size-3.5 shrink-0 text-red-600" />
-                  <span className="whitespace-nowrap">Simulasi<span className="hidden sm:inline"> Ujian</span></span>
+                  <span className="whitespace-nowrap">
+                    Simulasi<span className="hidden sm:inline"> Ujian</span>
+                  </span>
                   {sessionPhase !== "idle" && (
                     <span className="size-2 shrink-0 rounded-full bg-red-600 animate-pulse" />
                   )}
                 </button>
 
                 {currentUser.role !== "candidate" && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("rekap")}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
-                        activeTab === "rekap"
-                          ? "bg-white text-slate-950 shadow-xs"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-                      }`}
-                    >
-                      <UsersRound className="size-3.5 shrink-0 text-emerald-600" />
-                      <span className="whitespace-nowrap">Rekap<span className="hidden sm:inline"> Santri ({attempts.length})</span></span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("history")}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
-                        activeTab === "history"
-                          ? "bg-white text-slate-950 shadow-xs"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
-                      }`}
-                    >
-                      <History className="size-3.5 shrink-0 text-indigo-600" />
-                      <span className="whitespace-nowrap">Riwayat<span className="hidden sm:inline"> Sesi ({attempts.length})</span></span>
-                    </button>
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("rekap")}
+                    className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition text-center ${
+                      activeTab === "rekap"
+                        ? "bg-white text-slate-950 shadow-xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                    }`}
+                  >
+                    <UsersRound className="size-3.5 shrink-0 text-emerald-600" />
+                    <span className="whitespace-nowrap">
+                      Rekap
+                      <span className="hidden sm:inline">
+                        {" "}
+                        Santri ({attempts.length})
+                      </span>
+                    </span>
+                  </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("history")}
+                  className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-bold transition text-center ${
+                    activeTab === "history"
+                      ? "bg-white text-slate-950 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                  }`}
+                >
+                  <History className="size-3.5 shrink-0 text-indigo-600" />
+                  <span className="whitespace-nowrap">
+                    {currentUser.role === "candidate" ? "Riwayat Saya" : "Riwayat Sesi"}
+                  </span>
+                </button>
               </div>
             </div>
 
             {currentUser.role !== "candidate" && (
               <div className="min-w-0">
-                <span className="mb-1.5 block text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                <span className="mb-1.5 block text-2xs font-bold uppercase tracking-wider text-slate-400">
                   Perangkat Pelatih
                 </span>
                 <div className="grid grid-cols-3 gap-1 sm:gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/70 p-1 sm:p-1.5">
@@ -1017,8 +1240,16 @@ export default function CatBankView() {
                         : "text-slate-700 hover:bg-white hover:text-slate-900"
                     }`}
                   >
-                    <BookOpenCheck className={`size-3.5 shrink-0 ${activeTab === "pip-bank" ? "text-white" : "text-blue-600"}`} />
-                    <span className="whitespace-nowrap"><span className="hidden sm:inline">Bank </span>PIP</span>
+                    <BookOpenCheck
+                      className={`size-3.5 shrink-0 ${
+                        activeTab === "pip-bank"
+                          ? "text-white"
+                          : "text-blue-600"
+                      }`}
+                    />
+                    <span className="whitespace-nowrap">
+                      <span className="hidden sm:inline">Bank </span>PIP
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1033,8 +1264,16 @@ export default function CatBankView() {
                         : "text-slate-700 hover:bg-white hover:text-slate-900"
                     }`}
                   >
-                    <Calculator className={`size-3.5 shrink-0 ${activeTab === "tiu-bank" ? "text-white" : "text-purple-600"}`} />
-                    <span className="whitespace-nowrap"><span className="hidden sm:inline">Bank </span>TIU</span>
+                    <Calculator
+                      className={`size-3.5 shrink-0 ${
+                        activeTab === "tiu-bank"
+                          ? "text-white"
+                          : "text-purple-600"
+                      }`}
+                    />
+                    <span className="whitespace-nowrap">
+                      <span className="hidden sm:inline">Bank </span>TIU
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1046,8 +1285,16 @@ export default function CatBankView() {
                     }`}
                     title="Konfigurasi paket dan formula"
                   >
-                    <Settings2 className={`size-3.5 shrink-0 ${activeTab === "settings" ? "text-white" : "text-slate-500"}`} />
-                    <span className="whitespace-nowrap"><span className="hidden sm:inline">Pengaturan </span>Paket</span>
+                    <Settings2
+                      className={`size-3.5 shrink-0 ${
+                        activeTab === "settings"
+                          ? "text-white"
+                          : "text-slate-500"
+                      }`}
+                    />
+                    <span className="whitespace-nowrap">
+                      <span className="hidden sm:inline">Pengaturan </span>Paket
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1074,7 +1321,8 @@ export default function CatBankView() {
                       Siapkan paket tryout CAT
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Pastikan peserta dan alur ujian sudah benar sebelum memulai.
+                      Pastikan peserta dan alur ujian sudah benar sebelum
+                      memulai.
                     </p>
                   </div>
                 </div>
@@ -1084,8 +1332,12 @@ export default function CatBankView() {
                     <div className="flex min-h-16 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3">
                       <CheckCircle2 className="size-5 shrink-0 text-emerald-600" />
                       <div>
-                        <p className="text-xs font-bold text-emerald-900">Identitas terverifikasi</p>
-                        <p className="mt-0.5 text-[0.68rem] text-emerald-800">Hasil ujian akan tersimpan di akun Anda.</p>
+                        <p className="text-xs font-bold text-emerald-900">
+                          Identitas terverifikasi
+                        </p>
+                        <p className="mt-0.5 text-2xs text-emerald-800">
+                          Hasil ujian akan tersimpan di akun Anda.
+                        </p>
                       </div>
                     </div>
                   ) : (
@@ -1097,7 +1349,9 @@ export default function CatBankView() {
                         onChange={(e) => setSelectedCandidateId(e.target.value)}
                         className="min-h-10 w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-900 outline-none focus:border-red-500 focus:ring-1 focus:ring-red-200 cursor-pointer"
                       >
-                        <option value="">Saya sendiri (Uji coba pelatih)</option>
+                        <option value="">
+                          Saya sendiri (Uji coba pelatih)
+                        </option>
                         {candidates.length > 0 && (
                           <optgroup label="Pilih Santri / Siswa">
                             {candidates.map((c) => (
@@ -1112,14 +1366,15 @@ export default function CatBankView() {
                   )}
 
                   <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-                    <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                    <p className="text-2xs font-bold uppercase tracking-wider text-slate-500">
                       Paket CAT aktif
                     </p>
                     <p className="mt-1 text-sm font-bold leading-snug text-slate-900">
                       {packageConfig.packageName}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Maks. {packageConfig.maxAttempts} kali percobaan · Acak butir aktif
+                      Maks. {packageConfig.maxAttempts} kali percobaan · Acak
+                      butir aktif
                     </p>
                   </div>
                 </div>
@@ -1131,12 +1386,14 @@ export default function CatBankView() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h3 className="text-sm font-bold text-slate-900">Jadwal CAT</h3>
+                        <h3 className="text-sm font-bold text-slate-900">
+                          Jadwal CAT
+                        </h3>
                         <Badge tone={activeCatSchedule ? "success" : "neutral"}>
                           {isCoachSelfTest
                             ? "Bebas jadwal"
                             : activeCatSchedule
-                              ? "Sedang berlangsung"
+                              ? "Tersedia Hari Ini"
                               : displayedCatSchedule
                                 ? "Terjadwal"
                                 : "Belum terjadwal"}
@@ -1148,14 +1405,23 @@ export default function CatBankView() {
                         </p>
                       ) : displayedCatSchedule ? (
                         <>
-                          <p className="mt-1 text-xs font-semibold text-slate-700">{displayedCatSchedule.title}</p>
-                          <p className="mt-0.5 text-xs text-slate-500">{displayedCatSchedule.date} · {displayedCatSchedule.time} · {displayedCatSchedule.location}</p>
+                          <p className="mt-1 text-xs font-semibold text-slate-700">
+                            {displayedCatSchedule.title}
+                          </p>
+                          <p className="mt-0.5 text-xs text-slate-500">
+                            {displayedCatSchedule.date} · {displayedCatSchedule.time} · {displayedCatSchedule.location}
+                          </p>
+                          {activeCatSchedule && currentUser.role === "candidate" && (
+                            <p className="mt-1 text-[0.68rem] font-medium text-emerald-700">
+                              ℹ Sesi aktif sepanjang hari ini (sampai 23:59). Waktu 75 menit (45m PIP + 30m TIU) baru akan berjalan setelah Anda menekan tombol mulai.
+                            </p>
+                          )}
                         </>
                       ) : (
                         <p className="mt-1 text-xs leading-relaxed text-slate-500">
                           {isCoachOrAdmin
                             ? "Pelatih dapat langsung memulai ujian tanpa menunggu jadwal."
-                            : "Belum ada jadwal untuk peserta ini."}
+                            : "Belum ada jadwal untuk akun Anda."}
                         </p>
                       )}
                     </div>
@@ -1166,7 +1432,9 @@ export default function CatBankView() {
                 <details className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
                   <summary className="cursor-pointer list-none text-xs font-bold uppercase tracking-wider text-slate-700 marker:hidden">
                     Ketentuan ujian · 75 menit total
-                    <span className="ml-2 text-[0.65rem] font-medium normal-case tracking-normal text-slate-500">PIP 45 menit → TIU 30 menit · Lihat rincian</span>
+                    <span className="ml-2 text-3xs font-medium normal-case tracking-normal text-slate-500">
+                      PIP 45 menit → TIU 30 menit · Lihat rincian
+                    </span>
                   </summary>
 
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -1186,8 +1454,9 @@ export default function CatBankView() {
                         <li>&bull; Benar +2, Salah/Kosong 0 (Maks 100)</li>
                         <li>&bull; Passing Grade: &ge; 70.0</li>
                       </ul>
-                      <div className="mt-3 border-t border-slate-100 pt-2 text-[0.68rem] font-semibold text-emerald-700 flex items-center gap-1">
-                        <CheckCircle2 className="size-3 text-emerald-600" /> Nilai langsung keluar saat selesai
+                      <div className="mt-3 border-t border-slate-100 pt-2 text-2xs font-semibold text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="size-3 text-emerald-600" />{" "}
+                        Nilai langsung keluar saat selesai
                       </div>
                     </div>
 
@@ -1196,7 +1465,8 @@ export default function CatBankView() {
                       <div className="flex items-center justify-between">
                         <Badge tone="neutral">Sesi 2 (Lanjutan)</Badge>
                         <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
-                          <Clock className="size-3.5 text-purple-500" /> 30 Menit
+                          <Clock className="size-3.5 text-purple-500" /> 30
+                          Menit
                         </span>
                       </div>
                       <h4 className="mt-2 text-sm font-bold text-slate-900">
@@ -1205,10 +1475,13 @@ export default function CatBankView() {
                       <ul className="mt-2 space-y-1 text-xs text-slate-600">
                         <li>&bull; 50 Butir Soal (Verbal, Numerik, Logika)</li>
                         <li>&bull; Benar +1, Salah 0 (Maks Mentah 50)</li>
-                        <li>&bull; Nilai Skala 100: Skor Mentah &times; 2 (PG: 70)</li>
+                        <li>
+                          &bull; Nilai Skala 100: Skor Mentah &times; 2 (PG: 70)
+                        </li>
                       </ul>
-                      <div className="mt-3 border-t border-slate-100 pt-2 text-[0.68rem] text-slate-500 flex items-center gap-1">
-                        <ShieldCheck className="size-3 text-purple-600" /> Terkunci sampai Sesi 1 PIP selesai
+                      <div className="mt-3 border-t border-slate-100 pt-2 text-2xs text-slate-500 flex items-center gap-1">
+                        <ShieldCheck className="size-3 text-purple-600" />{" "}
+                        Terkunci sampai Sesi 1 PIP selesai
                       </div>
                     </div>
                   </div>
@@ -1222,7 +1495,10 @@ export default function CatBankView() {
 
                   <Button
                     onClick={() => startPipSession()}
-                    disabled={!isCoachOrAdmin && (!selectedCandidate || !activeCatSchedule)}
+                    disabled={
+                      !isCoachOrAdmin &&
+                      (!selectedCandidate || !activeCatSchedule)
+                    }
                     className="!px-6 !py-2.5 !text-sm !font-bold shadow-md bg-red-600 hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     <Play className="size-4" /> Mulai sesi 1 · PIP
@@ -1234,10 +1510,12 @@ export default function CatBankView() {
               <div className="grid gap-6">
                 <Card className="p-5 border-slate-200">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                    {currentUser.role === "candidate" ? "Hasil CAT terakhir" : "Ringkasan peserta terpilih"}
+                    {currentUser.role === "candidate"
+                      ? "Hasil CAT terakhir"
+                      : "Ringkasan peserta terpilih"}
                   </h3>
-                  {currentUser.role !== "candidate" && (
-                    selectedCandidate ? (
+                  {currentUser.role !== "candidate" &&
+                    (selectedCandidate ? (
                       <div className="mt-3 flex items-center gap-3">
                         <CandidateAvatar
                           name={selectedCandidate.name}
@@ -1249,9 +1527,13 @@ export default function CatBankView() {
                           <h4 className="font-bold text-slate-900 leading-tight">
                             {selectedCandidate.name}
                           </h4>
-                          <p className="text-xs text-slate-500">{selectedCandidate.school}</p>
-                          <p className="text-[0.68rem] font-semibold text-slate-400">
-                            {isCoachSelfTest ? "Peran: Pelatih / Pembina" : `Nomor: ${selectedCandidate.number}`}
+                          <p className="text-xs text-slate-500">
+                            {selectedCandidate.school}
+                          </p>
+                          <p className="text-2xs font-semibold text-slate-400">
+                            {isCoachSelfTest
+                              ? "Peran: Pelatih / Pembina"
+                              : `Nomor: ${selectedCandidate.number}`}
                           </p>
                         </div>
                       </div>
@@ -1259,24 +1541,39 @@ export default function CatBankView() {
                       <div className="mt-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-4 text-center text-xs text-slate-400">
                         Belum ada peserta yang dipilih
                       </div>
-                    )
-                  )}
+                    ))}
 
-                  <div className={`${currentUser.role === "candidate" ? "mt-3" : "mt-4 border-t border-slate-100 pt-3"} grid grid-cols-2 gap-2`}>
+                  <div
+                    className={`${
+                      currentUser.role === "candidate"
+                        ? "mt-3"
+                        : "mt-4 border-t border-slate-100 pt-3"
+                    } grid grid-cols-2 gap-2`}
+                  >
                     <div className="rounded-lg bg-slate-50 p-2.5 text-center">
-                      <span className="text-[0.65rem] font-bold uppercase text-slate-500">
-                        {currentUser.role === "candidate" ? "Nilai PIP terakhir" : "Nilai PIP saat ini"}
+                      <span className="text-3xs font-bold uppercase text-slate-500">
+                        {currentUser.role === "candidate"
+                          ? "Nilai PIP terakhir"
+                          : "Nilai PIP saat ini"}
                       </span>
                       <p className="mt-0.5 text-lg font-black text-slate-900">
-                        {currentPipScore !== null && currentPipScore !== undefined ? currentPipScore.toFixed(0) : "Belum ada"}
+                        {currentPipScore !== null &&
+                        currentPipScore !== undefined
+                          ? currentPipScore.toFixed(0)
+                          : "Belum ada"}
                       </p>
                     </div>
                     <div className="rounded-lg bg-slate-50 p-2.5 text-center">
-                      <span className="text-[0.65rem] font-bold uppercase text-slate-500">
-                        {currentUser.role === "candidate" ? "Nilai TIU terakhir" : "Nilai TIU saat ini"}
+                      <span className="text-3xs font-bold uppercase text-slate-500">
+                        {currentUser.role === "candidate"
+                          ? "Nilai TIU terakhir"
+                          : "Nilai TIU saat ini"}
                       </span>
                       <p className="mt-0.5 text-lg font-black text-slate-900">
-                        {currentTiuScore !== null && currentTiuScore !== undefined ? currentTiuScore.toFixed(0) : "Belum ada"}
+                        {currentTiuScore !== null &&
+                        currentTiuScore !== undefined
+                          ? currentTiuScore.toFixed(0)
+                          : "Belum ada"}
                       </p>
                     </div>
                   </div>
@@ -1286,30 +1583,43 @@ export default function CatBankView() {
                 <Card className="p-5 border-slate-200 bg-slate-50/60">
                   <details open={currentUser.role !== "candidate"}>
                     <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-                      <Sparkles className="size-3.5 text-amber-500" /> Ketentuan ujian
-                      <span className="ml-auto text-[0.65rem] font-medium normal-case tracking-normal text-slate-400">Lihat rincian</span>
+                      <Sparkles className="size-3.5 text-amber-500" /> Ketentuan
+                      ujian
+                      <span className="ml-auto text-3xs font-medium normal-case tracking-normal text-slate-400">
+                        Lihat rincian
+                      </span>
                     </summary>
                     <div className="mt-3 space-y-2 text-xs text-slate-600">
-                    <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
-                      <span>Model Ujian</span>
-                      <span className="font-bold text-slate-900">1 Paket, 2 Sesi</span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
-                      <span>Durasi Total</span>
-                      <span className="font-bold text-slate-900">75 Menit (45m + 30m)</span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
-                      <span>Jumlah Soal</span>
-                      <span className="font-bold text-slate-900">100 Soal (50 + 50)</span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
-                      <span>Passing Grade PIP</span>
-                      <span className="font-bold text-emerald-700">&ge; 70.0 (35 Benar)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Passing Grade TIU</span>
-                      <span className="font-bold text-emerald-700">&ge; 70.0 (35 Benar)</span>
-                    </div>
+                      <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                        <span>Model Ujian</span>
+                        <span className="font-bold text-slate-900">
+                          1 Paket, 2 Sesi
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                        <span>Durasi Total</span>
+                        <span className="font-bold text-slate-900">
+                          75 Menit (45m + 30m)
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                        <span>Jumlah Soal</span>
+                        <span className="font-bold text-slate-900">
+                          100 Soal (50 + 50)
+                        </span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
+                        <span>Passing Grade PIP</span>
+                        <span className="font-bold text-emerald-700">
+                          &ge; 70.0 (35 Benar)
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Passing Grade TIU</span>
+                        <span className="font-bold text-emerald-700">
+                          &ge; 70.0 (35 Benar)
+                        </span>
+                      </div>
                     </div>
                   </details>
                 </Card>
@@ -1318,277 +1628,306 @@ export default function CatBankView() {
           )}
 
           {/* -------------------- 2. ACTIVE EXAM SCREEN (PIP or TIU) -------------------- */}
-          {(sessionPhase === "pip" || sessionPhase === "tiu") && currentExamQuestion && (
-            <div className="grid gap-6">
-              {/* EXAM TOP BAR (PRD Section 6.2) */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 p-4 text-white shadow-lg">
-                <div className="flex items-center gap-3">
-                  <Badge tone={sessionPhase === "pip" ? "danger" : "info"} className="text-xs font-black">
-                    {sessionPhase === "pip" ? "SESI 1: CAT PIP" : "SESI 2: CAT TIU"}
-                  </Badge>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">
-                      {selectedCandidate?.name ?? "Peserta"}{" "}
-                      <span className="text-slate-400 font-normal">({selectedCandidate?.number ?? "—"})</span>
-                    </h3>
-                    <p className="text-[0.68rem] text-slate-400">
-                      {packageConfig.packageName} · {sessionPhase === "pip" ? "Pancasila & TWK" : "Intelegensia Umum"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  {/* AUTOSAVE PILL */}
-                  <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-300 border border-slate-700">
-                    {isSavingAnswer ? (
-                      <>
-                        <RefreshCw className="size-3.5 animate-spin text-amber-400" />
-                        <span className="text-amber-300">Menyimpan...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check className="size-3.5 text-emerald-400" />
-                        <span className="text-emerald-300">Tersimpan</span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* TIMER COUNTDOWN (Alert: <= 5m Yellow, <= 1m Red Pulsing) */}
-                  <div
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2 font-display text-base font-black tracking-wider transition ${
-                      secondsLeft <= 60
-                        ? "bg-red-600 text-white animate-pulse"
-                        : secondsLeft <= 300
-                          ? "bg-amber-500 text-slate-950 font-extrabold"
-                          : "bg-slate-800 text-amber-400 border border-slate-700"
-                    }`}
-                  >
-                    <Clock className="size-4" />
-                    <span>{formatTimer(secondsLeft)}</span>
-                  </div>
-
-                  <Button
-                    variant="danger"
-                    onClick={() => setShowConfirmSubmitModal(true)}
-                    className="!px-4 !py-2 !text-xs font-bold"
-                  >
-                    Selesaikan Sesi
-                  </Button>
-                </div>
-              </div>
-
-              {/* MAIN QUESTION WORKSPACE & 50-MATRIX */}
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-                {/* QUESTION AREA */}
-                <Card className="p-6 border-slate-200 flex flex-col justify-between min-h-[28rem]">
-                  <div>
-                    {/* QUESTION HEADER */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-lg bg-slate-900 px-3 py-1 text-xs font-extrabold text-white">
-                          Soal Nomor {currentExamIdx + 1}
-                        </span>
-                        <Badge tone="neutral" className="text-xs">
-                          {currentExamQuestion.category}
-                        </Badge>
-                      </div>
-
-                      {/* RAGU-RAGU CHECKBOX */}
-                      <label className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50/80 px-3 py-1.5 text-xs font-bold text-amber-900 cursor-pointer select-none hover:bg-amber-100 transition">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(currentFlaggedMap[currentExamQuestion.id])}
-                          onChange={(e) => {
-                            const val = e.target.checked
-                            if (sessionPhase === "pip") {
-                              setPipFlagged((prev) => ({
-                                ...prev,
-                                [currentExamQuestion.id]: val,
-                              }))
-                            } else {
-                              setTiuFlagged((prev) => ({
-                                ...prev,
-                                [currentExamQuestion.id]: val,
-                              }))
-                            }
-                          }}
-                          className="size-4 accent-amber-600 rounded cursor-pointer"
-                        />
-                        <Flag className="size-3.5 text-amber-600" />
-                        <span>Ragu-ragu</span>
-                      </label>
-                    </div>
-
-                    {/* QUESTION TEXT */}
-                    <div className="mt-5 text-sm sm:text-base font-semibold text-slate-900 leading-relaxed whitespace-pre-line">
-                      {currentExamQuestion.question}
-                    </div>
-
-                    {/* 5 MULTIPLE CHOICE OPTIONS (A-E) */}
-                    <div className="mt-6 grid gap-2.5">
-                      {currentExamQuestion.options.map((optText, optIdx) => {
-                        const isSelected = currentAnswersMap[currentExamQuestion.id] === optIdx
-                        const letter = ["A", "B", "C", "D", "E"][optIdx]
-
-                        return (
-                          <button
-                            key={optIdx}
-                            type="button"
-                            onClick={() =>
-                              handleSelectOption(
-                                currentExamQuestion.id,
-                                optIdx,
-                                sessionPhase === "pip" ? "pip" : "tiu",
-                              )
-                            }
-                            className={`group flex items-start gap-3.5 rounded-xl border p-3.5 text-left text-xs sm:text-sm transition ${
-                              isSelected
-                                ? "border-red-500 bg-red-50/90 text-red-950 font-bold ring-2 ring-red-200 shadow-2xs"
-                                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/70 text-slate-800"
-                            }`}
-                          >
-                            <span
-                              className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-black transition ${
-                                isSelected
-                                  ? "bg-red-600 text-white"
-                                  : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
-                              }`}
-                            >
-                              {letter}
-                            </span>
-                            <span className="pt-0.5 leading-relaxed">{optText}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* BOTTOM ACTION BUTTONS */}
-                  <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
-                    <Button
-                      variant="secondary"
-                      disabled={currentExamIdx === 0}
-                      onClick={() => {
-                        if (sessionPhase === "pip") {
-                          setPipCurrentIdx((i) => Math.max(0, i - 1))
-                        } else {
-                          setTiuCurrentIdx((i) => Math.max(0, i - 1))
-                        }
-                      }}
-                      className="!text-xs"
+          {(sessionPhase === "pip" || sessionPhase === "tiu") &&
+            currentExamQuestion && (
+              <div className="grid gap-6">
+                {/* EXAM TOP BAR (PRD Section 6.2) */}
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-900 p-4 text-white shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      tone={sessionPhase === "pip" ? "danger" : "info"}
+                      className="text-xs font-black"
                     >
-                      <ArrowLeft className="size-3.5" /> Soal Sebelumnya
-                    </Button>
+                      {sessionPhase === "pip"
+                        ? "SESI 1: CAT PIP"
+                        : "SESI 2: CAT TIU"}
+                    </Badge>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">
+                        {selectedCandidate?.name ?? "Peserta"}{" "}
+                        <span className="text-slate-400 font-normal">
+                          ({selectedCandidate?.number ?? "—"})
+                        </span>
+                      </h3>
+                      <p className="text-2xs text-slate-400">
+                        {packageConfig.packageName} ·{" "}
+                        {sessionPhase === "pip"
+                          ? "Pancasila & TWK"
+                          : "Intelegensia Umum"}
+                      </p>
+                    </div>
+                  </div>
 
-                    <div className="flex items-center gap-2">
-                      {currentExamIdx < totalCount - 1 ? (
-                        <Button
-                          onClick={() => {
-                            if (sessionPhase === "pip") {
-                              setPipCurrentIdx((i) => Math.min(totalCount - 1, i + 1))
-                            } else {
-                              setTiuCurrentIdx((i) => Math.min(totalCount - 1, i + 1))
-                            }
-                          }}
-                          className="!text-xs bg-slate-900 text-white hover:bg-slate-800"
-                        >
-                          Soal Berikutnya <ArrowRight className="size-3.5" />
-                        </Button>
+                  <div className="flex items-center gap-3">
+                    {/* AUTOSAVE PILL */}
+                    <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-300 border border-slate-700">
+                      {isSavingAnswer ? (
+                        <>
+                          <RefreshCw className="size-3.5 animate-spin text-amber-400" />
+                          <span className="text-amber-300">Menyimpan...</span>
+                        </>
                       ) : (
-                        <Button
-                          variant="danger"
-                          onClick={() => setShowConfirmSubmitModal(true)}
-                          className="!text-xs !font-bold"
-                        >
-                          Selesaikan &amp; Kumpulkan
-                        </Button>
+                        <>
+                          <Check className="size-3.5 text-emerald-400" />
+                          <span className="text-emerald-300">Tersimpan</span>
+                        </>
                       )}
                     </div>
-                  </div>
-                </Card>
 
-                {/* 50-GRID QUESTION NAVIGATOR MATRIX (PRD Section 6.2) */}
-                <Card className="p-4 border-slate-200 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                        Matriks 50 Soal
-                      </h4>
-                      <Badge tone="info" className="text-[0.68rem] font-bold">
-                        {answeredCount} / {totalCount} Dijawab
-                      </Badge>
+                    {/* TIMER COUNTDOWN (Alert: <= 5m Yellow, <= 1m Red Pulsing) */}
+                    <div
+                      className={`flex items-center gap-2 rounded-xl px-4 py-2 font-display text-base font-black tracking-wider transition ${
+                        secondsLeft <= 60
+                          ? "bg-red-600 text-white animate-pulse"
+                          : secondsLeft <= 300
+                            ? "bg-amber-500 text-slate-950 font-extrabold"
+                            : "bg-slate-800 text-amber-400 border border-slate-700"
+                      }`}
+                    >
+                      <Clock className="size-4" />
+                      <span>{formatTimer(secondsLeft)}</span>
                     </div>
 
-                    {/* 50 NUMBER GRID */}
-                    <div className="mt-3 grid grid-cols-5 gap-1.5 max-h-[22rem] overflow-y-auto pr-1">
-                      {currentExamQuestionsList.map((q, idx) => {
-                        const isAnswered = currentAnswersMap[q.id] !== undefined
-                        const isFlagged = Boolean(currentFlaggedMap[q.id])
-                        const isCurrent = idx === currentExamIdx
-
-                        return (
-                          <button
-                            key={q.id}
-                            type="button"
-                            onClick={() => {
-                              if (sessionPhase === "pip") setPipCurrentIdx(idx)
-                              else setTiuCurrentIdx(idx)
-                            }}
-                            className={`grid h-8 place-items-center rounded-lg text-xs font-bold transition ${
-                              isCurrent
-                                ? "bg-slate-950 text-white ring-2 ring-slate-900 ring-offset-1"
-                                : isFlagged
-                                  ? "bg-amber-300 text-amber-950 font-black border border-amber-400"
-                                  : isAnswered
-                                    ? "bg-emerald-600 text-white"
-                                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                            }`}
-                          >
-                            {idx + 1}
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    {/* LEGEND INDICATOR */}
-                    <div className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-[0.68rem] text-slate-600">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="size-3 rounded-md bg-emerald-600" />
-                          <span>Sudah Dijawab</span>
-                        </div>
-                        <span className="font-bold text-slate-800">{answeredCount}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="size-3 rounded-md bg-amber-300 border border-amber-400" />
-                          <span>Ragu-ragu</span>
-                        </div>
-                        <span className="font-bold text-slate-800">{flaggedCount}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="size-3 rounded-md bg-slate-100 border border-slate-200" />
-                          <span>Belum Dijawab</span>
-                        </div>
-                        <span className="font-bold text-slate-800">{unansweredCount}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 border-t border-slate-100 pt-3">
                     <Button
                       variant="danger"
                       onClick={() => setShowConfirmSubmitModal(true)}
-                      className="w-full !text-xs font-bold"
+                      className="!px-4 !py-2 !text-xs font-bold"
                     >
-                      Selesaikan {sessionPhase === "pip" ? "Sesi PIP" : "Sesi TIU"}
+                      Selesaikan Sesi
                     </Button>
                   </div>
-                </Card>
+                </div>
+
+                {/* MAIN QUESTION WORKSPACE & 50-MATRIX */}
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+                  {/* QUESTION AREA */}
+                  <Card className="p-6 border-slate-200 flex flex-col justify-between min-h-[28rem]">
+                    <div>
+                      {/* QUESTION HEADER */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-lg bg-slate-900 px-3 py-1 text-xs font-extrabold text-white">
+                            Soal Nomor {currentExamIdx + 1}
+                          </span>
+                          <Badge tone="neutral" className="text-xs">
+                            {currentExamQuestion.category}
+                          </Badge>
+                        </div>
+
+                        {/* RAGU-RAGU CHECKBOX */}
+                        <label className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50/80 px-3 py-1.5 text-xs font-bold text-amber-900 cursor-pointer select-none hover:bg-amber-100 transition">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(
+                              currentFlaggedMap[currentExamQuestion.id],
+                            )}
+                            onChange={(e) => {
+                              const val = e.target.checked
+                              if (sessionPhase === "pip") {
+                                setPipFlagged((prev) => ({
+                                  ...prev,
+                                  [currentExamQuestion.id]: val,
+                                }))
+                              } else {
+                                setTiuFlagged((prev) => ({
+                                  ...prev,
+                                  [currentExamQuestion.id]: val,
+                                }))
+                              }
+                            }}
+                            className="size-4 accent-amber-600 rounded cursor-pointer"
+                          />
+                          <Flag className="size-3.5 text-amber-600" />
+                          <span>Ragu-ragu</span>
+                        </label>
+                      </div>
+
+                      {/* QUESTION TEXT */}
+                      <div className="mt-5 text-sm sm:text-base font-semibold text-slate-900 leading-relaxed whitespace-pre-line">
+                        {currentExamQuestion.question}
+                      </div>
+
+                      {/* 5 MULTIPLE CHOICE OPTIONS (A-E) */}
+                      <div className="mt-6 grid gap-2.5">
+                        {currentExamQuestion.options.map((optText, optIdx) => {
+                          const isSelected =
+                            currentAnswersMap[currentExamQuestion.id] === optIdx
+                          const letter = ["A", "B", "C", "D", "E"][optIdx]
+
+                          return (
+                            <button
+                              key={optIdx}
+                              type="button"
+                              onClick={() =>
+                                handleSelectOption(
+                                  currentExamQuestion.id,
+                                  optIdx,
+                                  sessionPhase === "pip" ? "pip" : "tiu",
+                                )
+                              }
+                              className={`group flex items-start gap-3.5 rounded-xl border p-3.5 text-left text-xs sm:text-sm transition ${
+                                isSelected
+                                  ? "border-red-500 bg-red-50/90 text-red-950 font-bold ring-2 ring-red-200 shadow-2xs"
+                                  : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/70 text-slate-800"
+                              }`}
+                            >
+                              <span
+                                className={`grid size-7 shrink-0 place-items-center rounded-lg text-xs font-black transition ${
+                                  isSelected
+                                    ? "bg-red-600 text-white"
+                                    : "bg-slate-100 text-slate-600 group-hover:bg-slate-200"
+                                }`}
+                              >
+                                {letter}
+                              </span>
+                              <span className="pt-0.5 leading-relaxed">
+                                {optText}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* BOTTOM ACTION BUTTONS */}
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                      <Button
+                        variant="secondary"
+                        disabled={currentExamIdx === 0}
+                        onClick={() => {
+                          if (sessionPhase === "pip") {
+                            setPipCurrentIdx((i) => Math.max(0, i - 1))
+                          } else {
+                            setTiuCurrentIdx((i) => Math.max(0, i - 1))
+                          }
+                        }}
+                        className="!text-xs"
+                      >
+                        <ArrowLeft className="size-3.5" /> Soal Sebelumnya
+                      </Button>
+
+                      <div className="flex items-center gap-2">
+                        {currentExamIdx < totalCount - 1 ? (
+                          <Button
+                            onClick={() => {
+                              if (sessionPhase === "pip") {
+                                setPipCurrentIdx((i) =>
+                                  Math.min(totalCount - 1, i + 1),
+                                )
+                              } else {
+                                setTiuCurrentIdx((i) =>
+                                  Math.min(totalCount - 1, i + 1),
+                                )
+                              }
+                            }}
+                            className="!text-xs bg-slate-900 text-white hover:bg-slate-800"
+                          >
+                            Soal Berikutnya <ArrowRight className="size-3.5" />
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="danger"
+                            onClick={() => setShowConfirmSubmitModal(true)}
+                            className="!text-xs !font-bold"
+                          >
+                            Selesaikan &amp; Kumpulkan
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* 50-GRID QUESTION NAVIGATOR MATRIX (PRD Section 6.2) */}
+                  <Card className="p-4 border-slate-200 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                          Matriks 50 Soal
+                        </h4>
+                        <Badge tone="info" className="text-2xs font-bold">
+                          {answeredCount} / {totalCount} Dijawab
+                        </Badge>
+                      </div>
+
+                      {/* 50 NUMBER GRID */}
+                      <div className="mt-3 grid grid-cols-5 gap-1.5 max-h-[22rem] overflow-y-auto pr-1">
+                        {currentExamQuestionsList.map((q, idx) => {
+                          const isAnswered =
+                            currentAnswersMap[q.id] !== undefined
+                          const isFlagged = Boolean(currentFlaggedMap[q.id])
+                          const isCurrent = idx === currentExamIdx
+
+                          return (
+                            <button
+                              key={q.id}
+                              type="button"
+                              onClick={() => {
+                                if (sessionPhase === "pip")
+                                  setPipCurrentIdx(idx)
+                                else setTiuCurrentIdx(idx)
+                              }}
+                              className={`grid h-8 place-items-center rounded-lg text-xs font-bold transition ${
+                                isCurrent
+                                  ? "bg-slate-950 text-white ring-2 ring-slate-900 ring-offset-1"
+                                  : isFlagged
+                                    ? "bg-amber-300 text-amber-950 font-black border border-amber-400"
+                                    : isAnswered
+                                      ? "bg-emerald-600 text-white"
+                                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                              }`}
+                            >
+                              {idx + 1}
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {/* LEGEND INDICATOR */}
+                      <div className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-2xs text-slate-600">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="size-3 rounded-md bg-emerald-600" />
+                            <span>Sudah Dijawab</span>
+                          </div>
+                          <span className="font-bold text-slate-800">
+                            {answeredCount}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="size-3 rounded-md bg-amber-300 border border-amber-400" />
+                            <span>Ragu-ragu</span>
+                          </div>
+                          <span className="font-bold text-slate-800">
+                            {flaggedCount}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="size-3 rounded-md bg-slate-100 border border-slate-200" />
+                            <span>Belum Dijawab</span>
+                          </div>
+                          <span className="font-bold text-slate-800">
+                            {unansweredCount}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 border-t border-slate-100 pt-3">
+                      <Button
+                        variant="danger"
+                        onClick={() => setShowConfirmSubmitModal(true)}
+                        className="w-full !text-xs font-bold"
+                      >
+                        Selesaikan{" "}
+                        {sessionPhase === "pip" ? "Sesi PIP" : "Sesi TIU"}
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* -------------------- 3. INTER-SESSION GATE: PIP FINALIZED -------------------- */}
           {sessionPhase === "pip-final" && (
@@ -1608,28 +1947,37 @@ export default function CatBankView() {
                       Hasil Sesi 1: CAT PIP Selesai
                     </h2>
                     <p className="mt-1 text-xs sm:text-sm text-slate-300">
-                      Peserta: <strong>{selectedCandidate?.name ?? "Peserta"}</strong> ({selectedCandidate?.school ?? "—"})
+                      Peserta:{" "}
+                      <strong>{selectedCandidate?.name ?? "Peserta"}</strong> (
+                      {selectedCandidate?.school ?? "—"})
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center sm:text-right">
-                    <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                    <p className="text-2xs font-bold uppercase tracking-wider text-slate-400">
                       Skor Akhir PIP
                     </p>
                     <p className="font-display text-4xl sm:text-5xl font-black text-amber-400">
                       {currentPipResults.score}
-                      <span className="text-base font-normal text-slate-400"> / 100</span>
+                      <span className="text-base font-normal text-slate-400">
+                        {" "}
+                        / 100
+                      </span>
                     </p>
                     <p className="text-xs text-slate-300 mt-1">
-                      {currentPipResults.correct} dari 50 soal benar (&times;2 poin)
+                      {currentPipResults.correct} dari 50 soal benar (&times;2
+                      poin)
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-6 rounded-xl bg-white/10 p-4 text-xs text-slate-200 leading-relaxed border border-white/10">
-                  <strong className="text-white">Ketentuan PRD Antar-Sesi:</strong> Sesi 1 (PIP)
-                  telah resmi difinalisasi. Nilai PIP tersimpan permanen dan sekarang Sesi 2 (TIU)
-                  telah terbuka. Anda dapat langsung melanjutkan pengerjaan 50 soal TIU (30 menit).
+                  <strong className="text-white">
+                    Ketentuan PRD Antar-Sesi:
+                  </strong>{" "}
+                  Sesi 1 (PIP) telah resmi difinalisasi. Nilai PIP tersimpan
+                  permanen dan sekarang Sesi 2 (TIU) telah terbuka. Anda dapat
+                  langsung melanjutkan pengerjaan 50 soal TIU (30 menit).
                 </div>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -1637,7 +1985,8 @@ export default function CatBankView() {
                     onClick={startTiuSession}
                     className="!px-6 !py-3 !text-sm font-bold bg-purple-600 hover:bg-purple-700 shadow-md"
                   >
-                    <Play className="size-4" /> Lanjut ke Sesi 2: CAT TIU (30 Menit)
+                    <Play className="size-4" /> Lanjut ke Sesi 2: CAT TIU (30
+                    Menit)
                   </Button>
 
                   <Button
@@ -1671,9 +2020,12 @@ export default function CatBankView() {
                           {isCorrect ? "Benar (+2)" : "Salah / Kosong (0)"}
                         </Badge>
                       </div>
-                      <p className="mt-1 text-slate-700 font-medium">{q.question}</p>
-                      <p className="mt-1 text-[0.68rem] text-slate-500">
-                        Kunci: {["A", "B", "C", "D", "E"][q.correctIndex]}. {q.options[q.correctIndex]}
+                      <p className="mt-1 text-slate-700 font-medium">
+                        {q.question}
+                      </p>
+                      <p className="mt-1 text-2xs text-slate-500">
+                        Kunci: {["A", "B", "C", "D", "E"][q.correctIndex]}.{" "}
+                        {q.options[q.correctIndex]}
                       </p>
                     </div>
                   )
@@ -1713,17 +2065,22 @@ export default function CatBankView() {
                         Laporan Evaluasi Lengkap CAT BPIP
                       </h2>
                       <p className="mt-1 text-xs sm:text-sm text-slate-300">
-                        Santri / Peserta: <strong>{selectedCandidate?.name ?? "Peserta"}</strong> ({selectedCandidate?.school ?? "—"})
+                        Santri / Peserta:{" "}
+                        <strong>{selectedCandidate?.name ?? "Peserta"}</strong>{" "}
+                        ({selectedCandidate?.school ?? "—"})
                       </p>
                     </div>
 
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center sm:text-right">
-                      <p className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+                      <p className="text-2xs font-bold uppercase tracking-wider text-slate-400">
                         Nilai Gabungan Skala 100
                       </p>
                       <p className="font-display text-4xl sm:text-5xl font-black text-amber-400">
                         {combinedTryoutScore}
-                        <span className="text-base font-normal text-slate-400"> / 100</span>
+                        <span className="text-base font-normal text-slate-400">
+                          {" "}
+                          / 100
+                        </span>
                       </p>
                       <p className="text-xs text-slate-300 mt-1">
                         Rata-rata terbobot PIP &amp; TIU
@@ -1739,21 +2096,27 @@ export default function CatBankView() {
                         <span className="text-xs font-bold text-slate-300">
                           Sesi 1: Pancasila &amp; Wawasan (PIP)
                         </span>
-                        <Badge tone={currentPipResults.passed ? "success" : "danger"}>
+                        <Badge
+                          tone={currentPipResults.passed ? "success" : "danger"}
+                        >
                           {currentPipResults.passed ? "Lolos PG" : "Remedial"}
                         </Badge>
                       </div>
                       <div className="mt-2 flex items-baseline justify-between">
                         <span className="font-display text-3xl font-black text-white">
                           {currentPipResults.score}
-                          <span className="text-xs font-normal text-slate-400"> / 100</span>
+                          <span className="text-xs font-normal text-slate-400">
+                            {" "}
+                            / 100
+                          </span>
                         </span>
                         <span className="text-xs text-slate-300">
                           {currentPipResults.correct} / 50 Soal Benar (&times;2)
                         </span>
                       </div>
-                      <p className="mt-2 text-[0.68rem] text-slate-400 border-t border-white/10 pt-2">
-                        Passing Grade: &ge; {packageConfig.pipPassingGrade} · Materi: Sejarah, Sila, UUD, NKRI
+                      <p className="mt-2 text-2xs text-slate-400 border-t border-white/10 pt-2">
+                        Passing Grade: &ge; {packageConfig.pipPassingGrade} ·
+                        Materi: Sejarah, Sila, UUD, NKRI
                       </p>
                     </div>
 
@@ -1763,21 +2126,27 @@ export default function CatBankView() {
                         <span className="text-xs font-bold text-slate-300">
                           Sesi 2: Intelegensia Umum (TIU)
                         </span>
-                        <Badge tone={currentTiuResults.passed ? "success" : "danger"}>
+                        <Badge
+                          tone={currentTiuResults.passed ? "success" : "danger"}
+                        >
                           {currentTiuResults.passed ? "Lolos PG" : "Remedial"}
                         </Badge>
                       </div>
                       <div className="mt-2 flex items-baseline justify-between">
                         <span className="font-display text-3xl font-black text-white">
                           {currentTiuResults.scaled}
-                          <span className="text-xs font-normal text-slate-400"> / 100</span>
+                          <span className="text-xs font-normal text-slate-400">
+                            {" "}
+                            / 100
+                          </span>
                         </span>
                         <span className="text-xs text-slate-300">
                           Skor Mentah: {currentTiuResults.raw} / 50 (&times;2)
                         </span>
                       </div>
-                      <p className="mt-2 text-[0.68rem] text-slate-400 border-t border-white/10 pt-2">
-                        Passing Grade: &ge; {packageConfig.tiuPassingGrade} · Materi: Verbal, Numerik, Logika
+                      <p className="mt-2 text-2xs text-slate-400 border-t border-white/10 pt-2">
+                        Passing Grade: &ge; {packageConfig.tiuPassingGrade} ·
+                        Materi: Verbal, Numerik, Logika
                       </p>
                     </div>
                   </div>
@@ -1787,14 +2156,18 @@ export default function CatBankView() {
                     {isCoachSelfTest ? (
                       <div className="inline-flex items-center gap-2 rounded-xl bg-amber-500/20 border border-amber-400/30 px-4 py-2.5 text-xs text-amber-200 font-semibold">
                         <ShieldCheck className="size-4 text-amber-400 shrink-0" />
-                        <span>Mode Uji Coba Mandiri Pelatih — Hasil tersimpan di riwayat tanpa mengubah profil santri.</span>
+                        <span>
+                          Mode Uji Coba Mandiri Pelatih — Hasil tersimpan di
+                          riwayat tanpa mengubah profil santri.
+                        </span>
                       </div>
                     ) : (
                       <Button
                         onClick={handleSyncToCandidateProfile}
                         className="!px-5 !py-2.5 font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700"
                       >
-                        <Save className="size-4" /> Sinkronkan Nilai ke Profil Siswa
+                        <Save className="size-4" /> Sinkronkan Nilai ke Profil
+                        Siswa
                       </Button>
                     )}
 
@@ -1816,7 +2189,8 @@ export default function CatBankView() {
                         Tinjauan Pembahasan &amp; Kunci Jawaban Lengkap
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Pelajari butir soal dan rasionalisasi pembahasan untuk evaluasi pembinaan.
+                        Pelajari butir soal dan rasionalisasi pembahasan untuk
+                        evaluasi pembinaan.
                       </p>
                     </div>
 
@@ -1848,9 +2222,14 @@ export default function CatBankView() {
 
                   {/* QUESTIONS LIST ACCORDING TO ACTIVE REVIEW TAB */}
                   <div className="mt-4 divide-y divide-slate-100 max-h-[32rem] overflow-y-auto pr-2">
-                    {(reviewTab === "pip" ? pipExamQuestions : tiuExamQuestions).map((q, idx) => {
+                    {(reviewTab === "pip"
+                      ? pipExamQuestions
+                      : tiuExamQuestions
+                    ).map((q, idx) => {
                       const userAns =
-                        reviewTab === "pip" ? pipAnswers[q.id] : tiuAnswers[q.id]
+                        reviewTab === "pip"
+                          ? pipAnswers[q.id]
+                          : tiuAnswers[q.id]
                       const isCorrect = userAns === q.correctIndex
 
                       return (
@@ -1887,7 +2266,9 @@ export default function CatBankView() {
                           </div>
 
                           <div className="mt-2.5 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700">
-                            <strong className="text-slate-900">Pembahasan:</strong>{" "}
+                            <strong className="text-slate-900">
+                              Pembahasan:
+                            </strong>{" "}
                             {q.explanation}
                           </div>
                         </div>
@@ -1909,37 +2290,37 @@ export default function CatBankView() {
           {/* OVERVIEW CARDS: 1 BARIS (3 KOLOM) RINGKAS & SEDERHANA */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
             <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
-              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-3xs sm:text-xs font-bold uppercase tracking-wider text-slate-400">
                 Total Soal
               </span>
               <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
                 {pipActiveCount}
               </p>
-              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+              <p className="mt-0.5 text-3xs sm:text-xs text-slate-500 font-medium">
                 50 per paket
               </p>
             </Card>
 
             <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
-              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-3xs sm:text-xs font-bold uppercase tracking-wider text-slate-400">
                 Passing Grade
               </span>
               <p className="mt-1 font-display text-lg sm:text-2xl font-black text-emerald-600">
                 &ge; 70
               </p>
-              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+              <p className="mt-0.5 text-3xs sm:text-xs text-slate-500 font-medium">
                 Min. 35 benar
               </p>
             </Card>
 
             <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
-              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-3xs sm:text-xs font-bold uppercase tracking-wider text-slate-400">
                 Durasi Ujian
               </span>
               <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
                 45 Menit
               </p>
-              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+              <p className="mt-0.5 text-3xs sm:text-xs text-slate-500 font-medium">
                 Timer otomatis
               </p>
             </Card>
@@ -1949,7 +2330,7 @@ export default function CatBankView() {
           <Card className="p-3 sm:p-4 border-slate-200/90 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-2.5 px-0.5">
               <Filter className="size-3.5 text-slate-400" />
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-2xs font-bold uppercase tracking-wider text-slate-400">
                 Filter Domain Materi PIP
               </span>
             </div>
@@ -1964,9 +2345,13 @@ export default function CatBankView() {
                 }`}
               >
                 <span>Semua Domain</span>
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                  categoryFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
-                }`}>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-3xs font-bold ${
+                    categoryFilter === "all"
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-200/80 text-slate-600"
+                  }`}
+                >
                   {questions.filter((q) => q.type === "pip").length}
                 </span>
               </button>
@@ -1988,9 +2373,13 @@ export default function CatBankView() {
                     }`}
                   >
                     <span>{cat}</span>
-                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                      isActive ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
-                    }`}>
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-3xs font-bold ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "bg-slate-200/80 text-slate-600"
+                      }`}
+                    >
                       {count}
                     </span>
                   </button>
@@ -2036,14 +2425,19 @@ export default function CatBankView() {
                 </div>
               ) : (
                 pipPagedList.map((q, idx) => (
-                  <div key={q.id} className="p-5 hover:bg-slate-50/60 transition">
+                  <div
+                    key={q.id}
+                    className="p-5 hover:bg-slate-50/60 transition"
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="rounded-md bg-slate-900 px-2 py-0.5 text-[0.68rem] font-bold text-white">
+                        <span className="rounded-md bg-slate-900 px-2 py-0.5 text-2xs font-bold text-white">
                           #{(bankPage - 1) * bankPageSize + idx + 1}
                         </span>
                         <Badge tone="info">{q.category}</Badge>
-                        <Badge tone={q.status === "active" ? "success" : "neutral"}>
+                        <Badge
+                          tone={q.status === "active" ? "success" : "neutral"}
+                        >
                           {q.status === "active" ? "Aktif" : "Draft"}
                         </Badge>
                       </div>
@@ -2059,7 +2453,9 @@ export default function CatBankView() {
                         <Button
                           variant="secondary"
                           onClick={() => {
-                            if (confirm("Hapus butir soal ini dari bank soal?")) {
+                            if (
+                              confirm("Hapus butir soal ini dari bank soal?")
+                            ) {
                               deleteQuestion(q.id)
                               showToast("Soal berhasil dihapus.", "info")
                             }
@@ -2094,8 +2490,9 @@ export default function CatBankView() {
                     </div>
 
                     {q.explanation && (
-                      <p className="mt-2.5 rounded-lg bg-slate-50/80 p-2 text-[0.68rem] text-slate-600 leading-relaxed">
-                        <strong className="text-slate-800">Pembahasan:</strong> {q.explanation}
+                      <p className="mt-2.5 rounded-lg bg-slate-50/80 p-2 text-2xs text-slate-600 leading-relaxed">
+                        <strong className="text-slate-800">Pembahasan:</strong>{" "}
+                        {q.explanation}
                       </p>
                     )}
                   </div>
@@ -2106,7 +2503,9 @@ export default function CatBankView() {
             {pipTotalPages > 1 && (
               <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-xs text-slate-600">
                 <span>
-                  Halaman <strong>{bankPage}</strong> dari <strong>{pipTotalPages}</strong> ({pipQuestionsList.length} butir soal)
+                  Halaman <strong>{bankPage}</strong> dari{" "}
+                  <strong>{pipTotalPages}</strong> ({pipQuestionsList.length}{" "}
+                  butir soal)
                 </span>
                 <div className="flex items-center gap-2">
                   <Button
@@ -2120,7 +2519,9 @@ export default function CatBankView() {
                   <Button
                     variant="secondary"
                     disabled={bankPage >= pipTotalPages}
-                    onClick={() => setBankPage((p) => Math.min(pipTotalPages, p + 1))}
+                    onClick={() =>
+                      setBankPage((p) => Math.min(pipTotalPages, p + 1))
+                    }
                     className="!px-3 !py-1 !text-xs"
                   >
                     Berikutnya <ArrowRight className="size-3.5" />
@@ -2140,37 +2541,37 @@ export default function CatBankView() {
           {/* OVERVIEW CARDS: 1 BARIS (3 KOLOM) RINGKAS & SEDERHANA */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
             <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
-              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-3xs sm:text-xs font-bold uppercase tracking-wider text-slate-400">
                 Total Soal
               </span>
               <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
                 {tiuActiveCount}
               </p>
-              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+              <p className="mt-0.5 text-3xs sm:text-xs text-slate-500 font-medium">
                 50 per paket
               </p>
             </Card>
 
             <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
-              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-3xs sm:text-xs font-bold uppercase tracking-wider text-slate-400">
                 Passing Grade
               </span>
               <p className="mt-1 font-display text-lg sm:text-2xl font-black text-emerald-600">
                 &ge; 70
               </p>
-              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+              <p className="mt-0.5 text-3xs sm:text-xs text-slate-500 font-medium">
                 Min. 35 benar
               </p>
             </Card>
 
             <Card className="p-3 sm:p-4 text-center border-slate-200/90 shadow-2xs">
-              <span className="text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-3xs sm:text-xs font-bold uppercase tracking-wider text-slate-400">
                 Durasi Ujian
               </span>
               <p className="mt-1 font-display text-lg sm:text-2xl font-black text-slate-950">
                 30 Menit
               </p>
-              <p className="mt-0.5 text-[0.65rem] sm:text-xs text-slate-500 font-medium">
+              <p className="mt-0.5 text-3xs sm:text-xs text-slate-500 font-medium">
                 Timer otomatis
               </p>
             </Card>
@@ -2180,7 +2581,7 @@ export default function CatBankView() {
           <Card className="p-3 sm:p-4 border-slate-200/90 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-2.5 px-0.5">
               <Filter className="size-3.5 text-slate-400" />
-              <span className="text-[0.68rem] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-2xs font-bold uppercase tracking-wider text-slate-400">
                 Filter Submateri Soal TIU
               </span>
             </div>
@@ -2195,9 +2596,13 @@ export default function CatBankView() {
                 }`}
               >
                 <span>Semua Submateri</span>
-                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                  categoryFilter === "all" ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
-                }`}>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-3xs font-bold ${
+                    categoryFilter === "all"
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-200/80 text-slate-600"
+                  }`}
+                >
                   {questions.filter((q) => q.type === "tiu").length}
                 </span>
               </button>
@@ -2219,9 +2624,13 @@ export default function CatBankView() {
                     }`}
                   >
                     <span>{cat}</span>
-                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                      isActive ? "bg-white/20 text-white" : "bg-slate-200/80 text-slate-600"
-                    }`}>
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-3xs font-bold ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "bg-slate-200/80 text-slate-600"
+                      }`}
+                    >
                       {count}
                     </span>
                   </button>
@@ -2267,14 +2676,19 @@ export default function CatBankView() {
                 </div>
               ) : (
                 tiuPagedList.map((q, idx) => (
-                  <div key={q.id} className="p-5 hover:bg-slate-50/60 transition">
+                  <div
+                    key={q.id}
+                    className="p-5 hover:bg-slate-50/60 transition"
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="rounded-md bg-purple-900 px-2 py-0.5 text-[0.68rem] font-bold text-white">
+                        <span className="rounded-md bg-purple-900 px-2 py-0.5 text-2xs font-bold text-white">
                           #{(bankPage - 1) * bankPageSize + idx + 1}
                         </span>
                         <Badge tone="warning">{q.category}</Badge>
-                        <Badge tone={q.status === "active" ? "success" : "neutral"}>
+                        <Badge
+                          tone={q.status === "active" ? "success" : "neutral"}
+                        >
                           {q.status === "active" ? "Aktif" : "Draft"}
                         </Badge>
                       </div>
@@ -2290,7 +2704,9 @@ export default function CatBankView() {
                         <Button
                           variant="secondary"
                           onClick={() => {
-                            if (confirm("Hapus butir soal ini dari bank soal?")) {
+                            if (
+                              confirm("Hapus butir soal ini dari bank soal?")
+                            ) {
                               deleteQuestion(q.id)
                               showToast("Soal berhasil dihapus.", "info")
                             }
@@ -2325,8 +2741,9 @@ export default function CatBankView() {
                     </div>
 
                     {q.explanation && (
-                      <p className="mt-2.5 rounded-lg bg-slate-50/80 p-2 text-[0.68rem] text-slate-600 leading-relaxed">
-                        <strong className="text-slate-800">Pembahasan:</strong> {q.explanation}
+                      <p className="mt-2.5 rounded-lg bg-slate-50/80 p-2 text-2xs text-slate-600 leading-relaxed">
+                        <strong className="text-slate-800">Pembahasan:</strong>{" "}
+                        {q.explanation}
                       </p>
                     )}
                   </div>
@@ -2337,7 +2754,9 @@ export default function CatBankView() {
             {tiuTotalPages > 1 && (
               <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-xs text-slate-600">
                 <span>
-                  Halaman <strong>{bankPage}</strong> dari <strong>{tiuTotalPages}</strong> ({tiuQuestionsList.length} butir soal)
+                  Halaman <strong>{bankPage}</strong> dari{" "}
+                  <strong>{tiuTotalPages}</strong> ({tiuQuestionsList.length}{" "}
+                  butir soal)
                 </span>
                 <div className="flex items-center gap-2">
                   <Button
@@ -2351,7 +2770,9 @@ export default function CatBankView() {
                   <Button
                     variant="secondary"
                     disabled={bankPage >= tiuTotalPages}
-                    onClick={() => setBankPage((p) => Math.min(tiuTotalPages, p + 1))}
+                    onClick={() =>
+                      setBankPage((p) => Math.min(tiuTotalPages, p + 1))
+                    }
                     className="!px-3 !py-1 !text-xs"
                   >
                     Berikutnya <ArrowRight className="size-3.5" />
@@ -2384,7 +2805,10 @@ export default function CatBankView() {
 
             {currentUser.role !== "candidate" && (
               <div className="flex items-center gap-2">
-                <Button onClick={handleExportCsv} className="!px-3.5 !py-2 !text-xs font-bold">
+                <Button
+                  onClick={handleExportCsv}
+                  className="!px-3.5 !py-2 !text-xs font-bold"
+                >
                   <FileSpreadsheet className="size-4" /> Unduh Format PRD (CSV)
                 </Button>
               </div>
@@ -2393,7 +2817,7 @@ export default function CatBankView() {
 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[56rem] text-left text-xs">
-              <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+              <thead className="bg-slate-50 text-2xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-5 py-3.5">Santri / Peserta</th>
                   <th className="px-4 py-3.5">Asal Sekolah</th>
@@ -2421,7 +2845,10 @@ export default function CatBankView() {
                       : null
 
                   return (
-                    <tr key={cand.id} className="hover:bg-slate-50/70 transition">
+                    <tr
+                      key={cand.id}
+                      className="hover:bg-slate-50/70 transition"
+                    >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <CandidateAvatar
@@ -2431,27 +2858,56 @@ export default function CatBankView() {
                             className="size-8 text-xs shrink-0"
                           />
                           <div>
-                            <p className="font-bold text-slate-900">{cand.name}</p>
-                            <p className="text-[0.68rem] text-slate-400">{cand.number}</p>
+                            <p className="font-bold text-slate-900">
+                              {cand.name}
+                            </p>
+                            <p className="text-2xs text-slate-400">
+                              {cand.number}
+                            </p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 text-slate-600 font-medium">{cand.school}</td>
+                      <td className="px-4 py-3.5 text-slate-600 font-medium">
+                        {cand.school}
+                      </td>
 
                       <td className="px-4 py-3.5 font-bold tabular-nums">
                         {pipScore !== null ? (
-                          <span className={pipPass ? "text-emerald-700 font-extrabold" : "text-amber-700"}>
-                            {pipScore.toFixed(0)} <span className="text-[0.68rem] text-slate-400">/ 100</span>
+                          <span
+                            className={
+                              pipPass
+                                ? "text-emerald-700 font-extrabold"
+                                : "text-amber-700"
+                            }
+                          >
+                            {pipScore.toFixed(0)}{" "}
+                            <span className="text-2xs text-slate-400">
+                              / 100
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-slate-400 font-normal">Belum Ujian</span>
+                          <span className="text-slate-400 font-normal">
+                            Belum Ujian
+                          </span>
                         )}
                       </td>
 
                       <td className="px-4 py-3.5">
-                        <Badge tone={pipPass ? "success" : pipScore !== null ? "warning" : "neutral"}>
-                          {pipPass ? "Lolos (≥70)" : pipScore !== null ? "Remedial" : "—"}
+                        <Badge
+                          tone={
+                            pipPass
+                              ? "success"
+                              : pipScore !== null
+                                ? "warning"
+                                : "neutral"
+                          }
+                        >
+                          {pipPass
+                            ? "Lolos (≥70)"
+                            : pipScore !== null
+                              ? "Remedial"
+                              : "—"}
                         </Badge>
                       </td>
 
@@ -2465,17 +2921,40 @@ export default function CatBankView() {
 
                       <td className="px-4 py-3.5 font-bold tabular-nums">
                         {tiuScore !== null ? (
-                          <span className={tiuPass ? "text-emerald-700 font-extrabold" : "text-amber-700"}>
-                            {tiuScore.toFixed(0)} <span className="text-[0.68rem] text-slate-400">/ 100</span>
+                          <span
+                            className={
+                              tiuPass
+                                ? "text-emerald-700 font-extrabold"
+                                : "text-amber-700"
+                            }
+                          >
+                            {tiuScore.toFixed(0)}{" "}
+                            <span className="text-2xs text-slate-400">
+                              / 100
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-slate-400 font-normal">Belum Ujian</span>
+                          <span className="text-slate-400 font-normal">
+                            Belum Ujian
+                          </span>
                         )}
                       </td>
 
                       <td className="px-4 py-3.5">
-                        <Badge tone={tiuPass ? "success" : tiuScore !== null ? "warning" : "neutral"}>
-                          {tiuPass ? "Lolos (≥70)" : tiuScore !== null ? "Remedial" : "—"}
+                        <Badge
+                          tone={
+                            tiuPass
+                              ? "success"
+                              : tiuScore !== null
+                                ? "warning"
+                                : "neutral"
+                          }
+                        >
+                          {tiuPass
+                            ? "Lolos (≥70)"
+                            : tiuScore !== null
+                              ? "Remedial"
+                              : "—"}
                         </Badge>
                       </td>
 
@@ -2498,7 +2977,7 @@ export default function CatBankView() {
                               setActiveTab("tryout")
                               setSessionPhase("idle")
                             }}
-                            className="!px-2.5 !py-1 !text-[0.68rem] font-bold text-red-600 hover:bg-red-50"
+                            className="!px-2.5 !py-1 !text-2xs font-bold text-red-600 hover:bg-red-50"
                           >
                             <Play className="size-3" /> Tes Santri
                           </Button>
@@ -2516,14 +2995,17 @@ export default function CatBankView() {
       {activeTab === "history" && (
         <Card className="overflow-hidden border-slate-200">
           <div className="border-b border-slate-100 p-5">
-            <h3 className="font-display text-base font-bold text-slate-950">Riwayat percobaan CAT</h3>
+            <h3 className="font-display text-base font-bold text-slate-950">
+              Riwayat percobaan CAT
+            </h3>
             <p className="mt-1 text-xs text-slate-500">
-              Daftar hasil tryout yang tersimpan, diurutkan dari aktivitas terbaru.
+              Daftar hasil tryout yang tersimpan, diurutkan dari aktivitas
+              terbaru.
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[54rem] text-left text-xs">
-              <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+              <thead className="bg-slate-50 text-2xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-5 py-3.5">Santri</th>
                   <th className="px-4 py-3.5">Paket</th>
@@ -2532,19 +3014,31 @@ export default function CatBankView() {
                   <th className="px-4 py-3.5">Nilai TIU</th>
                   <th className="px-4 py-3.5">Rata-rata</th>
                   <th className="px-5 py-3.5 text-right">Waktu selesai</th>
-                  {(currentUser.role === "admin" || currentUser.role === "coach") && (
+                  {(currentUser.role === "admin" ||
+                    currentUser.role === "coach") && (
                     <th className="px-5 py-3.5 text-right">Aksi</th>
                   )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {attempts
-                  .filter((attempt) => currentUser.role !== "candidate" || attempt.candidateId === currentUser.candidateId)
+                  .filter(
+                    (attempt) =>
+                      currentUser.role !== "candidate" ||
+                      attempt.candidateId === currentUser.candidateId,
+                  )
                   .slice()
                   .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))
                   .map((attempt) => {
-                    const candidate = candidates.find((item) => item.id === attempt.candidateId) ??
-                      candidates.find((item) => item.name.trim().toLocaleLowerCase() === attempt.candidateName.trim().toLocaleLowerCase())
+                    const candidate =
+                      candidates.find(
+                        (item) => item.id === attempt.candidateId,
+                      ) ??
+                      candidates.find(
+                        (item) =>
+                          item.name.trim().toLocaleLowerCase() ===
+                          attempt.candidateName.trim().toLocaleLowerCase(),
+                      )
                     return (
                       <tr key={attempt.id} className="hover:bg-slate-50/70">
                         <td className="px-5 py-3.5">
@@ -2556,18 +3050,37 @@ export default function CatBankView() {
                               className="size-8 shrink-0 text-xs"
                             />
                             <div>
-                              <p className="font-bold text-slate-900">{candidate?.name ?? attempt.candidateName}</p>
-                              <p className="text-[0.68rem] text-slate-400">{candidate?.number ?? attempt.candidateGroup}</p>
+                              <p className="font-bold text-slate-900">
+                                {candidate?.name ?? attempt.candidateName}
+                              </p>
+                              <p className="text-2xs text-slate-400">
+                                {candidate?.number ?? attempt.candidateGroup}
+                              </p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 text-slate-600">{attempt.packageName}</td>
-                        <td className="px-4 py-3.5 font-semibold">#{attempt.attemptNumber}</td>
-                        <td className="px-4 py-3.5 font-bold tabular-nums">{attempt.pipScore.toFixed(0)}</td>
-                        <td className="px-4 py-3.5 font-bold tabular-nums">{attempt.tiuScoreScaled.toFixed(0)}</td>
-                        <td className="px-4 py-3.5 font-extrabold tabular-nums text-emerald-700">{attempt.combinedScore.toFixed(1)}</td>
-                        <td className="px-5 py-3.5 text-right text-slate-500">{new Date(attempt.finalizedAt.replace(" ", "T")).toLocaleString("id-ID")}</td>
-                        {(currentUser.role === "admin" || currentUser.role === "coach") && (
+                        <td className="px-4 py-3.5 text-slate-600">
+                          {attempt.packageName}
+                        </td>
+                        <td className="px-4 py-3.5 font-semibold">
+                          #{attempt.attemptNumber}
+                        </td>
+                        <td className="px-4 py-3.5 font-bold tabular-nums">
+                          {attempt.pipScore.toFixed(0)}
+                        </td>
+                        <td className="px-4 py-3.5 font-bold tabular-nums">
+                          {attempt.tiuScoreScaled.toFixed(0)}
+                        </td>
+                        <td className="px-4 py-3.5 font-extrabold tabular-nums text-emerald-700">
+                          {attempt.combinedScore.toFixed(1)}
+                        </td>
+                        <td className="px-5 py-3.5 text-right text-slate-500">
+                          {new Date(
+                            attempt.finalizedAt.replace(" ", "T"),
+                          ).toLocaleString("id-ID")}
+                        </td>
+                        {(currentUser.role === "admin" ||
+                          currentUser.role === "coach") && (
                           <td className="px-5 py-3.5">
                             <div className="flex justify-end gap-1">
                               <button
@@ -2582,7 +3095,11 @@ export default function CatBankView() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  if (window.confirm(`Hapus riwayat CAT percobaan #${attempt.attemptNumber} milik ${attempt.candidateName}?`)) {
+                                  if (
+                                    window.confirm(
+                                      `Hapus riwayat CAT percobaan #${attempt.attemptNumber} milik ${attempt.candidateName}?`,
+                                    )
+                                  ) {
                                     deleteCatTryoutAttempt(attempt.id)
                                   }
                                 }}
@@ -2598,9 +3115,18 @@ export default function CatBankView() {
                       </tr>
                     )
                   })}
-                {attempts.filter((attempt) => currentUser.role !== "candidate" || attempt.candidateId === currentUser.candidateId).length === 0 && (
+                {attempts.filter(
+                  (attempt) =>
+                    currentUser.role !== "candidate" ||
+                    attempt.candidateId === currentUser.candidateId,
+                ).length === 0 && (
                   <tr>
-                    <td colSpan={currentUser.role === "candidate" ? 7 : 8} className="py-12 text-center text-sm text-slate-500">Belum ada riwayat CAT yang tersimpan.</td>
+                    <td
+                      colSpan={currentUser.role === "candidate" ? 7 : 8}
+                      className="py-12 text-center text-sm text-slate-500"
+                    >
+                      Belum ada riwayat CAT yang tersimpan.
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -2609,50 +3135,80 @@ export default function CatBankView() {
         </Card>
       )}
 
-      {editingAttempt && (currentUser.role === "admin" || currentUser.role === "coach") && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4" onMouseDown={(event) => {
-          if (event.target === event.currentTarget) setEditingAttempt(null)
-        }}>
-          <form onSubmit={handleSaveAttemptEdit} className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
-            <div className="mb-5">
-              <h3 className="font-display text-lg font-bold text-slate-950">Perbarui hasil CAT</h3>
-              <p className="mt-1 text-sm text-slate-500">{editingAttempt.candidateName} · Percobaan #{editingAttempt.attemptNumber}</p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                Nilai PIP (0–100)
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  required
-                  value={editingAttempt.pipScore}
-                  onChange={(event) => setEditingAttempt({ ...editingAttempt, pipScore: Number(event.target.value) })}
-                  className="h-10 rounded-xl border border-slate-200 px-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-              </label>
-              <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
-                Nilai TIU (0–100)
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  required
-                  value={editingAttempt.tiuScoreScaled}
-                  onChange={(event) => setEditingAttempt({ ...editingAttempt, tiuScoreScaled: Number(event.target.value) })}
-                  className="h-10 rounded-xl border border-slate-200 px-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
-              </label>
-            </div>
-            <div className="mt-6 flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={() => setEditingAttempt(null)}>Batal</Button>
-              <Button type="submit"><Check className="size-4" /> Simpan perubahan</Button>
-            </div>
-          </form>
-        </div>
-      )}
+      {editingAttempt &&
+        (currentUser.role === "admin" || currentUser.role === "coach") && (
+          <div
+            className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setEditingAttempt(null)
+            }}
+          >
+            <form
+              onSubmit={handleSaveAttemptEdit}
+              className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl"
+            >
+              <div className="mb-5">
+                <h3 className="font-display text-lg font-bold text-slate-950">
+                  Perbarui hasil CAT
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  {editingAttempt.candidateName} · Percobaan #
+                  {editingAttempt.attemptNumber}
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                  Nilai PIP (0–100)
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                    value={editingAttempt.pipScore}
+                    onChange={(event) =>
+                      setEditingAttempt({
+                        ...editingAttempt,
+                        pipScore: Number(event.target.value),
+                      })
+                    }
+                    className="h-10 rounded-xl border border-slate-200 px-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </label>
+                <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
+                  Nilai TIU (0–100)
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    required
+                    value={editingAttempt.tiuScoreScaled}
+                    onChange={(event) =>
+                      setEditingAttempt({
+                        ...editingAttempt,
+                        tiuScoreScaled: Number(event.target.value),
+                      })
+                    }
+                    className="h-10 rounded-xl border border-slate-200 px-3 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </label>
+              </div>
+              <div className="mt-6 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setEditingAttempt(null)}
+                >
+                  Batal
+                </Button>
+                <Button type="submit">
+                  <Check className="size-4" /> Simpan perubahan
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
 
       {/* ===================================================================== */}
       {/* TAB 5: PENGATURAN PAKET & KEBIJAKAN ADMINISTRATOR (PRD Section 4 & 5) */}
@@ -2668,7 +3224,8 @@ export default function CatBankView() {
                 Konfigurasi Paket Tryout CAT (PRD 1.1)
               </h3>
               <p className="text-xs text-slate-500">
-                Sesuaikan durasi timer, bobot passing grade, dan kebijakan pengacakan butir soal.
+                Sesuaikan durasi timer, bobot passing grade, dan kebijakan
+                pengacakan butir soal.
               </p>
             </div>
           </div>
@@ -2680,7 +3237,10 @@ export default function CatBankView() {
                 <Input
                   value={packageConfig.packageName}
                   onChange={(e) =>
-                    setPackageConfig((p) => ({ ...p, packageName: e.target.value }))
+                    setPackageConfig((p) => ({
+                      ...p,
+                      packageName: e.target.value,
+                    }))
                   }
                   className="!text-xs"
                 />
@@ -2699,9 +3259,12 @@ export default function CatBankView() {
                     }
                     className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold outline-none focus:border-red-500"
                   >
-                    <option value={45}>45 Menit (Standar PRD)</option>
+                    <option value={15}>15 Menit (Kilat)</option>
                     <option value={30}>30 Menit</option>
+                    <option value={45}>45 Menit (Standar BPIP)</option>
                     <option value={60}>60 Menit</option>
+                    <option value={75}>75 Menit</option>
+                    <option value={90}>90 Menit</option>
                   </select>
                 </label>
 
@@ -2734,9 +3297,11 @@ export default function CatBankView() {
                     }
                     className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold outline-none focus:border-purple-500"
                   >
-                    <option value={30}>30 Menit (Standar PRD)</option>
+                    <option value={15}>15 Menit (Kilat)</option>
                     <option value={20}>20 Menit</option>
+                    <option value={30}>30 Menit (Standar BPIP)</option>
                     <option value={45}>45 Menit</option>
+                    <option value={60}>60 Menit</option>
                   </select>
                 </label>
 
@@ -2797,9 +3362,17 @@ export default function CatBankView() {
               </div>
 
               <div className="rounded-xl bg-slate-50 p-4 border border-slate-200 text-xs text-slate-600 leading-relaxed space-y-1.5">
-                <p className="font-bold text-slate-900">Ketentuan Rumus Penilaian (PRD 4.3):</p>
-                <p>&bull; Sesi PIP: 50 soal, Benar +2, Salah/Kosong 0 &rarr; Maks 100.</p>
-                <p>&bull; Sesi TIU: 50 soal, Benar +1, Salah/Kosong 0 &rarr; Mentah Maks 50 &rarr; Skala 100: Skor Mentah &times; 2.</p>
+                <p className="font-bold text-slate-900">
+                  Ketentuan Rumus Penilaian (PRD 4.3):
+                </p>
+                <p>
+                  &bull; Sesi PIP: 50 soal, Benar +2, Salah/Kosong 0 &rarr; Maks
+                  100.
+                </p>
+                <p>
+                  &bull; Sesi TIU: 50 soal, Benar +1, Salah/Kosong 0 &rarr;
+                  Mentah Maks 50 &rarr; Skala 100: Skor Mentah &times; 2.
+                </p>
               </div>
             </div>
           </div>
@@ -2818,32 +3391,47 @@ export default function CatBankView() {
               </div>
               <div>
                 <h3 className="font-display text-base font-bold text-slate-950">
-                  Konfirmasi Selesaikan {sessionPhase === "pip" ? "Sesi 1 (PIP)" : "Sesi 2 (TIU)"}
+                  Konfirmasi Selesaikan{" "}
+                  {sessionPhase === "pip" ? "Sesi 1 (PIP)" : "Sesi 2 (TIU)"}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Periksa kembali rekapitulasi jawaban sebelum memfinalisasi sesi ini.
+                  Periksa kembali rekapitulasi jawaban sebelum memfinalisasi
+                  sesi ini.
                 </p>
               </div>
             </div>
 
             <div className="mt-5 grid grid-cols-3 gap-2 text-center">
               <div className="rounded-xl bg-emerald-50 p-3 border border-emerald-100">
-                <p className="text-[0.68rem] font-bold uppercase text-emerald-800">Dijawab</p>
-                <p className="mt-1 text-xl font-black text-emerald-700">{answeredCount}</p>
+                <p className="text-2xs font-bold uppercase text-emerald-800">
+                  Dijawab
+                </p>
+                <p className="mt-1 text-xl font-black text-emerald-700">
+                  {answeredCount}
+                </p>
               </div>
               <div className="rounded-xl bg-amber-50 p-3 border border-amber-100">
-                <p className="text-[0.68rem] font-bold uppercase text-amber-800">Ragu-ragu</p>
-                <p className="mt-1 text-xl font-black text-amber-700">{flaggedCount}</p>
+                <p className="text-2xs font-bold uppercase text-amber-800">
+                  Ragu-ragu
+                </p>
+                <p className="mt-1 text-xl font-black text-amber-700">
+                  {flaggedCount}
+                </p>
               </div>
               <div className="rounded-xl bg-slate-50 p-3 border border-slate-200">
-                <p className="text-[0.68rem] font-bold uppercase text-slate-600">Kosong</p>
-                <p className="mt-1 text-xl font-black text-slate-700">{unansweredCount}</p>
+                <p className="text-2xs font-bold uppercase text-slate-600">
+                  Kosong
+                </p>
+                <p className="mt-1 text-xl font-black text-slate-700">
+                  {unansweredCount}
+                </p>
               </div>
             </div>
 
             {unansweredCount > 0 && (
               <p className="mt-4 rounded-lg bg-red-50 p-2.5 text-xs text-red-700 leading-relaxed font-semibold">
-                Perhatian: Masih ada {unansweredCount} butir soal yang belum Anda jawab. Soal kosong bernilai 0.
+                Perhatian: Masih ada {unansweredCount} butir soal yang belum
+                Anda jawab. Soal kosong bernilai 0.
               </p>
             )}
 
@@ -2878,11 +3466,13 @@ export default function CatBankView() {
           <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <p className="text-[0.68rem] font-bold uppercase tracking-wider text-red-600">
+                <p className="text-2xs font-bold uppercase tracking-wider text-red-600">
                   Bank Soal CAT BPIP
                 </p>
                 <h3 className="font-display text-lg font-bold text-slate-900">
-                  {editingQuestionId ? "Edit Butir Soal" : "Tambah Butir Soal Baru"}
+                  {editingQuestionId
+                    ? "Edit Butir Soal"
+                    : "Tambah Butir Soal Baru"}
                 </h3>
               </div>
               <Button
@@ -2905,7 +3495,8 @@ export default function CatBankView() {
                       setQForm((prev) => ({
                         ...prev,
                         type: t,
-                        category: t === "tiu" ? tiuCategories[0] : pipCategories[0],
+                        category:
+                          t === "tiu" ? tiuCategories[0] : pipCategories[0],
                       }))
                     }}
                     className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold outline-none focus:border-red-500"
@@ -2919,14 +3510,21 @@ export default function CatBankView() {
                   Kategori Domain / Submateri
                   <select
                     value={qForm.category}
-                    onChange={(e) => setQForm((prev) => ({ ...prev, category: e.target.value }))}
+                    onChange={(e) =>
+                      setQForm((prev) => ({
+                        ...prev,
+                        category: e.target.value,
+                      }))
+                    }
                     className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold outline-none focus:border-red-500"
                   >
-                    {(qForm.type === "pip" ? pipCategories : tiuCategories).map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
+                    {(qForm.type === "pip" ? pipCategories : tiuCategories).map(
+                      (c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ),
+                    )}
                   </select>
                 </label>
               </div>
@@ -2936,7 +3534,9 @@ export default function CatBankView() {
                 <textarea
                   rows={3}
                   value={qForm.question}
-                  onChange={(e) => setQForm((prev) => ({ ...prev, question: e.target.value }))}
+                  onChange={(e) =>
+                    setQForm((prev) => ({ ...prev, question: e.target.value }))
+                  }
                   placeholder="Ketikkan narasi pertanyaan soal secara lengkap..."
                   className="rounded-xl border border-slate-200 bg-white p-3 text-xs leading-relaxed outline-none focus:border-red-500"
                 />
@@ -2946,38 +3546,49 @@ export default function CatBankView() {
                 <span className="text-xs font-bold text-slate-700">
                   Pilihan Jawaban (A s.d. E) &amp; Kunci Benar:
                 </span>
-                {(["optionA", "optionB", "optionC", "optionD", "optionE"] as const).map(
-                  (field, idx) => {
-                    const letter = ["A", "B", "C", "D", "E"][idx]
-                    const isCorrect = qForm.correctIndex === idx
-                    return (
-                      <div key={field} className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setQForm((prev) => ({ ...prev, correctIndex: idx }))}
-                          className={`grid size-8 shrink-0 place-items-center rounded-lg text-xs font-black transition ${
-                            isCorrect
-                              ? "bg-emerald-600 text-white shadow-2xs"
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                          title={`Jadikan ${letter} sebagai Kunci Jawaban Benar`}
-                        >
-                          {letter}
-                        </button>
-                        <Input
-                          value={qForm[field]}
-                          onChange={(e) =>
-                            setQForm((prev) => ({ ...prev, [field]: e.target.value }))
-                          }
-                          placeholder={`Teks pilihan ${letter}...`}
-                          className={`!text-xs flex-1 ${
-                            isCorrect ? "!border-emerald-400 !bg-emerald-50/40" : ""
-                          }`}
-                        />
-                      </div>
-                    )
-                  },
-                )}
+                {([
+                  "optionA",
+                  "optionB",
+                  "optionC",
+                  "optionD",
+                  "optionE",
+                ] as const).map((field, idx) => {
+                  const letter = ["A", "B", "C", "D", "E"][idx]
+                  const isCorrect = qForm.correctIndex === idx
+                  return (
+                    <div key={field} className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setQForm((prev) => ({ ...prev, correctIndex: idx }))
+                        }
+                        className={`grid size-8 shrink-0 place-items-center rounded-lg text-xs font-black transition ${
+                          isCorrect
+                            ? "bg-emerald-600 text-white shadow-2xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                        title={`Jadikan ${letter} sebagai Kunci Jawaban Benar`}
+                      >
+                        {letter}
+                      </button>
+                      <Input
+                        value={qForm[field]}
+                        onChange={(e) =>
+                          setQForm((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        placeholder={`Teks pilihan ${letter}...`}
+                        className={`!text-xs flex-1 ${
+                          isCorrect
+                            ? "!border-emerald-400 !bg-emerald-50/40"
+                            : ""
+                        }`}
+                      />
+                    </div>
+                  )
+                })}
               </div>
 
               <label className="grid gap-1.5 text-xs font-bold text-slate-700">
@@ -2985,7 +3596,12 @@ export default function CatBankView() {
                 <textarea
                   rows={2}
                   value={qForm.explanation}
-                  onChange={(e) => setQForm((prev) => ({ ...prev, explanation: e.target.value }))}
+                  onChange={(e) =>
+                    setQForm((prev) => ({
+                      ...prev,
+                      explanation: e.target.value,
+                    }))
+                  }
                   placeholder="Rasionalisasi kunci jawaban dan landasan aturan/perhitungannya..."
                   className="rounded-xl border border-slate-200 bg-white p-3 text-xs leading-relaxed outline-none focus:border-red-500"
                 />

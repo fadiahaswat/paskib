@@ -49,14 +49,17 @@ const AUTHORIZED_COACH_EMAILS = [
   "andiaqillah@muallimin.sch.id",
 ]
 
-const ROLE_PERMISSIONS: Record<
-  UserRole,
-  { label: string; badge: "danger" | "info" | "success" | "warning" | "neutral"; description: string; permissions: string[] }
-> = {
+const ROLE_PERMISSIONS: Record<UserRole, {
+  label: string
+  badge: "danger" | "info" | "success" | "warning" | "neutral"
+  description: string
+  permissions: string[]
+}> = {
   admin: {
     label: "Administrator",
     badge: "danger",
-    description: "Akses penuh ke seluruh modul, manajemen pengguna, konfigurasi sistem, dan integrasi cloud.",
+    description:
+      "Akses penuh ke seluruh modul, manajemen pengguna, konfigurasi sistem, dan integrasi cloud.",
     permissions: [
       "Manajemen seluruh data kandidat & nilai",
       "Konfigurasi standar, tahapan & bobot seleksi",
@@ -68,7 +71,8 @@ const ROLE_PERMISSIONS: Record<
   coach: {
     label: "Pelatih / Pembina",
     badge: "neutral",
-    description: "Pendampingan latihan fisik, parade, PBB, bank soal CAT, dan evaluasi harian kandidat.",
+    description:
+      "Pendampingan latihan fisik, parade, PBB, bank soal CAT, dan evaluasi harian kandidat.",
     permissions: [
       "Pencatatan sesi latihan & log harian",
       "Input & evaluasi butir soal CAT BPIP",
@@ -80,7 +84,8 @@ const ROLE_PERMISSIONS: Record<
   medical: {
     label: "Tim Medis",
     badge: "success",
-    description: "Pemeriksaan kesehatan, tes buta warna Ishihara, antropometri fisik, dan riwayat cedera.",
+    description:
+      "Pemeriksaan kesehatan, tes buta warna Ishihara, antropometri fisik, dan riwayat cedera.",
     permissions: [
       "Input hasil skrining Ishihara (buta warna)",
       "Pencatatan tekanan darah, TB/BB & BMI",
@@ -91,7 +96,8 @@ const ROLE_PERMISSIONS: Record<
   judge: {
     label: "Juri Penilai",
     badge: "warning",
-    description: "Penilaian obyektif tahapan seleksi (PBB, wawancara kepribadian, parade, dan kesamaptaan).",
+    description:
+      "Penilaian obyektif tahapan seleksi (PBB, wawancara kepribadian, parade, dan kesamaptaan).",
     permissions: [
       "Input lembar penilaian tahapan seleksi",
       "Verifikasi berkas persyaratan administratif",
@@ -102,7 +108,8 @@ const ROLE_PERMISSIONS: Record<
   candidate: {
     label: "Santri / Kandidat",
     badge: "info",
-    description: "Akses terbatas ke ruang ujian CAT Tryout dan pemantauan dokumen persyaratan mandiri.",
+    description:
+      "Akses terbatas ke ruang ujian CAT Tryout dan pemantauan dokumen persyaratan mandiri.",
     permissions: [
       "Pengerjaan simulasi ujian CAT (PIP & TIU)",
       "Melihat riwayat skor & pembahasan ujian",
@@ -136,9 +143,8 @@ export default function UsersAuditView({
     showToast,
   } = useApp()
 
-  const [activeTab, setActiveTab] = useState<
-    "switch" | "candidates" | "manage" | "audit"
-  >("switch")
+  const [activeTab, setActiveTab] =
+    useState<"switch" | "candidates" | "manage" | "audit">("switch")
 
   // Tab 2: Candidate search & filter
   const [candidateSearch, setCandidateSearch] = useState("")
@@ -173,7 +179,10 @@ export default function UsersAuditView({
   // Filtered audit logs
   const filteredAuditLogs = useMemo(() => {
     return auditLogs.filter((log) => {
-      if (auditActionFilter !== "all" && !log.action.toLowerCase().includes(auditActionFilter.toLowerCase())) {
+      if (
+        auditActionFilter !== "all" &&
+        !log.action.toLowerCase().includes(auditActionFilter.toLowerCase())
+      ) {
         return false
       }
       if (auditSearch.trim()) {
@@ -239,7 +248,15 @@ export default function UsersAuditView({
       showToast("Tidak ada data audit log untuk diunduh.", "warning")
       return
     }
-    const headers = ["ID", "Waktu", "Pelaku", "Role", "Aksi", "Target", "Detail"]
+    const headers = [
+      "ID",
+      "Waktu",
+      "Pelaku",
+      "Role",
+      "Aksi",
+      "Target",
+      "Detail",
+    ]
     const rows = auditLogs.map((l) => [
       l.id,
       `"${l.timestamp}"`,
@@ -249,7 +266,10 @@ export default function UsersAuditView({
       `"${l.target}"`,
       `"${l.detail.replace(/"/g, '""')}"`,
     ])
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n")
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n")
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
@@ -275,12 +295,13 @@ export default function UsersAuditView({
             <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
               Manajemen Pengguna &amp; Jejak Audit
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-2xs font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-600/10">
               <ShieldCheck className="size-3 text-red-600" /> Admin &amp; RBAC
             </span>
           </div>
           <p className="mt-0.5 max-w-2xl text-xs text-slate-500">
-            Pusat tata kelola otorisasi staf, simulasi pengujian peran santri, pantau log aktivitas sistem, dan sinkronisasi data cloud.
+            Pusat tata kelola otorisasi staf, simulasi pengujian peran santri,
+            pantau log aktivitas sistem, dan sinkronisasi data cloud.
           </p>
         </div>
 
@@ -330,7 +351,8 @@ export default function UsersAuditView({
           onClick={() => setActiveTab("candidates")}
           className="!text-xs font-bold"
         >
-          <GraduationCap className="size-3.5" /> Simulasi Santri ({candidates.length})
+          <GraduationCap className="size-3.5" /> Simulasi Santri (
+          {candidates.length})
         </Button>
         <Button
           variant={activeTab === "manage" ? "primary" : "secondary"}
@@ -365,10 +387,13 @@ export default function UsersAuditView({
                 />
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-red-600 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-white">
+                    <span className="rounded-md bg-red-600 px-2 py-0.5 text-3xs font-bold uppercase tracking-wider text-white">
                       Sesi Aktif Saat Ini
                     </span>
-                    <Badge tone="neutral" className="!bg-white/10 !text-slate-200 border-none">
+                    <Badge
+                      tone="neutral"
+                      className="!bg-white/10 !text-slate-200 border-none"
+                    >
                       {currentUser.role.toUpperCase()}
                     </Badge>
                   </div>
@@ -376,7 +401,10 @@ export default function UsersAuditView({
                     {currentUser.name}
                   </h3>
                   <p className="text-xs text-slate-300">
-                    {currentUser.title} · <span className="font-mono text-red-300">{currentUser.email}</span>
+                    {currentUser.title} ·{" "}
+                    <span className="font-mono text-red-300">
+                      {currentUser.email}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -400,15 +428,18 @@ export default function UsersAuditView({
           <div className="flex items-start gap-3 rounded-2xl border border-blue-200/80 bg-blue-50/60 p-4 text-xs leading-relaxed text-blue-900">
             <Info className="size-5 shrink-0 text-blue-600" />
             <div>
-              <p className="font-bold">Ketentuan Autentikasi Google Sign-In Resmi:</p>
+              <p className="font-bold">
+                Ketentuan Autentikasi Google Sign-In Resmi:
+              </p>
               <p className="mt-0.5 text-blue-800">
-                Akses manajemen pelatih dikunci khusus untuk akun Google resmi yang terdaftar:
+                Akses manajemen pelatih dikunci khusus untuk akun Google resmi
+                yang terdaftar:
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {AUTHORIZED_COACH_EMAILS.map((email) => (
                   <span
                     key={email}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-white px-2.5 py-1 font-mono text-[0.7rem] font-bold text-blue-950 shadow-2xs"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-white px-2.5 py-1 font-mono text-2xs font-bold text-blue-950 shadow-2xs"
                   >
                     <CheckCircle2 className="size-3 text-emerald-600" />
                     {email}
@@ -426,7 +457,8 @@ export default function UsersAuditView({
                   Daftar Profil Staf &amp; Penguji Internal
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Pilih salah satu profil di bawah untuk beralih konteks peran dan menguji batas otorisasi.
+                  Pilih salah satu profil di bawah untuk beralih konteks peran
+                  dan menguji batas otorisasi.
                 </p>
               </div>
               <Badge tone="neutral">{users.length} Profil Staf</Badge>
@@ -441,7 +473,10 @@ export default function UsersAuditView({
                     onClick={() => {
                       if (!isCurrent) {
                         loginAs(u.id)
-                        showToast(`Beralih ke akun ${u.name} (${u.role.toUpperCase()})`, "success")
+                        showToast(
+                          `Beralih ke akun ${u.name} (${u.role.toUpperCase()})`,
+                          "success",
+                        )
                       }
                     }}
                     className={`group relative flex cursor-pointer items-start gap-3.5 rounded-2xl border p-4 text-left transition ${
@@ -462,17 +497,21 @@ export default function UsersAuditView({
                           {u.name}
                         </p>
                         {isCurrent ? (
-                          <span className="shrink-0 rounded-full bg-red-600 px-2 py-0.5 text-[0.6rem] font-bold text-white">
+                          <span className="shrink-0 rounded-full bg-red-600 px-2 py-0.5 text-3xs font-bold text-white">
                             Aktif
                           </span>
                         ) : (
-                          <Badge tone={ROLE_PERMISSIONS[u.role]?.badge || "neutral"}>
+                          <Badge
+                            tone={ROLE_PERMISSIONS[u.role]?.badge || "neutral"}
+                          >
                             {u.role.toUpperCase()}
                           </Badge>
                         )}
                       </div>
-                      <p className="mt-0.5 truncate text-xs text-slate-500">{u.title}</p>
-                      <p className="mt-1 truncate font-mono text-[0.68rem] text-slate-400">
+                      <p className="mt-0.5 truncate text-xs text-slate-500">
+                        {u.title}
+                      </p>
+                      <p className="mt-1 truncate font-mono text-2xs text-slate-400">
                         {u.email}
                       </p>
                     </div>
@@ -488,37 +527,42 @@ export default function UsersAuditView({
               Matriks Batas Wewenang Peran (RBAC Matrix)
             </h3>
             <p className="mt-0.5 text-xs text-slate-500">
-              Hak akses setiap komponen aplikasi disesuaikan dengan peran kerja masing-masing staf pembina.
+              Hak akses setiap komponen aplikasi disesuaikan dengan peran kerja
+              masing-masing staf pembina.
             </p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {(["admin", "coach", "medical", "judge"] as UserRole[]).map((r) => {
-                const info = ROLE_PERMISSIONS[r]
-                return (
-                  <div
-                    key={r}
-                    className="flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50/60 p-4"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900">{info.label}</span>
-                        <Badge tone={info.badge}>{r.toUpperCase()}</Badge>
+              {(["admin", "coach", "medical", "judge"] as UserRole[]).map(
+                (r) => {
+                  const info = ROLE_PERMISSIONS[r]
+                  return (
+                    <div
+                      key={r}
+                      className="flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50/60 p-4"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-slate-900">
+                            {info.label}
+                          </span>
+                          <Badge tone={info.badge}>{r.toUpperCase()}</Badge>
+                        </div>
+                        <p className="mt-2 text-2xs leading-relaxed text-slate-600">
+                          {info.description}
+                        </p>
                       </div>
-                      <p className="mt-2 text-[0.72rem] leading-relaxed text-slate-600">
-                        {info.description}
-                      </p>
+                      <ul className="mt-3 space-y-1.5 border-t border-slate-200/60 pt-3 text-2xs text-slate-600">
+                        {info.permissions.map((p, idx) => (
+                          <li key={idx} className="flex items-start gap-1.5">
+                            <Check className="size-3 shrink-0 text-emerald-600 mt-0.5" />
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="mt-3 space-y-1.5 border-t border-slate-200/60 pt-3 text-[0.68rem] text-slate-600">
-                      {info.permissions.map((p, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <Check className="size-3 shrink-0 text-emerald-600 mt-0.5" />
-                          <span>{p}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )
-              })}
+                  )
+                },
+              )}
             </div>
           </div>
         </div>
@@ -532,9 +576,14 @@ export default function UsersAuditView({
           <div className="flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/60 p-4 text-xs leading-relaxed text-amber-900">
             <GraduationCap className="size-5 shrink-0 text-amber-600" />
             <div>
-              <p className="font-bold">Simulasi Portal Mandiri Santri (Tanpa Kata Sandi):</p>
+              <p className="font-bold">
+                Simulasi Portal Mandiri Santri (Tanpa Kata Sandi):
+              </p>
               <p className="mt-0.5 text-amber-800">
-                Santri melakukan login resmi secara mandiri menggunakan 16 digit NIK. Melalui panel ini, Anda dapat mensimulasikan antarmuka yang dilihat santri untuk validasi berkas dan pengerjaan CAT Tryout BPIP.
+                Santri melakukan login resmi secara mandiri menggunakan 16 digit
+                NIK. Melalui panel ini, Anda dapat mensimulasikan antarmuka yang
+                dilihat santri untuk validasi berkas dan pengerjaan CAT Tryout
+                BPIP.
               </p>
             </div>
           </div>
@@ -551,7 +600,8 @@ export default function UsersAuditView({
               />
             </div>
             <Badge tone="neutral">
-              Menampilkan {filteredCandidates.length} dari {candidates.length} santri
+              Menampilkan {filteredCandidates.length} dari {candidates.length}{" "}
+              santri
             </Badge>
           </div>
 
@@ -570,14 +620,19 @@ export default function UsersAuditView({
                     className="size-11 shrink-0 text-xs font-bold"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-bold text-slate-900" title={cand.name}>
+                    <p
+                      className="truncate text-xs font-bold text-slate-900"
+                      title={cand.name}
+                    >
                       {cand.name}
                     </p>
-                    <p className="truncate text-[0.68rem] text-slate-500">{cand.school}</p>
+                    <p className="truncate text-2xs text-slate-500">
+                      {cand.school}
+                    </p>
 
                     {/* NIK Display with Copy Button */}
                     <div className="mt-2 flex items-center gap-1.5">
-                      <span className="font-mono text-[0.7rem] font-bold text-red-600">
+                      <span className="font-mono text-2xs font-bold text-red-600">
                         NIK: {cand.nik || "Belum diisi"}
                       </span>
                       {cand.nik && (
@@ -604,7 +659,8 @@ export default function UsersAuditView({
                     className="w-full !py-1.5 !text-xs font-bold hover:!bg-red-50 hover:!text-red-700"
                     onClick={() => handleSimulateCandidate(cand)}
                   >
-                    <UserCheck className="size-3.5 text-red-600" /> Masuk Sebagai Santri Ini
+                    <UserCheck className="size-3.5 text-red-600" /> Masuk
+                    Sebagai Santri Ini
                   </Button>
                 </div>
               </div>
@@ -626,11 +682,15 @@ export default function UsersAuditView({
                   Daftarkan Akun Staf Baru
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Tambahkan pelatih pendamping, tim medis, atau juri penilai ke dalam sistem.
+                  Tambahkan pelatih pendamping, tim medis, atau juri penilai ke
+                  dalam sistem.
                 </p>
               </div>
 
-              <form onSubmit={handleAddUser} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <form
+                onSubmit={handleAddUser}
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+              >
                 <Input
                   label="Nama lengkap staf"
                   required
@@ -657,8 +717,12 @@ export default function UsersAuditView({
                   >
                     <option value="admin">Admin (Akses Penuh)</option>
                     <option value="coach">Coach (Pelatih Pendamping)</option>
-                    <option value="medical">Tim Medis (Kesehatan &amp; Fisik)</option>
-                    <option value="judge">Juri Penilai (Tahapan Seleksi)</option>
+                    <option value="medical">
+                      Tim Medis (Kesehatan &amp; Fisik)
+                    </option>
+                    <option value="judge">
+                      Juri Penilai (Tahapan Seleksi)
+                    </option>
                   </select>
                 </label>
                 <Input
@@ -677,7 +741,8 @@ export default function UsersAuditView({
             </div>
           ) : (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-              Pendaftaran akun staf baru hanya dapat dilakukan oleh pengguna dengan wewenang <strong>Administrator</strong>.
+              Pendaftaran akun staf baru hanya dapat dilakukan oleh pengguna
+              dengan wewenang <strong>Administrator</strong>.
             </div>
           )}
 
@@ -706,21 +771,28 @@ export default function UsersAuditView({
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-slate-900">{u.name}</p>
+                          <p className="text-sm font-bold text-slate-900">
+                            {u.name}
+                          </p>
                           {isCurrent && (
-                            <span className="rounded bg-slate-900 px-1.5 py-0.5 text-[0.6rem] font-bold text-white">
+                            <span className="rounded bg-slate-900 px-1.5 py-0.5 text-3xs font-bold text-white">
                               Anda
                             </span>
                           )}
                         </div>
                         <p className="text-xs text-slate-500">
-                          {u.title} · <span className="font-mono text-slate-400">{u.email}</span>
+                          {u.title} ·{" "}
+                          <span className="font-mono text-slate-400">
+                            {u.email}
+                          </span>
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Badge tone={ROLE_PERMISSIONS[u.role]?.badge || "neutral"}>
+                      <Badge
+                        tone={ROLE_PERMISSIONS[u.role]?.badge || "neutral"}
+                      >
                         {u.role.toUpperCase()}
                       </Badge>
 
@@ -734,7 +806,10 @@ export default function UsersAuditView({
                           className="!px-3 !py-1 !text-xs font-semibold"
                           onClick={() => {
                             toggleUserActive(u.id)
-                            showToast(`Status staf ${u.name} diperbarui.`, "info")
+                            showToast(
+                              `Status staf ${u.name} diperbarui.`,
+                              "info",
+                            )
                           }}
                         >
                           {u.active ? "Nonaktifkan" : "Aktifkan"}
@@ -799,7 +874,9 @@ export default function UsersAuditView({
               <p className="text-xs font-bold text-slate-900">
                 Catatan Aktivitas Sistem (Immutable Append-Only Audit Trail)
               </p>
-              <Badge tone="info">{filteredAuditLogs.length} aktivitas ditampilkan</Badge>
+              <Badge tone="info">
+                {filteredAuditLogs.length} aktivitas ditampilkan
+              </Badge>
             </div>
 
             <div className="max-h-[600px] overflow-y-auto divide-y divide-slate-100">
@@ -819,17 +896,28 @@ export default function UsersAuditView({
                     log.action.includes("SYNC")
 
                   return (
-                    <div key={log.id} className="p-4 transition hover:bg-slate-50/60">
+                    <div
+                      key={log.id}
+                      className="p-4 transition hover:bg-slate-50/60"
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <Badge tone={isDanger ? "danger" : isSuccess ? "success" : "neutral"}>
+                          <Badge
+                            tone={
+                              isDanger
+                                ? "danger"
+                                : isSuccess
+                                  ? "success"
+                                  : "neutral"
+                            }
+                          >
                             {log.action}
                           </Badge>
                           <span className="text-xs font-bold text-slate-900">
                             {log.target}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-[0.68rem] text-slate-400">
+                        <div className="flex items-center gap-2 text-2xs text-slate-400">
                           <Clock className="size-3" />
                           <span>{log.timestamp}</span>
                           <span>·</span>
@@ -864,12 +952,16 @@ export default function UsersAuditView({
                 <h3 className="font-display text-base font-bold text-slate-900">
                   Konfirmasi Reset Database
                 </h3>
-                <p className="text-xs text-red-600 font-semibold">Tindakan Tidak Dapat Dibatalkan</p>
+                <p className="text-xs text-red-600 font-semibold">
+                  Tindakan Tidak Dapat Dibatalkan
+                </p>
               </div>
             </div>
 
             <p className="mt-4 text-xs leading-relaxed text-slate-600">
-              Apakah Anda yakin ingin mengembalikan seluruh database lokal ke nilai default awal? Semua penambahan nilai, butir soal kustom, dan berkas yang belum disinkronkan ke cloud akan dihapus.
+              Apakah Anda yakin ingin mengembalikan seluruh database lokal ke
+              nilai default awal? Semua penambahan nilai, butir soal kustom, dan
+              berkas yang belum disinkronkan ke cloud akan dihapus.
             </p>
 
             <div className="mt-6 flex items-center justify-end gap-2.5">
@@ -885,7 +977,10 @@ export default function UsersAuditView({
                 onClick={() => {
                   resetAllData()
                   setShowResetConfirm(false)
-                  showToast("Seluruh database telah dikembalikan ke kondisi default awal.", "info")
+                  showToast(
+                    "Seluruh database telah dikembalikan ke kondisi default awal.",
+                    "info",
+                  )
                 }}
                 className="!text-xs font-bold"
               >

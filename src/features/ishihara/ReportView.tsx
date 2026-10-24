@@ -28,15 +28,18 @@ import type {
 export default function ReportView() {
   const { ishiharaResults, ishiharaSessions, candidates, showToast } = useApp()
 
-  const [selectedSessionFilter, setSelectedSessionFilter] = useState<string>("all")
+  const [selectedSessionFilter, setSelectedSessionFilter] =
+    useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [detailModalResult, setDetailModalResult] = useState<IshiharaScreeningResult | null>(
-    null,
-  )
+  const [detailModalResult, setDetailModalResult] =
+    useState<IshiharaScreeningResult | null>(null)
 
   const filteredResults = useMemo(() => {
     return ishiharaResults.filter((r) => {
-      if (selectedSessionFilter !== "all" && r.sessionId !== selectedSessionFilter) {
+      if (
+        selectedSessionFilter !== "all" &&
+        r.sessionId !== selectedSessionFilter
+      ) {
         return false
       }
       if (searchQuery.trim()) {
@@ -87,8 +90,18 @@ export default function ReportView() {
       `"${r.correctCount}/${r.totalPlates}"`,
       `"${r.avgTimeSec}s"`,
       `"${r.interpretationLabel}"`,
-      `"${r.clinicalFollowUp === "not_required" ? "Tidak Diperlukan Rujukan" : "Perlu Verifikasi Klinis Spesialis Mata"}"`,
-      `"${r.selectionDecision === "eligible" ? "Memenuhi Syarat (Eligible)" : r.selectionDecision === "ineligible" ? "Tidak Memenuhi Syarat" : "Menunggu Evaluasi"}"`,
+      `"${
+        r.clinicalFollowUp === "not_required"
+          ? "Tidak Diperlukan Rujukan"
+          : "Perlu Verifikasi Klinis Spesialis Mata"
+      }"`,
+      `"${
+        r.selectionDecision === "eligible"
+          ? "Memenuhi Syarat (Eligible)"
+          : r.selectionDecision === "ineligible"
+            ? "Tidak Memenuhi Syarat"
+            : "Menunggu Evaluasi"
+      }"`,
       `"${new Date(r.createdAt).toLocaleString("id-ID")}"`,
     ])
 
@@ -124,8 +137,8 @@ export default function ReportView() {
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Pemisahan ketat 4 lapisan: <strong>Status Administratif</strong>,{" "}
-            <strong>Hasil Protokol</strong>, <strong>Rekomendasi Klinis</strong>, dan{" "}
-            <strong>Keputusan Seleksi</strong>.
+            <strong>Hasil Protokol</strong>, <strong>Rekomendasi Klinis</strong>
+            , dan <strong>Keputusan Seleksi</strong>.
           </p>
         </div>
 
@@ -143,27 +156,40 @@ export default function ReportView() {
       {/* 4 Layers Summary Info */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <div className="p-3.5 rounded-xl border border-slate-200 bg-white">
-          <span className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-2xs font-bold text-slate-500 uppercase tracking-wider block">
             1. Status Administratif
           </span>
           <p className="font-display text-lg font-bold text-slate-800 mt-1">
-            {filteredResults.filter((r) => r.completionStatus === "completed").length} Selesai
+            {
+              filteredResults.filter((r) => r.completionStatus === "completed")
+                .length
+            }{" "}
+            Selesai
           </p>
-          <span className="text-[0.62rem] text-slate-400">Pengerjaan lengkap seluruh plat</span>
+          <span className="text-3xs text-slate-400">
+            Pengerjaan lengkap seluruh plat
+          </span>
         </div>
 
         <div className="p-3.5 rounded-xl border border-slate-200 bg-white">
-          <span className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-2xs font-bold text-slate-500 uppercase tracking-wider block">
             2. Protokol Skrining
           </span>
           <p className="font-display text-lg font-bold text-emerald-600 mt-1">
-            {filteredResults.filter((r) => r.screeningInterpretation === "normal").length} Normal
+            {
+              filteredResults.filter(
+                (r) => r.screeningInterpretation === "normal",
+              ).length
+            }{" "}
+            Normal
           </p>
-          <span className="text-[0.62rem] text-slate-400">Akurasi di atas ambang validitas</span>
+          <span className="text-3xs text-slate-400">
+            Akurasi di atas ambang validitas
+          </span>
         </div>
 
         <div className="p-3.5 rounded-xl border border-slate-200 bg-white">
-          <span className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-2xs font-bold text-slate-500 uppercase tracking-wider block">
             3. Rekomendasi Medis
           </span>
           <p className="font-display text-lg font-bold text-amber-600 mt-1">
@@ -174,17 +200,25 @@ export default function ReportView() {
             }{" "}
             Perlu Telaah
           </p>
-          <span className="text-[0.62rem] text-slate-400">Rujukan buku fisik klinis</span>
+          <span className="text-3xs text-slate-400">
+            Rujukan buku fisik klinis
+          </span>
         </div>
 
         <div className="p-3.5 rounded-xl border border-slate-200 bg-white">
-          <span className="text-[0.68rem] font-bold text-slate-500 uppercase tracking-wider block">
+          <span className="text-2xs font-bold text-slate-500 uppercase tracking-wider block">
             4. Keputusan Seleksi
           </span>
           <p className="font-display text-lg font-bold text-brand-600 mt-1">
-            {filteredResults.filter((r) => r.selectionDecision === "eligible").length} Memenuhi Syarat
+            {
+              filteredResults.filter((r) => r.selectionDecision === "eligible")
+                .length
+            }{" "}
+            Memenuhi Syarat
           </p>
-          <span className="text-[0.62rem] text-slate-400">Diverifikasi panitia seleksi</span>
+          <span className="text-3xs text-slate-400">
+            Diverifikasi panitia seleksi
+          </span>
         </div>
       </div>
 
@@ -222,7 +256,7 @@ export default function ReportView() {
       <Card className="overflow-hidden border border-slate-200">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[0.65rem]">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-3xs">
               <tr>
                 <th className="py-3 px-3.5">No & Nama Peserta</th>
                 <th className="py-3 px-3.5">Sesi & Mode</th>
@@ -237,39 +271,53 @@ export default function ReportView() {
               {filteredResults.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <p className="font-bold text-sm text-slate-600">Belum ada riwayat hasil tes skrining.</p>
+                    <p className="font-bold text-sm text-slate-600">
+                      Belum ada riwayat hasil tes skrining.
+                    </p>
                     <p className="text-xs text-slate-400 mt-1">
-                      Jalankan tes di tab "Uji Skrining" atau melalui daftar peserta di tab "Manajemen Sesi".
+                      Jalankan tes di tab "Uji Skrining" atau melalui daftar
+                      peserta di tab "Manajemen Sesi".
                     </p>
                   </td>
                 </tr>
               ) : (
                 filteredResults.map((result) => (
-                  <tr key={result.id} className="hover:bg-slate-50/70 transition-colors">
+                  <tr
+                    key={result.id}
+                    className="hover:bg-slate-50/70 transition-colors"
+                  >
                     {/* Peserta */}
                     <td className="py-3 px-3.5">
-                      <div className="font-mono text-[0.68rem] font-bold text-brand-600">
+                      <div className="font-mono text-2xs font-bold text-brand-600">
                         {result.participantNumber}
                       </div>
-                      <div className="font-bold text-slate-900">{result.participantName}</div>
-                      <div className="text-[0.65rem] text-slate-400">{result.school}</div>
+                      <div className="font-bold text-slate-900">
+                        {result.participantName}
+                      </div>
+                      <div className="text-3xs text-slate-400">
+                        {result.school}
+                      </div>
                     </td>
 
                     {/* Sesi */}
                     <td className="py-3 px-3.5">
-                      <div className="font-bold text-slate-800">{result.sessionName}</div>
+                      <div className="font-bold text-slate-800">
+                        {result.sessionName}
+                      </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[0.65rem] font-mono text-slate-500">
+                        <span className="text-3xs font-mono text-slate-500">
                           {result.protocolVersion}
                         </span>
                         <span
-                          className={`text-[0.62rem] px-1.5 py-0.2 rounded font-bold ${
+                          className={`text-3xs px-1.5 py-0.2 rounded font-bold ${
                             result.sessionMode === "scheduled"
                               ? "bg-blue-50 text-blue-700"
                               : "bg-purple-50 text-purple-700"
                           }`}
                         >
-                          {result.sessionMode === "scheduled" ? "Terjadwal" : "Mandiri"}
+                          {result.sessionMode === "scheduled"
+                            ? "Terjadwal"
+                            : "Mandiri"}
                         </span>
                       </div>
                     </td>
@@ -277,23 +325,29 @@ export default function ReportView() {
                     {/* Layer 1: Admin */}
                     <td className="py-3 px-3.5">
                       <span
-                        className={`inline-flex items-center gap-1 text-[0.68rem] font-bold px-2 py-0.5 rounded-full ${
+                        className={`inline-flex items-center gap-1 text-2xs font-bold px-2 py-0.5 rounded-full ${
                           result.completionStatus === "completed"
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-amber-50 text-amber-700 border border-amber-200"
                         }`}
                       >
-                        {result.completionStatus === "completed" ? "Selesai Penuh" : "Belum Lengkap"}
+                        {result.completionStatus === "completed"
+                          ? "Selesai Penuh"
+                          : "Belum Lengkap"}
                       </span>
-                      <div className="text-[0.65rem] text-slate-500 mt-1">
-                        Akurasi: <strong className="text-slate-800">{result.accuracy}%</strong> ({result.correctCount}/{result.totalPlates})
+                      <div className="text-3xs text-slate-500 mt-1">
+                        Akurasi:{" "}
+                        <strong className="text-slate-800">
+                          {result.accuracy}%
+                        </strong>{" "}
+                        ({result.correctCount}/{result.totalPlates})
                       </div>
                     </td>
 
                     {/* Layer 2: Protokol */}
                     <td className="py-3 px-3.5">
                       <span
-                        className={`inline-flex items-center gap-1 text-[0.68rem] font-bold px-2 py-0.5 rounded-full ${
+                        className={`inline-flex items-center gap-1 text-2xs font-bold px-2 py-0.5 rounded-full ${
                           result.screeningInterpretation === "normal"
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-red-50 text-red-700 border border-red-200"
@@ -301,11 +355,13 @@ export default function ReportView() {
                       >
                         {result.screeningInterpretation === "normal" ? (
                           <>
-                            <CheckCircle2 className="size-3 text-emerald-600" /> Normal Sesuai Protokol
+                            <CheckCircle2 className="size-3 text-emerald-600" />{" "}
+                            Normal Sesuai Protokol
                           </>
                         ) : (
                           <>
-                            <AlertTriangle className="size-3 text-red-600" /> Parsial Protan/Deutan
+                            <AlertTriangle className="size-3 text-red-600" />{" "}
+                            Parsial Protan/Deutan
                           </>
                         )}
                       </span>
@@ -314,11 +370,11 @@ export default function ReportView() {
                     {/* Layer 3: Rekomendasi Klinis */}
                     <td className="py-3 px-3.5">
                       {result.clinicalFollowUp === "not_required" ? (
-                        <span className="text-[0.68rem] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">
+                        <span className="text-2xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">
                           Tidak Perlu Rujukan
                         </span>
                       ) : (
-                        <span className="text-[0.68rem] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        <span className="text-2xs text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                           Perlu Telaah Spesialis Mata
                         </span>
                       )}
@@ -347,7 +403,7 @@ export default function ReportView() {
                         size="sm"
                         variant="secondary"
                         onClick={() => setDetailModalResult(result)}
-                        className="text-[0.68rem] px-2.5 py-1 gap-1"
+                        className="text-2xs px-2.5 py-1 gap-1"
                       >
                         <Eye className="size-3" /> Detail
                       </Button>
@@ -370,7 +426,8 @@ export default function ReportView() {
                   Rincian Hasil Skrining Ishihara
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  ID Hasil: <span className="font-mono">{detailModalResult.id}</span>
+                  ID Hasil:{" "}
+                  <span className="font-mono">{detailModalResult.id}</span>
                 </p>
               </div>
               <button
@@ -385,7 +442,7 @@ export default function ReportView() {
               {/* Profil Peserta */}
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-2 gap-3">
                 <div>
-                  <span className="text-slate-400 block text-[0.65rem] uppercase font-bold">
+                  <span className="text-slate-400 block text-3xs uppercase font-bold">
                     Nama Peserta
                   </span>
                   <span className="font-bold text-slate-900 text-sm">
@@ -396,14 +453,16 @@ export default function ReportView() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[0.65rem] uppercase font-bold">
+                  <span className="text-slate-400 block text-3xs uppercase font-bold">
                     Sesi & Waktu
                   </span>
                   <span className="font-bold text-slate-800">
                     {detailModalResult.sessionName}
                   </span>
                   <span className="text-slate-500 block">
-                    {new Date(detailModalResult.createdAt).toLocaleString("id-ID")}
+                    {new Date(detailModalResult.createdAt).toLocaleString(
+                      "id-ID",
+                    )}
                   </span>
                 </div>
               </div>
@@ -412,60 +471,76 @@ export default function ReportView() {
               <div className="space-y-2.5">
                 <div className="p-3 rounded-xl border border-slate-200">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700">1. Status Administratif:</span>
+                    <span className="font-bold text-slate-700">
+                      1. Status Administratif:
+                    </span>
                     <span className="font-bold text-emerald-600">
-                      {detailModalResult.completionStatus.toUpperCase()} (Akurasi {detailModalResult.accuracy}%)
+                      {detailModalResult.completionStatus.toUpperCase()}{" "}
+                      (Akurasi {detailModalResult.accuracy}%)
                     </span>
                   </div>
-                  <p className="text-slate-500 text-[0.68rem] mt-1">
-                    Berhasil menjawab benar {detailModalResult.correctCount} dari {detailModalResult.totalPlates} piringan. Kecepatan respon rata-rata {detailModalResult.avgTimeSec} detik per pelat.
+                  <p className="text-slate-500 text-2xs mt-1">
+                    Berhasil menjawab benar {detailModalResult.correctCount}{" "}
+                    dari {detailModalResult.totalPlates} piringan. Kecepatan
+                    respon rata-rata {detailModalResult.avgTimeSec} detik per
+                    pelat.
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl border border-slate-200">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700">2. Hasil Skrining Protokol:</span>
+                    <span className="font-bold text-slate-700">
+                      2. Hasil Skrining Protokol:
+                    </span>
                     <span className="font-bold text-slate-900">
                       {detailModalResult.interpretationLabel}
                     </span>
                   </div>
-                  <p className="text-slate-500 text-[0.68rem] mt-1">
-                    Dievaluasi menggunakan instrumen stimulus berlisensi versi {detailModalResult.protocolVersion}.
+                  <p className="text-slate-500 text-2xs mt-1">
+                    Dievaluasi menggunakan instrumen stimulus berlisensi versi{" "}
+                    {detailModalResult.protocolVersion}.
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl border border-slate-200">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700">3. Rekomendasi Medis Klinis:</span>
+                    <span className="font-bold text-slate-700">
+                      3. Rekomendasi Medis Klinis:
+                    </span>
                     <span className="font-bold text-slate-800">
                       {detailModalResult.clinicalFollowUp === "not_required"
                         ? "Tidak Memerlukan Pemeriksaan Lanjutan"
                         : "Memerlukan Konfirmasi Dokter Spesialis Mata"}
                     </span>
                   </div>
-                  <p className="text-slate-500 text-[0.68rem] mt-1">
-                    {detailModalResult.followUpNote || "Sesuai standar skrining visual awal seleksi."}
+                  <p className="text-slate-500 text-2xs mt-1">
+                    {detailModalResult.followUpNote ||
+                      "Sesuai standar skrining visual awal seleksi."}
                   </p>
                 </div>
 
                 <div className="p-3 rounded-xl border border-slate-200">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-700">4. Keputusan Seleksi Lembaga:</span>
+                    <span className="font-bold text-slate-700">
+                      4. Keputusan Seleksi Lembaga:
+                    </span>
                     <Badge
                       tone={
                         detailModalResult.selectionDecision === "eligible"
                           ? "green"
                           : detailModalResult.selectionDecision === "ineligible"
-                          ? "red"
-                          : "slate"
+                            ? "red"
+                            : "slate"
                       }
                       size="sm"
                     >
                       {detailModalResult.selectionDecision.toUpperCase()}
                     </Badge>
                   </div>
-                  <p className="text-slate-500 text-[0.68rem] mt-1">
-                    Catatan: {detailModalResult.decisionNote || "Memenuhi syarat kriteria kesehatan mata Rikkes Tahap 4."}
+                  <p className="text-slate-500 text-2xs mt-1">
+                    Catatan:{" "}
+                    {detailModalResult.decisionNote ||
+                      "Memenuhi syarat kriteria kesehatan mata Rikkes Tahap 4."}
                   </p>
                 </div>
               </div>

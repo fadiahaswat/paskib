@@ -619,10 +619,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("local")
 
-  const currentUser = useMemo(
-    () => users.find((u) => u.id === currentUserId) ?? users[0],
-    [users, currentUserId],
-  )
+  const currentUser = useMemo(() => {
+    const found = users.find((u) => u.id === currentUserId)
+    if (found) return found
+
+    // Jika user aktif adalah sesi kandidat/santri, cari atau rekonstruksi langsung dari allCandidates
+    if (currentUserId && currentUserId.startsWith("user-cand-")) {
+      const candidateId = currentUserId.replace("user-cand-", "")
+      const cand = allCandidates.find(
+        (c) => c.id === candidateId || `user-cand-${c.id}` === currentUserId,
+      )
+      if (cand) {
+        return {
+          id: currentUserId,
+          name: cand.name,
+          email: `${cand.number.toLowerCase()}@paskibraka.internal`,
+          role: "candidate" as const,
+          avatar: cand.avatar || cand.name.slice(0, 2).toUpperCase(),
+          title: `Peserta No. ${cand.number}`,
+          active: true,
+          candidateId: cand.id,
+        }
+      }
+    }
+
+    // Fallback aman ke pelatih/admin resmi, jangan pernah jatuh ke kandidat sembarang
+    return (
+      users.find((u) => u.role === "admin" || u.role === "coach") ??
+      users[0] ??
+      initialUsers[0]
+    )
+  }, [users, currentUserId, allCandidates])
 
   const activeCycle = useMemo<SelectionCycle>(
     () =>
@@ -881,7 +908,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           supportingDocs: override?.supportingDocs ?? s.supportingDocs,
           standardRules: override?.standardRules ?? s.standardRules,
           stageChecklists: override?.stageChecklists ?? s.stageChecklists,
-          users: override?.users ?? s.users,
+          users: (override?.users ?? s.users).filter((u) => u.role !== "candidate"),
           auditLogs: override?.auditLogs ?? s.auditLogs,
           rankingPublished: override?.rankingPublished ?? s.rankingPublished,
           ishiharaSessions: override?.ishiharaSessions ?? s.ishiharaSessions,
@@ -1158,8 +1185,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           candidateId: cand.id,
         }
         setUsers((prev) => [
-          candidateUser,
           ...prev.filter((u) => u.id !== candidateUser.id),
+          candidateUser,
         ])
         setCurrentUserId(candidateUser.id)
       }
@@ -2567,7 +2594,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             supportingDocs: s.supportingDocs,
             standardRules: s.standardRules,
             stageChecklists: s.stageChecklists,
-            users: s.users,
+            users: s.users.filter((u) => u.role !== "candidate"),
             auditLogs: s.auditLogs,
             rankingPublished: s.rankingPublished,
             ishiharaSessions: s.ishiharaSessions,
@@ -2620,7 +2647,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (Array.isArray(d.standardRules)) setStandardRules(d.standardRules)
           if (d.stageChecklists && typeof d.stageChecklists === "object")
             setStageChecklists(d.stageChecklists)
-          if (Array.isArray(d.users) && d.users.length > 0) setUsers(d.users)
+          if (Array.isArray(d.users) && d.users.length > 0) {
+            setUsers((prevUsers) => {
+              const activeCandidate = prevUsers.find(
+                (u) => u.id === currentUserId && u.role === "candidate",
+              )
+              const cleanCloudUsers = d.users.filter(
+                (u: UserProfile) => u.role !== "candidate",
+              )
+              const baseUsers = cleanCloudUsers.length > 0 ? cleanCloudUsers : d.users
+              return activeCandidate && !baseUsers.some((u: UserProfile) => u.id === activeCandidate.id)
+                ? [...baseUsers, activeCandidate]
+                : baseUsers
+            })
+          }
           if (Array.isArray(d.auditLogs)) setAuditLogs(d.auditLogs)
           if (d.rankingPublished !== undefined)
             setRankingPublishedState(d.rankingPublished)

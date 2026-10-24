@@ -356,7 +356,9 @@ export function GoogleSheetSyncModal({
     }
   }
 
-  const isConfigured = Boolean(googleSheetUrl && googleSheetUrl.trim().length > 10)
+  const isConfigured = Boolean(
+    googleSheetUrl && googleSheetUrl.trim().length > 10,
+  )
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
@@ -372,7 +374,8 @@ export function GoogleSheetSyncModal({
                 Penyimpanan Cloud Google Sheet
               </h2>
               <p className="text-xs text-slate-500">
-                Data otomatis tersimpan & tersinkron antara Localhost dan GitHub Pages
+                Data otomatis tersimpan & tersinkron antara Localhost dan GitHub
+                Pages
               </p>
             </div>
           </div>
@@ -434,7 +437,7 @@ export function GoogleSheetSyncModal({
                     <span className="rounded-md bg-white px-2 py-0.5 font-semibold text-emerald-800 border border-emerald-200">
                       {sessions.length} Sesi Latihan
                     </span>
-                    <span className="text-[0.7rem] text-emerald-700">
+                    <span className="text-2xs text-emerald-700">
                       Terakhir simpan: {formatLastSync(lastCloudSync)}
                     </span>
                   </div>
@@ -450,7 +453,7 @@ export function GoogleSheetSyncModal({
                 URL Google Apps Script Web App
               </label>
               {isConfigured ? (
-                <span className="text-[0.68rem] text-emerald-600 font-semibold">
+                <span className="text-2xs text-emerald-600 font-semibold">
                   ✓ Terhubung
                 </span>
               ) : null}
@@ -472,7 +475,8 @@ export function GoogleSheetSyncModal({
               >
                 {testing ? (
                   <>
-                    <RefreshCw className="size-4 animate-spin" /> Menghubungkan...
+                    <RefreshCw className="size-4 animate-spin" />{" "}
+                    Menghubungkan...
                   </>
                 ) : (
                   <>
@@ -481,8 +485,9 @@ export function GoogleSheetSyncModal({
                 )}
               </Button>
             </div>
-            <p className="text-[0.72rem] text-slate-500">
-              Tempelkan URL Web App yang berakhiran <code>/exec</code> dari Google Sheet Anda.
+            <p className="text-2xs text-slate-500">
+              Tempelkan URL Web App yang berakhiran <code>/exec</code> dari
+              Google Sheet Anda.
             </p>
           </form>
 
@@ -506,14 +511,14 @@ export function GoogleSheetSyncModal({
             {showGuide ? (
               <div className="grid gap-3 p-4 text-xs text-slate-600 leading-relaxed border-t border-slate-200">
                 <div className="flex items-start gap-2.5">
-                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-slate-800 font-bold text-white text-[0.65rem]">
+                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-slate-800 font-bold text-white text-3xs">
                     1
                   </span>
                   <div>
                     <p className="font-semibold text-slate-900">
                       Buka Google Sheet &gt; Menu Ekstensi &gt; Apps Script
                     </p>
-                    <p className="text-slate-500 text-[0.72rem]">
+                    <p className="text-slate-500 text-2xs">
                       Bisa buat baru di{" "}
                       <a
                         href="https://sheet.new"
@@ -528,7 +533,7 @@ export function GoogleSheetSyncModal({
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-slate-800 font-bold text-white text-[0.65rem]">
+                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-slate-800 font-bold text-white text-3xs">
                     2
                   </span>
                   <div>
@@ -543,7 +548,8 @@ export function GoogleSheetSyncModal({
                     >
                       {copied ? (
                         <>
-                          <Check className="size-3 text-emerald-600" /> Tersalin ke Clipboard!
+                          <Check className="size-3 text-emerald-600" /> Tersalin
+                          ke Clipboard!
                         </>
                       ) : (
                         <>
@@ -555,15 +561,20 @@ export function GoogleSheetSyncModal({
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-slate-800 font-bold text-white text-[0.65rem]">
+                  <span className="grid size-5 shrink-0 place-items-center rounded-full bg-slate-800 font-bold text-white text-3xs">
                     3
                   </span>
                   <div>
                     <p className="font-semibold text-slate-900">
-                      Klik Terapkan (Deploy) &gt; Penerapan Baru &gt; Aplikasi Web
+                      Klik Terapkan (Deploy) &gt; Penerapan Baru &gt; Aplikasi
+                      Web
                     </p>
-                    <p className="text-slate-500 text-[0.72rem]">
-                      Pilih akses: <strong className="text-red-600 underline">Siapa saja (Anyone)</strong>, lalu salin URL Web App dan tempel di atas.
+                    <p className="text-slate-500 text-2xs">
+                      Pilih akses:{" "}
+                      <strong className="text-red-600 underline">
+                        Siapa saja (Anyone)
+                      </strong>
+                      , lalu salin URL Web App dan tempel di atas.
                     </p>
                   </div>
                 </div>

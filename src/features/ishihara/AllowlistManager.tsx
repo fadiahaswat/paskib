@@ -73,7 +73,8 @@ export default function AllowlistManager() {
       emailNormalized: cleanEmail,
       fullName: formName.trim() || cleanEmail.split("@")[0],
       role: formRole,
-      participantId: formRole === "participant" ? formCandidateId || undefined : undefined,
+      participantId:
+        formRole === "participant" ? formCandidateId || undefined : undefined,
       isAllowed: true,
       approvedBy: currentUser.name,
       notes: formNotes.trim() || undefined,
@@ -100,7 +101,8 @@ export default function AllowlistManager() {
             </Badge>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Daftar akun Google yang memiliki hak akses resmi ke instrumen skrining dan data seleksi internal lembaga.
+            Daftar akun Google yang memiliki hak akses resmi ke instrumen
+            skrining dan data seleksi internal lembaga.
           </p>
         </div>
 
@@ -116,9 +118,15 @@ export default function AllowlistManager() {
       <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200 flex items-start gap-3 text-xs text-blue-900">
         <Info className="size-4 text-blue-600 shrink-0 mt-0.5" />
         <div className="leading-relaxed">
-          <p className="font-bold text-blue-950">Prinsip Otorisasi PRD Versi 1.1:</p>
+          <p className="font-bold text-blue-950">
+            Prinsip Otorisasi PRD Versi 1.1:
+          </p>
           <p className="mt-0.5 text-blue-800">
-            Hanya akun Google yang terdaftar dan berstatus <strong>"Diizinkan"</strong> yang dapat mengakses portal. Akun di luar allowlist akan ditolak secara otomatis tanpa pembuatan identitas peserta publik. Penonaktifan akun langsung mencabut izin akses ke seluruh instrumen seleksi.
+            Hanya akun Google yang terdaftar dan berstatus{" "}
+            <strong>"Diizinkan"</strong> yang dapat mengakses portal. Akun di
+            luar allowlist akan ditolak secara otomatis tanpa pembuatan
+            identitas peserta publik. Penonaktifan akun langsung mencabut izin
+            akses ke seluruh instrumen seleksi.
           </p>
         </div>
       </div>
@@ -137,21 +145,29 @@ export default function AllowlistManager() {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-500">Filter Peran:</span>
+          <span className="text-xs font-bold text-slate-500">
+            Filter Peran:
+          </span>
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value as any)}
             className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            <option value="all">Semua Peran ({ishiharaAllowlist.length})</option>
+            <option value="all">
+              Semua Peran ({ishiharaAllowlist.length})
+            </option>
             <option value="admin">
-              Admin ({ishiharaAllowlist.filter((a) => a.role === "admin").length})
+              Admin (
+              {ishiharaAllowlist.filter((a) => a.role === "admin").length})
             </option>
             <option value="operator">
-              Operator ({ishiharaAllowlist.filter((a) => a.role === "operator").length})
+              Operator (
+              {ishiharaAllowlist.filter((a) => a.role === "operator").length})
             </option>
             <option value="participant">
-              Peserta ({ishiharaAllowlist.filter((a) => a.role === "participant").length})
+              Peserta (
+              {ishiharaAllowlist.filter((a) => a.role === "participant").length}
+              )
             </option>
           </select>
         </div>
@@ -161,7 +177,7 @@ export default function AllowlistManager() {
       <Card className="overflow-hidden border border-slate-200">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[0.65rem]">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-3xs">
               <tr>
                 <th className="py-3 px-4">Alamat Email Google</th>
                 <th className="py-3 px-4">Nama Pengguna</th>
@@ -186,7 +202,10 @@ export default function AllowlistManager() {
                   )
 
                   return (
-                    <tr key={acc.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr
+                      key={acc.id}
+                      className="hover:bg-slate-50/70 transition-colors"
+                    >
                       <td className="py-3 px-4 font-mono font-bold text-slate-800">
                         <div className="flex items-center gap-1.5">
                           <Mail className="size-3.5 text-slate-400 shrink-0" />
@@ -215,7 +234,7 @@ export default function AllowlistManager() {
                       <td className="py-3 px-4">
                         <button
                           onClick={() => toggleAuthorizedAccount(acc.id)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.68rem] font-bold transition-all cursor-pointer ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-bold transition-all cursor-pointer ${
                             acc.isAllowed
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
                               : "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
@@ -223,39 +242,44 @@ export default function AllowlistManager() {
                         >
                           {acc.isAllowed ? (
                             <>
-                              <CheckCircle2 className="size-3 text-emerald-600" /> Diizinkan
+                              <CheckCircle2 className="size-3 text-emerald-600" />{" "}
+                              Diizinkan
                             </>
                           ) : (
                             <>
-                              <XCircle className="size-3 text-red-600" /> Nonaktif
+                              <XCircle className="size-3 text-red-600" />{" "}
+                              Nonaktif
                             </>
                           )}
                         </button>
                       </td>
                       <td className="py-3 px-4">
                         {linkedCandidate ? (
-                          <span className="inline-flex items-center gap-1 text-[0.68rem] text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-2xs text-slate-700 font-bold bg-slate-100 px-2 py-0.5 rounded">
                             <span className="font-mono text-brand-600">
                               {linkedCandidate.number}
                             </span>
                             <span>{linkedCandidate.name}</span>
                           </span>
                         ) : acc.role === "participant" ? (
-                          <span className="text-slate-400 italic text-[0.68rem]">
+                          <span className="text-slate-400 italic text-2xs">
                             Belum ditautkan
                           </span>
                         ) : (
-                          <span className="text-slate-400 text-[0.68rem]">—</span>
+                          <span className="text-slate-400 text-2xs">—</span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-slate-500 text-[0.68rem]">
+                      <td className="py-3 px-4 text-slate-500 text-2xs">
                         <div>{acc.approvedBy}</div>
                         <div className="opacity-75">
-                          {new Date(acc.approvedAt).toLocaleDateString("id-ID", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {new Date(acc.approvedAt).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )}
                         </div>
                       </td>
                       <td className="py-3 px-4 text-right">
@@ -294,7 +318,8 @@ export default function AllowlistManager() {
                   Daftarkan Akun Google Baru
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Tambahkan akun ke tabel otorisasi `authorized_accounts` internal.
+                  Tambahkan akun ke tabel otorisasi `authorized_accounts`
+                  internal.
                 </p>
               </div>
               <button

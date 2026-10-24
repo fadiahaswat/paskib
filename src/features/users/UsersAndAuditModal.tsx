@@ -56,7 +56,9 @@ const AUTHORIZED_COACH_EMAILS = [
 // ============================================================================
 // HELPER: PARSE GOOGLE JWT CREDENTIAL SAFELY (CLIENT-SIDE)
 // ============================================================================
-function parseGoogleJwt(token: string): {
+function parseGoogleJwt(
+  token: string,
+): {
   email?: string
   name?: string
   picture?: string
@@ -158,7 +160,7 @@ export function CandidateLoginModal({
               <GraduationCap className="size-5" />
             </div>
             <div>
-              <p className="text-[0.68rem] font-bold uppercase tracking-wider text-red-400">
+              <p className="text-2xs font-bold uppercase tracking-wider text-red-400">
                 Portal Mandiri Santri
               </p>
               <h2 className="font-display text-lg font-bold">
@@ -182,7 +184,7 @@ export function CandidateLoginModal({
                 16 Digit Nomor Induk Kependudukan (NIK)
               </label>
               <span
-                className={`text-[0.68rem] font-mono font-bold px-2 py-0.5 rounded-full ${
+                className={`text-2xs font-mono font-bold px-2 py-0.5 rounded-full ${
                   cleanNik.length === 16
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                     : "bg-slate-100 text-slate-500"
@@ -220,14 +222,14 @@ export function CandidateLoginModal({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="size-3.5 text-emerald-600" />
-                    <p className="text-[0.65rem] font-bold uppercase tracking-wider text-emerald-700">
+                    <p className="text-3xs font-bold uppercase tracking-wider text-emerald-700">
                       Santri Teridentifikasi
                     </p>
                   </div>
                   <p className="text-sm font-bold text-slate-900 truncate">
                     {matchedCandidate.name}
                   </p>
-                  <p className="text-[0.68rem] text-slate-500 truncate">
+                  <p className="text-2xs text-slate-500 truncate">
                     No: {matchedCandidate.number} • {matchedCandidate.school}
                   </p>
                 </div>
@@ -250,7 +252,6 @@ export function CandidateLoginModal({
               <ArrowRight className="size-4" />
             </button>
           </form>
-
         </div>
       </div>
     </div>
@@ -285,7 +286,9 @@ export function UsersAndAuditModal({
     cloudSyncStatus,
   } = useApp()
 
-  const [tab, setTab] = useState<"switch" | "candidates" | "manage" | "audit">("switch")
+  const [tab, setTab] = useState<"switch" | "candidates" | "manage" | "audit">(
+    "switch",
+  )
   const [candidateSearch, setCandidateSearch] = useState("")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -372,7 +375,9 @@ export function UsersAndAuditModal({
             <Button
               variant="secondary"
               className="!px-3 !py-1.5 !text-xs font-semibold"
-              loading={syncStatus === "syncing" || cloudSyncStatus === "syncing"}
+              loading={
+                syncStatus === "syncing" || cloudSyncStatus === "syncing"
+              }
               onClick={async () => {
                 if (googleSheetUrl) {
                   await syncToGoogleSheet()
@@ -401,7 +406,9 @@ export function UsersAndAuditModal({
           {tab === "switch" && (
             <div className="grid gap-4">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-relaxed text-slate-600">
-                Pilih profil pengguna internal pelatih untuk menguji batas otorisasi. Akun terotorisasi Google: <strong>{AUTHORIZED_COACH_EMAILS.join(", ")}</strong>.
+                Pilih profil pengguna internal pelatih untuk menguji batas
+                otorisasi. Akun terotorisasi Google:{" "}
+                <strong>{AUTHORIZED_COACH_EMAILS.join(", ")}</strong>.
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {users.map((u) => {
@@ -427,7 +434,9 @@ export function UsersAndAuditModal({
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-bold text-slate-900">{u.name}</p>
+                          <p className="truncate text-sm font-bold text-slate-900">
+                            {u.name}
+                          </p>
                           <Badge tone={isCurrent ? "success" : "neutral"}>
                             {u.role.toUpperCase()}
                           </Badge>
@@ -483,11 +492,15 @@ export function UsersAndAuditModal({
                       className="size-10 text-xs font-bold shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-bold text-slate-900">{cand.name}</p>
-                      <p className="font-mono text-[0.68rem] text-red-600 font-bold">
+                      <p className="truncate text-xs font-bold text-slate-900">
+                        {cand.name}
+                      </p>
+                      <p className="font-mono text-2xs text-red-600 font-bold">
                         NIK: {cand.nik}
                       </p>
-                      <p className="truncate text-[0.65rem] text-slate-500">{cand.school}</p>
+                      <p className="truncate text-3xs text-slate-500">
+                        {cand.school}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -558,7 +571,9 @@ export function UsersAndAuditModal({
                         rounded="rounded-xl"
                       />
                       <div>
-                        <p className="text-sm font-bold text-slate-900">{u.name}</p>
+                        <p className="text-sm font-bold text-slate-900">
+                          {u.name}
+                        </p>
                         <p className="text-xs text-slate-500">
                           {u.email} · {u.title}
                         </p>
@@ -568,15 +583,16 @@ export function UsersAndAuditModal({
                       <Badge tone={u.active ? "success" : "danger"}>
                         {u.active ? "Aktif" : "Nonaktif"}
                       </Badge>
-                      {currentUser.role === "admin" && u.id !== currentUser.id && (
-                        <Button
-                          variant="secondary"
-                          className="!px-3 !py-1.5 !text-xs"
-                          onClick={() => toggleUserActive(u.id)}
-                        >
-                          {u.active ? "Nonaktifkan" : "Aktifkan"}
-                        </Button>
-                      )}
+                      {currentUser.role === "admin" &&
+                        u.id !== currentUser.id && (
+                          <Button
+                            variant="secondary"
+                            className="!px-3 !py-1.5 !text-xs"
+                            onClick={() => toggleUserActive(u.id)}
+                          >
+                            {u.active ? "Nonaktifkan" : "Aktifkan"}
+                          </Button>
+                        )}
                     </div>
                   </div>
                 ))}
@@ -635,7 +651,9 @@ export function GoogleAccountPickerModal({
   const [customEmail, setCustomEmail] = useState("")
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customError, setCustomError] = useState<string | null>(null)
-  const [authenticatingEmail, setAuthenticatingEmail] = useState<string | null>(null)
+  const [authenticatingEmail, setAuthenticatingEmail] = useState<string | null>(
+    null,
+  )
 
   if (!open) return null
 
@@ -693,7 +711,8 @@ export function GoogleAccountPickerModal({
             Pilih Akun Google
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            untuk melanjutkan ke <strong className="text-slate-800">BACAPASMUIN! Selection</strong>
+            untuk melanjutkan ke{" "}
+            <strong className="text-slate-800">BACAPASMUIN! Selection</strong>
           </p>
         </div>
 
@@ -723,7 +742,7 @@ export function GoogleAccountPickerModal({
                     <p className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition truncate">
                       {p.name}
                     </p>
-                    <span className="text-[0.62rem] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full font-bold">
+                    <span className="text-3xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full font-bold">
                       Whitelist
                     </span>
                   </div>
@@ -749,8 +768,10 @@ export function GoogleAccountPickerModal({
                   <User className="size-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">Gunakan akun Google lain</p>
-                  <p className="text-[0.68rem] text-slate-400">
+                  <p className="text-sm font-medium">
+                    Gunakan akun Google lain
+                  </p>
+                  <p className="text-2xs text-slate-400">
                     Uji akun di luar whitelist (akan ditolak oleh sistem)
                   </p>
                 </div>
@@ -781,7 +802,9 @@ export function GoogleAccountPickerModal({
                   </button>
                 </div>
                 {customError && (
-                  <p className="text-[0.7rem] text-red-600 font-medium">{customError}</p>
+                  <p className="text-2xs text-red-600 font-medium">
+                    {customError}
+                  </p>
                 )}
               </form>
             )}
@@ -790,7 +813,7 @@ export function GoogleAccountPickerModal({
 
         {/* Footer */}
         <div className="p-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span className="text-[0.68rem]">Google Identity Services • OAuth 2.0</span>
+          <span className="text-2xs">Google Identity Services • OAuth 2.0</span>
           <button
             type="button"
             onClick={onClose}
@@ -824,7 +847,7 @@ export function LoginScreen() {
 
   const googleClientId =
     localStorage.getItem("paska_google_client_id") ||
-    (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) ||
+    import.meta.env.VITE_GOOGLE_CLIENT_ID as string ||
     OFFICIAL_GOOGLE_CLIENT_ID
 
   const filledCount = useMemo(
@@ -1051,15 +1074,20 @@ export function LoginScreen() {
           error_callback: (nonOAuthError: any) => {
             setIsConnectingGoogle(false)
             console.warn("Google OAuth notice:", nonOAuthError)
-            setGoogleError("Google tidak dapat mengautentikasi akun. Silakan coba lagi.")
+            setGoogleError(
+              "Google tidak dapat mengautentikasi akun. Silakan coba lagi.",
+            )
           },
           callback: async (resp: any) => {
             setIsConnectingGoogle(false)
             if (resp?.access_token) {
               try {
-                const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-                  headers: { Authorization: `Bearer ${resp.access_token}` },
-                })
+                const userRes = await fetch(
+                  "https://www.googleapis.com/oauth2/v3/userinfo",
+                  {
+                    headers: { Authorization: `Bearer ${resp.access_token}` },
+                  },
+                )
                 const userInfo = await userRes.json()
                 if (userInfo?.email) {
                   handleGoogleCoachLogin(userInfo.email, {
@@ -1072,7 +1100,9 @@ export function LoginScreen() {
                 console.warn("Google userinfo fetch fallback", e)
               }
             }
-            setGoogleError("Tidak dapat mengambil profil Google. Silakan coba lagi.")
+            setGoogleError(
+              "Tidak dapat mengambil profil Google. Silakan coba lagi.",
+            )
           },
         })
         client.requestAccessToken()
@@ -1091,11 +1121,15 @@ export function LoginScreen() {
       if (google?.accounts?.id && googleClientId) {
         google.accounts.id.prompt((notification: any) => {
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            setGoogleError("Google Sign-In tidak tersedia di browser ini. Silakan coba lagi.")
+            setGoogleError(
+              "Google Sign-In tidak tersedia di browser ini. Silakan coba lagi.",
+            )
           }
         })
       } else {
-        setGoogleError("Google Sign-In tidak tersedia di browser ini. Silakan muat ulang halaman.")
+        setGoogleError(
+          "Google Sign-In tidak tersedia di browser ini. Silakan muat ulang halaman.",
+        )
       }
     }, 300)
   }
@@ -1138,7 +1172,7 @@ export function LoginScreen() {
           </div>
 
           <div className="flex items-center gap-4 text-xs text-slate-500">
-            <span className="font-mono text-[0.7rem] font-medium text-slate-600">
+            <span className="font-mono text-2xs font-medium text-slate-600">
               PERIODE 2026/2027
             </span>
           </div>
@@ -1149,28 +1183,30 @@ export function LoginScreen() {
       <main className="relative z-10 flex-1 flex items-center">
         <div className="mx-auto w-full max-w-[84rem] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
           <div className="grid items-start gap-8 lg:grid-cols-[0.94fr_1.06fr] lg:gap-9">
-            
             {/* Left Column: System Overview & Complete 8-Stage Index */}
             <div className="order-2 lg:order-1">
               <div className="border-b border-slate-200 pb-6">
-                <p className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-red-700">
+                <p className="font-mono text-2xs font-semibold uppercase tracking-[0.16em] text-red-700">
                   Sistem Pembinaan &amp; Seleksi Paskibraka
                 </p>
                 <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
                   Manajemen Latihan, Evaluasi Fisik, dan Seleksi Terpadu
                 </h1>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600">
-                  Pusat data pemantauan kesiapan calon Paskibraka utusan MA Mu&apos;allimin Yogyakarta. Mencakup rekapitulasi berkas, antropometri kesehatan, latihan baris-berbaris, kesamaptaan jasmani, hingga simulasi ujian.
+                  Pusat data pemantauan kesiapan calon Paskibraka utusan MA
+                  Mu&apos;allimin Yogyakarta. Mencakup rekapitulasi berkas,
+                  antropometri kesehatan, latihan baris-berbaris, kesamaptaan
+                  jasmani, hingga simulasi ujian.
                 </p>
               </div>
 
               {/* 8-Stage Specification Index (Editorial Grid, No AI Slop Cards) */}
               <div className="mt-6">
                 <div className="flex items-center justify-between pb-3">
-                  <span className="font-mono text-[0.68rem] font-semibold uppercase tracking-wider text-slate-500">
+                  <span className="font-mono text-2xs font-semibold uppercase tracking-wider text-slate-500">
                     Cakupan 8 Materi Pembinaan &amp; Seleksi
                   </span>
-                  <span className="font-mono text-[0.68rem] text-slate-400">
+                  <span className="font-mono text-2xs text-slate-400">
                     Acuan BPIP
                   </span>
                 </div>
@@ -1183,8 +1219,10 @@ export function LoginScreen() {
                       title: "Administrasi & Berkas",
                       desc: "Verifikasi 6 dokumen syarat pendaftaran",
                       icon: FileCheck2,
-                      iconWrap: "bg-emerald-50 text-emerald-600 border-emerald-200/80",
-                      badge: "bg-emerald-50 text-emerald-700 border-emerald-200/80",
+                      iconWrap:
+                        "bg-emerald-50 text-emerald-600 border-emerald-200/80",
+                      badge:
+                        "bg-emerald-50 text-emerald-700 border-emerald-200/80",
                       numColor: "text-emerald-600",
                     },
                     {
@@ -1223,8 +1261,10 @@ export function LoginScreen() {
                       title: "Parade & Sikap Tubuh",
                       desc: "Proporsi anatomi & konsistensi sikap",
                       icon: Ruler,
-                      iconWrap: "bg-indigo-50 text-indigo-600 border-indigo-200/80",
-                      badge: "bg-indigo-50 text-indigo-700 border-indigo-200/80",
+                      iconWrap:
+                        "bg-indigo-50 text-indigo-600 border-indigo-200/80",
+                      badge:
+                        "bg-indigo-50 text-indigo-700 border-indigo-200/80",
                       numColor: "text-indigo-600",
                     },
                     {
@@ -1233,7 +1273,8 @@ export function LoginScreen() {
                       title: "Peraturan Baris-Berbaris",
                       desc: "Gerak di tempat, berjalan & aba-aba",
                       icon: Compass,
-                      iconWrap: "bg-amber-50 text-amber-600 border-amber-200/80",
+                      iconWrap:
+                        "bg-amber-50 text-amber-600 border-amber-200/80",
                       badge: "bg-amber-50 text-amber-700 border-amber-200/80",
                       numColor: "text-amber-600",
                     },
@@ -1243,8 +1284,10 @@ export function LoginScreen() {
                       title: "Kesamaptaan Jasmani",
                       desc: "Lari 12 menit, push-up, sit-up & shuttle",
                       icon: Activity,
-                      iconWrap: "bg-orange-50 text-orange-600 border-orange-200/80",
-                      badge: "bg-orange-50 text-orange-700 border-orange-200/80",
+                      iconWrap:
+                        "bg-orange-50 text-orange-600 border-orange-200/80",
+                      badge:
+                        "bg-orange-50 text-orange-700 border-orange-200/80",
                       numColor: "text-orange-600",
                     },
                     {
@@ -1253,8 +1296,10 @@ export function LoginScreen() {
                       title: "Kepribadian & Wawancara",
                       desc: "Evaluasi mental, rekam jejak & minat bakat",
                       icon: MessagesSquare,
-                      iconWrap: "bg-violet-50 text-violet-600 border-violet-200/80",
-                      badge: "bg-violet-50 text-violet-700 border-violet-200/80",
+                      iconWrap:
+                        "bg-violet-50 text-violet-600 border-violet-200/80",
+                      badge:
+                        "bg-violet-50 text-violet-700 border-violet-200/80",
                       numColor: "text-violet-600",
                     },
                   ].map((item) => {
@@ -1271,14 +1316,14 @@ export function LoginScreen() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-mono text-[0.65rem] font-semibold text-slate-400">
+                            <span className="font-mono text-3xs font-semibold text-slate-400">
                               {item.num}
                             </span>
                             <p className="text-xs font-semibold text-slate-900 truncate">
                               {item.title}
                             </p>
                           </div>
-                          <p className="mt-0.5 text-[0.69rem] leading-snug text-slate-500">
+                          <p className="mt-0.5 text-2xs leading-snug text-slate-500">
                             {item.desc}
                           </p>
                         </div>
@@ -1291,15 +1336,24 @@ export function LoginScreen() {
               {/* Institutional Footnote */}
               <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500">
                 <span>
-                  Terdaftar: <strong className="font-semibold text-slate-800">{candidates.length} santri aktif</strong>
+                  Terdaftar:{" "}
+                  <strong className="font-semibold text-slate-800">
+                    {candidates.length} santri aktif
+                  </strong>
                 </span>
                 <span className="text-slate-300">•</span>
                 <span>
-                  Tingkat: <strong className="font-semibold text-slate-800">Kabupaten / Kota</strong>
+                  Tingkat:{" "}
+                  <strong className="font-semibold text-slate-800">
+                    Kabupaten / Kota
+                  </strong>
                 </span>
                 <span className="text-slate-300">•</span>
                 <span>
-                  Metode: <strong className="font-semibold text-slate-800">Pembinaan Non-Gugur</strong>
+                  Metode:{" "}
+                  <strong className="font-semibold text-slate-800">
+                    Pembinaan Non-Gugur
+                  </strong>
                 </span>
               </div>
             </div>
@@ -1350,11 +1404,16 @@ export function LoginScreen() {
                           Akses Portal Santri
                         </h2>
                         <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          Lihat progres pembinaan fisik, kelengkapan berkas, panduan materi, hasil penilaian lapangan, serta akses ujian yang dijadwalkan.
+                          Lihat progres pembinaan fisik, kelengkapan berkas,
+                          panduan materi, hasil penilaian lapangan, serta akses
+                          ujian yang dijadwalkan.
                         </p>
                       </div>
 
-                      <form onSubmit={handleCandidateSubmit} className="space-y-4">
+                      <form
+                        onSubmit={handleCandidateSubmit}
+                        className="space-y-4"
+                      >
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <label
@@ -1372,13 +1431,13 @@ export function LoginScreen() {
                                     setNikError(null)
                                     focusSlot(0)
                                   }}
-                                  className="text-[0.68rem] font-medium text-slate-400 hover:text-slate-700 transition"
+                                  className="text-2xs font-medium text-slate-400 hover:text-slate-700 transition"
                                 >
                                   Reset
                                 </button>
                               )}
                               <span
-                                className={`font-mono text-[0.68rem] font-semibold ${
+                                className={`font-mono text-2xs font-semibold ${
                                   filledCount === 16
                                     ? "text-emerald-700"
                                     : "text-slate-400"
@@ -1395,8 +1454,14 @@ export function LoginScreen() {
                               {[
                                 { indices: [0, 1, 2], label: "Wil. I (3)" },
                                 { indices: [3, 4, 5], label: "Wil. II (3)" },
-                                { indices: [6, 7, 8, 9, 10, 11], label: "Tgl Lahir (6)" },
-                                { indices: [12, 13, 14, 15], label: "Urut (4)" },
+                                {
+                                  indices: [6, 7, 8, 9, 10, 11],
+                                  label: "Tgl Lahir (6)",
+                                },
+                                {
+                                  indices: [12, 13, 14, 15],
+                                  label: "Urut (4)",
+                                },
                               ].map((group, groupIdx) => (
                                 <div key={group.label} className="contents">
                                   {groupIdx > 0 && (
@@ -1417,11 +1482,16 @@ export function LoginScreen() {
                                     {group.indices.map((slotIdx) => {
                                       const val = nikSlots[slotIdx] || ""
                                       const isCompleteMatch =
-                                        Boolean(matchedCandidate) && filledCount === 16
+                                        Boolean(matchedCandidate) &&
+                                        filledCount === 16
                                       return (
                                         <input
                                           key={slotIdx}
-                                          id={slotIdx === 0 ? "nik-otp-0" : undefined}
+                                          id={
+                                            slotIdx === 0
+                                              ? "nik-otp-0"
+                                              : undefined
+                                          }
                                           ref={(el) => {
                                             otpRefs.current[slotIdx] = el
                                           }}
@@ -1432,12 +1502,21 @@ export function LoginScreen() {
                                           autoComplete="off"
                                           aria-label={`Digit NIK ke-${slotIdx + 1}`}
                                           value={val}
-                                          onFocus={(e) => e.currentTarget.select()}
-                                          onChange={(e) =>
-                                            handleSlotChange(slotIdx, e.target.value)
+                                          onFocus={(e) =>
+                                            e.currentTarget.select()
                                           }
-                                          onKeyDown={(e) => handleSlotKeyDown(slotIdx, e)}
-                                          onPaste={(e) => handleSlotPaste(slotIdx, e)}
+                                          onChange={(e) =>
+                                            handleSlotChange(
+                                              slotIdx,
+                                              e.target.value,
+                                            )
+                                          }
+                                          onKeyDown={(e) =>
+                                            handleSlotKeyDown(slotIdx, e)
+                                          }
+                                          onPaste={(e) =>
+                                            handleSlotPaste(slotIdx, e)
+                                          }
                                           className={`aspect-square w-full rounded-[5px] border text-center font-mono text-xs sm:text-sm font-bold p-0 outline-none transition-all duration-150 focus:z-10 focus:border-blue-600 focus:bg-white focus:ring-[3px] focus:ring-blue-500/20 ${
                                             isCompleteMatch
                                               ? "border-emerald-500 bg-emerald-50/40 text-emerald-950"
@@ -1454,7 +1533,7 @@ export function LoginScreen() {
                             </div>
 
                             {/* Subtle Segment Guide (3 - 3 - 6 - 4) */}
-                            <div className="hidden sm:flex items-center justify-between text-[0.62rem] font-mono text-slate-400 px-0.5">
+                            <div className="hidden sm:flex items-center justify-between text-3xs font-mono text-slate-400 px-0.5">
                               <span>Kode Wil. (3-3)</span>
                               <span>Tgl Lahir DDMMYY (6)</span>
                               <span>No. Urut (4)</span>
@@ -1474,8 +1553,9 @@ export function LoginScreen() {
                               <p className="text-xs font-bold text-slate-900 truncate">
                                 {matchedCandidate.name}
                               </p>
-                              <p className="font-mono text-[0.68rem] text-emerald-800 truncate">
-                                {matchedCandidate.number} · {matchedCandidate.school}
+                              <p className="font-mono text-2xs text-emerald-800 truncate">
+                                {matchedCandidate.number} ·{" "}
+                                {matchedCandidate.school}
                               </p>
                             </div>
                             <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
@@ -1506,7 +1586,9 @@ export function LoginScreen() {
                           Akses Pelatih, Juri &amp; Tim Penyeleksi
                         </h2>
                         <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          Input skor lapangan (PBB, Samapta, Parade &amp; Wawancara), verifikasi berkas &amp; pemeriksaan medis, kelola sesi ujian, serta pantau klasemen seleksi.
+                          Input skor lapangan (PBB, Samapta, Parade &amp;
+                          Wawancara), verifikasi berkas &amp; pemeriksaan medis,
+                          kelola sesi ujian, serta pantau klasemen seleksi.
                         </p>
                       </div>
 
@@ -1537,12 +1619,15 @@ export function LoginScreen() {
                         )}
                       </div>
 
-                      <div className="border-t border-slate-100 pt-4 text-[0.7rem] leading-relaxed text-slate-500">
+                      <div className="border-t border-slate-100 pt-4 text-2xs leading-relaxed text-slate-500">
                         <p className="font-semibold text-slate-700">
                           Otorisasi Pelatih, Juri &amp; Medis:
                         </p>
                         <p className="mt-0.5">
-                          Akses penilaian dan manajemen hanya diberikan bagi akun Google pelatih, juri (tim penyeleksi), serta petugas medis yang terdaftar di daftar izin (allowlist) sistem.
+                          Akses penilaian dan manajemen hanya diberikan bagi
+                          akun Google pelatih, juri (tim penyeleksi), serta
+                          petugas medis yang terdaftar di daftar izin
+                          (allowlist) sistem.
                         </p>
                       </div>
                     </div>
@@ -1565,12 +1650,13 @@ export function LoginScreen() {
                         Utusan MA Mu&apos;allimin
                       </span>
                     </div>
-                    <span className="font-mono text-[0.7rem] text-slate-400">BPIP-STD</span>
+                    <span className="font-mono text-2xs text-slate-400">
+                      BPIP-STD
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </main>
@@ -1579,7 +1665,7 @@ export function LoginScreen() {
       <footer className="relative z-10 border-t border-slate-200/80 bg-white/85 backdrop-blur-[2px] py-3.5 text-xs text-slate-500">
         <div className="mx-auto flex max-w-[84rem] flex-wrap items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
           <p>© 2026–2027 Madrasah Mu&apos;allimin Muhammadiyah Yogyakarta</p>
-          <p className="text-[0.7rem] text-slate-400">
+          <p className="text-2xs text-slate-400">
             Sistem Informasi Pembinaan &amp; Seleksi Paskibraka
           </p>
         </div>

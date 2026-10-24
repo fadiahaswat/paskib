@@ -30,13 +30,16 @@ export default function PbbEvaluationSection({
   onUpdateMetrics,
 }: PbbEvaluationSectionProps) {
   const [filterView, setFilterView] = useState<FilterView>("all")
-  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({})
+  const [collapsedCategories, setCollapsedCategories] =
+    useState<Record<string, boolean>>({})
 
   const summary = calculatePbbSummary(metrics)
 
   // Count items with notes
   const notesCount = useMemo(() => {
-    return ALL_PBB_ITEMS.filter((i) => Boolean(metrics[`pbb_note_${i.id}`]?.trim())).length
+    return ALL_PBB_ITEMS.filter((i) =>
+      Boolean(metrics[`pbb_note_${i.id}`]?.trim()),
+    ).length
   }, [metrics])
 
   const unratedCount = summary.totalItems - summary.gradedCount
@@ -137,7 +140,9 @@ export default function PbbEvaluationSection({
   function handleResetAll() {
     if (
       summary.gradedCount > 0 &&
-      !window.confirm("Kosongkan seluruh 25 penilaian PBB pada sesi kandidat ini?")
+      !window.confirm(
+        "Kosongkan seluruh 25 penilaian PBB pada sesi kandidat ini?",
+      )
     ) {
       return
     }
@@ -157,7 +162,9 @@ export default function PbbEvaluationSection({
     }))
   }
 
-  const completionPercent = Math.round((summary.gradedCount / summary.totalItems) * 100)
+  const completionPercent = Math.round(
+    (summary.gradedCount / summary.totalItems) * 100,
+  )
 
   return (
     <div className="space-y-4">
@@ -172,8 +179,13 @@ export default function PbbEvaluationSection({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-display text-xl font-black text-slate-900">
-                  {summary.finalScore !== null ? summary.finalScore.toFixed(1) : "—"}
-                  <span className="text-xs font-normal text-slate-400"> / 100</span>
+                  {summary.finalScore !== null
+                    ? summary.finalScore.toFixed(1)
+                    : "—"}
+                  <span className="text-xs font-normal text-slate-400">
+                    {" "}
+                    / 100
+                  </span>
                 </span>
                 {summary.predicate !== "-" ? (
                   <span
@@ -196,7 +208,8 @@ export default function PbbEvaluationSection({
                 )}
               </div>
               <p className="text-xs text-slate-500">
-                {summary.gradedCount} dari {summary.totalItems} gerakan dinilai ({completionPercent}%)
+                {summary.gradedCount} dari {summary.totalItems} gerakan dinilai
+                ({completionPercent}%)
               </p>
             </div>
           </div>
@@ -285,7 +298,9 @@ export default function PbbEvaluationSection({
             return true
           })
 
-          const catGraded = cat.items.filter((i) => Boolean(metrics[`pbb_${i.id}`])).length
+          const catGraded = cat.items.filter((i) =>
+            Boolean(metrics[`pbb_${i.id}`]),
+          ).length
           const isCatComplete = catGraded === cat.items.length
 
           // If filtering and no items match in this category, hide category
@@ -310,7 +325,7 @@ export default function PbbEvaluationSection({
                   <h4 className="text-sm font-bold text-slate-900">
                     {cat.title}
                   </h4>
-                  <span className="rounded-md bg-slate-200/70 px-2 py-0.5 text-[0.68rem] font-semibold text-slate-600">
+                  <span className="rounded-md bg-slate-200/70 px-2 py-0.5 text-2xs font-semibold text-slate-600">
                     {cat.macroGroup === "statis"
                       ? "PBB Statis"
                       : cat.macroGroup === "dinamis"
@@ -318,7 +333,7 @@ export default function PbbEvaluationSection({
                         : "Vokal & Komando"}
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[0.7rem] font-bold ${
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-2xs font-bold ${
                       isCatComplete
                         ? "bg-emerald-100 text-emerald-800"
                         : catGraded > 0
@@ -340,7 +355,7 @@ export default function PbbEvaluationSection({
                     <button
                       type="button"
                       onClick={() => handleCategoryFill(cat.key, "A")}
-                      className="rounded bg-white px-2 py-0.5 text-[0.68rem] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition"
+                      className="rounded bg-white px-2 py-0.5 text-2xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition"
                       title="Set semua gerakan di kategori ini jadi A"
                     >
                       Kategori A
@@ -348,7 +363,7 @@ export default function PbbEvaluationSection({
                     <button
                       type="button"
                       onClick={() => handleCategoryFill(cat.key, "B")}
-                      className="rounded bg-white px-2 py-0.5 text-[0.68rem] font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition"
+                      className="rounded bg-white px-2 py-0.5 text-2xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition"
                       title="Set semua gerakan di kategori ini jadi B"
                     >
                       Kategori B
@@ -369,17 +384,21 @@ export default function PbbEvaluationSection({
               {!isCollapsed && (
                 <div>
                   {/* Table Column Headers (Desktop) */}
-                  <div className="hidden border-b border-slate-100 bg-slate-50/50 px-4 py-2 text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 md:grid md:grid-cols-12 md:gap-4 md:items-center">
+                  <div className="hidden border-b border-slate-100 bg-slate-50/50 px-4 py-2 text-2xs font-bold uppercase tracking-wider text-slate-400 md:grid md:grid-cols-12 md:gap-4 md:items-center">
                     <div className="col-span-1">No</div>
                     <div className="col-span-4">Materi Gerakan</div>
-                    <div className="col-span-3 text-center">Nilai (A · B · C · D)</div>
+                    <div className="col-span-3 text-center">
+                      Nilai (A · B · C · D)
+                    </div>
                     <div className="col-span-4">Catatan Koreksi Gerakan</div>
                   </div>
 
                   {/* Rows */}
                   <div className="divide-y divide-slate-100">
                     {visibleItems.map((item) => {
-                      const grade = metrics[`pbb_${item.id}`] as PbbGrade | undefined
+                      const grade = metrics[
+                        `pbb_${item.id}`
+                      ] as PbbGrade | undefined
                       const noteKey = `pbb_note_${item.id}`
                       const noteValue = metrics[noteKey] ?? ""
                       const hasNote = Boolean(noteValue.trim())
@@ -388,7 +407,9 @@ export default function PbbEvaluationSection({
                         <div
                           key={item.id}
                           className={`p-3.5 transition md:px-4 md:py-3 ${
-                            grade ? "bg-white hover:bg-slate-50/60" : "bg-white/70 hover:bg-slate-50/40"
+                            grade
+                              ? "bg-white hover:bg-slate-50/60"
+                              : "bg-white/70 hover:bg-slate-50/40"
                           }`}
                         >
                           {/* Desktop Layout (Grid) */}
@@ -414,7 +435,9 @@ export default function PbbEvaluationSection({
                                     <button
                                       key={g}
                                       type="button"
-                                      onClick={() => handleSelectGrade(item.id, g)}
+                                      onClick={() =>
+                                        handleSelectGrade(item.id, g)
+                                      }
                                       className={`h-8 w-9 rounded-lg text-xs font-bold transition flex items-center justify-center ${
                                         isSelected
                                           ? g === "A"
@@ -426,7 +449,15 @@ export default function PbbEvaluationSection({
                                                 : "bg-rose-600 text-white shadow-xs font-extrabold"
                                           : "text-slate-600 hover:text-slate-900 hover:bg-white"
                                       }`}
-                                      title={`${g} — ${PBB_GRADE_POINTS[g]} Poin (${g === "A" ? "Sangat Baik" : g === "B" ? "Baik" : g === "C" ? "Cukup" : "Kurang"})`}
+                                      title={`${g} — ${PBB_GRADE_POINTS[g]} Poin (${
+                                        g === "A"
+                                          ? "Sangat Baik"
+                                          : g === "B"
+                                            ? "Baik"
+                                            : g === "C"
+                                              ? "Cukup"
+                                              : "Kurang"
+                                      })`}
                                     >
                                       {g}
                                     </button>
@@ -441,7 +472,9 @@ export default function PbbEvaluationSection({
                                 <input
                                   type="text"
                                   value={noteValue}
-                                  onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                                  onChange={(e) =>
+                                    handleNoteChange(item.id, e.target.value)
+                                  }
                                   placeholder={`Catatan untuk ${item.name}...`}
                                   className={`w-full rounded-lg border py-1.5 pl-3 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none transition ${
                                     hasNote
@@ -452,7 +485,9 @@ export default function PbbEvaluationSection({
                                 {hasNote && (
                                   <button
                                     type="button"
-                                    onClick={() => handleNoteChange(item.id, "")}
+                                    onClick={() =>
+                                      handleNoteChange(item.id, "")
+                                    }
                                     className="absolute right-2 text-slate-400 hover:text-rose-600 transition"
                                     title="Hapus catatan"
                                   >
@@ -483,7 +518,9 @@ export default function PbbEvaluationSection({
                                     <button
                                       key={g}
                                       type="button"
-                                      onClick={() => handleSelectGrade(item.id, g)}
+                                      onClick={() =>
+                                        handleSelectGrade(item.id, g)
+                                      }
                                       className={`h-7 w-8 rounded-lg text-xs font-bold transition flex items-center justify-center ${
                                         isSelected
                                           ? g === "A"
@@ -508,7 +545,9 @@ export default function PbbEvaluationSection({
                               <input
                                 type="text"
                                 value={noteValue}
-                                onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                                onChange={(e) =>
+                                  handleNoteChange(item.id, e.target.value)
+                                }
                                 placeholder={`Catatan koreksi ${item.name}...`}
                                 className={`w-full rounded-lg border py-1.5 pl-3 pr-7 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none transition ${
                                   hasNote

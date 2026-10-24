@@ -18,7 +18,13 @@ import {
   UserRoundCheck,
   X,
 } from "lucide-react"
-import { Badge, Button, CandidateAvatar, Card, Input } from "../../components/ui"
+import {
+  Badge,
+  Button,
+  CandidateAvatar,
+  Card,
+  Input,
+} from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { administrationDocuments } from "../../data/selectionGuide"
 import type { IshiharaScreeningResult } from "../ishihara/types"
@@ -70,7 +76,9 @@ export function CreateCandidateModal({
       const dataUrl = await compressImageToDataUrl(file)
       setPhotoUrl(dataUrl)
     } catch {
-      setError("Gagal memproses foto. Pastikan format gambar valid (JPG, PNG, WebP).")
+      setError(
+        "Gagal memproses foto. Pastikan format gambar valid (JPG, PNG, WebP).",
+      )
     } finally {
       setUploadingPhoto(false)
       e.target.value = ""
@@ -153,7 +161,7 @@ export function CreateCandidateModal({
               <p className="text-xs font-bold text-slate-900">
                 Foto Profil Santri (Opsional)
               </p>
-              <p className="text-[0.68rem] text-slate-500">
+              <p className="text-2xs text-slate-500">
                 Otomatis dioptimasi dan langsung jadi avatar di semua modul.
               </p>
               <div className="mt-2 flex items-center gap-2">
@@ -304,7 +312,8 @@ const STAGE_STATUS_CONFIG = {
     badgeLabel: "SIAP",
     tone: "success" as const,
     icon: CheckCircle2,
-    activeClass: "bg-emerald-600 text-white shadow-xs ring-1 ring-emerald-600 font-semibold",
+    activeClass:
+      "bg-emerald-600 text-white shadow-xs ring-1 ring-emerald-600 font-semibold",
   },
   active: {
     label: "Sedang Dilatih",
@@ -312,7 +321,8 @@ const STAGE_STATUS_CONFIG = {
     badgeLabel: "PROSES",
     tone: "info" as const,
     icon: Clock,
-    activeClass: "bg-blue-600 text-white shadow-xs ring-1 ring-blue-600 font-semibold",
+    activeClass:
+      "bg-blue-600 text-white shadow-xs ring-1 ring-blue-600 font-semibold",
   },
   review: {
     label: "Perlu Penguatan",
@@ -320,7 +330,8 @@ const STAGE_STATUS_CONFIG = {
     badgeLabel: "PENGUATAN",
     tone: "warning" as const,
     icon: AlertCircle,
-    activeClass: "bg-amber-600 text-white shadow-xs ring-1 ring-amber-600 font-semibold",
+    activeClass:
+      "bg-amber-600 text-white shadow-xs ring-1 ring-amber-600 font-semibold",
   },
   failed: {
     label: "Perlu Remedial",
@@ -328,7 +339,8 @@ const STAGE_STATUS_CONFIG = {
     badgeLabel: "REMEDIAL",
     tone: "danger" as const,
     icon: RotateCcw,
-    activeClass: "bg-rose-600 text-white shadow-xs ring-1 ring-rose-600 font-semibold",
+    activeClass:
+      "bg-rose-600 text-white shadow-xs ring-1 ring-rose-600 font-semibold",
   },
 } as const
 
@@ -585,7 +597,9 @@ function getDetailedStageAnalysis(
               : "Obesitas"
 
       const metricLabel =
-        h > 0 ? `TB: ${h} cm · BB: ${w} kg · BMI: ${bmiVal}` : "Data Fisik Kosong"
+        h > 0
+          ? `TB: ${h} cm · BB: ${w} kg · BMI: ${bmiVal}`
+          : "Data Fisik Kosong"
       const metricBadgeClass =
         isHeightEligible && numBmi >= 18.5 && numBmi <= 24.9
           ? "bg-emerald-100 text-emerald-800"
@@ -840,7 +854,9 @@ export function CandidateDetailView({
       const dataUrl = await compressImageToDataUrl(file)
       updateCandidate(candidate.id, { photoUrl: dataUrl })
     } catch {
-      alert("Gagal memproses foto. Pastikan format gambar valid (JPG, PNG, WebP).")
+      alert(
+        "Gagal memproses foto. Pastikan format gambar valid (JPG, PNG, WebP).",
+      )
     } finally {
       setUploadingPhoto(false)
       e.target.value = ""
@@ -988,7 +1004,7 @@ export function CandidateDetailView({
                 rounded="rounded-2xl"
               />
               <label
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/75 opacity-0 group-hover:opacity-100 transition cursor-pointer text-[0.68rem] font-bold text-white text-center p-1"
+                className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/75 opacity-0 group-hover:opacity-100 transition cursor-pointer text-2xs font-bold text-white text-center p-1"
                 title="Klik untuk unggah atau ganti foto profil santri"
               >
                 <Camera className="size-4 mb-0.5" />
@@ -1057,8 +1073,12 @@ export function CandidateDetailView({
                       active ? "text-red-600" : "text-slate-400"
                     }`}
                   />
-                  <span className="whitespace-nowrap sm:hidden">{shortLabel}</span>
-                  <span className="hidden whitespace-nowrap sm:inline">{label}</span>
+                  <span className="whitespace-nowrap sm:hidden">
+                    {shortLabel}
+                  </span>
+                  <span className="hidden whitespace-nowrap sm:inline">
+                    {label}
+                  </span>
                 </button>
               )
             })}
@@ -1211,7 +1231,8 @@ export function CandidateDetailView({
                       Verifikasi &amp; Upload 6 Berkas Administrasi
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Unggah dokumen digital (PDF atau Foto gambar) dan tandai verifikasi berkas pokok.
+                      Unggah dokumen digital (PDF atau Foto gambar) dan tandai
+                      verifikasi berkas pokok.
                     </p>
                   </div>
                   <Badge
@@ -1253,27 +1274,30 @@ export function CandidateDetailView({
                                 <strong className="block text-slate-900 text-xs font-semibold leading-tight">
                                   {idx + 1}. {doc.name}
                                 </strong>
-                                <span className="mt-0.5 block text-[0.7rem] text-slate-500 leading-snug">
+                                <span className="mt-0.5 block text-2xs text-slate-500 leading-snug">
                                   {doc.detail}
                                 </span>
                               </div>
                             </label>
                             <Badge
                               tone={checked ? "success" : "neutral"}
-                              className="text-[0.65rem] px-2.5 py-0.5 shrink-0 whitespace-nowrap font-bold"
+                              className="text-3xs px-2.5 py-0.5 shrink-0 whitespace-nowrap font-bold"
                             >
                               {checked ? "Valid" : "Belum Valid"}
                             </Badge>
                           </div>
 
                           {file ? (
-                            <div className="mt-2.5 flex items-center justify-between rounded-lg border border-emerald-200 bg-white p-2 text-[0.68rem] text-emerald-900 shadow-2xs">
+                            <div className="mt-2.5 flex items-center justify-between rounded-lg border border-emerald-200 bg-white p-2 text-2xs text-emerald-900 shadow-2xs">
                               <div className="flex items-center gap-2 min-w-0">
                                 <FileCheck2 className="size-4 shrink-0 text-emerald-600" />
                                 <div className="truncate">
-                                  <p className="font-semibold truncate">{file.name}</p>
-                                  <p className="text-[0.62rem] text-slate-400">
-                                    {(file.size / 1024).toFixed(0)} KB · {file.uploadedAt}
+                                  <p className="font-semibold truncate">
+                                    {file.name}
+                                  </p>
+                                  <p className="text-3xs text-slate-400">
+                                    {(file.size / 1024).toFixed(0)} KB ·{" "}
+                                    {file.uploadedAt}
                                   </p>
                                 </div>
                               </div>
@@ -1288,25 +1312,25 @@ export function CandidateDetailView({
                                 href={file.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-1 text-[0.68rem] font-bold text-emerald-800 hover:bg-emerald-200 transition"
+                                className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-1 text-2xs font-bold text-emerald-800 hover:bg-emerald-200 transition"
                               >
                                 <Eye className="size-3" /> Lihat / Unduh
                               </a>
                               <button
                                 type="button"
                                 onClick={() => handleRemoveDocument(idx)}
-                                className="inline-flex items-center gap-1 text-[0.68rem] text-red-600 hover:underline"
+                                className="inline-flex items-center gap-1 text-2xs text-red-600 hover:underline"
                               >
                                 <Trash2 className="size-3" /> Hapus File
                               </button>
                             </div>
                           ) : (
-                            <span className="text-[0.68rem] text-slate-400">
+                            <span className="text-2xs text-slate-400">
                               Belum ada lampiran file
                             </span>
                           )}
 
-                          <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[0.68rem] font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition">
+                          <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-2xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition">
                             <Upload className="size-3 text-slate-500" />
                             <span>
                               {isUploadingThis
@@ -1352,16 +1376,16 @@ export function CandidateDetailView({
               <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200/90 bg-white">
                 {selectionStages.map((stage, idx) => {
                   const st = candidate.stageStatuses[idx] ?? "active"
-                  const currentConfig =
-                    STAGE_STATUS_CONFIG[
-                      st as keyof typeof STAGE_STATUS_CONFIG
-                    ] ?? {
-                      label: "Belum Dinilai",
-                      badgeLabel: "BELUM DINILAI",
-                      tone: "neutral" as const,
-                      icon: Clock,
-                      activeClass: "bg-slate-800 text-white shadow-xs ring-1 ring-slate-800 font-semibold",
-                    }
+                  const currentConfig = STAGE_STATUS_CONFIG[
+                    (st as keyof typeof STAGE_STATUS_CONFIG)
+                  ] ?? {
+                    label: "Belum Dinilai",
+                    badgeLabel: "BELUM DINILAI",
+                    tone: "neutral" as const,
+                    icon: Clock,
+                    activeClass:
+                      "bg-slate-800 text-white shadow-xs ring-1 ring-slate-800 font-semibold",
+                  }
                   const CurrentIcon = currentConfig.icon
                   const analysis = getDetailedStageAnalysis(
                     stage.key,
@@ -1422,7 +1446,7 @@ export function CandidateDetailView({
                             <span>Rekam &amp; Latihan Terakhir:</span>
                           </div>
                           <span
-                            className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${analysis.metricBadgeClass}`}
+                            className={`rounded-md px-2 py-0.5 text-2xs font-bold ${analysis.metricBadgeClass}`}
                           >
                             {analysis.metricLabel}
                           </span>
@@ -1431,7 +1455,9 @@ export function CandidateDetailView({
                         {/* Uraian Evaluasi & Pertimbangan */}
                         <div className="space-y-1.5 leading-relaxed">
                           <p>
-                            <span className="font-bold">Analisis Kesiapan: </span>
+                            <span className="font-bold">
+                              Analisis Kesiapan:{" "}
+                            </span>
                             <span className="font-normal opacity-90">
                               {analysis.analysis}
                             </span>
@@ -1449,7 +1475,7 @@ export function CandidateDetailView({
 
                         {/* Peringatan jika status belum sinkron dengan fakta */}
                         {analysis.mismatchWarning ? (
-                          <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-amber-300/80 bg-amber-100/90 p-2.5 text-[11px] font-medium text-amber-950">
+                          <div className="mt-2 flex items-start gap-1.5 rounded-lg border border-amber-300/80 bg-amber-100/90 p-2.5 text-2xs font-medium text-amber-950">
                             <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-amber-700" />
                             <span>{analysis.mismatchWarning}</span>
                           </div>
@@ -1457,40 +1483,44 @@ export function CandidateDetailView({
                       </div>
 
                       <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {(
-                          [
-                            "passed",
-                            "active",
-                            "review",
-                            "failed",
-                          ] as (keyof typeof STAGE_STATUS_CONFIG)[]
-                        ).map((statusVal) => {
-                          const config = STAGE_STATUS_CONFIG[statusVal]
-                          const Icon = config.icon
-                          const isSelected = st === statusVal
-                          return (
-                            <button
-                              key={statusVal}
-                              type="button"
-                              onClick={() =>
-                                updateCandidateStage(
-                                  candidate.id,
-                                  idx,
-                                  statusVal,
-                                )
-                              }
-                              className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition active:scale-[0.98] ${
-                                isSelected
-                                  ? config.activeClass
-                                  : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
-                              }`}
-                            >
-                              <Icon className="size-3.5 shrink-0" />
-                              <span className="whitespace-nowrap sm:hidden">{config.shortLabel}</span>
-                              <span className="hidden whitespace-nowrap sm:inline">{config.label}</span>
-                            </button>
-                          )
-                        })}
+                        {([
+                          "passed",
+                          "active",
+                          "review",
+                          "failed",
+                        ] as keyof typeof STAGE_STATUS_CONFIG[]).map(
+                          (statusVal) => {
+                            const config = STAGE_STATUS_CONFIG[statusVal]
+                            const Icon = config.icon
+                            const isSelected = st === statusVal
+                            return (
+                              <button
+                                key={statusVal}
+                                type="button"
+                                onClick={() =>
+                                  updateCandidateStage(
+                                    candidate.id,
+                                    idx,
+                                    statusVal,
+                                  )
+                                }
+                                className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition active:scale-[0.98] ${
+                                  isSelected
+                                    ? config.activeClass
+                                    : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+                                }`}
+                              >
+                                <Icon className="size-3.5 shrink-0" />
+                                <span className="whitespace-nowrap sm:hidden">
+                                  {config.shortLabel}
+                                </span>
+                                <span className="hidden whitespace-nowrap sm:inline">
+                                  {config.label}
+                                </span>
+                              </button>
+                            )
+                          },
+                        )}
                       </div>
                     </div>
                   )

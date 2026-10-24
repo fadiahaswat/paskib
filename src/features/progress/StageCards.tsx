@@ -67,20 +67,30 @@ export function StageCards({
     .filter((attempt) => attempt.candidateId === candidate.id)
     .sort((a, b) => a.finalizedAt.localeCompare(b.finalizedAt))
   const latestAttempt = candidateAttempts[candidateAttempts.length - 1]
-  const medicalRecord = latestSessionRecord(candidate.id, "medical", sessions, records)
+  const medicalRecord = latestSessionRecord(
+    candidate.id,
+    "medical",
+    sessions,
+    records,
+  )
   const pipScore = latestAttempt?.pipScore ?? candidate.pip
   const tiuScore = latestAttempt?.tiuScoreScaled ?? candidate.tiu
   const pipScores = candidateAttempts.length
     ? candidateAttempts.map((attempt) => attempt.pipScore)
-    : candidate.pip !== null ? [candidate.pip] : []
+    : candidate.pip !== null
+      ? [candidate.pip]
+      : []
   const tiuScores = candidateAttempts.length
     ? candidateAttempts.map((attempt) => attempt.tiuScoreScaled)
-    : candidate.tiu !== null ? [candidate.tiu] : []
+    : candidate.tiu !== null
+      ? [candidate.tiu]
+      : []
   const paradeHeights = (candidate.anthropometryHistory ?? [])
     .slice()
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => entry.heightCm)
-  if (paradeHeights.length === 0 && candidate.heightCm) paradeHeights.push(candidate.heightCm)
+  if (paradeHeights.length === 0 && candidate.heightCm)
+    paradeHeights.push(candidate.heightCm)
 
   // Stage historical data
   const pipHistory = getStageHistory(candidate.id, "pip")
@@ -99,7 +109,7 @@ export function StageCards({
       target: 6,
       targetText: "6 berkas",
       status: validDocs === 6 ? "Lengkap" : `${validDocs}/6 Valid`,
-      tone: validDocs === 6 ? ("success" as const) : ("neutral" as const),
+      tone: validDocs === 6 ? "success" as const : "neutral" as const,
       dotColor: "bg-blue-500",
       color: "blue" as LineChartColor,
       chartValues: validDocs > 0 ? [validDocs] : [],
@@ -121,9 +131,9 @@ export function StageCards({
       tone:
         pipScore !== null
           ? pipScore >= 70
-            ? ("success" as const)
-            : ("warning" as const)
-          : ("neutral" as const),
+            ? "success" as const
+            : "warning" as const
+          : "neutral" as const,
       dotColor: "bg-red-500",
       color: "red" as LineChartColor,
       chartValues: pipScores.length > 0 ? pipScores : pipHistory,
@@ -145,9 +155,9 @@ export function StageCards({
       tone:
         tiuScore !== null
           ? tiuScore >= 70
-            ? ("success" as const)
-            : ("warning" as const)
-          : ("neutral" as const),
+            ? "success" as const
+            : "warning" as const
+          : "neutral" as const,
       dotColor: "bg-purple-500",
       color: "purple" as LineChartColor,
       chartValues: tiuScores.length > 0 ? tiuScores : tiuHistory,
@@ -179,11 +189,11 @@ export function StageCards({
         : "Belum Dinilai",
       tone: medicalRecord
         ? medicalRecord.result === "passed"
-          ? ("success" as const)
+          ? "success" as const
           : medicalRecord.result === "failed"
-            ? ("danger" as const)
-            : ("warning" as const)
-        : ("neutral" as const),
+            ? "danger" as const
+            : "warning" as const
+        : "neutral" as const,
       dotColor: "bg-emerald-500",
       color: "emerald" as LineChartColor,
       chartValues: [],
@@ -199,10 +209,10 @@ export function StageCards({
       status: bmiInfo ? bmiInfo.category : "Belum Ukur",
       tone:
         bmiInfo?.category === "Normal"
-          ? ("success" as const)
+          ? "success" as const
           : bmiInfo
-            ? ("warning" as const)
-            : ("neutral" as const),
+            ? "warning" as const
+            : "neutral" as const,
       dotColor: "bg-amber-500",
       color: "amber" as LineChartColor,
       chartValues: paradeHeights,
@@ -224,18 +234,24 @@ export function StageCards({
       tone:
         candidate.pbb !== null
           ? candidate.pbb >= 80
-            ? ("success" as const)
-            : ("warning" as const)
-          : ("neutral" as const),
+            ? "success" as const
+            : "warning" as const
+          : "neutral" as const,
       dotColor: "bg-blue-600",
       color: "blue" as LineChartColor,
-      chartValues: pbbHistory.length > 0 ? pbbHistory : candidate.pbb !== null ? [candidate.pbb] : [],
+      chartValues:
+        pbbHistory.length > 0
+          ? pbbHistory
+          : candidate.pbb !== null
+            ? [candidate.pbb]
+            : [],
     },
     {
       num: 7,
       shortLabel: "SAM",
       name: "Kesamaptaan",
-      value: candidate.fitness !== null ? `${candidate.fitness.toFixed(1)}` : "—",
+      value:
+        candidate.fitness !== null ? `${candidate.fitness.toFixed(1)}` : "—",
       unit: candidate.fitness !== null ? "/ 100" : "",
       target: 80,
       targetText: "≥ 80",
@@ -248,12 +264,17 @@ export function StageCards({
       tone:
         candidate.fitness !== null
           ? candidate.fitness >= 80
-            ? ("success" as const)
-            : ("warning" as const)
-          : ("neutral" as const),
+            ? "success" as const
+            : "warning" as const
+          : "neutral" as const,
       dotColor: "bg-rose-500",
       color: "red" as LineChartColor,
-      chartValues: fitnessHistory.length > 0 ? fitnessHistory : candidate.fitness !== null ? [candidate.fitness] : [],
+      chartValues:
+        fitnessHistory.length > 0
+          ? fitnessHistory
+          : candidate.fitness !== null
+            ? [candidate.fitness]
+            : [],
     },
     {
       num: 8,
@@ -275,12 +296,17 @@ export function StageCards({
       tone:
         candidate.personality !== null
           ? candidate.personality >= 80
-            ? ("success" as const)
-            : ("warning" as const)
-          : ("neutral" as const),
+            ? "success" as const
+            : "warning" as const
+          : "neutral" as const,
       dotColor: "bg-indigo-500",
       color: "indigo" as LineChartColor,
-      chartValues: personalityHistory.length > 0 ? personalityHistory : candidate.personality !== null ? [candidate.personality] : [],
+      chartValues:
+        personalityHistory.length > 0
+          ? personalityHistory
+          : candidate.personality !== null
+            ? [candidate.personality]
+            : [],
     },
   ]
 
@@ -296,13 +322,13 @@ export function StageCards({
             <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
               Kesiapan 8 Materi Pembinaan
             </h2>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-2xs text-slate-500">
               Monitoring kesiapan tahapan seleksi berdasarkan standar resmi BPIP
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone="neutral" className="text-[11px] font-semibold px-2 py-0.5">
+          <Badge tone="neutral" className="text-2xs font-semibold px-2 py-0.5">
             Standar BPIP
           </Badge>
         </div>
@@ -322,11 +348,16 @@ export function StageCards({
               <div>
                 {/* Baris 1: Kode Tahap + Status Badge */}
                 <div className="flex items-center justify-between gap-1">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    <span className={`size-1.5 shrink-0 rounded-full ${stage.dotColor}`} />
+                  <span className="inline-flex items-center gap-1.5 text-2xs font-bold text-slate-500 uppercase tracking-wider">
+                    <span
+                      className={`size-1.5 shrink-0 rounded-full ${stage.dotColor}`}
+                    />
                     {stage.shortLabel}
                   </span>
-                  <Badge tone={stage.tone} className="text-[10px] !py-0 !px-1.5 shrink-0 font-semibold">
+                  <Badge
+                    tone={stage.tone}
+                    className="text-3xs !py-0 !px-1.5 shrink-0 font-semibold"
+                  >
                     {stage.status}
                   </Badge>
                 </div>
@@ -343,12 +374,12 @@ export function StageCards({
                       {stage.value}
                     </span>
                     {stage.unit ? (
-                      <span className="text-[10px] font-semibold text-slate-400 shrink-0">
+                      <span className="text-3xs font-semibold text-slate-400 shrink-0">
                         {stage.unit}
                       </span>
                     ) : null}
                   </div>
-                  <span className="text-[10px] text-slate-400 font-medium shrink-0 text-right">
+                  <span className="text-3xs text-slate-400 font-medium shrink-0 text-right">
                     Tgt {stage.targetText}
                   </span>
                 </div>

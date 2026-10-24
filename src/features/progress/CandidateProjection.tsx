@@ -101,7 +101,8 @@ function readHistory(candidateId: string): FitnessEntry[] {
           record.metrics.runMode === "interval" ||
           record.metrics.intervalDist ||
           record.metrics.intervalLap1
-        ) return []
+        )
+          return []
         const numberValue = (key: string) => {
           const value = Number(record.metrics[key])
           return Number.isFinite(value) && record.metrics[key] !== ""
@@ -129,7 +130,6 @@ function readHistory(candidateId: string): FitnessEntry[] {
   }
 }
 
-
 export default function CandidateProjection({
   candidateId,
 }: {
@@ -147,12 +147,14 @@ export default function CandidateProjection({
   } = useApp()
   const candidate = candidates.find((c) => c.id === candidateId)
   const catHistory = useMemo(
-    () => catTryoutAttempts
-      .filter((attempt) => attempt.candidateId === candidateId)
-      .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt)),
+    () =>
+      catTryoutAttempts
+        .filter((attempt) => attempt.candidateId === candidateId)
+        .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt)),
     [catTryoutAttempts, candidateId],
   )
-  const canDeleteCatHistory = currentUser.role === "admin" || currentUser.role === "coach"
+  const canDeleteCatHistory =
+    currentUser.role === "admin" || currentUser.role === "coach"
 
   const history = useMemo<FitnessEntry[]>(() => {
     // 1. Ambil dari sessions resmi non-interval
@@ -206,7 +208,10 @@ export default function CandidateProjection({
     const parseMetricNum = (str: string | undefined): number | null => {
       if (!str) return null
       if (str.trim().toUpperCase() === "DNF") return 0
-      const cleaned = str.replace(/\./g, "").replace(",", ".").replace(/[^\d.]/g, "")
+      const cleaned = str
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "")
       const val = parseFloat(cleaned)
       return isNaN(val) ? null : val
     }
@@ -236,7 +241,9 @@ export default function CandidateProjection({
     }
 
     if (sessionEntries.length === 0) {
-      return baseRun || basePush || baseSit || baseBack || baseShuttle ? [baselineEntry] : []
+      return baseRun || basePush || baseSit || baseBack || baseShuttle
+        ? [baselineEntry]
+        : []
     }
 
     const hasAnyRunInSessions = sessionEntries.some((s) => s.distance !== null)
@@ -251,9 +258,7 @@ export default function CandidateProjection({
   const [logDate, setLogDate] = useState(() =>
     new Date().toISOString().slice(0, 10),
   )
-  const [logHeight, setLogHeight] = useState<number>(
-    candidate?.heightCm ?? 170,
-  )
+  const [logHeight, setLogHeight] = useState<number>(candidate?.heightCm ?? 170)
   const [logWeight, setLogWeight] = useState<number>(candidate?.weightKg ?? 60)
   const [logNote, setLogNote] = useState("")
 
@@ -453,9 +458,13 @@ export default function CandidateProjection({
               <div>
                 <div className="flex items-center justify-between gap-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                    <Ruler className="size-3.5 text-blue-600 shrink-0" /> Tinggi Badan
+                    <Ruler className="size-3.5 text-blue-600 shrink-0" /> Tinggi
+                    Badan
                   </p>
-                  <Badge tone={anthroEval.heightStatus.tone} className="text-[10px] !py-0.5 !px-2 font-semibold shrink-0">
+                  <Badge
+                    tone={anthroEval.heightStatus.tone}
+                    className="text-3xs !py-0.5 !px-2 font-semibold shrink-0"
+                  >
                     {anthroEval.heightStatus.label}
                   </Badge>
                 </div>
@@ -463,12 +472,21 @@ export default function CandidateProjection({
                 <div className="mt-1.5 flex items-baseline justify-between gap-1">
                   <p className="font-display text-xl sm:text-2xl font-black text-slate-950">
                     {candidate.heightCm ?? "—"}{" "}
-                    <span className="font-sans text-xs font-semibold text-slate-400">cm</span>
+                    <span className="font-sans text-xs font-semibold text-slate-400">
+                      cm
+                    </span>
                   </p>
-                  <div className="text-right text-[11px] text-slate-500">
-                    Tgt: <strong className="text-slate-800">{anthroEval.minIdealHeight}–{anthroEval.maxIdealHeight} cm</strong>
+                  <div className="text-right text-2xs text-slate-500">
+                    Tgt:{" "}
+                    <strong className="text-slate-800">
+                      {anthroEval.minIdealHeight}–{anthroEval.maxIdealHeight} cm
+                    </strong>
                     <span className="ml-1 font-bold text-blue-700">
-                      ({heightDelta !== null ? `${heightDelta >= 0 ? "+" : ""}${heightDelta} cm` : "Baseline"})
+                      (
+                      {heightDelta !== null
+                        ? `${heightDelta >= 0 ? "+" : ""}${heightDelta} cm`
+                        : "Baseline"}
+                      )
                     </span>
                   </div>
                 </div>
@@ -490,9 +508,13 @@ export default function CandidateProjection({
               <div>
                 <div className="flex items-center justify-between gap-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                    <Scale className="size-3.5 text-emerald-600 shrink-0" /> Berat Badan
+                    <Scale className="size-3.5 text-emerald-600 shrink-0" />{" "}
+                    Berat Badan
                   </p>
-                  <Badge tone={anthroEval.weightStatus.tone} className="text-[10px] !py-0.5 !px-2 font-semibold shrink-0">
+                  <Badge
+                    tone={anthroEval.weightStatus.tone}
+                    className="text-3xs !py-0.5 !px-2 font-semibold shrink-0"
+                  >
                     {anthroEval.weightStatus.label}
                   </Badge>
                 </div>
@@ -500,12 +522,23 @@ export default function CandidateProjection({
                 <div className="mt-1.5 flex items-baseline justify-between gap-1">
                   <p className="font-display text-xl sm:text-2xl font-black text-slate-950">
                     {candidate.weightKg ?? "—"}{" "}
-                    <span className="font-sans text-xs font-semibold text-slate-400">kg</span>
+                    <span className="font-sans text-xs font-semibold text-slate-400">
+                      kg
+                    </span>
                   </p>
-                  <div className="text-right text-[11px] text-slate-500">
-                    Ideal: <strong className="text-slate-800">{anthroEval.minIdealWeight !== null ? `${anthroEval.minIdealWeight}–${anthroEval.maxIdealWeight} kg` : "—"}</strong>
+                  <div className="text-right text-2xs text-slate-500">
+                    Ideal:{" "}
+                    <strong className="text-slate-800">
+                      {anthroEval.minIdealWeight !== null
+                        ? `${anthroEval.minIdealWeight}–${anthroEval.maxIdealWeight} kg`
+                        : "—"}
+                    </strong>
                     <span className="ml-1 font-bold text-emerald-700">
-                      ({weightDelta !== null ? `${weightDelta >= 0 ? "+" : ""}${weightDelta} kg` : "Baseline"})
+                      (
+                      {weightDelta !== null
+                        ? `${weightDelta >= 0 ? "+" : ""}${weightDelta} kg`
+                        : "Baseline"}
+                      )
                     </span>
                   </div>
                 </div>
@@ -527,7 +560,8 @@ export default function CandidateProjection({
               <div>
                 <div className="flex items-center justify-between gap-1.5">
                   <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                    <Activity className="size-3.5 text-purple-600 shrink-0" /> BMI / IMT
+                    <Activity className="size-3.5 text-purple-600 shrink-0" />{" "}
+                    BMI / IMT
                   </p>
                   <Badge
                     tone={
@@ -537,7 +571,7 @@ export default function CandidateProjection({
                           ? "warning"
                           : "neutral"
                     }
-                    className="text-[10px] !py-0.5 !px-2 font-semibold shrink-0"
+                    className="text-3xs !py-0.5 !px-2 font-semibold shrink-0"
                   >
                     {anthroEval.bmi?.category ?? "Belum diukur"}
                   </Badge>
@@ -546,9 +580,11 @@ export default function CandidateProjection({
                 <div className="mt-1.5 flex items-baseline justify-between gap-1">
                   <p className="font-display text-xl sm:text-2xl font-black text-slate-950">
                     {anthroEval.bmi?.value ?? "—"}{" "}
-                    <span className="font-sans text-xs font-semibold text-slate-400">kg/m²</span>
+                    <span className="font-sans text-xs font-semibold text-slate-400">
+                      kg/m²
+                    </span>
                   </p>
-                  <div className="text-right text-[11px] text-slate-500">
+                  <div className="text-right text-2xs text-slate-500">
                     Tgt: <strong className="text-slate-800">18,5–24,9</strong>
                     <span className="ml-1 text-slate-400">
                       (Ideal: {anthroEval.idealWeight ?? "—"} kg)
@@ -574,7 +610,7 @@ export default function CandidateProjection({
           {anthroLogs.length > 0 ? (
             <div className="overflow-x-auto w-full min-w-0 max-w-full border-t border-slate-100">
               <table className="w-full min-w-[44rem] text-left text-sm">
-                <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                <thead className="bg-slate-50 text-2xs font-bold uppercase tracking-wider text-slate-500">
                   <tr>
                     <th className="px-6 py-3">Tanggal Ukur</th>
                     <th className="px-4 py-3">Tinggi Badan</th>
@@ -661,7 +697,7 @@ export default function CandidateProjection({
         {catHistory.length ? (
           <div className="overflow-x-auto w-full min-w-0 max-w-full">
             <table className="w-full min-w-[48rem] text-left text-sm">
-              <thead className="bg-slate-50/70 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+              <thead className="bg-slate-50/70 text-2xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                   <th className="px-6 py-3">Waktu ujian</th>
                   <th className="px-4 py-3">Paket</th>
@@ -669,34 +705,57 @@ export default function CandidateProjection({
                   <th className="px-4 py-3">TIU</th>
                   <th className="px-4 py-3">Gabungan</th>
                   <th className="px-4 py-3">Hasil</th>
-                  {canDeleteCatHistory ? <th className="px-6 py-3 text-right">Aksi</th> : null}
+                  {canDeleteCatHistory ? (
+                    <th className="px-6 py-3 text-right">Aksi</th>
+                  ) : null}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {catHistory.map((attempt) => {
                   const pipPassed = attempt.pipStatus === "passed"
                   const tiuPassed = attempt.tiuStatus === "passed"
-                  const finalized = new Date(attempt.finalizedAt.replace(" ", "T"))
+                  const finalized = new Date(
+                    attempt.finalizedAt.replace(" ", "T"),
+                  )
                   const displayTime = Number.isNaN(finalized.getTime())
                     ? attempt.finalizedAt
-                    : finalized.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })
+                    : finalized.toLocaleString("id-ID", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })
                   return (
                     <tr key={attempt.id}>
                       <td className="px-6 py-3.5 font-medium text-slate-700">
                         <span className="block">{displayTime}</span>
-                        <span className="text-xs text-slate-400">Percobaan {attempt.attemptNumber}</span>
+                        <span className="text-xs text-slate-400">
+                          Percobaan {attempt.attemptNumber}
+                        </span>
                       </td>
-                      <td className="px-4 py-3.5 text-slate-600">{attempt.packageName}</td>
+                      <td className="px-4 py-3.5 text-slate-600">
+                        {attempt.packageName}
+                      </td>
                       <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
-                        {attempt.pipScore} <span className="text-xs font-normal text-slate-400">({pipPassed ? "Lulus" : "Belum lulus"})</span>
+                        {attempt.pipScore}{" "}
+                        <span className="text-xs font-normal text-slate-400">
+                          ({pipPassed ? "Lulus" : "Belum lulus"})
+                        </span>
                       </td>
                       <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
-                        {attempt.tiuScoreScaled} <span className="text-xs font-normal text-slate-400">({tiuPassed ? "Lulus" : "Belum lulus"})</span>
+                        {attempt.tiuScoreScaled}{" "}
+                        <span className="text-xs font-normal text-slate-400">
+                          ({tiuPassed ? "Lulus" : "Belum lulus"})
+                        </span>
                       </td>
-                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">{attempt.combinedScore}</td>
+                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
+                        {attempt.combinedScore}
+                      </td>
                       <td className="px-4 py-3.5">
-                        <Badge tone={pipPassed && tiuPassed ? "success" : "warning"}>
-                          {pipPassed && tiuPassed ? "Lulus keduanya" : "Perlu tindak lanjut"}
+                        <Badge
+                          tone={pipPassed && tiuPassed ? "success" : "warning"}
+                        >
+                          {pipPassed && tiuPassed
+                            ? "Lulus keduanya"
+                            : "Perlu tindak lanjut"}
                         </Badge>
                       </td>
                       {canDeleteCatHistory ? (
@@ -740,12 +799,15 @@ export default function CandidateProjection({
               <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 leading-snug">
                 Tren & Proyeksi Samapta
               </h2>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-2xs text-slate-500">
                 Dihitung otomatis dari hasil sesi latihan fisik tersimpan
               </p>
             </div>
           </div>
-          <Badge tone={history.length ? "info" : "neutral"} className="text-[11px] font-semibold px-2 py-0.5 shrink-0 self-start sm:self-auto">
+          <Badge
+            tone={history.length ? "info" : "neutral"}
+            className="text-2xs font-semibold px-2 py-0.5 shrink-0 self-start sm:self-auto"
+          >
             {history.length} sesi tercatat
           </Badge>
         </div>
@@ -783,7 +845,8 @@ export default function CandidateProjection({
                         </span>
                         {metric.targetMet ? (
                           <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
-                        ) : metric.improvement !== null && metric.improvement > 0 ? (
+                        ) : metric.improvement !== null &&
+                          metric.improvement > 0 ? (
                           <ArrowUpRight className="size-4 text-blue-600 shrink-0" />
                         ) : (
                           <ArrowDownRight className="size-4 text-amber-600 shrink-0" />
@@ -795,7 +858,7 @@ export default function CandidateProjection({
                         <span className="font-display text-base sm:text-lg font-black text-slate-950">
                           {metric.latest ?? "—"}
                         </span>
-                        <span className="font-sans text-[10px] font-semibold text-slate-400">
+                        <span className="font-sans text-3xs font-semibold text-slate-400">
                           {metric.unit}
                         </span>
                       </div>
@@ -814,12 +877,19 @@ export default function CandidateProjection({
                     </div>
 
                     {/* Baris 4: Target & Proyeksi Berikut */}
-                    <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] gap-1">
+                    <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between text-3xs gap-1">
                       <span className="text-slate-500">
-                        Tgt: <strong className="text-slate-700">{metric.target} {metric.unit}</strong>
+                        Tgt:{" "}
+                        <strong className="text-slate-700">
+                          {metric.target} {metric.unit}
+                        </strong>
                       </span>
                       <span className="text-blue-700 font-bold shrink-0 text-right">
-                        Proy: {metric.projected?.toFixed(metric.key === "shuttle" ? 1 : 0) ?? "—"} {metric.unit}
+                        Proy:{" "}
+                        {metric.projected?.toFixed(
+                          metric.key === "shuttle" ? 1 : 0,
+                        ) ?? "—"}{" "}
+                        {metric.unit}
                       </span>
                     </div>
                   </div>
@@ -842,7 +912,7 @@ export default function CandidateProjection({
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+              <div className="flex items-center gap-1.5 text-2xs font-semibold text-slate-500">
                 <CalendarDays className="size-3.5" />
                 Terakhir:{" "}
                 {new Date(
@@ -857,7 +927,7 @@ export default function CandidateProjection({
 
             <div className="overflow-x-auto w-full min-w-0 max-w-full border-t border-slate-100">
               <table className="w-full min-w-[48rem] text-left text-sm">
-                <thead className="bg-slate-50 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500">
+                <thead className="bg-slate-50 text-2xs font-bold uppercase tracking-wider text-slate-500">
                   <tr>
                     <th className="px-6 py-3">Tanggal & sesi</th>
                     {metrics.map((metric) => (
@@ -871,7 +941,9 @@ export default function CandidateProjection({
                   {[...history].reverse().map((entry) => (
                     <tr key={entry.sessionId}>
                       <td className="px-6 py-4">
-                        <p className="font-bold text-slate-800">{entry.title}</p>
+                        <p className="font-bold text-slate-800">
+                          {entry.title}
+                        </p>
                         <p className="mt-0.5 text-xs text-slate-500">
                           {entry.date}
                         </p>

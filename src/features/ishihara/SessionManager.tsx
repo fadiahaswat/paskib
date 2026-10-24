@@ -34,7 +34,9 @@ interface SessionManagerProps {
   onStartSessionForCandidate?: (sessionId: string, candidateId: string) => void
 }
 
-export default function SessionManager({ onStartSessionForCandidate }: SessionManagerProps) {
+export default function SessionManager({
+  onStartSessionForCandidate,
+}: SessionManagerProps) {
   const {
     candidates,
     ishiharaSessions,
@@ -62,7 +64,9 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
   const [formSeconds, setFormSeconds] = useState(5)
   const [formPlateCount, setFormPlateCount] = useState(24)
   const [formOperator, setFormOperator] = useState(
-    currentUser.name.includes("Coach") ? "dr. Hendra (Tim Medis)" : currentUser.name,
+    currentUser.name.includes("Coach")
+      ? "dr. Hendra (Tim Medis)"
+      : currentUser.name,
   )
   const [formStartsAt, setFormStartsAt] = useState(
     new Date().toISOString().slice(0, 16),
@@ -70,7 +74,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
   const [formEndsAt, setFormEndsAt] = useState(
     new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 16),
   )
-  const [formVisibility, setFormVisibility] = useState<ResultVisibility>("staff_only")
+  const [formVisibility, setFormVisibility] =
+    useState<ResultVisibility>("staff_only")
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>(
     candidates.map((c) => c.id),
   )
@@ -92,7 +97,9 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
 
     const sessionCode =
       formCode.trim() ||
-      `ISH-${formMode === "scheduled" ? "SCH" : "SELF"}-${Date.now().toString().slice(-4)}`
+      `ISH-${
+        formMode === "scheduled" ? "SCH" : "SELF"
+      }-${Date.now().toString().slice(-4)}`
 
     const assignments: TestAssignment[] = selectedCandidateIds.map((cid) => {
       const cand = candidates.find((c) => c.id === cid)
@@ -149,15 +156,24 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
 
   const handleToggleSessionStatus = (session: IshiharaTestSession) => {
     const newStatus: SessionStatus =
-      session.status === "open" ? "closed" : session.status === "closed" ? "open" : "open"
+      session.status === "open"
+        ? "closed"
+        : session.status === "closed"
+          ? "open"
+          : "open"
     updateIshiharaSession(session.id, { status: newStatus })
     showToast(
-      `Status sesi "${session.name}" diubah menjadi ${newStatus === "open" ? "DIBUKA" : "DITUTUP"}.`,
+      `Status sesi "${session.name}" diubah menjadi ${
+        newStatus === "open" ? "DIBUKA" : "DITUTUP"
+      }.`,
       "info",
     )
   }
 
-  const handleReopenAttempt = (sessionId: string, assignment: TestAssignment) => {
+  const handleReopenAttempt = (
+    sessionId: string,
+    assignment: TestAssignment,
+  ) => {
     updateSessionAssignment(sessionId, assignment.id, {
       status: "assigned",
       accuracy: undefined,
@@ -166,7 +182,10 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
       interpretationCode: undefined,
       completedAt: undefined,
     })
-    showToast(`Percobaan untuk ${assignment.participantName} telah dibuka ulang.`, "info")
+    showToast(
+      `Percobaan untuk ${assignment.participantName} telah dibuka ulang.`,
+      "info",
+    )
   }
 
   return (
@@ -183,8 +202,12 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
             </Badge>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Dukung <strong>Mode A (Terjadwal dengan Operator/Pengawas)</strong> dan{" "}
-            <strong>Mode B (Tes Mandiri dengan Tautan Berbatas Akun Internal)</strong>.
+            Dukung <strong>Mode A (Terjadwal dengan Operator/Pengawas)</strong>{" "}
+            dan{" "}
+            <strong>
+              Mode B (Tes Mandiri dengan Tautan Berbatas Akun Internal)
+            </strong>
+            .
           </p>
         </div>
 
@@ -261,8 +284,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
             Belum ada sesi skrining
           </h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-4">
-            Buat sesi baru untuk mengelompokkan kandidat santri dalam tes penglihatan warna
-            baik terjadwal maupun mandiri.
+            Buat sesi baru untuk mengelompokkan kandidat santri dalam tes
+            penglihatan warna baik terjadwal maupun mandiri.
           </p>
           <Button
             onClick={() => setIsCreateModalOpen(true)}
@@ -279,7 +302,10 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
               (a) => a.status === "completed",
             ).length
             const totalCount = session.assignments.length
-            const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
+            const percent =
+              totalCount > 0
+                ? Math.round((completedCount / totalCount) * 100)
+                : 0
             const isExpanded = expandedSessionId === session.id
 
             return (
@@ -311,8 +337,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                           session.status === "open"
                             ? "green"
                             : session.status === "closed"
-                            ? "amber"
-                            : "slate"
+                              ? "amber"
+                              : "slate"
                         }
                         size="sm"
                       >
@@ -321,10 +347,26 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                      <span>Protokol: <strong className="text-slate-700">{session.protocolVersion}</strong> ({session.plateCount} plat)</span>
-                      <span>Durasi per plat: <strong className="text-slate-700">{session.secondsPerPlate} detik</strong></span>
+                      <span>
+                        Protokol:{" "}
+                        <strong className="text-slate-700">
+                          {session.protocolVersion}
+                        </strong>{" "}
+                        ({session.plateCount} plat)
+                      </span>
+                      <span>
+                        Durasi per plat:{" "}
+                        <strong className="text-slate-700">
+                          {session.secondsPerPlate} detik
+                        </strong>
+                      </span>
                       {session.operatorName && (
-                        <span>Pengawas: <strong className="text-slate-700">{session.operatorName}</strong></span>
+                        <span>
+                          Pengawas:{" "}
+                          <strong className="text-slate-700">
+                            {session.operatorName}
+                          </strong>
+                        </span>
                       )}
                     </div>
                   </div>
@@ -333,7 +375,9 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="text-xs font-bold text-slate-700">
-                        Progres: <span className="text-brand-600">{completedCount}</span> / {totalCount} santri
+                        Progres:{" "}
+                        <span className="text-brand-600">{completedCount}</span>{" "}
+                        / {totalCount} santri
                       </div>
                       <div className="w-32 h-2 rounded-full bg-slate-100 overflow-hidden mt-1">
                         <div
@@ -366,7 +410,9 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                         variant="secondary"
                         onClick={() => handleToggleSessionStatus(session)}
                         className="text-xs gap-1"
-                        title={session.status === "open" ? "Tutup Sesi" : "Buka Sesi"}
+                        title={
+                          session.status === "open" ? "Tutup Sesi" : "Buka Sesi"
+                        }
                       >
                         {session.status === "open" ? (
                           <>
@@ -374,7 +420,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                           </>
                         ) : (
                           <>
-                            <Unlock className="size-3.5 text-emerald-600" /> Buka
+                            <Unlock className="size-3.5 text-emerald-600" />{" "}
+                            Buka
                           </>
                         )}
                       </Button>
@@ -422,23 +469,26 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                   <div className="border-t border-slate-100 bg-slate-50/50 p-5">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                        Daftar Penugasan Peserta ({session.assignments.length} Santri)
+                        Daftar Penugasan Peserta ({session.assignments.length}{" "}
+                        Santri)
                       </h4>
-                      <span className="text-[0.68rem] text-slate-500">
+                      <span className="text-2xs text-slate-500">
                         Maksimal {session.maxAttempts} percobaan per peserta
                       </span>
                     </div>
 
                     <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
                       <table className="w-full text-left text-xs text-slate-600">
-                        <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[0.65rem]">
+                        <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-3xs">
                           <tr>
                             <th className="py-2.5 px-3">No Peserta</th>
                             <th className="py-2.5 px-3">Nama Santri</th>
                             <th className="py-2.5 px-3">Status</th>
                             <th className="py-2.5 px-3">Akurasi</th>
                             <th className="py-2.5 px-3">Waktu Selesai</th>
-                            <th className="py-2.5 px-3 text-right">Aksi Operator</th>
+                            <th className="py-2.5 px-3 text-right">
+                              Aksi Operator
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -474,7 +524,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                                         : "text-amber-600"
                                     }`}
                                   >
-                                    {asg.accuracy}% ({asg.correctCount}/{asg.totalPlates})
+                                    {asg.accuracy}% ({asg.correctCount}/
+                                    {asg.totalPlates})
                                   </span>
                                 ) : (
                                   <span className="text-slate-400">—</span>
@@ -482,7 +533,9 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                               </td>
                               <td className="py-2.5 px-3 text-slate-500">
                                 {asg.completedAt
-                                  ? new Date(asg.completedAt).toLocaleTimeString("id-ID", {
+                                  ? new Date(
+                                      asg.completedAt,
+                                    ).toLocaleTimeString("id-ID", {
                                       hour: "2-digit",
                                       minute: "2-digit",
                                     })
@@ -490,30 +543,34 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                               </td>
                               <td className="py-2.5 px-3 text-right">
                                 <div className="flex items-center justify-end gap-1.5">
-                                  {asg.status !== "completed" && onStartSessionForCandidate && (
-                                    <Button
-                                      size="sm"
-                                      onClick={() =>
-                                        onStartSessionForCandidate(
-                                          session.id,
-                                          asg.participantId,
-                                        )
-                                      }
-                                      className="bg-brand-600 hover:bg-brand-700 text-white text-[0.68rem] px-2.5 py-1 gap-1"
-                                    >
-                                      <Play className="size-3" /> Mulai Tes
-                                    </Button>
-                                  )}
+                                  {asg.status !== "completed" &&
+                                    onStartSessionForCandidate && (
+                                      <Button
+                                        size="sm"
+                                        onClick={() =>
+                                          onStartSessionForCandidate(
+                                            session.id,
+                                            asg.participantId,
+                                          )
+                                        }
+                                        className="bg-brand-600 hover:bg-brand-700 text-white text-2xs px-2.5 py-1 gap-1"
+                                      >
+                                        <Play className="size-3" /> Mulai Tes
+                                      </Button>
+                                    )}
 
                                   {asg.status === "completed" && (
                                     <Button
                                       size="sm"
                                       variant="secondary"
-                                      onClick={() => handleReopenAttempt(session.id, asg)}
-                                      className="text-[0.68rem] px-2 py-1 text-slate-600 hover:text-amber-700 gap-1"
+                                      onClick={() =>
+                                        handleReopenAttempt(session.id, asg)
+                                      }
+                                      className="text-2xs px-2 py-1 text-slate-600 hover:text-amber-700 gap-1"
                                       title="Buka ulang percobaan jika ada kendala teknis (PRD 8.2)"
                                     >
-                                      <RefreshCw className="size-3" /> Buka Ulang
+                                      <RefreshCw className="size-3" /> Buka
+                                      Ulang
                                     </Button>
                                   )}
                                 </div>
@@ -541,7 +598,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                   Buat Sesi Skrining Ishihara Baru
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Tentukan mode pelaksanaan, parameter protokol medis, dan daftar kandidat.
+                  Tentukan mode pelaksanaan, parameter protokol medis, dan
+                  daftar kandidat.
                 </p>
               </div>
               <button
@@ -607,7 +665,7 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                       <span className="block font-bold text-xs text-slate-900">
                         Mode A: Terjadwal
                       </span>
-                      <span className="block text-[0.68rem] text-slate-500 mt-0.5">
+                      <span className="block text-2xs text-slate-500 mt-0.5">
                         Didampingi operator/pengawas di ruangan seleksi.
                       </span>
                     </div>
@@ -632,7 +690,7 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                       <span className="block font-bold text-xs text-slate-900">
                         Mode B: Mandiri
                       </span>
-                      <span className="block text-[0.68rem] text-slate-500 mt-0.5">
+                      <span className="block text-2xs text-slate-500 mt-0.5">
                         Akses mandiri via tautan privat berbatas akun internal.
                       </span>
                     </div>
@@ -651,9 +709,15 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                     onChange={(e) => setFormProtocol(e.target.value)}
                     className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:ring-2 focus:ring-brand-500"
                   >
-                    <option value="BPIP-ISH-24-V1">BPIP-ISH-24-V1 (24 Plat)</option>
-                    <option value="BPIP-ISH-10-V1">BPIP-ISH-10-V1 (10 Plat Ringkas)</option>
-                    <option value="BPIP-ISH-38-V1">BPIP-ISH-38-V1 (38 Plat Lengkap)</option>
+                    <option value="BPIP-ISH-24-V1">
+                      BPIP-ISH-24-V1 (24 Plat)
+                    </option>
+                    <option value="BPIP-ISH-10-V1">
+                      BPIP-ISH-10-V1 (10 Plat Ringkas)
+                    </option>
+                    <option value="BPIP-ISH-38-V1">
+                      BPIP-ISH-38-V1 (38 Plat Lengkap)
+                    </option>
                   </select>
                 </div>
 
@@ -707,7 +771,8 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-bold text-slate-700">
-                    Tetapkan Peserta ({selectedCandidateIds.length} dari {candidates.length} Santri)
+                    Tetapkan Peserta ({selectedCandidateIds.length} dari{" "}
+                    {candidates.length} Santri)
                   </label>
                   <button
                     type="button"
@@ -718,7 +783,7 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                           : candidates.map((c) => c.id),
                       )
                     }
-                    className="text-[0.68rem] font-bold text-brand-600 hover:underline"
+                    className="text-2xs font-bold text-brand-600 hover:underline"
                   >
                     {selectedCandidateIds.length === candidates.length
                       ? "Batal Pilih Semua"
@@ -740,10 +805,15 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                           onChange={() => {
                             if (isChecked) {
                               setSelectedCandidateIds(
-                                selectedCandidateIds.filter((id) => id !== c.id),
+                                selectedCandidateIds.filter(
+                                  (id) => id !== c.id,
+                                ),
                               )
                             } else {
-                              setSelectedCandidateIds([...selectedCandidateIds, c.id])
+                              setSelectedCandidateIds([
+                                ...selectedCandidateIds,
+                                c.id,
+                              ])
                             }
                           }}
                           className="rounded text-brand-600"
@@ -751,7 +821,9 @@ export default function SessionManager({ onStartSessionForCandidate }: SessionMa
                         <span className="font-mono text-slate-500 font-bold">
                           {c.number}
                         </span>
-                        <span className="font-bold text-slate-800">{c.name}</span>
+                        <span className="font-bold text-slate-800">
+                          {c.name}
+                        </span>
                       </label>
                     )
                   })}
