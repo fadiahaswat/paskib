@@ -252,7 +252,7 @@ function renderCandidatesSheet(ss, candidates, attempts) {
 function renderCatTryoutsSheet(ss, attempts, candidates) {
   var sheet = getOrCreateSheet(ss, "Hasil_CAT", true);
   sheet.clear();
-  var headers = ["No", "ID Percobaan", "Nomor Peserta", "Nama Santri / Kandidat", "Asal Sekolah / Grup", "Paket Ujian", "Percobaan Ke", "Skor PIP (0-100)", "Status PIP (PG 70)", "TIU Mentah (0-50)", "TIU Skala 100", "Status TIU (PG 70)", "Nilai Rata-Rata", "Status Akhir", "Waktu Selesai"];
+  var headers = ["No", "ID Percobaan", "Nomor Peserta", "Nama Santri / Kandidat", "Asal Sekolah / Grup", "Paket Ujian", "Percobaan Ke", "Skor PIP (0-100)", "Status PIP (PG 70)", "TIU Mentah (0-50)", "TIU Skala 100", "Status TIU (PG 70)", "Status Kualifikasi CAT", "Waktu Selesai"];
   var rows = [headers];
   var candidateMap = {};
   if (candidates && Array.isArray(candidates)) {
@@ -276,17 +276,16 @@ function renderCatTryoutsSheet(ss, attempts, candidates) {
     var tiuRaw = (att.tiuScoreRaw !== undefined && att.tiuScoreRaw !== null) ? att.tiuScoreRaw : "-";
     var tiuScaled = (att.tiuScoreScaled !== undefined && att.tiuScoreScaled !== null) ? att.tiuScoreScaled : "-";
     var tiuStatus = att.tiuStatus === "passed" ? "Lolos PG" : (att.tiuStatus === "failed" ? "Remedial" : (typeof tiuScaled === "number" && tiuScaled >= 70 ? "Lolos PG" : "Remedial"));
-    var combined = att.combinedScore;
-    if (combined === undefined || combined === null) {
-      if (typeof pipScore === "number" && typeof tiuScaled === "number") combined = Math.round((pipScore + tiuScaled) / 2);
-      else combined = "-";
-    }
-    var finalStatus = (pipStatus === "Lolos PG" && tiuStatus === "Lolos PG") ? "Lolos Kedua Sesi" : "Belum Memenuhi";
+    var finalStatus = (pipStatus === "Lolos PG" && tiuStatus === "Lolos PG")
+      ? "Lolos Tahap 2 & 3"
+      : (pipStatus !== "Lolos PG" && tiuStatus !== "Lolos PG"
+        ? "Remedial Tahap 2 & 3"
+        : (pipStatus !== "Lolos PG" ? "Remedial Tahap 2 (PIP)" : "Remedial Tahap 3 (TIU)"));
     rows.push([
       i + 1, att.id || "", cInfo.number || att.candidateNumber || "-",
       att.candidateName || cInfo.name || "Peserta", att.candidateGroup || cInfo.school || "-",
       att.packageName || "Paket Standar BPIP", att.attemptNumber || 1,
-      pipScore, pipStatus, tiuRaw, tiuScaled, tiuStatus, combined, finalStatus,
+      pipScore, pipStatus, tiuRaw, tiuScaled, tiuStatus, finalStatus,
       att.finalizedAt || att.startedAt || new Date().toISOString()
     ]);
   }

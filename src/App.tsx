@@ -2529,11 +2529,6 @@ function CandidateHome({ onNavigate }: { onNavigate: (view: View) => void }) {
   const tiuScore = latestAttempt
     ? latestAttempt.tiuScoreScaled
     : (candidate.tiu ?? 0)
-  const catAvg = latestAttempt
-    ? latestAttempt.combinedScore
-    : pipScore && tiuScore
-      ? (pipScore + tiuScore) / 2
-      : 0
   const fitnessVal =
     candidate.fitness !== null
       ? candidate.fitness
@@ -2685,24 +2680,55 @@ function CandidateHome({ onNavigate }: { onNavigate: (view: View) => void }) {
               </span>
               <Target className="size-3.5 sm:size-4 text-blue-600 shrink-0" />
             </div>
-            <p className="mt-1 sm:mt-2 font-display text-lg sm:text-2xl font-black text-slate-950 truncate">
-              {catAvg > 0 ? catAvg.toFixed(1) : "—"}
-              <span className="text-xs sm:text-sm font-bold text-slate-400">
-                /100
+            <div className="mt-1 sm:mt-2 flex items-baseline gap-2">
+              <span className="text-3xs sm:text-xs font-bold text-slate-500 uppercase">PIP</span>
+              <span className="font-display text-base sm:text-xl font-black text-slate-950">
+                {pipScore > 0 ? pipScore : "—"}
               </span>
-            </p>
+              <span className="text-slate-300">·</span>
+              <span className="text-3xs sm:text-xs font-bold text-slate-500 uppercase">TIU</span>
+              <span className="font-display text-base sm:text-xl font-black text-slate-950">
+                {tiuScore > 0 ? tiuScore : "—"}
+              </span>
+            </div>
           </div>
           <div>
-            <div className="mt-2.5 sm:mt-3 h-1.5 sm:h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-2.5 sm:mt-3 flex gap-1">
               <div
-                className={`h-full rounded-full ${
-                  catAvg >= 70 ? "bg-emerald-500" : "bg-blue-600"
+                className={`h-1.5 sm:h-2 flex-1 rounded-full ${
+                  pipScore >= 70
+                    ? "bg-emerald-500"
+                    : pipScore > 0
+                      ? "bg-amber-500"
+                      : "bg-slate-200"
                 }`}
-                style={{ width: `${Math.min(100, Math.round(catAvg))}%` }}
+                title={`PIP: ${pipScore}/100 (PG 70)`}
+              />
+              <div
+                className={`h-1.5 sm:h-2 flex-1 rounded-full ${
+                  tiuScore >= 70
+                    ? "bg-emerald-500"
+                    : tiuScore > 0
+                      ? "bg-amber-500"
+                      : "bg-slate-200"
+                }`}
+                title={`TIU: ${tiuScore}/100 (PG 70)`}
               />
             </div>
-            <p className="mt-1.5 sm:mt-2 text-3xs sm:text-2xs text-slate-500 truncate">
-              {catAvg >= 70 ? "Lulus passing grade" : "Target minimum: 70"}
+            <p className="mt-1.5 sm:mt-2 text-3xs sm:text-2xs font-semibold truncate">
+              {pipScore >= 70 && tiuScore >= 70 ? (
+                <span className="text-emerald-700">Lolos Tahap 2 &amp; 3</span>
+              ) : pipScore > 0 || tiuScore > 0 ? (
+                pipScore < 70 && tiuScore < 70 ? (
+                  <span className="text-red-600">Remedial PIP &amp; TIU</span>
+                ) : pipScore < 70 ? (
+                  <span className="text-amber-700">Remedial PIP (Tahap 2)</span>
+                ) : (
+                  <span className="text-amber-700">Remedial TIU (Tahap 3)</span>
+                )
+              ) : (
+                <span className="text-slate-500">Target PG: &ge;70 per tahap</span>
+              )}
             </p>
           </div>
         </Card>
@@ -3651,9 +3677,9 @@ function CandidateProgress() {
                 <tr>
                   <th className="px-5 py-3">Selesai</th>
                   <th className="px-4 py-3">Percobaan</th>
-                  <th className="px-4 py-3">PIP</th>
-                  <th className="px-4 py-3">TIU</th>
-                  <th className="px-5 py-3 text-right">Rata-rata</th>
+                  <th className="px-4 py-3">Tahap 2 (PIP)</th>
+                  <th className="px-4 py-3">Tahap 3 (TIU)</th>
+                  <th className="px-5 py-3 text-right">Status Kualifikasi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -3671,13 +3697,27 @@ function CandidateProgress() {
                       #{attempt.attemptNumber}
                     </td>
                     <td className="px-4 py-3.5 font-semibold">
-                      {attempt.pipScore}/100
+                      {attempt.pipScore}/100{" "}
+                      <span className={`text-xs font-normal ${attempt.pipStatus === "passed" ? "text-emerald-600" : "text-amber-600"}`}>
+                        ({attempt.pipStatus === "passed" ? "Lolos" : "Remedial"})
+                      </span>
                     </td>
                     <td className="px-4 py-3.5 font-semibold">
-                      {attempt.tiuScoreScaled}/100
+                      {attempt.tiuScoreScaled}/100{" "}
+                      <span className={`text-xs font-normal ${attempt.tiuStatus === "passed" ? "text-emerald-600" : "text-amber-600"}`}>
+                        ({attempt.tiuStatus === "passed" ? "Lolos" : "Remedial"})
+                      </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right font-bold text-emerald-700">
-                      {attempt.combinedScore.toFixed(1)}
+                    <td className="px-5 py-3.5 text-right font-medium">
+                      {attempt.pipStatus === "passed" && attempt.tiuStatus === "passed" ? (
+                        <Badge tone="success">Lolos Tahap 2 &amp; 3</Badge>
+                      ) : attempt.pipStatus !== "passed" && attempt.tiuStatus !== "passed" ? (
+                        <Badge tone="danger">Remedial PIP &amp; TIU</Badge>
+                      ) : attempt.pipStatus !== "passed" ? (
+                        <Badge tone="warning">Remedial Tahap 2 (PIP)</Badge>
+                      ) : (
+                        <Badge tone="warning">Remedial Tahap 3 (TIU)</Badge>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -4203,13 +4243,36 @@ function CandidateResults({
                 <span className="ml-1 text-sm text-slate-400">/100</span>
               </p>
             </div>
-            <div className="rounded-2xl bg-emerald-50 p-4">
-              <p className="text-xs font-semibold text-emerald-800">
-                Rata-rata
+            <div
+              className={`rounded-2xl p-4 ${
+                latest.pipStatus === "passed" && latest.tiuStatus === "passed"
+                  ? "bg-emerald-50 border border-emerald-100"
+                  : "bg-amber-50 border border-amber-100"
+              }`}
+            >
+              <p
+                className={`text-xs font-semibold ${
+                  latest.pipStatus === "passed" && latest.tiuStatus === "passed"
+                    ? "text-emerald-800"
+                    : "text-amber-800"
+                }`}
+              >
+                Status Kualifikasi
               </p>
-              <p className="mt-1 font-display text-2xl font-bold text-emerald-800">
-                {latest.combinedScore.toFixed(1)}
-                <span className="ml-1 text-sm text-emerald-700/60">/100</span>
+              <p
+                className={`mt-1 font-display text-base font-bold ${
+                  latest.pipStatus === "passed" && latest.tiuStatus === "passed"
+                    ? "text-emerald-900"
+                    : "text-amber-900"
+                }`}
+              >
+                {latest.pipStatus === "passed" && latest.tiuStatus === "passed"
+                  ? "Lolos Tahap 2 & 3"
+                  : latest.pipStatus !== "passed" && latest.tiuStatus !== "passed"
+                    ? "Remedial PIP & TIU"
+                    : latest.pipStatus !== "passed"
+                      ? "Remedial Tahap 2 (PIP)"
+                      : "Remedial Tahap 3 (TIU)"}
               </p>
             </div>
           </div>
@@ -4247,9 +4310,9 @@ function CandidateResults({
                 <tr>
                   <th className="px-5 py-3">Tanggal</th>
                   <th className="px-4 py-3">Percobaan</th>
-                  <th className="px-4 py-3">PIP</th>
-                  <th className="px-4 py-3">TIU</th>
-                  <th className="px-5 py-3 text-right">Rata-rata</th>
+                  <th className="px-4 py-3">Tahap 2 (PIP)</th>
+                  <th className="px-4 py-3">Tahap 3 (TIU)</th>
+                  <th className="px-5 py-3 text-right">Status Kualifikasi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -4268,24 +4331,30 @@ function CandidateResults({
                     </td>
                     <td className="px-4 py-3.5 font-semibold tabular-nums">
                       {attempt.pipScore}{" "}
-                      <span className="text-xs font-normal text-slate-400">
-                        ·{" "}
-                        {attempt.pipStatus === "passed"
-                          ? "Lulus"
-                          : "Belum lulus"}
+                      <span className={`text-xs font-normal ${attempt.pipStatus === "passed" ? "text-emerald-600" : "text-amber-600"}`}>
+                        ({attempt.pipStatus === "passed"
+                          ? "Lolos PG"
+                          : "Remedial"})
                       </span>
                     </td>
                     <td className="px-4 py-3.5 font-semibold tabular-nums">
                       {attempt.tiuScoreScaled}{" "}
-                      <span className="text-xs font-normal text-slate-400">
-                        ·{" "}
-                        {attempt.tiuStatus === "passed"
-                          ? "Lulus"
-                          : "Belum lulus"}
+                      <span className={`text-xs font-normal ${attempt.tiuStatus === "passed" ? "text-emerald-600" : "text-amber-600"}`}>
+                        ({attempt.tiuStatus === "passed"
+                          ? "Lolos PG"
+                          : "Remedial"})
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-right font-bold tabular-nums text-emerald-700">
-                      {attempt.combinedScore.toFixed(1)}
+                    <td className="px-5 py-3.5 text-right font-medium">
+                      {attempt.pipStatus === "passed" && attempt.tiuStatus === "passed" ? (
+                        <Badge tone="success">Lolos Tahap 2 &amp; 3</Badge>
+                      ) : attempt.pipStatus !== "passed" && attempt.tiuStatus !== "passed" ? (
+                        <Badge tone="danger">Remedial PIP &amp; TIU</Badge>
+                      ) : attempt.pipStatus !== "passed" ? (
+                        <Badge tone="warning">Remedial Tahap 2 (PIP)</Badge>
+                      ) : (
+                        <Badge tone="warning">Remedial Tahap 3 (TIU)</Badge>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -3926,13 +3926,13 @@ export default function SimulationCenter() {
                         )}
                       </div>
                     ) : session.type === "medical" ? (
-                      /* RIKKES CLINICAL 5-PILLAR INPUTS & PORTAL INTEGRATION */
-                      <div className="mt-4 space-y-4">
+                      /* RIKKES CLINICAL 5-PILLAR INPUTS & PORTAL INTEGRATION (CLEAN & TIDY) */
+                      <div className="mt-4 space-y-3.5">
                         {/* PORTAL INTEGRATION NOTIFICATION BAR */}
                         <div className="grid gap-2.5 sm:grid-cols-2">
                           {/* Portal Ishihara Banner */}
                           <div
-                            className={`flex flex-col justify-between gap-2 rounded-2xl border p-3.5 transition ${
+                            className={`flex items-center justify-between gap-3 rounded-2xl border px-3.5 py-3 transition ${
                               candidateIshihara
                                 ? candidateIshihara.screeningInterpretation === "normal" ||
                                   candidateIshihara.selectionDecision === "eligible"
@@ -3941,9 +3941,9 @@ export default function SimulationCenter() {
                                 : "border-slate-200 bg-slate-50 text-slate-700"
                             }`}
                           >
-                            <div className="flex items-start gap-2.5">
+                            <div className="flex items-center gap-2.5 min-w-0">
                               <Eye
-                                className={`size-4 mt-0.5 shrink-0 ${
+                                className={`size-4 shrink-0 ${
                                   candidateIshihara
                                     ? candidateIshihara.screeningInterpretation === "normal" ||
                                       candidateIshihara.selectionDecision === "eligible"
@@ -3952,32 +3952,32 @@ export default function SimulationCenter() {
                                     : "text-slate-400"
                                 }`}
                               />
-                              <div>
+                              <div className="min-w-0">
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">
-                                    Portal Tes Ishihara (Mata)
+                                    Tes Ishihara Portal
                                   </span>
                                   {candidateIshihara ? (
                                     <span
-                                      className={`rounded-md px-1.5 py-0.2 text-3xs font-extrabold uppercase ${
+                                      className={`rounded px-1.5 py-0.2 text-3xs font-extrabold uppercase ${
                                         candidateIshihara.screeningInterpretation === "normal" ||
                                         candidateIshihara.selectionDecision === "eligible"
-                                          ? "bg-emerald-200/70 text-emerald-800"
-                                          : "bg-rose-200/70 text-rose-800"
+                                          ? "bg-emerald-200/80 text-emerald-800"
+                                          : "bg-rose-200/80 text-rose-800"
                                       }`}
                                     >
                                       Terkoneksi
                                     </span>
                                   ) : (
-                                    <span className="rounded-md bg-slate-200 px-1.5 py-0.2 text-3xs font-semibold text-slate-600">
+                                    <span className="rounded bg-slate-200 px-1.5 py-0.2 text-3xs font-semibold text-slate-600">
                                       Belum Ada
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-0.5 text-xs font-semibold">
+                                <p className="text-xs font-semibold truncate">
                                   {candidateIshihara
                                     ? `Akurasi ${candidateIshihara.accuracy}% · ${candidateIshihara.interpretationLabel}`
-                                    : "Kandidat belum mengikuti tes buta warna Ishihara di portal."}
+                                    : "Belum ada rekam tes Ishihara di portal."}
                                 </p>
                               </div>
                             </div>
@@ -3996,21 +3996,21 @@ export default function SimulationCenter() {
                                     },
                                   })
                                   showToast(
-                                    `Hasil Ishihara portal (${candidateIshihara.accuracy}%) berhasil disinkronkan.`,
+                                    `Hasil Ishihara portal (${candidateIshihara.accuracy}%) disinkronkan.`,
                                     "success",
                                   )
                                 }}
-                                className="inline-flex items-center justify-center gap-1.5 self-start rounded-xl border border-emerald-300 bg-white px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-50 active:scale-95 transition"
+                                className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-emerald-300 bg-white px-2.5 py-1.5 text-2xs font-bold text-emerald-800 shadow-2xs hover:bg-emerald-50 active:scale-95 transition"
                               >
                                 <Zap className="size-3 text-amber-500" />
-                                Sinkronkan Hasil Ishihara
+                                Sinkronkan
                               </button>
                             ) : null}
                           </div>
 
                           {/* Portal Anamnesis Banner */}
                           <div
-                            className={`flex flex-col justify-between gap-2 rounded-2xl border p-3.5 transition ${
+                            className={`flex items-center justify-between gap-3 rounded-2xl border px-3.5 py-3 transition ${
                               candidatePortalAnamnesis
                                 ? candidatePortalAnamnesis.criticalCount > 0
                                   ? "border-rose-200 bg-rose-50/70 text-rose-950"
@@ -4020,9 +4020,9 @@ export default function SimulationCenter() {
                                 : "border-slate-200 bg-slate-50 text-slate-700"
                             }`}
                           >
-                            <div className="flex items-start gap-2.5">
+                            <div className="flex items-center gap-2.5 min-w-0">
                               <HeartPulse
-                                className={`size-4 mt-0.5 shrink-0 ${
+                                className={`size-4 shrink-0 ${
                                   candidatePortalAnamnesis
                                     ? candidatePortalAnamnesis.criticalCount > 0
                                       ? "text-rose-600"
@@ -4030,25 +4030,25 @@ export default function SimulationCenter() {
                                     : "text-slate-400"
                                 }`}
                               />
-                              <div>
+                              <div className="min-w-0">
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <span className="text-2xs font-bold uppercase tracking-wider text-slate-500">
-                                    Portal Anamnesis Mandiri
+                                    Anamnesis Mandiri
                                   </span>
                                   {candidatePortalAnamnesis ? (
-                                    <span className="rounded-md bg-emerald-200/70 px-1.5 py-0.2 text-3xs font-extrabold uppercase text-emerald-800">
+                                    <span className="rounded bg-emerald-200/80 px-1.5 py-0.2 text-3xs font-extrabold uppercase text-emerald-800">
                                       Terkoneksi
                                     </span>
                                   ) : (
-                                    <span className="rounded-md bg-slate-200 px-1.5 py-0.2 text-3xs font-semibold text-slate-600">
+                                    <span className="rounded bg-slate-200 px-1.5 py-0.2 text-3xs font-semibold text-slate-600">
                                       Belum Ada
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-0.5 text-xs font-semibold">
+                                <p className="text-xs font-semibold truncate">
                                   {candidatePortalAnamnesis
-                                    ? `${candidatePortalAnamnesis.yesCount} dari 21 keluhan YA (Skor ${candidatePortalAnamnesis.score}/100)`
-                                    : "Kandidat belum mengisi formulir screening kesehatan di portal."}
+                                    ? `${candidatePortalAnamnesis.yesCount} dari 21 YA (Skor ${candidatePortalAnamnesis.score}/100)`
+                                    : "Belum mengisi kuesioner medis di portal."}
                                 </p>
                               </div>
                             </div>
@@ -4066,22 +4066,22 @@ export default function SimulationCenter() {
                                   nextMetrics.anamnesisStatus = candidatePortalAnamnesis.status
                                   patchRecord({ metrics: nextMetrics })
                                   showToast(
-                                    `21 Jawaban Anamnesis (${candidatePortalAnamnesis.yesCount} YA) berhasil disinkronkan dari portal!`,
+                                    `21 Jawaban Anamnesis (${candidatePortalAnamnesis.yesCount} YA) disinkronkan.`,
                                     "success",
                                   )
                                 }}
-                                className="inline-flex items-center justify-center gap-1.5 self-start rounded-xl border border-emerald-300 bg-white px-2.5 py-1 text-2xs font-bold text-emerald-900 shadow-2xs hover:bg-emerald-50 active:scale-95 transition"
+                                className="shrink-0 inline-flex items-center gap-1 rounded-xl border border-emerald-300 bg-white px-2.5 py-1.5 text-2xs font-bold text-emerald-800 shadow-2xs hover:bg-emerald-50 active:scale-95 transition"
                               >
                                 <Zap className="size-3 text-amber-500" />
-                                Tarik 21 Jawaban Portal
+                                Tarik Jawaban
                               </button>
                             ) : null}
                           </div>
                         </div>
 
                         {/* PILAR 1: KARDIOVASKULAR (TENSI & NADI) */}
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-2.5">
                             <div className="flex items-center gap-2">
                               <Activity className="size-4 text-red-600" />
                               <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -4089,17 +4089,17 @@ export default function SimulationCenter() {
                               </span>
                             </div>
                             <span className="text-3xs font-semibold text-slate-500">
-                              Normal: 110/70 s.d. 125/85 mmHg · Nadi: 60–85 bpm Sinus
+                              Standar BPIP: Normal 110/70–125/85 mmHg · Nadi 60–85 bpm Sinus
                             </span>
                           </div>
 
                           <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
-                            {/* Input Tekanan Darah (Tensi) */}
-                            <div className="space-y-2 rounded-xl bg-white p-3 border border-slate-200 shadow-2xs">
+                            {/* Card Tensi */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
                               <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-slate-800">
+                                <span className="text-xs font-bold text-slate-800">
                                   Tekanan Darah (Tensi)
-                                </label>
+                                </span>
                                 {rikkesEval && rikkesEval.bpCategory !== "empty" ? (
                                   <span
                                     className={`rounded-md px-2 py-0.5 text-3xs font-bold ${
@@ -4111,20 +4111,22 @@ export default function SimulationCenter() {
                                     }`}
                                   >
                                     {rikkesEval.bpCategory === "normal"
-                                      ? "Rentang Normal"
+                                      ? "Normal (110/70–125/85)"
                                       : rikkesEval.bpCategory === "failed"
                                         ? "MUTLAK GUGUR (>140/90)"
                                         : rikkesEval.bpCategory === "tolerance"
-                                          ? "Batas Maks. (130/90)"
+                                          ? "Batas Maks (130/90)"
                                           : "Hipotensi (<100/60)"}
                                   </span>
-                                ) : null}
+                                ) : (
+                                  <span className="text-3xs text-slate-400 font-semibold">mmHg</span>
+                                )}
                               </div>
 
-                              <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                  <span className="text-3xs font-semibold text-slate-500">
-                                    Sistol (mmHg)
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1">
+                                  <span className="text-3xs font-semibold text-slate-400 block mb-1">
+                                    Sistol
                                   </span>
                                   <input
                                     type="number"
@@ -4147,12 +4149,13 @@ export default function SimulationCenter() {
                                         },
                                       })
                                     }}
-                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 font-display text-base font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-400/20"
                                   />
                                 </div>
-                                <div>
-                                  <span className="text-3xs font-semibold text-slate-500">
-                                    Diastol (mmHg)
+                                <span className="pt-4 text-lg font-bold text-slate-300">/</span>
+                                <div className="flex-1">
+                                  <span className="text-3xs font-semibold text-slate-400 block mb-1">
+                                    Diastol
                                   </span>
                                   <input
                                     type="number"
@@ -4175,14 +4178,13 @@ export default function SimulationCenter() {
                                         },
                                       })
                                     }}
-                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 font-display text-base font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-400/20"
                                   />
                                 </div>
                               </div>
 
-                              {/* Quick Tensi presets */}
-                              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                                <span className="text-3xs text-slate-400">Pilihan Cepat:</span>
+                              <div className="flex flex-wrap items-center gap-1 pt-1.5 border-t border-slate-100">
+                                <span className="text-3xs text-slate-400 mr-1">Cepat:</span>
                                 {[
                                   { s: "115", d: "75" },
                                   { s: "120", d: "80" },
@@ -4203,7 +4205,11 @@ export default function SimulationCenter() {
                                         },
                                       })
                                     }
-                                    className="rounded-lg bg-slate-100 hover:bg-slate-200 px-2 py-0.5 text-3xs font-semibold text-slate-700 transition"
+                                    className={`rounded-lg px-2 py-0.5 text-3xs font-semibold transition active:scale-95 ${
+                                      p.s === "145"
+                                        ? "bg-rose-50 text-rose-700 hover:bg-rose-100"
+                                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                    }`}
                                   >
                                     {p.s}/{p.d}
                                   </button>
@@ -4211,12 +4217,12 @@ export default function SimulationCenter() {
                               </div>
                             </div>
 
-                            {/* Input Nadi Istirahat & Irama */}
-                            <div className="space-y-2 rounded-xl bg-white p-3 border border-slate-200 shadow-2xs">
+                            {/* Card Nadi */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
                               <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-slate-800">
+                                <span className="text-xs font-bold text-slate-800">
                                   Denyut Nadi Istirahat
-                                </label>
+                                </span>
                                 {rikkesEval && rikkesEval.pulseCategory !== "empty" ? (
                                   <span
                                     className={`rounded-md px-2 py-0.5 text-3xs font-bold ${
@@ -4228,65 +4234,87 @@ export default function SimulationCenter() {
                                     }`}
                                   >
                                     {rikkesEval.pulseCategory === "normal"
-                                      ? "60–85 bpm Sinus"
+                                      ? "Normal (60–85 bpm)"
                                       : rikkesEval.pulseCategory === "arrhythmia"
                                         ? "ARITMIA (GUGUR)"
                                         : rikkesEval.pulseCategory === "tachycardia"
                                           ? "Takikardia (>85)"
                                           : "Bradikardia (<60)"}
                                   </span>
-                                ) : null}
+                                ) : (
+                                  <span className="text-3xs text-slate-400 font-semibold">60–85 bpm</span>
+                                )}
                               </div>
 
-                              <div className="grid grid-cols-2 gap-2 items-center">
-                                <NumberStepper
-                                  label="Frekuensi"
-                                  unit="bpm"
-                                  value={record.metrics.pulse ?? ""}
-                                  placeholder="72"
-                                  quickAdds={[2, 5]}
-                                  onChange={(val) =>
-                                    patchRecord({
-                                      metrics: { ...record.metrics, pulse: val },
-                                    })
-                                  }
-                                />
-                                <div>
-                                  <span className="text-3xs font-semibold text-slate-500">
-                                    Irama Sinus
+                              {/* Stepper Frekuensi */}
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const cur = parseFloat(record.metrics.pulse || "72")
+                                    const next = Math.max(40, cur - 2)
+                                    patchRecord({ metrics: { ...record.metrics, pulse: String(next) } })
+                                  }}
+                                  className="grid size-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-100 font-bold text-slate-700 hover:bg-slate-200 active:scale-95"
+                                >
+                                  -
+                                </button>
+                                <div className="relative flex-1">
+                                  <input
+                                    type="number"
+                                    placeholder="72"
+                                    value={record.metrics.pulse ?? ""}
+                                    onChange={(e) =>
+                                      patchRecord({ metrics: { ...record.metrics, pulse: e.target.value } })
+                                    }
+                                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pr-10 text-center font-display text-base font-bold text-slate-900 focus:bg-white focus:outline-none"
+                                  />
+                                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-2xs font-semibold text-slate-400">
+                                    bpm
                                   </span>
-                                  <div className="mt-1 flex gap-1">
-                                    {[
-                                      { id: "sinus", label: "Sinus Reguler" },
-                                      { id: "arrhythmia", label: "Aritmia" },
-                                    ].map((opt) => {
-                                      const isSel =
-                                        (record.metrics.pulseRhythm ?? "sinus") === opt.id
-                                      return (
-                                        <button
-                                          key={opt.id}
-                                          type="button"
-                                          onClick={() =>
-                                            patchRecord({
-                                              metrics: {
-                                                ...record.metrics,
-                                                pulseRhythm: opt.id,
-                                              },
-                                            })
-                                          }
-                                          className={`flex-1 min-h-10 rounded-xl px-2 text-2xs font-bold transition ${
-                                            isSel
-                                              ? opt.id === "sinus"
-                                                ? "bg-emerald-600 text-white shadow-xs"
-                                                : "bg-rose-600 text-white shadow-xs"
-                                              : "border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                                          }`}
-                                        >
-                                          {opt.label}
-                                        </button>
-                                      )
-                                    })}
-                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const cur = parseFloat(record.metrics.pulse || "72")
+                                    const next = Math.min(180, cur + 2)
+                                    patchRecord({ metrics: { ...record.metrics, pulse: String(next) } })
+                                  }}
+                                  className="grid size-10 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 font-bold text-red-600 hover:bg-red-100 active:scale-95"
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* Segmented Control Irama */}
+                              <div className="pt-1.5 border-t border-slate-100">
+                                <div className="inline-flex w-full rounded-xl bg-slate-100 p-1">
+                                  {[
+                                    { id: "sinus", label: "Sinus Reguler (Normal)" },
+                                    { id: "arrhythmia", label: "Aritmia (Gugur)" },
+                                  ].map((opt) => {
+                                    const isSel = (record.metrics.pulseRhythm ?? "sinus") === opt.id
+                                    return (
+                                      <button
+                                        key={opt.id}
+                                        type="button"
+                                        onClick={() =>
+                                          patchRecord({
+                                            metrics: { ...record.metrics, pulseRhythm: opt.id },
+                                          })
+                                        }
+                                        className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition active:scale-95 ${
+                                          isSel
+                                            ? opt.id === "sinus"
+                                              ? "bg-emerald-600 text-white shadow-xs"
+                                              : "bg-rose-600 text-white shadow-xs"
+                                            : "text-slate-600 hover:text-slate-900"
+                                        }`}
+                                      >
+                                        {opt.label}
+                                      </button>
+                                    )
+                                  })}
                                 </div>
                               </div>
                             </div>
@@ -4294,8 +4322,8 @@ export default function SimulationCenter() {
                         </div>
 
                         {/* PILAR 2: MATA & PENGLIHATAN */}
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-2.5">
                             <div className="flex items-center gap-2">
                               <Eye className="size-4 text-blue-600" />
                               <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -4309,15 +4337,16 @@ export default function SimulationCenter() {
 
                           <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
                             {/* Tajam Penglihatan & Minus */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
-                                Visus Mata &amp; Toleransi Refraksi (Minus/Silindris)
-                              </label>
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
+                              <span className="text-xs font-bold text-slate-800 block">
+                                Tajam Penglihatan &amp; Refraksi
+                              </span>
+
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                  <span className="text-3xs text-slate-500 font-semibold">
+                                  <label className="text-3xs font-semibold text-slate-500 block mb-1">
                                     Visus Tanpa Kacamata
-                                  </span>
+                                  </label>
                                   <select
                                     value={record.metrics.visusRight ?? "6/6"}
                                     onChange={(e) =>
@@ -4329,7 +4358,7 @@ export default function SimulationCenter() {
                                         },
                                       })
                                     }
-                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800"
+                                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none"
                                   >
                                     <option value="6/6">6/6 (Normal Sempurna)</option>
                                     <option value="6/7.5">6/7.5 (Minus Ringan)</option>
@@ -4337,10 +4366,11 @@ export default function SimulationCenter() {
                                     <option value="6/12">6/12 (&gt; 1D - TMS)</option>
                                   </select>
                                 </div>
+
                                 <div>
-                                  <span className="text-3xs text-slate-500 font-semibold">
-                                    Besaran Minus (Dioptri)
-                                  </span>
+                                  <label className="text-3xs font-semibold text-slate-500 block mb-1">
+                                    Koreksi Minus (Dioptri)
+                                  </label>
                                   <select
                                     value={record.metrics.refractionMinus ?? "0.0"}
                                     onChange={(e) =>
@@ -4351,34 +4381,35 @@ export default function SimulationCenter() {
                                         },
                                       })
                                     }
-                                    className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-xs font-bold text-slate-800"
+                                    className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none"
                                   >
-                                    <option value="0.0">0.0 D (Normal Bebas Minus)</option>
+                                    <option value="0.0">0.0 D (Normal / Bebas)</option>
                                     <option value="0.25">-0.25 D (Toleransi)</option>
                                     <option value="0.50">-0.50 D (Toleransi)</option>
                                     <option value="0.75">-0.75 D (Toleransi)</option>
                                     <option value="1.00">-1.00 D (Batas Maksimal)</option>
-                                    <option value="1.50">-1.50 D (&gt; 1D MUTLAK GUGUR)</option>
-                                    <option value="2.00">-2.00 D (&gt; 1D MUTLAK GUGUR)</option>
+                                    <option value="1.50">-1.50 D (&gt;1D GUGUR)</option>
+                                    <option value="2.00">-2.00 D (&gt;1D GUGUR)</option>
                                   </select>
                                 </div>
                               </div>
                             </div>
 
                             {/* Uji Ishihara Buta Warna */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5 flex flex-col justify-between">
                               <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold text-slate-800">
+                                <span className="text-xs font-bold text-slate-800">
                                   Uji Ishihara (14/24 Plates)
-                                </label>
-                                <span className="rounded-md bg-rose-100 text-rose-800 text-3xs font-extrabold px-1.5 py-0.5">
+                                </span>
+                                <span className="rounded bg-rose-100 text-rose-800 text-3xs font-extrabold px-1.5 py-0.5">
                                   Buta Warna Mutlak Gugur
                                 </span>
                               </div>
-                              <div className="grid grid-cols-2 gap-2 mt-1">
+
+                              <div className="inline-flex w-full rounded-xl bg-slate-100 p-1">
                                 {[
-                                  { id: "normal", label: "Normal (Bebas Buta Warna)" },
-                                  { id: "partial", label: "Buta Warna Parsial / Total" },
+                                  { id: "normal", label: "Bebas Buta Warna (Normal)" },
+                                  { id: "partial", label: "Buta Warna (GUGUR)" },
                                 ].map((opt) => {
                                   const cur =
                                     record.metrics.ishiharaStatus ??
@@ -4401,12 +4432,12 @@ export default function SimulationCenter() {
                                           },
                                         })
                                       }
-                                      className={`min-h-11 rounded-xl text-xs font-bold transition active:scale-95 ${
+                                      className={`flex-1 py-2 px-2 rounded-lg text-xs font-bold transition active:scale-95 ${
                                         isSel
                                           ? opt.id === "normal"
                                             ? "bg-emerald-600 text-white shadow-xs"
                                             : "bg-rose-600 text-white shadow-xs"
-                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                          : "text-slate-600 hover:text-slate-900"
                                       }`}
                                     >
                                       {opt.label}
@@ -4414,13 +4445,19 @@ export default function SimulationCenter() {
                                   )
                                 })}
                               </div>
+
+                              <p className="text-3xs text-slate-400">
+                                {candidateIshihara
+                                  ? `Terhubung ke hasil portal: Akurasi ${candidateIshihara.accuracy}% (${candidateIshihara.interpretationLabel})`
+                                  : "Buku referensi Ishihara resmi: Buta warna parsial/total mutlak tidak memenuhi syarat."}
+                              </p>
                             </div>
                           </div>
                         </div>
 
                         {/* PILAR 3: KESEHATAN GIGI & MULUT */}
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-2.5">
                             <div className="flex items-center gap-2">
                               <Smile className="size-4 text-emerald-600" />
                               <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -4428,147 +4465,167 @@ export default function SimulationCenter() {
                               </span>
                             </div>
                             <span className="text-3xs font-semibold text-slate-500">
-                              Karies ≤ 5 gigi sudah ditambal · Gigi depan utuh · Bebas maloklusi parah
+                              Karies ≤ 5 gigi ditambal · Gigi depan utuh · Bebas maloklusi parah
                             </span>
                           </div>
 
                           <div className="mt-3.5 grid gap-3 sm:grid-cols-3">
-                            {/* Karies & Gigi Berlubang */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
-                                Gigi Berlubang (Maks. 5)
-                              </label>
-                              <div className="grid grid-cols-2 gap-2">
-                                <NumberStepper
-                                  label="Jumlah"
-                                  unit="gigi"
-                                  min={0}
-                                  max={20}
-                                  value={record.metrics.cavityCount ?? "0"}
-                                  placeholder="0"
-                                  quickAdds={[1, 2]}
-                                  onChange={(val) =>
-                                    patchRecord({
-                                      metrics: { ...record.metrics, cavityCount: val },
-                                    })
-                                  }
-                                />
-                                <div>
-                                  <span className="text-3xs font-semibold text-slate-500">
-                                    Penambalan
+                            {/* Card Gigi Berlubang */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-800">
+                                  Gigi Berlubang (Maks. 5)
+                                </span>
+                                <span className="text-3xs font-semibold text-slate-400">Karies</span>
+                              </div>
+
+                              {/* Stepper Lubang Gigi */}
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const cur = parseInt(record.metrics.cavityCount || "0", 10)
+                                    const next = Math.max(0, cur - 1)
+                                    patchRecord({ metrics: { ...record.metrics, cavityCount: String(next) } })
+                                  }}
+                                  className="grid size-9 shrink-0 place-items-center rounded-xl border border-slate-200 bg-slate-100 font-bold text-slate-700 hover:bg-slate-200 active:scale-95"
+                                >
+                                  -
+                                </button>
+                                <div className="relative flex-1">
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    max={20}
+                                    value={record.metrics.cavityCount ?? "0"}
+                                    onChange={(e) =>
+                                      patchRecord({ metrics: { ...record.metrics, cavityCount: e.target.value } })
+                                    }
+                                    className="h-9 w-full rounded-xl border border-slate-200 bg-slate-50 text-center font-display text-base font-bold text-slate-900 focus:bg-white focus:outline-none"
+                                  />
+                                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-2xs text-slate-400 font-semibold">
+                                    gigi
                                   </span>
-                                  <div className="mt-1 flex flex-col gap-1">
-                                    {[
-                                      { id: "yes", label: "Sudah Ditambal" },
-                                      { id: "no", label: "Belum Ditambal" },
-                                    ].map((opt) => {
-                                      const isSel =
-                                        (record.metrics.cavityFilled ?? "yes") === opt.id
-                                      return (
-                                        <button
-                                          key={opt.id}
-                                          type="button"
-                                          onClick={() =>
-                                            patchRecord({
-                                              metrics: {
-                                                ...record.metrics,
-                                                cavityFilled: opt.id,
-                                              },
-                                            })
-                                          }
-                                          className={`rounded-lg py-1 px-2 text-2xs font-bold transition ${
-                                            isSel
-                                              ? opt.id === "yes"
-                                                ? "bg-emerald-600 text-white"
-                                                : "bg-rose-600 text-white"
-                                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                          }`}
-                                        >
-                                          {opt.label}
-                                        </button>
-                                      )
-                                    })}
-                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const cur = parseInt(record.metrics.cavityCount || "0", 10)
+                                    const next = Math.min(20, cur + 1)
+                                    patchRecord({ metrics: { ...record.metrics, cavityCount: String(next) } })
+                                  }}
+                                  className="grid size-9 shrink-0 place-items-center rounded-xl border border-red-200 bg-red-50 font-bold text-red-600 hover:bg-red-100 active:scale-95"
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* Status Tambalan */}
+                              <div>
+                                <span className="text-3xs font-semibold text-slate-500 block mb-1">
+                                  Status Penambalan
+                                </span>
+                                <div className="inline-flex w-full rounded-xl bg-slate-100 p-1">
+                                  {[
+                                    { id: "yes", label: "Sudah Ditambal" },
+                                    { id: "no", label: "Belum Ditambal" },
+                                  ].map((opt) => {
+                                    const isSel = (record.metrics.cavityFilled ?? "yes") === opt.id
+                                    return (
+                                      <button
+                                        key={opt.id}
+                                        type="button"
+                                        onClick={() =>
+                                          patchRecord({ metrics: { ...record.metrics, cavityFilled: opt.id } })
+                                        }
+                                        className={`flex-1 py-1 px-1.5 rounded-lg text-2xs font-bold transition active:scale-95 ${
+                                          isSel
+                                            ? opt.id === "yes"
+                                              ? "bg-emerald-600 text-white shadow-xs"
+                                              : "bg-rose-600 text-white shadow-xs"
+                                            : "text-slate-600 hover:text-slate-900"
+                                        }`}
+                                      >
+                                        {opt.label}
+                                      </button>
+                                    )
+                                  })}
                                 </div>
                               </div>
                             </div>
 
-                            {/* Gigi Depan */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
-                                Gigi Depan
-                              </label>
-                              <div className="flex flex-col gap-1.5 mt-1">
+                            {/* Card Gigi Depan */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2">
+                              <span className="text-xs font-bold text-slate-800 block">
+                                Keutuhan Gigi Depan
+                              </span>
+
+                              <div className="space-y-1.5">
                                 {[
                                   { id: "utuh", label: "Utuh / Normal" },
-                                  { id: "tiruan_permanen", label: "Gigi Tiruan Estetik Permanen" },
-                                  { id: "ompong_patah", label: "Ompong / Patah Tanpa Tiruan" },
+                                  { id: "tiruan_permanen", label: "Tiruan Estetik Permanen" },
+                                  { id: "ompong_patah", label: "Ompong / Patah (GUGUR)" },
                                 ].map((opt) => {
-                                  const isSel =
-                                    (record.metrics.frontTeeth ?? "utuh") === opt.id
+                                  const isSel = (record.metrics.frontTeeth ?? "utuh") === opt.id
                                   return (
                                     <button
                                       key={opt.id}
                                       type="button"
                                       onClick={() =>
                                         patchRecord({
-                                          metrics: {
-                                            ...record.metrics,
-                                            frontTeeth: opt.id,
-                                          },
+                                          metrics: { ...record.metrics, frontTeeth: opt.id },
                                         })
                                       }
-                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                      className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-bold text-left transition active:scale-95 flex items-center justify-between ${
                                         isSel
                                           ? opt.id === "ompong_patah"
                                             ? "bg-rose-600 text-white shadow-xs"
                                             : "bg-emerald-600 text-white shadow-xs"
-                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                          : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80"
                                       }`}
                                     >
-                                      {opt.label}
+                                      <span>{opt.label}</span>
+                                      {isSel && <Check className="size-3.5 shrink-0" />}
                                     </button>
                                   )
                                 })}
                               </div>
                             </div>
 
-                            {/* Susunan Gigi / Oklusi */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
+                            {/* Card Susunan Gigi (Oklusi) */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2">
+                              <span className="text-xs font-bold text-slate-800 block">
                                 Susunan Gigi (Oklusi)
-                              </label>
-                              <div className="flex flex-col gap-1.5 mt-1">
+                              </span>
+
+                              <div className="space-y-1.5">
                                 {[
                                   { id: "normal", label: "Normal & Rapi" },
                                   { id: "maloklusi_ringan", label: "Maloklusi Ringan (Toleransi)" },
-                                  { id: "maloklusi_parah", label: "Maloklusi Parah (Rawan Penalti)" },
+                                  { id: "maloklusi_parah", label: "Maloklusi Parah (Penalti)" },
                                 ].map((opt) => {
-                                  const isSel =
-                                    (record.metrics.occlusion ?? "normal") === opt.id
+                                  const isSel = (record.metrics.occlusion ?? "normal") === opt.id
                                   return (
                                     <button
                                       key={opt.id}
                                       type="button"
                                       onClick={() =>
                                         patchRecord({
-                                          metrics: {
-                                            ...record.metrics,
-                                            occlusion: opt.id,
-                                          },
+                                          metrics: { ...record.metrics, occlusion: opt.id },
                                         })
                                       }
-                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                      className={`w-full py-1.5 px-2.5 rounded-xl text-xs font-bold text-left transition active:scale-95 flex items-center justify-between ${
                                         isSel
                                           ? opt.id === "normal"
                                             ? "bg-emerald-600 text-white shadow-xs"
                                             : opt.id === "maloklusi_ringan"
                                               ? "bg-amber-600 text-white shadow-xs"
                                               : "bg-rose-600 text-white shadow-xs"
-                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                          : "bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80"
                                       }`}
                                     >
-                                      {opt.label}
+                                      <span>{opt.label}</span>
+                                      {isSel && <Check className="size-3.5 shrink-0" />}
                                     </button>
                                   )
                                 })}
@@ -4578,8 +4635,8 @@ export default function SimulationCenter() {
                         </div>
 
                         {/* PILAR 4: THT & PERNAPASAN */}
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4">
-                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                        <div className="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200/70 pb-2.5">
                             <div className="flex items-center gap-2">
                               <Stethoscope className="size-4 text-purple-600" />
                               <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -4587,20 +4644,20 @@ export default function SimulationCenter() {
                               </span>
                             </div>
                             <span className="text-3xs font-semibold text-slate-500">
-                              Bebas amandel T3-T4 · Bebas polip hidung · Membran timpani utuh tanpa congek
+                              Bebas tonsilitis T3-T4 · Bebas polip · Membran timpani utuh tanpa congek
                             </span>
                           </div>
 
                           <div className="mt-3.5 grid gap-3 sm:grid-cols-3">
-                            {/* Amandel / Tonsilitis */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
+                            {/* Card Amandel / Tonsil */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2">
+                              <span className="text-xs font-bold text-slate-800 block">
                                 Amandel / Tonsil
-                              </label>
-                              <div className="flex flex-col gap-1.5 mt-1">
+                              </span>
+                              <div className="inline-flex w-full rounded-xl bg-slate-100 p-1">
                                 {[
-                                  { id: "normal", label: "T0–T2 Tenang (Normal)" },
-                                  { id: "t3_t4", label: "Tonsilitis T3–T4 (GUGUR)" },
+                                  { id: "normal", label: "T0–T2 (Normal)" },
+                                  { id: "t3_t4", label: "T3–T4 (GUGUR)" },
                                 ].map((opt) => {
                                   const isSel = (record.metrics.tonsil ?? "normal") === opt.id
                                   return (
@@ -4609,18 +4666,15 @@ export default function SimulationCenter() {
                                       type="button"
                                       onClick={() =>
                                         patchRecord({
-                                          metrics: {
-                                            ...record.metrics,
-                                            tonsil: opt.id,
-                                          },
+                                          metrics: { ...record.metrics, tonsil: opt.id },
                                         })
                                       }
-                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                      className={`flex-1 py-1.5 px-1.5 rounded-lg text-xs font-bold transition active:scale-95 ${
                                         isSel
                                           ? opt.id === "normal"
                                             ? "bg-emerald-600 text-white shadow-xs"
                                             : "bg-rose-600 text-white shadow-xs"
-                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                          : "text-slate-600 hover:text-slate-900"
                                       }`}
                                     >
                                       {opt.label}
@@ -4630,36 +4684,32 @@ export default function SimulationCenter() {
                               </div>
                             </div>
 
-                            {/* Polip Hidung */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
+                            {/* Card Polip Hidung */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2">
+                              <span className="text-xs font-bold text-slate-800 block">
                                 Polip Hidung
-                              </label>
-                              <div className="flex flex-col gap-1.5 mt-1">
+                              </span>
+                              <div className="inline-flex w-full rounded-xl bg-slate-100 p-1">
                                 {[
-                                  { id: "bebas", label: "Bebas Polip Hidung (Normal)" },
-                                  { id: "ada", label: "Ada Polip Hidung (GUGUR)" },
+                                  { id: "bebas", label: "Bebas Polip (Normal)" },
+                                  { id: "ada", label: "Ada Polip (GUGUR)" },
                                 ].map((opt) => {
-                                  const isSel =
-                                    (record.metrics.nasalPolyp ?? "bebas") === opt.id
+                                  const isSel = (record.metrics.nasalPolyp ?? "bebas") === opt.id
                                   return (
                                     <button
                                       key={opt.id}
                                       type="button"
                                       onClick={() =>
                                         patchRecord({
-                                          metrics: {
-                                            ...record.metrics,
-                                            nasalPolyp: opt.id,
-                                          },
+                                          metrics: { ...record.metrics, nasalPolyp: opt.id },
                                         })
                                       }
-                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                      className={`flex-1 py-1.5 px-1.5 rounded-lg text-xs font-bold transition active:scale-95 ${
                                         isSel
                                           ? opt.id === "bebas"
                                             ? "bg-emerald-600 text-white shadow-xs"
                                             : "bg-rose-600 text-white shadow-xs"
-                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                          : "text-slate-600 hover:text-slate-900"
                                       }`}
                                     >
                                       {opt.label}
@@ -4669,36 +4719,32 @@ export default function SimulationCenter() {
                               </div>
                             </div>
 
-                            {/* Membran Timpani / Telinga */}
-                            <div className="rounded-xl bg-white p-3 border border-slate-200 shadow-2xs space-y-2">
-                              <label className="text-xs font-bold text-slate-800">
-                                Membran Timpani &amp; Riwayat Telinga
-                              </label>
-                              <div className="flex flex-col gap-1.5 mt-1">
+                            {/* Card Membran Timpani & Riwayat Congek */}
+                            <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2">
+                              <span className="text-xs font-bold text-slate-800 block">
+                                Membran Timpani (Telinga)
+                              </span>
+                              <div className="inline-flex w-full rounded-xl bg-slate-100 p-1">
                                 {[
-                                  { id: "utuh", label: "Utuh & Bersih (Normal)" },
-                                  { id: "robek_congek", label: "Robek / Congek (GUGUR)" },
+                                  { id: "utuh", label: "Utuh (Normal)" },
+                                  { id: "robek_congek", label: "Congek (GUGUR)" },
                                 ].map((opt) => {
-                                  const isSel =
-                                    (record.metrics.tympanic ?? "utuh") === opt.id
+                                  const isSel = (record.metrics.tympanic ?? "utuh") === opt.id
                                   return (
                                     <button
                                       key={opt.id}
                                       type="button"
                                       onClick={() =>
                                         patchRecord({
-                                          metrics: {
-                                            ...record.metrics,
-                                            tympanic: opt.id,
-                                          },
+                                          metrics: { ...record.metrics, tympanic: opt.id },
                                         })
                                       }
-                                      className={`rounded-xl py-1.5 px-2.5 text-xs font-bold transition text-left ${
+                                      className={`flex-1 py-1.5 px-1.5 rounded-lg text-xs font-bold transition active:scale-95 ${
                                         isSel
                                           ? opt.id === "utuh"
                                             ? "bg-emerald-600 text-white shadow-xs"
                                             : "bg-rose-600 text-white shadow-xs"
-                                          : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                                          : "text-slate-600 hover:text-slate-900"
                                       }`}
                                     >
                                       {opt.label}

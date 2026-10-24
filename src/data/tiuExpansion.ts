@@ -76,16 +76,53 @@ const syllogismGroups = [
   ["apel", "buah", "bahan pangan"], ["elang", "unggas", "hewan"], ["persegi", "bangun datar", "bentuk geometris"],
   ["perak", "logam", "bahan"],
 ] as const
-const money = (n: number) => `Rp${n.toLocaleString("id-ID")}`
+const money = (n: number) => `Rp${Math.round(n).toLocaleString("id-ID")}`
 const makeOptions = (answer: string | number, distractors: (string | number)[], seed: number) => {
   const correct = String(answer)
   const wrong = [...new Set(distractors.map(String).filter((value) => value !== correct))]
-  let filler = 1
+  
+  let fallbackCounter = 1
   while (wrong.length < 4) {
-    const candidate = `${correct} (${filler})`
-    if (!wrong.includes(candidate)) wrong.push(candidate)
-    filler += 1
+    let candidate = ""
+    const numMatch = correct.match(/[\d\.]+/g)
+    if (numMatch) {
+      const rawNumStr = numMatch.join("")
+      const num = parseFloat(rawNumStr)
+      if (!isNaN(num) && num > 0) {
+        if (correct.startsWith("Rp")) {
+          const delta = fallbackCounter * Math.max(5_000, Math.round(num * 0.1))
+          candidate = money(num + delta)
+        } else if (correct.endsWith("km/jam")) {
+          candidate = `${Math.round(num + fallbackCounter * 10)} km/jam`
+        } else if (correct.endsWith("jam")) {
+          candidate = `${Math.round(num + fallbackCounter)} jam`
+        } else if (correct.endsWith("km")) {
+          candidate = `${Math.round(num + fallbackCounter * 15)} km`
+        } else if (correct.endsWith("%")) {
+          candidate = `${Math.round(num + fallbackCounter * 5)}%`
+        } else {
+          candidate = String(Math.round(num + fallbackCounter * 3))
+        }
+      }
+    }
+    
+    if (!candidate || candidate === correct || wrong.includes(candidate)) {
+      const genericFallbacks = [
+        "Tidak dapat ditentukan",
+        "Informasi tidak lengkap",
+        "Pilihan alternatif lain",
+        "Nilai di luar estimasi",
+        "Kondisi tidak memenuhi",
+      ]
+      candidate = genericFallbacks[fallbackCounter % genericFallbacks.length]
+    }
+
+    if (candidate !== correct && !wrong.includes(candidate)) {
+      wrong.push(candidate)
+    }
+    fallbackCounter += 1
   }
+
   const values = [correct, ...wrong.slice(0, 4)]
   const correctIndex = seed % 5
   values[0] = values[correctIndex]
@@ -115,7 +152,17 @@ function buildQuestion(index: number): CatQuestion {
     ]
     question = variants[form]
     answer = target
-    distractors = [opposite, vocab[(Math.floor(n / 4) + 7) % vocab.length][1], vocab[(Math.floor(n / 4) + 13) % vocab.length][2], vocab[(Math.floor(n / 4) + 21) % vocab.length][1]]
+    const otherWords: string[] = []
+    let vOffset = 1
+    while (otherWords.length < 4) {
+      const v = vocab[(Math.floor(n / 4) + vOffset * 7) % vocab.length]
+      const cand = vOffset % 2 === 0 ? v[1] : v[2]
+      if (cand !== target && cand !== opposite && !otherWords.includes(cand)) {
+        otherWords.push(cand)
+      }
+      vOffset++
+    }
+    distractors = [opposite, ...otherWords.slice(0, 3)]
     explanation = `Kata “${word}” bermakna ${synonym}; lawan katanya adalah ${antonym}.`
   } else if (cat === 1) {
     const row = analogies[Math.floor(n / 10)]
@@ -165,13 +212,11 @@ function buildQuestion(index: number): CatQuestion {
     const b = 12 + ((n * 11) % 67)
     const c = 3 + (n % 9)
     const form = n % 5
-    const values = [a + b + c, a * c + b, a * b - c, (a + b) * c, a * c - b]
     const ops = [`${a} + ${b} × ${c}`, `${a} × ${c} + ${b}`, `${a} × ${b} − ${c}`, `(${a} + ${b}) × ${c}`, `${a} × ${c} − ${b}`]
     const results = [a + b * c, a * c + b, a * b - c, (a + b) * c, a * c - b]
     question = `Berapakah hasil dari ${ops[form]}?`
     answer = results[form]
-    distractors = [answer + c, answer - b, answer + 2 * c, answer - c].filter((v) => v >= 0)
-    while (distractors.length < 4) distractors.push(answer + distractors.length + 11)
+    distractors = [answer + c, Math.abs(answer - b) + 1, answer + 2 * c + 3, answer + b + 5]
     explanation = `Kerjakan perkalian sebelum penjumlahan atau pengurangan. Hasilnya ${answer}.`
   } else if (cat === 4) {
     const a = 2 + (n % 17)
@@ -185,7 +230,7 @@ function buildQuestion(index: number): CatQuestion {
     const rv = form === 0 ? c / d : form === 1 ? b / 20 : form === 2 ? c / d : b * b
     answer = lv > rv ? "A" : lv < rv ? "B" : "C"
     question = `Bandingkan nilai pada kolom A dan kolom B.\nKolom A: ${left}\nKolom B: ${right}\nPilih A jika A lebih besar, B jika B lebih besar, atau C jika keduanya sama.`
-    distractors = ["A", "B", "C", "Informasi tidak cukup"].filter((x) => x !== answer)
+    distractors = ["A", "B", "C", "2A = B", "Hubungan A dan B tidak dapat ditentukan"].filter((x) => x !== answer)
     explanation = `Nilai kolom A ${lv > rv ? "lebih besar" : lv < rv ? "lebih kecil" : "sama"} daripada nilai kolom B.`
   } else if (cat === 5) {
     const speed = 25 + (n % 50) * 5
@@ -193,8 +238,12 @@ function buildQuestion(index: number): CatQuestion {
     const distance = speed * hours
     const form = n % 3
     question = form === 0 ? `Kendaraan melaju dengan kecepatan ${speed} km/jam selama ${hours} jam. Berapa jarak yang ditempuh?` : form === 1 ? `Jarak ${distance} km ditempuh dengan kecepatan ${speed} km/jam. Berapa lama waktu perjalanannya?` : `Sebuah kendaraan menempuh ${distance} km dalam ${hours} jam. Berapa kecepatan rata-ratanya?`
-    answer = form === 0 ? distance : form === 1 ? `${hours} jam` : `${speed} km/jam`
-    distractors = form === 0 ? [distance + speed, distance - speed, speed + hours, distance / 2] : form === 1 ? [`${hours + 1} jam`, `${hours - 1} jam`, `${speed} jam`, `${distance} jam`] : [`${speed + 10} km/jam`, `${speed - 10} km/jam`, `${distance} km/jam`, `${hours} km/jam`]
+    answer = form === 0 ? `${distance} km` : form === 1 ? `${hours} jam` : `${speed} km/jam`
+    distractors = form === 0
+      ? [`${distance + 20} km`, `${Math.max(10, distance - 20)} km`, `${distance + 40} km`, `${Math.max(5, distance - 40)} km`]
+      : form === 1
+      ? [`${hours + 1} jam`, `${hours + 2} jam`, `${hours + 3} jam`, `${hours + 4} jam`]
+      : [`${speed + 10} km/jam`, `${speed - 10} km/jam`, `${speed + 20} km/jam`, `${speed + 30} km/jam`]
     explanation = `Gunakan rumus jarak = kecepatan × waktu. Jaraknya ${distance} km, waktunya ${hours} jam, dan kecepatannya ${speed} km/jam.`
   } else if (cat === 6) {
     const base = 80_000 + n * 15_000
@@ -203,7 +252,11 @@ function buildQuestion(index: number): CatQuestion {
     const result = form === 0 ? base * (100 - pct) / 100 : form === 1 ? base * (100 + pct) / 100 : base * pct / 100
     question = form === 0 ? `Sebuah barang seharga ${money(base)} mendapat diskon ${pct}%. Berapa harga setelah diskon?` : form === 1 ? `Modal sebuah barang ${money(base)} dan dijual dengan keuntungan ${pct}%. Berapa harga jualnya?` : form === 2 ? `Berapa besar ${pct}% dari ${money(base)}?` : `Harga barang ${money(base)} didiskon ${pct}%. Berapa jumlah potongan harganya?`
     answer = money(result)
-    distractors = [money(base * pct / 100), money(base + base * pct / 100), money(base - base * (pct - 5) / 100), money(result + 10_000)]
+    const d1 = result + (base * 5) / 100
+    const d2 = Math.max(5_000, result - (base * 5) / 100)
+    const d3 = result + (base * 10) / 100
+    const d4 = Math.max(10_000, result + 15_000)
+    distractors = [money(d1), money(d2), money(d3), money(d4 === result ? d4 + 20_000 : d4)]
     explanation = `${pct}% dari ${money(base)} adalah ${money(base * pct / 100)}; hasil sesuai pertanyaan adalah ${money(result)}.`
   } else if (cat === 7) {
     const start = 3 + n * 2
@@ -214,8 +267,19 @@ function buildQuestion(index: number): CatQuestion {
     const result = form === 0 ? start + 4 * step : form === 1 ? start * ratio ** 4 : form === 2 ? start + 20 : start
     question = `Tentukan bilangan berikutnya: ${seq.join(", ")}, ....`
     answer = result
-    distractors = [result + step, result - step, result + ratio, Math.max(0, result - 2)].filter((x) => x !== result)
-    while (distractors.length < 4) distractors.push(result + distractors.length + 3)
+    const dSet = new Set<number>()
+    const deltas = [step, -step, step * 2, -step * 2, ratio * 2, -(ratio + 1), step + 3, step - 3, 5, -5, 7, -7]
+    for (const d of deltas) {
+      const val = result + d
+      if (val > 0 && val !== result) {
+        dSet.add(val)
+        if (dSet.size === 4) break
+      }
+    }
+    while (dSet.size < 4) {
+      dSet.add(result + dSet.size * 3 + 4)
+    }
+    distractors = Array.from(dSet)
     explanation = form === 0 ? `Pola bertambah ${step} setiap langkah.` : form === 1 ? `Setiap bilangan dikalikan ${ratio}.` : form === 2 ? "Selisih bertambah 2, 4, 6, lalu 8." : `Pola bergantian antara ${start} dan ${start + step}.`
   } else if (cat === 8) {
     const [a, b, c] = syllogismGroups[Math.floor(n / 20)]

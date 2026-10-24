@@ -605,20 +605,19 @@ export default function CatBankView() {
     return [...visibleCandidates].sort((a, b) => {
       const attemptA = latestAttemptByCandidate.get(a.id)
       const attemptB = latestAttemptByCandidate.get(b.id)
-      const pipA = attemptA?.pipScore ?? a.pip
-      const tiuA = attemptA?.tiuScoreScaled ?? a.tiu
-      const pipB = attemptB?.pipScore ?? b.pip
-      const tiuB = attemptB?.tiuScoreScaled ?? b.tiu
-      const combinedA =
-        pipA !== null && tiuA !== null ? (pipA + tiuA) / 2 : null
-      const combinedB =
-        pipB !== null && tiuB !== null ? (pipB + tiuB) / 2 : null
-      if (combinedA === null || combinedB === null) {
-        if (combinedA === null && combinedB !== null) return 1
-        if (combinedA !== null && combinedB === null) return -1
-        return a.name.localeCompare(b.name)
-      }
-      return combinedB - combinedA
+      const pipA = attemptA?.pipScore ?? a.pip ?? -1
+      const tiuA = attemptA?.tiuScoreScaled ?? a.tiu ?? -1
+      const pipB = attemptB?.pipScore ?? b.pip ?? -1
+      const tiuB = attemptB?.tiuScoreScaled ?? b.tiu ?? -1
+
+      const bothPassedA = pipA >= 70 && tiuA >= 70
+      const bothPassedB = pipB >= 70 && tiuB >= 70
+      if (bothPassedA !== bothPassedB) return bothPassedB ? 1 : -1
+
+      // Urutkan prioritas Tahap 2 (PIP), lalu Tahap 3 (TIU)
+      if (pipB !== pipA) return pipB - pipA
+      if (tiuB !== tiuA) return tiuB - tiuA
+      return a.name.localeCompare(b.name)
     })
   }, [
     candidates,
@@ -2656,17 +2655,23 @@ export default function CatBankView() {
                           tone={
                             currentPipResults.passed && currentTiuResults.passed
                               ? "success"
-                              : "warning"
+                              : !currentPipResults.passed && !currentTiuResults.passed
+                                ? "danger"
+                                : "warning"
                           }
                           className="text-2xs font-bold px-2 py-0.5 whitespace-nowrap"
                         >
                           {currentPipResults.passed && currentTiuResults.passed
-                            ? "LOLOS KEDUA SESI TRYOUT (BPIP)"
-                            : "SELESAI — BUTUH PENGUATAN"}
+                            ? "LOLOS KEDUA TAHAP (TAHAP 2 & 3)"
+                            : !currentPipResults.passed && !currentTiuResults.passed
+                              ? "REMEDIAL TAHAP 2 & 3"
+                              : !currentPipResults.passed
+                                ? "REMEDIAL TAHAP 2 (PIP)"
+                                : "REMEDIAL TAHAP 3 (TIU)"}
                         </Badge>
                         <span className="text-2xs text-slate-400">·</span>
                         <span className="text-2xs text-slate-300 whitespace-nowrap">
-                          2 Sesi Berurutan Selesai
+                          2 Tahapan CAT Selesai
                         </span>
                       </div>
 
@@ -2708,90 +2713,67 @@ export default function CatBankView() {
                     </div>
                   </div>
 
-                  {/* UNIFIED 3-COLUMN METRICS (COMPACT) */}
-                  <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    {/* NILAI GABUNGAN */}
-                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 sm:p-3.5 flex flex-col justify-between">
+                  {/* TWO INDEPENDENT STAGES METRICS (TAHAP 2 PIP & TAHAP 3 TIU) */}
+                  <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* TAHAP 2: PIP */}
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
                       <div className="flex items-center justify-between">
-                        <span className="text-2xs font-bold uppercase tracking-wider text-amber-300">
-                          Nilai Gabungan
-                        </span>
-                        <span className="rounded bg-amber-400/20 px-1.5 py-0.5 text-3xs font-extrabold uppercase text-amber-300">
-                          Skala 100
-                        </span>
-                      </div>
-                      <div className="my-1.5 flex items-baseline gap-1">
-                        <span className="font-display text-2xl sm:text-3xl font-black text-amber-400">
-                          {combinedTryoutScore}
-                        </span>
-                        <span className="text-xs font-normal text-slate-400">
-                          / 100
-                        </span>
-                      </div>
-                      <p className="text-3xs text-amber-200/80 border-t border-amber-500/20 pt-1.5">
-                        Rata-rata terbobot PIP &amp; TIU
-                      </p>
-                    </div>
-
-                    {/* SESI 1: PIP */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-3.5 flex flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <span className="text-2xs font-bold text-slate-300">
-                          Sesi 1: Pancasila (PIP)
+                        <span className="text-xs font-bold text-slate-200">
+                          Tahap 2: Pancasila &amp; Wawasan (PIP)
                         </span>
                         <Badge
                           tone={currentPipResults.passed ? "success" : "danger"}
-                          className="text-3xs px-1.5 py-0.5"
+                          className="text-3xs px-2 py-0.5 font-bold"
                         >
-                          {currentPipResults.passed ? "Lolos PG" : "Remedial"}
+                          {currentPipResults.passed ? "Lolos (≥70)" : "Remedial"}
                         </Badge>
                       </div>
-                      <div className="my-1.5 flex items-baseline justify-between">
+                      <div className="my-2 flex items-baseline justify-between">
                         <div className="flex items-baseline gap-1">
-                          <span className="font-display text-2xl sm:text-3xl font-black text-white">
+                          <span className="font-display text-3xl font-black text-white">
                             {currentPipResults.score}
                           </span>
                           <span className="text-xs font-normal text-slate-400">
                             / 100
                           </span>
                         </div>
-                        <span className="text-2xs text-slate-300 font-medium">
-                          {currentPipResults.correct} / 50 Benar
+                        <span className="text-xs text-slate-300 font-medium">
+                          {currentPipResults.correct} / 50 Butir Benar (&times;2)
                         </span>
                       </div>
                       <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
-                        Passing Grade: &ge; {packageConfig.pipPassingGrade}
+                        Passing Grade Mandiri: &ge; {packageConfig.pipPassingGrade} · Materi: Sejarah, Sila, UUD, NKRI
                       </p>
                     </div>
 
-                    {/* SESI 2: TIU */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3 sm:p-3.5 flex flex-col justify-between">
+                    {/* TAHAP 3: TIU */}
+                    <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
                       <div className="flex items-center justify-between">
-                        <span className="text-2xs font-bold text-slate-300">
-                          Sesi 2: Intelegensia (TIU)
+                        <span className="text-xs font-bold text-slate-200">
+                          Tahap 3: Intelegensia Umum (TIU)
                         </span>
                         <Badge
                           tone={currentTiuResults.passed ? "success" : "danger"}
-                          className="text-3xs px-1.5 py-0.5"
+                          className="text-3xs px-2 py-0.5 font-bold"
                         >
-                          {currentTiuResults.passed ? "Lolos PG" : "Remedial"}
+                          {currentTiuResults.passed ? "Lolos (≥70)" : "Remedial"}
                         </Badge>
                       </div>
-                      <div className="my-1.5 flex items-baseline justify-between">
+                      <div className="my-2 flex items-baseline justify-between">
                         <div className="flex items-baseline gap-1">
-                          <span className="font-display text-2xl sm:text-3xl font-black text-white">
+                          <span className="font-display text-3xl font-black text-white">
                             {currentTiuResults.scaled}
                           </span>
                           <span className="text-xs font-normal text-slate-400">
                             / 100
                           </span>
                         </div>
-                        <span className="text-2xs text-slate-300 font-medium">
-                          {currentTiuResults.raw} / 50 Mentah
+                        <span className="text-xs text-slate-300 font-medium">
+                          Mentah: {currentTiuResults.raw} / 50 (&times;2)
                         </span>
                       </div>
                       <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
-                        Passing Grade: &ge; {packageConfig.tiuPassingGrade}
+                        Passing Grade Mandiri: &ge; {packageConfig.tiuPassingGrade} · Materi: Verbal, Numerik, Logika
                       </p>
                     </div>
                   </div>
@@ -3441,7 +3423,7 @@ export default function CatBankView() {
                   <th className="px-4 py-3.5">TIU Mentah</th>
                   <th className="px-4 py-3.5">TIU Skala 100</th>
                   <th className="px-4 py-3.5">Status TIU</th>
-                  <th className="px-4 py-3.5">Rata-Rata Gabungan</th>
+                  <th className="px-4 py-3.5">Kualifikasi CAT</th>
                   {currentUser.role !== "candidate" && (
                     <th className="px-5 py-3.5 text-right">Uji Cepat</th>
                   )}
@@ -3573,10 +3555,34 @@ export default function CatBankView() {
                         </Badge>
                       </td>
 
-                      <td className="px-4 py-3.5 font-extrabold text-slate-900 tabular-nums">
-                        {combined !== null ? (
-                          <span className="rounded-md bg-slate-100 px-2 py-0.5">
-                            {combined}
+                      <td className="px-4 py-3.5">
+                        {pipScore !== null && tiuScore !== null ? (
+                          pipPass && tiuPass ? (
+                            <Badge tone="success" className="whitespace-nowrap font-bold">
+                              Lolos Tahap 2 &amp; 3
+                            </Badge>
+                          ) : !pipPass && !tiuPass ? (
+                            <Badge tone="danger" className="whitespace-nowrap font-bold">
+                              Remedial Tahap 2 &amp; 3
+                            </Badge>
+                          ) : !pipPass ? (
+                            <Badge tone="warning" className="whitespace-nowrap font-bold">
+                              Remedial Tahap 2 (PIP)
+                            </Badge>
+                          ) : (
+                            <Badge tone="warning" className="whitespace-nowrap font-bold">
+                              Remedial Tahap 3 (TIU)
+                            </Badge>
+                          )
+                        ) : pipScore !== null ? (
+                          <span className="inline-flex items-center gap-1 text-2xs text-slate-500 font-medium whitespace-nowrap">
+                            <span className="size-1.5 rounded-full bg-amber-400 shrink-0" />
+                            TIU Belum Ujian
+                          </span>
+                        ) : tiuScore !== null ? (
+                          <span className="inline-flex items-center gap-1 text-2xs text-slate-500 font-medium whitespace-nowrap">
+                            <span className="size-1.5 rounded-full bg-amber-400 shrink-0" />
+                            PIP Belum Ujian
                           </span>
                         ) : (
                           <span className="text-slate-400 font-normal">—</span>
@@ -3625,9 +3631,9 @@ export default function CatBankView() {
                   <th className="px-5 py-3.5">Santri</th>
                   <th className="px-4 py-3.5">Paket</th>
                   <th className="px-4 py-3.5">Percobaan</th>
-                  <th className="px-4 py-3.5">Nilai PIP</th>
-                  <th className="px-4 py-3.5">Nilai TIU</th>
-                  <th className="px-4 py-3.5">Rata-rata</th>
+                  <th className="px-4 py-3.5">Tahap 2: PIP</th>
+                  <th className="px-4 py-3.5">Tahap 3: TIU</th>
+                  <th className="px-4 py-3.5">Kualifikasi</th>
                   <th className="px-5 py-3.5 text-right">Waktu selesai</th>
                   {(currentUser.role === "admin" ||
                     currentUser.role === "coach") && (
@@ -3686,8 +3692,25 @@ export default function CatBankView() {
                         <td className="px-4 py-3.5 font-bold tabular-nums">
                           {attempt.tiuScoreScaled.toFixed(0)}
                         </td>
-                        <td className="px-4 py-3.5 font-extrabold tabular-nums text-emerald-700">
-                          {attempt.combinedScore.toFixed(1)}
+                        <td className="px-4 py-3.5">
+                          <Badge
+                            tone={
+                              attempt.pipStatus === "passed" && attempt.tiuStatus === "passed"
+                                ? "success"
+                                : attempt.pipStatus !== "passed" && attempt.tiuStatus !== "passed"
+                                  ? "danger"
+                                  : "warning"
+                            }
+                            className="font-bold whitespace-nowrap"
+                          >
+                            {attempt.pipStatus === "passed" && attempt.tiuStatus === "passed"
+                              ? "Lolos Tahap 2 & 3"
+                              : attempt.pipStatus !== "passed" && attempt.tiuStatus !== "passed"
+                                ? "Remedial Tahap 2 & 3"
+                                : attempt.pipStatus !== "passed"
+                                  ? "Remedial Tahap 2 (PIP)"
+                                  : "Remedial Tahap 3 (TIU)"}
+                          </Badge>
                         </td>
                         <td className="px-5 py-3.5 text-right text-slate-500">
                           {new Date(
@@ -4211,21 +4234,38 @@ export default function CatBankView() {
               </button>
             </div>
 
-            {/* COMBINED SCORE BIG CARD */}
-            <div className="my-6 rounded-2xl border border-slate-800 bg-slate-950 p-6 text-center">
-              <p className="text-2xs font-bold uppercase tracking-wider text-slate-400">
-                Nilai Gabungan CAT (Rata-rata Terbobot)
-              </p>
-              <div className="mt-2 flex items-baseline justify-center gap-2">
-                <span className="font-display text-5xl sm:text-6xl font-black text-amber-400">
-                  {combinedTryoutScore}
-                </span>
-                <span className="text-xl font-bold text-slate-500">/ 100</span>
-              </div>
-              <p className="mt-2 text-xs font-semibold text-slate-300">
+            {/* QUALIFICATION STATUS BANNER */}
+            <div
+              className={`my-4 rounded-xl border p-4 text-center ${
+                currentPipResults.passed && currentTiuResults.passed
+                  ? "border-emerald-500/30 bg-emerald-950/40"
+                  : !currentPipResults.passed && !currentTiuResults.passed
+                    ? "border-rose-500/30 bg-rose-950/40"
+                    : "border-amber-500/30 bg-amber-950/40"
+              }`}
+            >
+              <Badge
+                tone={
+                  currentPipResults.passed && currentTiuResults.passed
+                    ? "success"
+                    : !currentPipResults.passed && !currentTiuResults.passed
+                      ? "danger"
+                      : "warning"
+                }
+                className="text-xs font-bold px-3 py-1"
+              >
                 {currentPipResults.passed && currentTiuResults.passed
-                  ? "Selamat! Anda memenuhi Passing Grade pada Sesi PIP dan TIU."
-                  : "Tryout CAT telah selesai dievaluasi."}
+                  ? "LOLOS KEDUA TAHAP (TAHAP 2 & 3)"
+                  : !currentPipResults.passed && !currentTiuResults.passed
+                    ? "REMEDIAL TAHAP 2 & 3"
+                    : !currentPipResults.passed
+                      ? "REMEDIAL TAHAP 2 (PIP)"
+                      : "REMEDIAL TAHAP 3 (TIU)"}
+              </Badge>
+              <p className="mt-2 text-xs font-medium text-slate-300">
+                {currentPipResults.passed && currentTiuResults.passed
+                  ? "Selamat! Nilai Anda memenuhi Passing Grade pada Tahap 2 (PIP) dan Tahap 3 (TIU)."
+                  : "Masing-masing tahapan dievaluasi secara mandiri sesuai Passing Grade BPIP (≥ 70)."}
               </p>
             </div>
 
@@ -4233,11 +4273,11 @@ export default function CatBankView() {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xs font-bold text-slate-400">
-                    SESI 1: PIP
+                  <span className="text-2xs font-bold text-slate-300">
+                    TAHAP 2: PIP
                   </span>
                   <Badge tone={currentPipResults.passed ? "success" : "danger"}>
-                    {currentPipResults.passed ? "Lolos" : "Remedial"}
+                    {currentPipResults.passed ? "Lolos (≥70)" : "Remedial"}
                   </Badge>
                 </div>
                 <p className="mt-2 text-2xl font-black text-white">
@@ -4255,10 +4295,10 @@ export default function CatBankView() {
               <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60">
                 <div className="flex items-center justify-between">
                   <span className="text-2xs font-bold text-slate-400">
-                    SESI 2: TIU
+                    TAHAP 3: TIU
                   </span>
                   <Badge tone={currentTiuResults.passed ? "success" : "danger"}>
-                    {currentTiuResults.passed ? "Lolos" : "Remedial"}
+                    {currentTiuResults.passed ? "Lolos (≥70)" : "Remedial"}
                   </Badge>
                 </div>
                 <p className="mt-2 text-2xl font-black text-white">

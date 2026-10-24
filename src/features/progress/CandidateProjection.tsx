@@ -701,10 +701,9 @@ export default function CandidateProjection({
                 <tr>
                   <th className="px-6 py-3">Waktu ujian</th>
                   <th className="px-4 py-3">Paket</th>
-                  <th className="px-4 py-3">PIP</th>
-                  <th className="px-4 py-3">TIU</th>
-                  <th className="px-4 py-3">Gabungan</th>
-                  <th className="px-4 py-3">Hasil</th>
+                  <th className="px-4 py-3">Tahap 2: PIP</th>
+                  <th className="px-4 py-3">Tahap 3: TIU</th>
+                  <th className="px-4 py-3">Status Kualifikasi</th>
                   {canDeleteCatHistory ? (
                     <th className="px-6 py-3 text-right">Aksi</th>
                   ) : null}
@@ -737,25 +736,33 @@ export default function CandidateProjection({
                       <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
                         {attempt.pipScore}{" "}
                         <span className="text-xs font-normal text-slate-400">
-                          ({pipPassed ? "Lulus" : "Belum lulus"})
+                          ({pipPassed ? "Lolos ≥70" : "Remedial"})
                         </span>
                       </td>
                       <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
                         {attempt.tiuScoreScaled}{" "}
                         <span className="text-xs font-normal text-slate-400">
-                          ({tiuPassed ? "Lulus" : "Belum lulus"})
+                          ({tiuPassed ? "Lolos ≥70" : "Remedial"})
                         </span>
-                      </td>
-                      <td className="px-4 py-3.5 font-bold tabular-nums text-slate-900">
-                        {attempt.combinedScore}
                       </td>
                       <td className="px-4 py-3.5">
                         <Badge
-                          tone={pipPassed && tiuPassed ? "success" : "warning"}
+                          tone={
+                            pipPassed && tiuPassed
+                              ? "success"
+                              : !pipPassed && !tiuPassed
+                                ? "danger"
+                                : "warning"
+                          }
+                          className="font-bold whitespace-nowrap"
                         >
                           {pipPassed && tiuPassed
-                            ? "Lulus keduanya"
-                            : "Perlu tindak lanjut"}
+                            ? "Lolos Tahap 2 & 3"
+                            : !pipPassed && !tiuPassed
+                              ? "Remedial Tahap 2 & 3"
+                              : !pipPassed
+                                ? "Remedial Tahap 2 (PIP)"
+                                : "Remedial Tahap 3 (TIU)"}
                         </Badge>
                       </td>
                       {canDeleteCatHistory ? (
