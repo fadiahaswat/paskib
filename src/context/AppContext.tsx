@@ -356,11 +356,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadStorage("paska-clean-users", initialUsers),
   )
   const [currentUserId, setCurrentUserId] = useState<string>(() =>
-    loadStorage("paska-clean-current-user", initialUsers[0].id),
+    loadStorage("paska-clean-current-user", ""),
   )
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() =>
-    loadStorage("paska-clean-auth", true),
-  )
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("paska-enforce-auth-v1")) {
+      try {
+        localStorage.setItem("paska-enforce-auth-v1", "true")
+        localStorage.setItem("paska-clean-auth", "false")
+      } catch {}
+      return false
+    }
+    return loadStorage("paska-clean-auth", false)
+  })
   const [allCandidates, setAllCandidates] = useState<Candidate[]>(() => {
     const isFirstSamaptaClean = typeof window !== "undefined" && !localStorage.getItem("paska-samapta-purged-v2")
     if (isFirstSamaptaClean) {

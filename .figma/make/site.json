@@ -1,7 +1,15 @@
 {
-  "description": "A comprehensive digital platform for managing and tracking the Paskibraka selection process, offering simulators and tools for candidates, trainers, and judges.",
+  "title": "BACAPASMUIN! - Seleksi Paskibraka 2027",
+  "description": "Platform digital pemantauan dan persiapan seleksi Calon Paskibraka (BACAPAS) Madrasah Mu'allimin Muhammadiyah Yogyakarta 2027.",
+  "language": "id",
+  "icons": {
+    "icon": "/BACAPASMUIN.webp"
+  },
+  "openGraph": {
+    "image": "https://paskib.tontimuallimin.com/BACAPASMUIN.webp"
+  },
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

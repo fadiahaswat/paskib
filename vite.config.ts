@@ -92,8 +92,8 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
     return html.replace(`<!-- ${slotName} -->`, content)
   }
 
-  const title = config.title ?? "Figma Make App"
-  const description = config.description ?? ""
+  const title = config.title ?? "BACAPASMUIN! - Seleksi Paskibraka 2027"
+  const description = config.description ?? "Platform digital pemantauan dan persiapan seleksi Calon Paskibraka (BACAPAS) Madrasah Mu'allimin Muhammadiyah Yogyakarta 2027."
   // Imported HTML keeps its own favicon; new Makes default to the Make product icon.
   const favicon = config.icons?.icon ?? "/favicon.svg"
   const socialImage = config.openGraph?.image ?? ""
