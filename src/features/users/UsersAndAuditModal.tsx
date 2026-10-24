@@ -1136,17 +1136,6 @@ export function LoginScreen() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#F8FAFC] text-slate-900 flex flex-col font-sans selection:bg-red-700 selection:text-white">
-      {/* Bottom-Right Paskibraka Emblem Graphic (Full Opacity & Large) */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none select-none fixed -bottom-24 -right-20 z-0"
-      >
-        <img
-          src={logoUrl}
-          alt=""
-          className="w-80 sm:w-[28rem] lg:w-[34rem] h-auto object-contain -rotate-6 drop-shadow-xl"
-        />
-      </div>
 
       {/* Top 3px National Accent Bar */}
       <div className="relative z-10 h-[3px] w-full bg-red-700" />

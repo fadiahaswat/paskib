@@ -260,6 +260,13 @@ function Sidebar({
 }) {
   const { currentUser, candidates, logout } = useApp()
   const isCandidate = currentUser.role === "candidate"
+  const currentCandidate = isCandidate
+    ? candidates.find(
+        (c) =>
+          c.id === currentUser.candidateId ||
+          c.name.trim().toLowerCase() === currentUser.name.trim().toLowerCase(),
+      )
+    : undefined
   const sectionsToRender = isCandidate ? candidateNavSections : navSections
 
   return (
@@ -344,13 +351,22 @@ function Sidebar({
         <div className="mt-auto border-t border-white/[0.08] pt-2.5">
           {isCandidate ? (
             <div className="flex items-center justify-between gap-2 rounded-xl border border-red-500/20 bg-red-950/20 p-1.5 pl-2">
-              <div className="min-w-0 flex-1">
-                <span className="block truncate text-xs font-semibold text-white leading-tight">
-                  {currentUser.name}
-                </span>
-                <span className="block truncate text-3xs text-slate-400 leading-tight mt-0.5">
-                  Sesi Mandiri Santri
-                </span>
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <CandidateAvatar
+                  name={currentCandidate?.name || currentUser.name}
+                  avatar={currentCandidate?.avatar || currentUser.avatar || "MA"}
+                  photoUrl={currentCandidate?.photoUrl}
+                  className="size-8 shrink-0 border border-white/20 text-3xs"
+                  rounded="rounded-lg"
+                />
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-semibold text-white leading-tight">
+                    {currentUser.name}
+                  </span>
+                  <span className="block truncate text-3xs text-slate-400 leading-tight mt-0.5">
+                    Sesi Mandiri Santri
+                  </span>
+                </div>
               </div>
               <button
                 type="button"

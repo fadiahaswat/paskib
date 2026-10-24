@@ -120,12 +120,24 @@ export function CandidateAvatar({
   className?: string
   rounded?: string
 }) {
-  if (photoUrl) {
+  const isImageAvatar = Boolean(
+    avatar &&
+      (avatar.startsWith("http://") ||
+        avatar.startsWith("https://") ||
+        avatar.startsWith("data:") ||
+        avatar.startsWith("/")),
+  )
+  const resolvedPhoto = photoUrl || (isImageAvatar ? avatar : undefined)
+
+  if (resolvedPhoto) {
     return (
       <img
-        src={photoUrl}
+        src={resolvedPhoto}
         alt={name ?? avatar}
         className={`${className} ${rounded} object-cover shrink-0 border border-slate-200/80 shadow-2xs`}
+        onError={(e) => {
+          e.currentTarget.style.display = "none"
+        }}
       />
     )
   }

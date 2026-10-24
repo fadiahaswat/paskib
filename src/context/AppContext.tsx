@@ -1301,6 +1301,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     setIsAuthenticated(false)
+    setCurrentUserId("")
     showToast(
       "Sesi telah keluar. Silakan pilih akun untuk masuk kembali.",
       "info",
