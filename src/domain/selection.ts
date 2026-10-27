@@ -115,6 +115,7 @@ export type Candidate = {
   physicalMetrics?: PhysicalMetric[]
   cycleId?: string
   updatedAt: string
+  updatedAtIso?: string
 }
 
 export type CatTryoutAttempt = {
@@ -170,6 +171,7 @@ export type SupportingDoc = {
   content: string
   fileSize: string
   updatedAt: string
+  updatedAtIso?: string
   status: "published" | "draft"
 }
 

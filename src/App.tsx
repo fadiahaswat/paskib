@@ -4403,13 +4403,21 @@ function Overview({
 
   const totalCount = candidates.length
 
-  // 1. Kehadiran & Status Lapangan
+  // 1. Kehadiran & Status Lapangan (cek juga record absensi sesi terbaru selain coachNote)
   const absentCandidates = useMemo(() => {
+    const sortedSessions = [...sessions].sort((a, b) => b.date.localeCompare(a.date))
     return candidates.filter((c) => {
       const note = (c.coachNote || "").toLowerCase()
-      return ["izin", "sakit", "alpa"].some((w) => note.includes(w))
+      if (["izin", "sakit", "alpa"].some((w) => note.includes(w))) return true
+      for (const s of sortedSessions) {
+        const rec = records[`${s.id}:${c.id}`]
+        if (rec?.savedAt) {
+          return Boolean(rec.attendance && rec.attendance !== "hadir")
+        }
+      }
+      return false
     })
-  }, [candidates])
+  }, [candidates, sessions, records])
   const activeInFieldCount = totalCount - absentCandidates.length
 
   // 2. Evaluasi Hasil Tes Lari 12 Menit (Standar Paskibraka >= 2400m, Target 3000m)
@@ -4714,7 +4722,7 @@ function Overview({
               tone: "bg-blue-50 text-blue-800 border-blue-200",
             },
           ]}
-          detail="10 santri aktif berlatih rutin di lapangan. 3 santri tercatat berhalangan (izin/sakit/alpa) dan disiapkan jadwal susulan."
+          detail={`${activeInFieldCount} santri aktif berlatih rutin di lapangan. ${absentCandidates.length} santri tercatat berhalangan (izin/sakit/alpa) dan disiapkan jadwal susulan.`}
           icon={UsersRound}
           tone="bg-blue-50 text-blue-700"
           onClick={() => onNavigateView("candidates")}
@@ -4737,7 +4745,7 @@ function Overview({
             },
           ]}
           progress={runEvaluation.passRate}
-          detail="9 dari 10 santri yang diuji tuntas melampaui batas minimal 2.400m. 1 santri DNF dan 3 santri menunggu uji lari."
+          detail={`${runEvaluation.passedStandard} dari ${runEvaluation.tested} santri yang diuji tuntas melampaui batas minimal 2.400m. ${runEvaluation.dnf} santri DNF dan ${runEvaluation.untested} santri menunggu uji lari.`}
           icon={Activity}
           tone="bg-emerald-50 text-emerald-700"
           onClick={() => onNavigateView("stages")}
@@ -5379,17 +5387,32 @@ function getCandidateStageMetric(cand: Candidate, stageIdx: number) {
     }
   }
   if (stageIdx === 3) {
+    const anamM = (cand.physicalMetrics ?? []).find((m) =>
+      m.label.toLowerCase().includes("anamnesis"),
+    )
+    const ishM = (cand.physicalMetrics ?? []).find(
+      (m) =>
+        m.label.toLowerCase().includes("ishihara") ||
+        m.label.toLowerCase().includes("mata"),
+    )
     const isReady = cand.stageStatuses[3] === "passed"
     return {
       primary: isReady
         ? "Memenuhi Standar"
         : cand.stageStatuses[3] === "review"
           ? "Perlu Konsul Medis"
-          : "Evaluasi Medis",
-      secondary: "Tensi & 21 Anamnesis",
+          : cand.stageStatuses[3] === "failed"
+            ? "Tidak Memenuhi"
+            : "Evaluasi Medis",
+      secondary:
+        anamM?.current || ishM?.current
+          ? [anamM?.current, ishM?.current].filter(Boolean).join(" · ")
+          : "Tensi & 21 Anamnesis",
       badge: isReady
         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-        : "bg-amber-50 text-amber-700 border-amber-200",
+        : cand.stageStatuses[3] === "failed"
+          ? "bg-red-50 text-red-700 border-red-200"
+          : "bg-amber-50 text-amber-700 border-amber-200",
     }
   }
   if (stageIdx === 4) {
@@ -5471,6 +5494,9 @@ function StagesView({
 }) {
   const {
     candidates,
+    catTryoutAttempts,
+    sessions,
+    records,
     updateCandidateStage,
     stageChecklists,
     toggleStageChecklist,
@@ -5483,7 +5509,27 @@ function StagesView({
   const workspace = stageWorkspace[activeStage]
   const Icon = workspace.icon
 
-  const stageCandidates = candidates
+  const stageCandidates = useMemo(
+    () =>
+      candidates.map((c) => {
+        const latestAttempt = catTryoutAttempts
+          .filter((a) => a.candidateId === c.id)
+          .sort((a, b) => b.finalizedAt.localeCompare(a.finalizedAt))[0]
+        const computedStatuses = getProgressStageStatuses(
+          c,
+          catTryoutAttempts,
+          sessions,
+          records,
+        )
+        return {
+          ...c,
+          pip: latestAttempt?.pipScore ?? c.pip,
+          tiu: latestAttempt?.tiuScoreScaled ?? c.tiu,
+          stageStatuses: computedStatuses,
+        }
+      }),
+    [candidates, catTryoutAttempts, sessions, records],
+  )
   const visibleCandidates = stageCandidates.filter((c) => {
     const matchesStatus =
       statusFilter === "all" || c.stageStatuses[activeStage] === statusFilter
@@ -5533,7 +5579,7 @@ function StagesView({
             </span>
           </div>
           <p className="mt-0.5 text-xs text-slate-500 max-w-2xl">
-            Pantau target kelayakan materi, evaluasi kesiapan 13 santri binaan,
+            Pantau target kelayakan materi, evaluasi kesiapan {stageCandidates.length} santri binaan,
             dan checklist tugas pembina.
           </p>
         </div>
@@ -5578,7 +5624,7 @@ function StagesView({
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {selectionStages.map((item, index) => {
           const isCurrent = activeStage === index && viewMode === "stage"
-          const readyCount = candidates.filter(
+          const readyCount = stageCandidates.filter(
             (c) => c.stageStatuses[index] === "passed",
           ).length
           return (
@@ -6024,7 +6070,7 @@ function StagesView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {candidates.map((cand) => {
+                {stageCandidates.map((cand) => {
                   const readyCount = cand.stageStatuses.filter(
                     (s) => s === "passed",
                   ).length
@@ -6119,6 +6165,8 @@ function ProgressView({
     catTryoutAttempts,
     sessions,
     records,
+    setRecords,
+    syncCandidateFromSession,
   } = useApp()
   const [selectedId, setSelectedId] = useState("")
   const [isEditingSamapta, setIsEditingSamapta] = useState(false)
@@ -6356,10 +6404,78 @@ function ProgressView({
         : null
 
     if (candidate) {
+      const samaptaLabels = ["lari 12 menit", "push-up", "sit-up", "back-up", "shuttle run"]
+      const nonSamaptaMetrics = (candidate.physicalMetrics ?? []).filter(
+        (m) => !samaptaLabels.some((lbl) => m.label.toLowerCase().includes(lbl)),
+      )
+      const mergedPhysicalMetrics = [...newMetrics, ...nonSamaptaMetrics]
+      const nextStatuses: StageStatus[] = [
+        ...(candidate.stageStatuses ?? Array<StageStatus>(8).fill("active")),
+      ]
+      if (newFitness !== null) {
+        nextStatuses[6] = fRun !== null && fRun >= 2400 ? "passed" : newFitness >= 70 ? "passed" : "review"
+      }
+
       updateCandidate(candidate.id, {
-        physicalMetrics: newMetrics,
+        physicalMetrics: mergedPhysicalMetrics,
         fitness: newFitness,
+        stageStatuses: nextStatuses,
       })
+
+      // Sinkronkan juga ke record sesi Samapta resmi agar grafik Tren & Proyeksi Samapta ikut diperbarui
+      const officialFitnessSession = sessions
+        .filter(
+          (s) =>
+            s.type === "fitness" &&
+            !s.title.toLowerCase().includes("interval") &&
+            !s.title.toLowerCase().includes("drill"),
+        )
+        .sort((a, b) => b.date.localeCompare(a.date))[0]
+
+      if (officialFitnessSession) {
+        const recKey = `${officialFitnessSession.id}:${candidate.id}`
+        const prevRec = records[recKey]
+        const nextRecMetrics: Record<string, string> = {
+          ...(prevRec?.metrics ?? {}),
+          runMode: "test12",
+          ...(fRun !== null && !isNaN(fRun) ? { distance: String(fRun), runDnf: fRun === 0 ? "yes" : "no" } : {}),
+          ...(fPush !== null && !isNaN(fPush) ? { pushup: String(fPush) } : {}),
+          ...(fSit !== null && !isNaN(fSit) ? { situp: String(fSit) } : {}),
+          ...(fBack !== null && !isNaN(fBack) ? { backup: String(fBack) } : {}),
+          ...(fShuttle !== null && !isNaN(fShuttle) ? { shuttle: String(fShuttle) } : {}),
+        }
+        const nextResult =
+          fRun !== null && fRun >= 2400
+            ? ("passed" as const)
+            : newFitness !== null && newFitness >= 70
+              ? ("passed" as const)
+              : ("review" as const)
+        const nextRecords = {
+          ...records,
+          [recKey]: {
+            attendance: prevRec?.attendance ?? ("hadir" as const),
+            discipline: prevRec?.discipline ?? "4",
+            focus: prevRec?.focus ?? "4",
+            stamina: prevRec?.stamina ?? "4",
+            note: prevRec?.note || "Pembaruan Nilai Samapta via Progres",
+            result: nextResult,
+            metrics: nextRecMetrics,
+            savedAt: new Date().toISOString(),
+          },
+        }
+        setRecords(nextRecords)
+        syncCandidateFromSession({
+          candidateId: candidate.id,
+          sessionType: "fitness",
+          sessionId: officialFitnessSession.id,
+          sessionTitle: officialFitnessSession.title,
+          metrics: nextRecMetrics,
+          records: nextRecords,
+          result: nextResult,
+          note: prevRec?.note || "Pembaruan Nilai Samapta via Progres",
+          attendance: prevRec?.attendance ?? "hadir",
+        })
+      }
     }
     setIsEditingSamapta(false)
   }
@@ -8046,6 +8162,13 @@ function AppShell() {
                 currentUser.role === "candidate" &&
                 !candidates.some(
                   (candidate) => candidate.id === currentUser.candidateId,
+                ) &&
+                !(
+                  currentUser.candidateId &&
+                  typeof window !== "undefined" &&
+                  localStorage.getItem(
+                    `paska-cat-active-session-${currentUser.candidateId}`,
+                  )
                 ) ? (
                   <CandidateProfileMissing />
                 ) : (

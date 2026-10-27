@@ -44,8 +44,15 @@ app.get(`${BASE}/state`, async (c) => {
       "paska:users",
       "paska:audit",
       "paska:checklists",
+      "paska:catTryoutAttempts",
+      "paska:cycles",
+      "paska:activeCycleId",
+      "paska:rankingPublished",
+      "paska:ishiharaSessions",
+      "paska:ishiharaAllowlist",
+      "paska:ishiharaResults",
     ]
-    const values = await kv.mget(keys)
+    const values = await Promise.all(keys.map((k) => kv.get(k)))
     return c.json({
       status: "ok",
       data: {
@@ -59,6 +66,13 @@ app.get(`${BASE}/state`, async (c) => {
         users: values[7] ?? null,
         audit: values[8] ?? null,
         checklists: values[9] ?? null,
+        catTryoutAttempts: values[10] ?? null,
+        cycles: values[11] ?? null,
+        activeCycleId: values[12] ?? null,
+        rankingPublished: values[13] ?? null,
+        ishiharaSessions: values[14] ?? null,
+        ishiharaAllowlist: values[15] ?? null,
+        ishiharaResults: values[16] ?? null,
       },
     })
   } catch (error) {
@@ -78,6 +92,9 @@ app.put(`${BASE}/state`, async (c) => {
     const body = await c.req.json()
     const keys: string[] = []
     const values: unknown[] = []
+    const deletedIds = new Set<string>(
+      Array.isArray(body.deletedCandidateIds) ? body.deletedCandidateIds : [],
+    )
 
     const allowedCollections = [
       "candidates",
@@ -90,12 +107,60 @@ app.put(`${BASE}/state`, async (c) => {
       "users",
       "audit",
       "checklists",
+      "catTryoutAttempts",
+      "cycles",
+      "activeCycleId",
+      "rankingPublished",
+      "ishiharaSessions",
+      "ishiharaAllowlist",
+      "ishiharaResults",
     ]
 
     for (const col of allowedCollections) {
       if (body[col] !== undefined) {
+        let nextVal = body[col]
+        if (col === "candidates" && Array.isArray(nextVal)) {
+          const existing = await kv.get("paska:candidates")
+          if (Array.isArray(existing)) {
+            const byId = new Map<string, any>()
+            for (const item of existing) {
+              if (item?.id && !deletedIds.has(item.id)) {
+                byId.set(item.id, item)
+              }
+            }
+            for (const inc of nextVal) {
+              if (!inc?.id || deletedIds.has(inc.id)) continue
+              const prev = byId.get(inc.id)
+              if (prev) {
+                byId.set(inc.id, {
+                  ...prev,
+                  ...inc,
+                  pip: inc.pip ?? prev.pip ?? null,
+                  tiu: inc.tiu ?? prev.tiu ?? null,
+                })
+              } else {
+                byId.set(inc.id, inc)
+              }
+            }
+            nextVal = Array.from(byId.values())
+          }
+        } else if (col === "catTryoutAttempts" && Array.isArray(nextVal)) {
+          const existing = await kv.get("paska:catTryoutAttempts")
+          if (Array.isArray(existing)) {
+            const byId = new Map<string, any>()
+            for (const item of existing) {
+              if (item?.id) byId.set(item.id, item)
+            }
+            for (const inc of nextVal) {
+              if (!inc?.id) continue
+              const prev = byId.get(inc.id)
+              byId.set(inc.id, prev ? { ...prev, ...inc } : inc)
+            }
+            nextVal = Array.from(byId.values())
+          }
+        }
         keys.push(`paska:${col}`)
-        values.push(body[col])
+        values.push(nextVal)
       }
     }
 

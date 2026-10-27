@@ -289,17 +289,25 @@ export function extractCandidateIntervalLogs(
       Boolean(m.intervalAvg)
 
     if (isInterval) {
-      const laps = Array.from({ length: 12 }, (_, i) => i + 1)
-        .map((i) => parseFloat(m[`intervalLap${i}`] || ""))
-        .filter((v) => !isNaN(v) && v > 0)
-
-      // KUNCI: Santri HANYA memiliki data interval jika ada split lap yang benar-benar dicatat!
-      if (laps.length === 0) continue
-
       const targetSets = parseInt(m.intervalTargetSets || "4", 10) || 4
       const targetPace = parseFloat(m.intervalTargetPace || "90") || 90
       const distPerSet = parseFloat(m.intervalDist || String(session.trackLength || 400)) || 400
       const isDnf = m.runDnf === "yes"
+
+      let laps = Array.from({ length: 12 }, (_, i) => i + 1)
+        .map((i) => parseFloat(m[`intervalLap${i}`] || ""))
+        .filter((v) => !isNaN(v) && v > 0)
+
+      if (laps.length === 0) {
+        const directAvg = parseFloat(m.intervalAvg || "")
+        if (!isNaN(directAvg) && directAvg > 0) {
+          laps = Array.from({ length: Math.max(1, targetSets) }, () => directAvg)
+        }
+      }
+
+      // Santri memiliki data interval jika ada split lap riil atau rata-rata waktu per set (intervalAvg) yang dicatat
+      if (laps.length === 0) continue
+
       const completedSets = laps.length
       const avgSplit = laps.reduce((a, b) => a + b, 0) / laps.length
       const dateStr = rec.savedAt ? rec.savedAt.slice(0, 10) : session.date
@@ -329,4 +337,3 @@ export function extractCandidateIntervalLogs(
   const nonDuplicatedDirect = validDirect.filter((l) => !l.sessionId || !sessionIds.has(l.sessionId))
   return [...extracted, ...nonDuplicatedDirect].sort((a, b) => b.date.localeCompare(a.date))
 }
-

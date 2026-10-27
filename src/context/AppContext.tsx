@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type SetStateAction,
 } from "react"
 import {
   candidates as seededCandidates,
@@ -29,6 +30,14 @@ import type {
   TestAssignment,
 } from "../features/ishihara/types"
 import { fitnessScore } from "../data/selectionGuide"
+import {
+  deduplicateCandidateNumbers,
+  generateNextCandidateNumber,
+  mergeCandidatesList,
+  mergeCatAttempts,
+  mergeDatabaseStates,
+  recoverOrphanedCandidates,
+} from "../domain/cloudSyncMerge"
 import { createIntervalLogEntry } from "../domain/intervalAnalytics"
 import {
   applyStageDecision,
@@ -266,6 +275,47 @@ function loadStorage<T>(key: string, fallback: T): T {
   }
 }
 
+const DELETED_CANDIDATES_STORAGE_KEY = "paska-deleted-candidate-ids"
+const MULTIUSER_SYNC_CHANNEL = "paska-multiuser-sync-v1"
+
+function loadDeletedCandidateIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(DELETED_CANDIDATES_STORAGE_KEY)
+    if (!raw) return new Set<string>()
+    const parsed = JSON.parse(raw)
+    return new Set<string>(Array.isArray(parsed) ? parsed.filter(Boolean) : [])
+  } catch {
+    return new Set<string>()
+  }
+}
+
+function saveDeletedCandidateIds(ids: Iterable<string>): void {
+  try {
+    localStorage.setItem(
+      DELETED_CANDIDATES_STORAGE_KEY,
+      JSON.stringify(Array.from(new Set(ids))),
+    )
+  } catch {}
+}
+
+function readActiveCatCandidatesFromStorage(): Candidate[] {
+  const activeCandidates: Candidate[] = []
+  try {
+    if (typeof window === "undefined" || !window.localStorage) return []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (!key || !key.startsWith("paska-cat-active-session-")) continue
+      const raw = localStorage.getItem(key)
+      if (!raw) continue
+      const parsed = JSON.parse(raw)
+      if (parsed?.candidateSnapshot && parsed.candidateSnapshot.id) {
+        activeCandidates.push(parsed.candidateSnapshot as Candidate)
+      }
+    }
+  } catch {}
+  return activeCandidates
+}
+
 function makeAvatar(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   if (parts.length === 0) return "PK"
@@ -397,20 +447,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       } catch {}
     }
 
+    const deletedIds = loadDeletedCandidateIds()
     const loaded = loadStorage<Candidate[]>("paska-clean-candidates", seededCandidates)
     const baseList = !loaded || loaded.length === 0 ? seededCandidates : loaded
-    // Ensure all 13 seeded candidates are always present
+    // Ensure all 13 seeded candidates are present (unless explicitly deleted) and key by ID, NEVER by colliding number
     const candidateMap = new Map<string, Candidate>()
     for (const sc of seededCandidates) {
-      candidateMap.set(sc.number, sc)
+      if (!deletedIds.has(sc.id)) {
+        candidateMap.set(sc.id, sc)
+      }
     }
     for (const c of baseList) {
-      const existing = candidateMap.get(c.number)
-      candidateMap.set(c.number || c.id, { ...(existing ?? {}), ...c })
+      if (!c) continue
+      const seededMatch = seededCandidates.find(
+        (sc) => sc.id === c.id || (!c.id && sc.number === c.number),
+      )
+      const targetId = seededMatch ? seededMatch.id : (c.id || c.number)
+      if (!targetId || deletedIds.has(targetId)) continue
+      const existing = candidateMap.get(targetId)
+      candidateMap.set(targetId, { ...(existing ?? {}), ...c, id: targetId })
     }
     const merged = Array.from(candidateMap.values())
-    const sanitized = merged.map((c) => {
-      const match = seededCandidates.find((sc) => sc.id === c.id || sc.number === c.number)
+    const sanitizedBase = merged.map((c) => {
+      const match = seededCandidates.find((sc) => sc.id === c.id)
       let metrics = Array.isArray(c.physicalMetrics)
         ? c.physicalMetrics
         : (match?.physicalMetrics ?? [])
@@ -471,21 +530,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           : {}),
         cycleId: c.cycleId === "cycle-2026-kab" ? "cycle-2027-kab" : (c.cycleId || "cycle-2027-kab"),
-        pip: (c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN"))) ? null : (c.pip ?? null),
-        tiu: (c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN"))) ? null : (c.tiu ?? null),
+        pip: c.pip ?? null,
+        tiu: c.tiu ?? null,
         pbb: c.pbb ?? null,
         fitness: candidateFitness,
         personality: c.personality ?? null,
         documents:
-          Array.isArray(c.documents) && c.documents.length === 6 && c.documents.some(Boolean)
-            ? c.documents
-            : match?.documents ?? [true, true, true, true, true, true],
+          Array.isArray(c.documents) && c.documents.length === 6
+            ? match
+              ? c.documents.some(Boolean)
+                ? c.documents
+                : (match.documents ?? [true, true, true, true, true, true])
+              : c.documents
+            : match?.documents ?? [false, false, false, false, false, false],
         stage: typeof c.stage === "number" ? c.stage : (match ? match.stage : 1),
-        stageStatuses: (c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN")))
-          ? ["passed", "active", "active", "active", "active", "review", "review", "active"]
-          : (Array.isArray(c.stageStatuses) && c.stageStatuses.length === 8
+        stageStatuses:
+          Array.isArray(c.stageStatuses) && c.stageStatuses.length === 8
             ? c.stageStatuses
-            : match?.stageStatuses ?? ["active", "locked", "locked", "locked", "locked", "locked", "locked", "locked"]),
+            : match?.stageStatuses ?? ["active", "active", "active", "active", "active", "active", "active", "active"],
         coachNote: c.coachNote ?? match?.coachNote ?? "",
         physicalMetrics: metrics,
         intervalHistory: (Array.isArray(c.intervalHistory)
@@ -497,6 +559,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ),
       }
     })
+    const storedAttempts = loadStorage<CatTryoutAttempt[]>("paska-cat-tryout-attempts", []).filter(
+      (attempt) => attempt && !legacyDemoCatAttemptIds.has(attempt.id),
+    )
+    const storedAudits = loadStorage<AuditLogEntry[]>("paska-clean-audit", initialAuditLogs)
+    const storedUsers = loadStorage<UserProfile[]>("paska-clean-users", initialUsers)
+    const storedIshResults = loadStorage<IshiharaScreeningResult[]>(
+      "paska-clean-ishihara-results",
+      [],
+    )
+    const { candidates: withRecovered } = recoverOrphanedCandidates({
+      candidates: sanitizedBase,
+      catTryoutAttempts: storedAttempts,
+      auditLogs: storedAudits,
+      users: storedUsers,
+      ishiharaResults: storedIshResults,
+      activeCatCandidates: readActiveCatCandidatesFromStorage(),
+      activeCycleId: "cycle-2027-kab",
+      cycleYear: 2027,
+      deletedCandidateIds: deletedIds,
+    })
+    const sanitized = deduplicateCandidateNumbers(withRecovered, 2027)
     try {
       localStorage.setItem("paska-clean-candidates", JSON.stringify(sanitized))
     } catch {}
@@ -504,10 +587,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   const [catTryoutAttempts, setCatTryoutAttempts] = useState<CatTryoutAttempt[]>(() =>
     loadStorage<CatTryoutAttempt[]>("paska-cat-tryout-attempts", []).filter(
-      (attempt) =>
-        !legacyDemoCatAttemptIds.has(attempt.id) &&
-        !attempt.candidateName?.includes("AYDIN") &&
-        attempt.candidateId !== "cand-1792581418049-g66",
+      (attempt) => !legacyDemoCatAttemptIds.has(attempt.id),
     ),
   )
   const [stageChecklists, setStageChecklists] =
@@ -609,12 +689,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [ishiharaResults, setIshiharaResults] = useState<IshiharaScreeningResult[]>(() =>
     loadStorage("paska-clean-ishihara-results", []),
   )
-  const [sessions, setSessions] = useState<Session[]>(() => {
+  const [sessions, setSessionsRaw] = useState<Session[]>(() => {
     const loaded = loadStorage<Session[]>("paska-clean-sessions", initialSessions)
     if (!loaded || loaded.length === 0) return initialSessions
     return loaded
   })
-  const [records, setRecords] = useState<Record<string, SessionRecord>>(() => {
+  const [records, setRecordsRaw] = useState<Record<string, SessionRecord>>(() => {
     const loaded = loadStorage<Record<string, SessionRecord>>(
       "paska-clean-records",
       initialRecords,
@@ -622,6 +702,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!loaded || Object.keys(loaded).length === 0) return initialRecords
     return loaded
   })
+  const setSessions = useCallback(
+    (action: SetStateAction<Session[]>) => {
+      setSessionsRaw((prev) => {
+        const next = typeof action === "function" ? action(prev) : action
+        stateRef.current = { ...stateRef.current, sessions: next }
+        return next
+      })
+    },
+    [],
+  )
+  const setRecords = useCallback(
+    (action: SetStateAction<Record<string, SessionRecord>>) => {
+      setRecordsRaw((prev) => {
+        const next = typeof action === "function" ? action(prev) : action
+        stateRef.current = { ...stateRef.current, records: next }
+        return next
+      })
+    },
+    [],
+  )
   const [googleSheetUrl, setGoogleSheetUrlState] = useState<string>(() =>
     getSavedGasUrl(),
   )
@@ -695,17 +795,84 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return filtered.length > 0 ? filtered : list
   }, [allCandidates, activeCycle.id])
 
-  // Auto-recovery: if allCandidates is somehow cleared, immediately restore all 13 candidates
+  const deletedCandidateIdsRef = useRef<Set<string>>(loadDeletedCandidateIds())
+  const syncChannelRef = useRef<BroadcastChannel | null>(null)
+
+  const broadcastStateSync = useCallback((source: string) => {
+    try {
+      syncChannelRef.current?.postMessage({
+        type: "STATE_UPDATED",
+        source,
+        timestamp: Date.now(),
+      })
+    } catch {}
+  }, [])
+
+  // Auto-recovery: if allCandidates is somehow cleared, immediately restore all 13 candidates + any orphaned candidates
   useEffect(() => {
     if (allCandidates.length === 0) {
-      setAllCandidates(
-        seededCandidates.map((c) => ({
-          ...c,
-          cycleId: activeCycle.id || "cycle-2027-kab",
-        })),
-      )
+      const restoredSeeded = seededCandidates.map((c) => ({
+        ...c,
+        cycleId: activeCycle.id || "cycle-2027-kab",
+      }))
+      const { candidates: withOrphans } = recoverOrphanedCandidates({
+        candidates: restoredSeeded,
+        catTryoutAttempts,
+        auditLogs,
+        users,
+        ishiharaResults,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: activeCycle.id || "cycle-2027-kab",
+        cycleYear: activeCycle.year || 2027,
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+      setAllCandidates(withOrphans)
     }
-  }, [allCandidates.length, activeCycle.id])
+  }, [
+    allCandidates.length,
+    activeCycle.id,
+    activeCycle.year,
+    catTryoutAttempts,
+    auditLogs,
+    users,
+    ishiharaResults,
+  ])
+
+  // Self-healing guard for logged-in candidate (User C): if currentUser is a candidate whose profile is missing from allCandidates, restore immediately
+  useEffect(() => {
+    if (
+      currentUser.role === "candidate" &&
+      currentUser.candidateId &&
+      !deletedCandidateIdsRef.current.has(currentUser.candidateId) &&
+      !allCandidates.some((c) => c.id === currentUser.candidateId)
+    ) {
+      const { candidates: healed, recoveredCount } = recoverOrphanedCandidates({
+        candidates: allCandidates,
+        catTryoutAttempts,
+        auditLogs,
+        users,
+        ishiharaResults,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: activeCycle.id || "cycle-2027-kab",
+        cycleYear: activeCycle.year || 2027,
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+      if (recoveredCount > 0) {
+        stateRef.current = { ...stateRef.current, allCandidates: healed }
+        setAllCandidates(healed)
+      }
+    }
+  }, [
+    currentUser.role,
+    currentUser.candidateId,
+    allCandidates,
+    catTryoutAttempts,
+    auditLogs,
+    users,
+    ishiharaResults,
+    activeCycle.id,
+    activeCycle.year,
+  ])
 
   // Save to localStorage whenever state changes
   useEffect(() => {
@@ -735,15 +902,164 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated])
 
   useEffect(() => {
+    // Non-destructive cross-tab storage write: never overwrite candidates added by another tab!
+    const storedCandidates = loadStorage<Candidate[]>("paska-clean-candidates", [])
+    const currentIds = new Set(allCandidates.map((c) => c.id))
+    const hasMissingFromStorage = storedCandidates.some(
+      (sc) =>
+        sc &&
+        sc.id &&
+        !currentIds.has(sc.id) &&
+        !deletedCandidateIdsRef.current.has(sc.id),
+    )
+    if (hasMissingFromStorage) {
+      const { candidates: merged } = mergeCandidatesList({
+        localCandidates: allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: stateRef.current.catTryoutAttempts,
+        auditLogs: stateRef.current.auditLogs,
+        users: stateRef.current.users,
+        ishiharaResults: stateRef.current.ishiharaResults,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: activeCycle.id || "cycle-2027-kab",
+        cycleYear: activeCycle.year || 2027,
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+      localStorage.setItem("paska-clean-candidates", JSON.stringify(merged))
+      if (merged.length !== allCandidates.length) {
+        stateRef.current = { ...stateRef.current, allCandidates: merged }
+        setAllCandidates(merged)
+      }
+      return
+    }
     localStorage.setItem(
       "paska-clean-candidates",
       JSON.stringify(allCandidates),
     )
-  }, [allCandidates])
+  }, [allCandidates, activeCycle.id, activeCycle.year])
 
   useEffect(() => {
-    localStorage.setItem("paska-cat-tryout-attempts", JSON.stringify(catTryoutAttempts))
+    const storedAttempts = loadStorage<CatTryoutAttempt[]>(
+      "paska-cat-tryout-attempts",
+      [],
+    )
+    const currentAttemptIds = new Set(catTryoutAttempts.map((a) => a.id))
+    const hasMissingAttemptFromStorage = storedAttempts.some(
+      (sa) =>
+        sa &&
+        sa.id &&
+        !legacyDemoCatAttemptIds.has(sa.id) &&
+        !currentAttemptIds.has(sa.id),
+    )
+    if (hasMissingAttemptFromStorage) {
+      const mergedAttempts = mergeCatAttempts(
+        catTryoutAttempts,
+        [],
+        storedAttempts,
+      )
+      localStorage.setItem(
+        "paska-cat-tryout-attempts",
+        JSON.stringify(mergedAttempts),
+      )
+      if (mergedAttempts.length !== catTryoutAttempts.length) {
+        stateRef.current = {
+          ...stateRef.current,
+          catTryoutAttempts: mergedAttempts,
+        }
+        setCatTryoutAttempts(mergedAttempts)
+      }
+      return
+    }
+    localStorage.setItem(
+      "paska-cat-tryout-attempts",
+      JSON.stringify(catTryoutAttempts),
+    )
   }, [catTryoutAttempts])
+
+  // Real-time Cross-Tab Synchronization (storage event + BroadcastChannel)
+  useEffect(() => {
+    const syncFromLocalStorage = () => {
+      deletedCandidateIdsRef.current = loadDeletedCandidateIds()
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const storedAttempts = loadStorage<CatTryoutAttempt[]>(
+        "paska-cat-tryout-attempts",
+        [],
+      )
+      const s = stateRef.current
+      const mergedAttempts = mergeCatAttempts(
+        s.catTryoutAttempts,
+        [],
+        storedAttempts,
+      )
+      const { candidates: mergedCandidates } = mergeCandidatesList({
+        localCandidates: s.allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: mergedAttempts,
+        auditLogs: s.auditLogs,
+        users: s.users,
+        ishiharaResults: s.ishiharaResults,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: s.activeCycleId || "cycle-2027-kab",
+        cycleYear: 2027,
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+
+      if (
+        JSON.stringify(mergedAttempts) !== JSON.stringify(s.catTryoutAttempts)
+      ) {
+        stateRef.current = {
+          ...stateRef.current,
+          catTryoutAttempts: mergedAttempts,
+        }
+        setCatTryoutAttempts(mergedAttempts)
+      }
+      if (
+        JSON.stringify(mergedCandidates) !== JSON.stringify(s.allCandidates)
+      ) {
+        stateRef.current = {
+          ...stateRef.current,
+          allCandidates: mergedCandidates,
+        }
+        setAllCandidates(mergedCandidates)
+      }
+    }
+
+    const handleStorageEvent = (e: StorageEvent) => {
+      if (
+        !e.key ||
+        e.key === "paska-clean-candidates" ||
+        e.key === "paska-cat-tryout-attempts" ||
+        e.key === DELETED_CANDIDATES_STORAGE_KEY ||
+        e.key.startsWith("paska-cat-active-session-")
+      ) {
+        syncFromLocalStorage()
+      }
+    }
+
+    window.addEventListener("storage", handleStorageEvent)
+
+    let channel: BroadcastChannel | null = null
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        channel = new BroadcastChannel(MULTIUSER_SYNC_CHANNEL)
+        syncChannelRef.current = channel
+        channel.onmessage = () => {
+          syncFromLocalStorage()
+        }
+      } catch {}
+    }
+
+    return () => {
+      window.removeEventListener("storage", handleStorageEvent)
+      try {
+        channel?.close()
+      } catch {}
+      syncChannelRef.current = null
+    }
+  }, [])
 
   useEffect(() => {
     localStorage.setItem(
@@ -840,6 +1156,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     catTryoutAttempts,
     cycles,
     activeCycleId,
+    currentUserId,
     sessions,
     records,
     schedules,
@@ -859,6 +1176,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     catTryoutAttempts,
     cycles,
     activeCycleId,
+    currentUserId,
     sessions,
     records,
     schedules,
@@ -902,9 +1220,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       if (isSavingRef.current) {
+        const prevQueue = saveQueueRef.current || {}
+        const mergedQueuedCandidates =
+          prevQueue.candidates && override?.candidates
+            ? mergeCandidatesList({
+                localCandidates: override.candidates,
+                storageCandidates: prevQueue.candidates,
+                deletedCandidateIds: deletedCandidateIdsRef.current,
+              }).candidates
+            : (override?.candidates ?? prevQueue.candidates)
         saveQueueRef.current = {
-          ...(saveQueueRef.current || {}),
+          ...prevQueue,
           ...(override || {}),
+          ...(mergedQueuedCandidates ? { candidates: mergedQueuedCandidates } : {}),
         }
         return { ok: true, message: "Perubahan dijadwalkan untuk disimpan" }
       }
@@ -913,9 +1241,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setCloudSyncStatus("syncing")
 
       try {
+        // 1. ATOMIC PULL-BEFORE-PUSH: Tarik state cloud terbaru terlebih dahulu agar perubahan dari pengguna/perangkat lain (misal User B menambah kandidat baru saat User A sedang ujian CAT) TIDAK PERNAH tertimpa!
+        let cloudData: Partial<AppDatabaseState> | null = null
+        try {
+          const pullRes = await pullStateFromGoogleSheet(targetUrl)
+          if (pullRes.ok && pullRes.data) {
+            cloudData = pullRes.data
+          }
+        } catch {
+          // Jika jaringan gagal saat pre-pull, tetap lanjutkan dengan merge localStorage
+        }
+
+        // 2. PENTING: Baca stateRef.current dan localStorage SETELAH await pullStateFromGoogleSheet selesai agar mutasi lokal yang terjadi selama request jaringan tidak hilang!
         const s = stateRef.current
-        const stateToPush: AppDatabaseState = {
-          candidates: override?.candidates ?? s.allCandidates,
+        deletedCandidateIdsRef.current = loadDeletedCandidateIds()
+        const storageCandidates = loadStorage<Candidate[]>(
+          "paska-clean-candidates",
+          [],
+        )
+        const storageAttempts = loadStorage<CatTryoutAttempt[]>(
+          "paska-cat-tryout-attempts",
+          [],
+        )
+        const activeCatCandidates = readActiveCatCandidatesFromStorage()
+
+        const combinedLocalCandidates = override?.candidates
+          ? mergeCandidatesList({
+              localCandidates: override.candidates,
+              storageCandidates: s.allCandidates,
+              catTryoutAttempts:
+                override?.catTryoutAttempts ?? s.catTryoutAttempts,
+              activeCatCandidates,
+              activeCycleId: override?.activeCycleId ?? s.activeCycleId,
+              deletedCandidateIds: deletedCandidateIdsRef.current,
+            }).candidates
+          : s.allCandidates
+
+        const localSnapshot: AppDatabaseState = {
+          candidates: combinedLocalCandidates,
           catTryoutAttempts: override?.catTryoutAttempts ?? s.catTryoutAttempts,
           cycles: override?.cycles ?? s.cycles,
           activeCycleId: override?.activeCycleId ?? s.activeCycleId,
@@ -926,12 +1289,73 @@ export function AppProvider({ children }: { children: ReactNode }) {
           supportingDocs: override?.supportingDocs ?? s.supportingDocs,
           standardRules: override?.standardRules ?? s.standardRules,
           stageChecklists: override?.stageChecklists ?? s.stageChecklists,
-          users: (override?.users ?? s.users).filter((u) => u.role !== "candidate"),
+          users: override?.users ?? s.users,
           auditLogs: override?.auditLogs ?? s.auditLogs,
           rankingPublished: override?.rankingPublished ?? s.rankingPublished,
           ishiharaSessions: override?.ishiharaSessions ?? s.ishiharaSessions,
           ishiharaAllowlist: override?.ishiharaAllowlist ?? s.ishiharaAllowlist,
           ishiharaResults: override?.ishiharaResults ?? s.ishiharaResults,
+          deletedCandidateIds: Array.from(deletedCandidateIdsRef.current),
+        }
+
+        const { mergedState } = mergeDatabaseStates({
+          localState: localSnapshot,
+          cloudState: cloudData,
+          storageCandidates,
+          storageAttempts,
+          activeCatCandidates,
+          deletedCandidateIds: deletedCandidateIdsRef.current,
+          currentUserId: s.currentUserId,
+        })
+
+        if (Array.isArray(mergedState.deletedCandidateIds)) {
+          deletedCandidateIdsRef.current = new Set(
+            mergedState.deletedCandidateIds,
+          )
+          saveDeletedCandidateIds(deletedCandidateIdsRef.current)
+        }
+
+        // Sinkronkan kembali hasil merge ke memori, React state, dan localStorage
+        stateRef.current = {
+          ...stateRef.current,
+          allCandidates: mergedState.candidates,
+          catTryoutAttempts: mergedState.catTryoutAttempts || [],
+          sessions: mergedState.sessions || [],
+          records: mergedState.records || {},
+          schedules: mergedState.schedules || [],
+          auditLogs: mergedState.auditLogs || [],
+          ishiharaSessions: mergedState.ishiharaSessions || [],
+          ishiharaResults: mergedState.ishiharaResults || [],
+        }
+        setAllCandidates(mergedState.candidates)
+        if (mergedState.catTryoutAttempts) {
+          setCatTryoutAttempts(mergedState.catTryoutAttempts)
+        }
+        if (mergedState.sessions) {
+          setSessions(mergedState.sessions)
+        }
+        if (mergedState.records) {
+          setRecords(mergedState.records)
+        }
+        try {
+          localStorage.setItem(
+            "paska-clean-candidates",
+            JSON.stringify(mergedState.candidates),
+          )
+          if (mergedState.catTryoutAttempts) {
+            localStorage.setItem(
+              "paska-cat-tryout-attempts",
+              JSON.stringify(mergedState.catTryoutAttempts),
+            )
+          }
+        } catch {}
+        broadcastStateSync("executePushToCloud")
+
+        const stateToPush: AppDatabaseState = {
+          ...mergedState,
+          users: (mergedState.users || []).filter(
+            (u) => u.role !== "candidate",
+          ),
         }
 
         const res = await pushStateToGoogleSheet(stateToPush, targetUrl)
@@ -967,11 +1391,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (saveQueueRef.current) {
           const nextOverride = saveQueueRef.current
           saveQueueRef.current = null
-          executePushToCloud(nextOverride)
+          void executePushToCloud(nextOverride)
         }
       }
     },
-    [googleSheetUrl],
+    [googleSheetUrl, broadcastStateSync, setSessions, setRecords],
   )
 
   const saveToCloud = useCallback(
@@ -1019,14 +1443,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const saveCatTryoutAttempt = useCallback(
     (attempt: CatTryoutAttempt) => {
-      const updatedAttempts = [
-        attempt,
-        ...stateRef.current.catTryoutAttempts.filter((item) => item.id !== attempt.id),
-      ]
+      const nowIso = new Date().toISOString()
+      const storedAttempts = loadStorage<CatTryoutAttempt[]>(
+        "paska-cat-tryout-attempts",
+        [],
+      )
+      const updatedAttempts = mergeCatAttempts(
+        [attempt, ...stateRef.current.catTryoutAttempts],
+        [],
+        storedAttempts,
+      )
 
-      // Sinkronkan langsung ke kandidat terkait jika bukan simulasi mandiri pelatih
+      // Sinkronkan langsung ke kandidat terkait jika bukan simulasi mandiri pelatih,
+      // serta gabungkan dengan kandidat terbaru di localStorage & sesi aktif agar tidak pernah menimpa kandidat baru dari pengguna lain!
       const candId = attempt.candidateId
-      let updatedCandidates = stateRef.current.allCandidates
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const { candidates: baseCandidates } = mergeCandidatesList({
+        localCandidates: stateRef.current.allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: updatedAttempts,
+        auditLogs: stateRef.current.auditLogs,
+        users: stateRef.current.users,
+        ishiharaResults: stateRef.current.ishiharaResults,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: stateRef.current.activeCycleId || "cycle-2027-kab",
+        cycleYear: 2027,
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+
+      let updatedCandidates = baseCandidates
       if (
         candId &&
         candId !== "coach-self" &&
@@ -1053,13 +1501,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             tiu: hasTiuAttempt ? attempt.tiuScoreScaled : (c.tiu ?? attempt.tiuScoreScaled),
             stageStatuses,
             updatedAt: "Baru saja",
+            updatedAtIso: nowIso,
           }
         })
-        setAllCandidates(updatedCandidates)
       }
+      setAllCandidates(updatedCandidates)
 
       // Sinkronkan juga otomatis ke sesi evaluasi lapangan (SimulationCenter) jika ada sesi CAT terkait
-      let updatedRecords = { ...records }
+      let updatedRecords = { ...stateRef.current.records }
       let recordsModified = false
       if (candId && candId !== "coach-self") {
         const hasPipAttempt =
@@ -1069,7 +1518,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           (attempt.tiuAnswers && Object.keys(attempt.tiuAnswers).length > 0) ||
           (typeof attempt.tiuScoreScaled === "number" && attempt.tiuScoreScaled > 0)
 
-        for (const sess of sessions) {
+        for (const sess of stateRef.current.sessions) {
           if (["cat", "pip", "tiu"].includes(sess.type) && sess.participantIds.includes(candId)) {
             // Jangan override sesi jika sesi spesifik tidak dikerjakan dalam attempt ini
             if (sess.type === "tiu" && !hasTiuAttempt) continue
@@ -1107,7 +1556,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 duration: "PIP 45m · TIU 30m",
                 tryoutAttemptId: attempt.id,
               },
-              savedAt: attempt.finalizedAt || new Date().toISOString(),
+              savedAt: attempt.finalizedAt || nowIso,
             }
             recordsModified = true
           }
@@ -1124,6 +1573,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...stateRef.current,
         catTryoutAttempts: updatedAttempts,
         allCandidates: updatedCandidates,
+        ...(recordsModified ? { records: updatedRecords } : {}),
       }
       setCatTryoutAttempts(updatedAttempts)
 
@@ -1137,6 +1587,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           JSON.stringify(updatedCandidates),
         )
       } catch {}
+      broadcastStateSync("saveCatTryoutAttempt")
 
       // Push instan (immediate) ke cloud tanpa menunggu debounce agar tersimpan langsung di Google Sheet
       void saveToCloud(
@@ -1148,7 +1599,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         true,
       )
     },
-    [saveToCloud],
+    [saveToCloud, setRecords, broadcastStateSync],
   )
 
   const logAudit = useCallback(
@@ -1299,7 +1750,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const loginAsCandidate = useCallback(
     (candidateIdOrNumber: string): boolean => {
       const clean = candidateIdOrNumber.trim().toLowerCase()
-      const cand = allCandidates.find(
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const { candidates: latestList } = mergeCandidatesList({
+        localCandidates: stateRef.current.allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: stateRef.current.catTryoutAttempts,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: stateRef.current.activeCycleId || "cycle-2027-kab",
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+      if (latestList.length !== stateRef.current.allCandidates.length) {
+        stateRef.current = { ...stateRef.current, allCandidates: latestList }
+        setAllCandidates(latestList)
+      }
+
+      const cand = latestList.find(
         (c) =>
           c.id.toLowerCase() === clean ||
           c.number.toLowerCase() === clean ||
@@ -1314,11 +1782,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       const candidateUserId = `user-cand-${cand.id}`
-      const existingUser = users.find(
+      const existingUser = stateRef.current.users.find(
         (u) => u.candidateId === cand.id || u.id === candidateUserId,
       )
 
       if (existingUser) {
+        stateRef.current = { ...stateRef.current, currentUserId: existingUser.id }
         setCurrentUserId(existingUser.id)
       } else {
         const candidateUser: UserProfile = {
@@ -1331,10 +1800,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
           active: true,
           candidateId: cand.id,
         }
-        setUsers((prev) => [
-          ...prev.filter((u) => u.id !== candidateUser.id),
+        const nextUsers = [
+          ...stateRef.current.users.filter((u) => u.id !== candidateUser.id),
           candidateUser,
-        ])
+        ]
+        stateRef.current = {
+          ...stateRef.current,
+          users: nextUsers,
+          currentUserId: candidateUser.id,
+        }
+        setUsers(nextUsers)
         setCurrentUserId(candidateUser.id)
       }
 
@@ -1347,7 +1822,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       )
       return true
     },
-    [allCandidates, users, showToast, logAudit],
+    [showToast, logAudit],
   )
 
   const loginCandidateByNik = useCallback(
@@ -1359,7 +1834,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return { success: false, error: errMsg }
       }
 
-      const cand = allCandidates.find(
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const { candidates: latestList } = mergeCandidatesList({
+        localCandidates: stateRef.current.allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: stateRef.current.catTryoutAttempts,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: stateRef.current.activeCycleId || "cycle-2027-kab",
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+      if (latestList.length !== stateRef.current.allCandidates.length) {
+        stateRef.current = { ...stateRef.current, allCandidates: latestList }
+        setAllCandidates(latestList)
+      }
+
+      const cand = latestList.find(
         (c) =>
           (c.nik && c.nik.replace(/\s+/g, "") === clean) ||
           c.number.toLowerCase() === clean.toLowerCase() ||
@@ -1376,7 +1868,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       loginAsCandidate(cand.id)
       return { success: true, candidate: cand }
     },
-    [allCandidates, loginAsCandidate, showToast, logAudit],
+    [loginAsCandidate, showToast, logAudit],
   )
 
   const loginCoachWithGoogle = useCallback(
@@ -1484,10 +1976,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
         stageStatuses?: StageStatus[]
       },
     ) => {
-      const nextIndex = allCandidates.length + 1
-      const number =
-        data.number?.trim() ||
-        `KAB-${String(activeCycle.year).slice(-2)}-${String(nextIndex).padStart(3, "0")}`
+      const nowIso = new Date().toISOString()
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const { candidates: currentMerged } = mergeCandidatesList({
+        localCandidates: stateRef.current.allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: stateRef.current.catTryoutAttempts,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: activeCycle.id,
+        cycleYear: activeCycle.year,
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+
+      const number = generateNextCandidateNumber(
+        currentMerged,
+        activeCycle.year,
+        data.number,
+      )
       const defaultStatuses: StageStatus[] = data.stageStatuses ?? [
         "active",
         "active",
@@ -1498,7 +2006,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         "active",
         "active",
       ]
-      const todayStr = new Date().toISOString().slice(0, 10)
+      const todayStr = nowIso.slice(0, 10)
       const initialAnthro =
         data.heightCm && data.weightKg
           ? [
@@ -1513,7 +2021,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : []
       const next: Candidate = {
         ...data,
-        id: `cand-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+        id: `cand-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         number,
         avatar: makeAvatar(data.name),
         stage: data.stage ?? 1,
@@ -1524,22 +2032,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
         anthropometryHistory: data.anthropometryHistory ?? initialAnthro,
         cycleId: data.cycleId ?? activeCycle.id,
         updatedAt: "Baru saja",
+        updatedAtIso: nowIso,
       }
-      const nextCandidates = [next, ...allCandidates]
+      const nextCandidates = [next, ...currentMerged]
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
+      try {
+        localStorage.setItem(
+          "paska-clean-candidates",
+          JSON.stringify(nextCandidates),
+        )
+      } catch {}
+      broadcastStateSync("addCandidate")
       logAudit(
         "CREATE_CANDIDATE",
         `${next.name} (${next.number})`,
         `Menambahkan kandidat baru dari ${next.school}`,
       )
       showToast(`Kandidat ${next.name} (${next.number}) berhasil ditambahkan.`)
-      saveToCloud({ candidates: nextCandidates })
+      void saveToCloud({ candidates: nextCandidates }, true)
       return next
     },
     [
-      allCandidates,
       activeCycle.id,
       activeCycle.year,
+      broadcastStateSync,
       logAudit,
       showToast,
       saveToCloud,
@@ -1548,7 +2065,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateCandidate = useCallback(
     (id: string, patch: Partial<Candidate>) => {
-      const currentList = stateRef.current.allCandidates
+      const nowIso = new Date().toISOString()
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const { candidates: currentList } = mergeCandidatesList({
+        localCandidates: stateRef.current.allCandidates,
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: stateRef.current.catTryoutAttempts,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: stateRef.current.activeCycleId || "cycle-2027-kab",
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
       const nextCandidates = currentList.map((item) => {
         if (item.id !== id) return item
         const updatedName = patch.name ?? item.name
@@ -1557,22 +2086,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ...patch,
           avatar: patch.name ? makeAvatar(updatedName) : item.avatar,
           updatedAt: "Baru saja",
+          updatedAtIso: nowIso,
         }
       })
       stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
+      try {
+        localStorage.setItem(
+          "paska-clean-candidates",
+          JSON.stringify(nextCandidates),
+        )
+      } catch {}
+      broadcastStateSync("updateCandidate")
       logAudit("UPDATE_CANDIDATE", id, "Memperbarui data/profil kandidat")
       showToast("Data kandidat berhasil diperbarui.")
-      saveToCloud({ candidates: nextCandidates })
+      void saveToCloud({ candidates: nextCandidates })
     },
-    [logAudit, showToast, saveToCloud],
+    [broadcastStateSync, logAudit, showToast, saveToCloud],
   )
 
   const deleteCandidate = useCallback(
     (id: string) => {
-      const target = allCandidates.find((c) => c.id === id)
-      const nextCandidates = allCandidates.filter((item) => item.id !== id)
+      deletedCandidateIdsRef.current.add(id)
+      saveDeletedCandidateIds(deletedCandidateIdsRef.current)
+      const currentList = stateRef.current.allCandidates
+      const target = currentList.find((c) => c.id === id)
+      const nextCandidates = currentList.filter((item) => item.id !== id)
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
+      try {
+        localStorage.setItem(
+          "paska-clean-candidates",
+          JSON.stringify(nextCandidates),
+        )
+      } catch {}
+      broadcastStateSync("deleteCandidate")
       if (target) {
         logAudit(
           "DELETE_CANDIDATE",
@@ -1581,26 +2129,57 @@ export function AppProvider({ children }: { children: ReactNode }) {
         )
         showToast(`Kandidat ${target.name} telah dihapus.`, "warning")
       }
-      saveToCloud({ candidates: nextCandidates })
+      void saveToCloud(
+        {
+          candidates: nextCandidates,
+          deletedCandidateIds: Array.from(deletedCandidateIdsRef.current),
+        },
+        true,
+      )
     },
-    [allCandidates, logAudit, showToast, saveToCloud],
+    [broadcastStateSync, logAudit, showToast, saveToCloud],
   )
 
   const importCandidates = useCallback(
     (newItems: Candidate[]) => {
       if (!newItems.length) return 0
-      const nextCandidates = [...newItems, ...allCandidates]
+      const nowIso = new Date().toISOString()
+      const stampedItems = newItems.map((item) => ({
+        ...item,
+        updatedAt: item.updatedAt || "Baru saja",
+        updatedAtIso: item.updatedAtIso || nowIso,
+      }))
+      const storedCandidates = loadStorage<Candidate[]>(
+        "paska-clean-candidates",
+        [],
+      )
+      const { candidates: nextCandidates } = mergeCandidatesList({
+        localCandidates: [...stampedItems, ...stateRef.current.allCandidates],
+        storageCandidates: storedCandidates,
+        catTryoutAttempts: stateRef.current.catTryoutAttempts,
+        activeCatCandidates: readActiveCatCandidatesFromStorage(),
+        activeCycleId: stateRef.current.activeCycleId || "cycle-2027-kab",
+        deletedCandidateIds: deletedCandidateIdsRef.current,
+      })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
+      try {
+        localStorage.setItem(
+          "paska-clean-candidates",
+          JSON.stringify(nextCandidates),
+        )
+      } catch {}
+      broadcastStateSync("importCandidates")
       logAudit(
         "IMPORT_CANDIDATES",
         `${newItems.length} kandidat`,
         "Impor massal data kandidat via CSV",
       )
       showToast(`${newItems.length} kandidat berhasil diimpor.`)
-      saveToCloud({ candidates: nextCandidates })
+      void saveToCloud({ candidates: nextCandidates }, true)
       return newItems.length
     },
-    [allCandidates, logAudit, showToast, saveToCloud],
+    [broadcastStateSync, logAudit, showToast, saveToCloud],
   )
 
   const updateCandidateStage = useCallback(
@@ -1631,8 +2210,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
-      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
+
+      // Jika stage 3 (medical) atau 4 (parade) diubah via evaluasi 1-klik, selaraskan juga record sesi terkait jika ada
+      let nextRecords = stateRef.current.records
+      let recordsUpdated = false
+      if (
+        (stageIndex === 3 || stageIndex === 4) &&
+        (status === "passed" || status === "review" || status === "failed")
+      ) {
+        const sessType = stageIndex === 3 ? "medical" : "parade"
+        const matchingSessions = stateRef.current.sessions.filter((s) => s.type === sessType)
+        for (const sess of matchingSessions) {
+          const recKey = `${sess.id}:${candidateId}`
+          if (nextRecords[recKey]?.savedAt) {
+            if (!recordsUpdated) {
+              nextRecords = { ...nextRecords }
+              recordsUpdated = true
+            }
+            nextRecords[recKey] = {
+              ...nextRecords[recKey],
+              result: status,
+            }
+          }
+        }
+      }
+
+      stateRef.current = {
+        ...stateRef.current,
+        allCandidates: nextCandidates,
+        ...(recordsUpdated ? { records: nextRecords } : {}),
+      }
       setAllCandidates(nextCandidates)
+      if (recordsUpdated) {
+        setRecordsRaw(nextRecords)
+      }
       const cand = currentList.find((c) => c.id === candidateId)
       if (cand) {
         logAudit(
@@ -1644,7 +2255,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         )
       }
       showToast(`Status Tahap ${stageIndex + 1} diperbarui menjadi ${status}.`)
-      saveToCloud({ candidates: nextCandidates })
+      saveToCloud({
+        candidates: nextCandidates,
+        ...(recordsUpdated ? { records: nextRecords } : {}),
+      })
     },
     [logAudit, showToast, saveToCloud],
   )
@@ -1659,17 +2273,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ]
         docs[docIndex] = !docs[docIndex]
         const allValid = docs.every(Boolean)
-        let nextStageStatuses = cand.stageStatuses
+        let nextStageStatuses = [...cand.stageStatuses]
         let nextStage = cand.stage
-        // If candidate is in stage 1 and all 6 docs become valid, can mark stage 1 passed or ready
-        if (
-          cand.stage === 1 &&
-          allValid &&
-          (cand.stageStatuses[0] === "review" || cand.stageStatuses[0] === "active")
-        ) {
+        if (allValid) {
           const applied = applyStageDecision(cand.stageStatuses, 0, "passed")
           nextStageStatuses = applied.stageStatuses
           nextStage = applied.activeStageNumber
+        } else if (nextStageStatuses[0] === "passed") {
+          nextStageStatuses[0] = "review"
         }
         return {
           ...cand,
@@ -1679,6 +2290,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       saveToCloud({ candidates: nextCandidates })
     },
@@ -1712,6 +2324,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       logAudit(
         "LOG_ANTHROPOMETRY",
@@ -1741,6 +2354,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       showToast("Riwayat pengukuran tinggi & berat badan dihapus.", "warning")
       saveToCloud({ candidates: nextCandidates })
@@ -1767,6 +2381,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       logAudit(
         "LOG_INTERVAL",
@@ -1793,6 +2408,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           updatedAt: "Baru saja",
         }
       })
+      stateRef.current = { ...stateRef.current, allCandidates: nextCandidates }
       setAllCandidates(nextCandidates)
       showToast("Riwayat sesi latihan interval dihapus.", "warning")
       saveToCloud({ candidates: nextCandidates })
@@ -1872,31 +2488,68 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
           if (sessionType === "administration") {
             stageIndex = 0
-            const hasAnyDocKey = [0, 1, 2, 3, 4, 5].some((idx) => `document-${idx}` in metrics)
-            if (hasAnyDocKey) {
-              patch.documents = [0, 1, 2, 3, 4, 5].map(
-                (idx) => metrics[`document-${idx}`] === "valid",
-              )
+            const hasDocShortKey = [0, 1, 2, 3, 4, 5].some((idx) => `doc-${idx}` in metrics)
+            const hasDocLongKey = [0, 1, 2, 3, 4, 5].some((idx) => `document-${idx}` in metrics)
+            if (hasDocShortKey || hasDocLongKey) {
+              const prevDocs = cand.documents ?? [false, false, false, false, false, false]
+              patch.documents = [0, 1, 2, 3, 4, 5].map((idx) => {
+                if (`doc-${idx}` in metrics) {
+                  const v = metrics[`doc-${idx}`]
+                  return v === "valid" || v === "true" || v === "1"
+                }
+                if (`document-${idx}` in metrics) {
+                  const v = metrics[`document-${idx}`]
+                  return v === "valid" || v === "true" || v === "1"
+                }
+                return Boolean(prevDocs[idx])
+              })
             }
           } else if (sessionType === "pip") {
             stageIndex = 1
+            const compSum =
+              (Number(metrics.understanding) || 0) +
+              (Number(metrics.implementation) || 0) +
+              (Number(metrics.caseStudy) || 0)
+            const hasComp =
+              Boolean(metrics.understanding) ||
+              Boolean(metrics.implementation) ||
+              Boolean(metrics.caseStudy)
             const score =
               metrics.score !== undefined && metrics.score !== ""
                 ? Number(metrics.score)
-                : metrics.correct
-                  ? Number(metrics.correct) * 2
-                  : null
+                : metrics.pipScore !== undefined && metrics.pipScore !== ""
+                  ? Number(metrics.pipScore)
+                  : metrics.correct
+                    ? Number(metrics.correct) * 2
+                    : hasComp
+                      ? compSum
+                      : null
             if (score !== null && Number.isFinite(score)) {
               patch.pip = Math.min(100, Math.max(0, score))
             }
           } else if (sessionType === "tiu") {
             stageIndex = 2
+            const compSum =
+              (Number(metrics.verbal) || 0) +
+              (Number(metrics.numerical) || 0) +
+              (Number(metrics.figural) || 0)
+            const hasComp =
+              Boolean(metrics.verbal) ||
+              Boolean(metrics.numerical) ||
+              Boolean(metrics.figural)
             const score =
               metrics.score !== undefined && metrics.score !== ""
                 ? Number(metrics.score)
-                : metrics.correct
-                  ? Number(metrics.correct) * 2
-                  : null
+                : metrics.tiuScore !== undefined && metrics.tiuScore !== ""
+                  ? Number(metrics.tiuScore)
+                  : metrics.correct
+                    ? Number(metrics.correct) * 2
+                    : hasComp
+                      ? compSum
+                      : null
+            if (score !== null && Number.isFinite(score)) {
+              patch.tiu = Math.min(100, Math.max(0, score))
+            }
           } else if (sessionType === "cat") {
             if (metrics.pipScore !== undefined && metrics.pipScore !== "") {
               const pScore = Number(metrics.pipScore)
@@ -2066,10 +2719,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const components = [latest.static, latest.dynamic, latest.command].filter(
               (value): value is number => value !== undefined,
             )
-            if (components.length > 0) {
-              patch.pbb = Number((components.reduce((a, b) => a + b, 0) / components.length).toFixed(1))
-            } else if (latest.pbbScore !== undefined) {
+            if (latest.pbbScore !== undefined && latest.pbbScore > 0) {
               patch.pbb = Number(latest.pbbScore.toFixed(1))
+            } else if (components.length === 3 && components.every((v) => v <= 40)) {
+              patch.pbb = Number(components.reduce((a, b) => a + b, 0).toFixed(1))
+            } else if (components.length > 0) {
+              patch.pbb = Number((components.reduce((a, b) => a + b, 0) / components.length).toFixed(1))
             }
           } else if (sessionType === "fitness") {
             const isRunDnf = metrics.runDnf === "yes"
@@ -2079,19 +2734,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
               Boolean(metrics.intervalLap1 || metrics.intervalTargetSets || metrics.intervalDist || metrics.intervalAvg)
 
             if (isIntervalRun) {
-              const laps = Array.from({ length: 12 }, (_, i) => i + 1)
+              const targetSets = parseInt(metrics.intervalTargetSets || "4", 10) || 4
+              const targetPace = parseFloat(metrics.intervalTargetPace || "90") || 90
+              const distPerSet = parseFloat(metrics.intervalDist || "400") || 400
+
+              let laps = Array.from({ length: 12 }, (_, i) => i + 1)
                 .map((i) => parseFloat(metrics[`intervalLap${i}`] || ""))
                 .filter((v) => !isNaN(v) && v > 0)
+
+              if (laps.length === 0) {
+                const directAvg = parseFloat(metrics.intervalAvg || "")
+                if (!isNaN(directAvg) && directAvg > 0) {
+                  laps = Array.from({ length: Math.max(1, targetSets) }, () => directAvg)
+                }
+              }
 
               const prevHistory = (cand.intervalHistory ?? []).filter(
                 (h) => Array.isArray(h.lapSplitsSec) && h.lapSplitsSec.length > 0,
               )
 
-              // KUNCI: HANYA buat log interval jika ada split lap yang benar-benar dicatat!
               if (laps.length > 0) {
-                const targetSets = parseInt(metrics.intervalTargetSets || "4", 10) || 4
-                const targetPace = parseFloat(metrics.intervalTargetPace || "90") || 90
-                const distPerSet = parseFloat(metrics.intervalDist || "400") || 400
                 const completedSets = laps.length
                 const avgSplit = laps.reduce((a, b) => a + b, 0) / laps.length
 
@@ -2113,7 +2775,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 const filtered = sessionId ? prevHistory.filter((h) => h.sessionId !== sessionId) : prevHistory
                 patch.intervalHistory = [newLog, ...filtered]
               } else if (sessionId) {
-                // Hapus entri kosong jika tidak ada lap yang dicatat
                 patch.intervalHistory = prevHistory.filter((h) => h.sessionId !== sessionId)
               }
             }
@@ -2159,7 +2820,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   m.label.toLowerCase().includes(lbl.toLowerCase()),
                 )
 
-              const updatedMetrics = [
+              const samaptaLabels = ["lari 12 menit", "push-up", "sit-up", "back-up", "shuttle run"]
+              const nonSamaptaMetrics = existing.filter(
+                (m) => !samaptaLabels.some((lbl) => m.label.toLowerCase().includes(lbl)),
+              )
+
+              const updatedSamaptaMetrics = [
                 hasDistance
                   ? {
                       label: "Lari 12 menit",
@@ -2214,8 +2880,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   : getExisting("Shuttle run"),
               ].filter(Boolean) as NonNullable<Candidate["physicalMetrics"]>
 
-              if (updatedMetrics.length > 0) {
-                patch.physicalMetrics = updatedMetrics
+              if (updatedSamaptaMetrics.length > 0 || nonSamaptaMetrics.length > 0) {
+                patch.physicalMetrics = [...updatedSamaptaMetrics, ...nonSamaptaMetrics]
               }
 
               const latest = latestMetrics([
@@ -2242,14 +2908,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
                   Number.isFinite(Number(record.metrics.distance))
                 ) {
                   const dVal = Number(record.metrics.distance)
-                  // Proteksi: Jarak lari 12 menit resmi acuan seleksi >= 2000m
-                  if (dVal >= 2000) {
+                  const isTest12 = record.metrics.runMode === "test12"
+                  if (isTest12 ? dVal > 0 : dVal >= 1200) {
                     latest.distance = dVal
                     latest.runDnf = 0
                   }
                 }
               }
-              if (hasDistance && distance >= 2000) {
+              const isCurrentTest12 = metrics.runMode === "test12"
+              if (hasDistance && (isCurrentTest12 ? distance > 0 : distance >= 1200)) {
                 latest.distance = distance
                 latest.runDnf = isRunDnf ? 1 : 0
               } else if (hasDistance && isRunDnf) {
@@ -2288,8 +2955,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
           } else if (sessionType === "interview") {
             stageIndex = 7
-            const latest = latestMetrics(["star", "integrity", "communication"])
-            for (const key of ["star", "integrity", "communication"]) {
+            const latest = latestMetrics(["star", "integrity", "communication", "interviewScore"])
+            for (const key of ["star", "integrity", "communication", "interviewScore"]) {
               const raw = metrics[key]
               if (
                 raw !== undefined &&
@@ -2303,7 +2970,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const vals = [latest.star, latest.integrity, latest.communication].filter(
               (v): v is number => v !== undefined,
             )
-            if (vals.length > 0) {
+            if (latest.interviewScore !== undefined && latest.interviewScore > 0) {
+              patch.personality = Number(latest.interviewScore.toFixed(1))
+            } else if (vals.length === 3 && vals.every((v) => v <= 40)) {
+              patch.personality = Number(vals.reduce((a, b) => a + b, 0).toFixed(1))
+            } else if (vals.length > 0) {
               patch.personality = Number(
                 (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1),
               )
@@ -2314,9 +2985,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
           if (effectiveResult === "pending") {
             if (attendance && attendance !== "hadir") {
               effectiveResult = "review"
+            } else if (sessionType === "administration") {
+              const docs = patch.documents ?? cand.documents ?? []
+              if (docs.length === 6 && docs.every(Boolean)) {
+                effectiveResult = "passed"
+              } else if (docs.some(Boolean)) {
+                effectiveResult = "review"
+              }
+            } else if (sessionType === "pip") {
+              const v = patch.pip ?? cand.pip
+              if (v !== null && v !== undefined) {
+                effectiveResult = v >= 70 ? "passed" : v >= 50 ? "review" : "failed"
+              }
+            } else if (sessionType === "tiu") {
+              const v = patch.tiu ?? cand.tiu
+              if (v !== null && v !== undefined) {
+                effectiveResult = v >= 70 ? "passed" : v >= 50 ? "review" : "failed"
+              }
+            } else if (sessionType === "medical") {
+              if (metrics.anamnesisCritical && Number(metrics.anamnesisCritical) > 0) {
+                effectiveResult = "review"
+              } else if (metrics.ishiharaStatus && metrics.ishiharaStatus !== "normal") {
+                effectiveResult = "failed"
+              } else if (metrics.anamnesisScore !== undefined && metrics.anamnesisScore !== "") {
+                effectiveResult = Number(metrics.anamnesisScore) >= 70 ? "passed" : "review"
+              } else if (Object.keys(metrics).some((k) => metrics[k] !== "")) {
+                effectiveResult = "passed"
+              }
+            } else if (sessionType === "parade") {
+              const h = patch.heightCm ?? cand.heightCm
+              const w = patch.weightKg ?? cand.weightKg
+              if (h && w) {
+                const minH = cand.gender === "Putra" ? 165 : 160
+                effectiveResult = h >= minH ? "passed" : "review"
+              }
             } else if (sessionType === "fitness") {
-              if (isIntervalRun && !hasPushup && !hasSitup && !hasBackup && !hasShuttle) {
-                // Sesi drill interval murni tidak mengubah status tahapan seleksi Samapta resmi
+              const isIntervalRun =
+                metrics.runMode === "interval" ||
+                Boolean(sessionTitle && sessionTitle.toLowerCase().includes("interval")) ||
+                Boolean(metrics.intervalLap1 || metrics.intervalTargetSets || metrics.intervalDist || metrics.intervalAvg)
+              const hasB =
+                Boolean(metrics.pushup?.trim()) ||
+                Boolean(metrics.situp?.trim()) ||
+                Boolean(metrics.backup?.trim()) ||
+                Boolean(metrics.shuttle?.trim())
+              if (isIntervalRun && !hasB) {
                 effectiveResult = "pending"
               } else if (metrics.runDnf === "yes") {
                 effectiveResult = "review"
@@ -2324,10 +3037,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 effectiveResult = "passed"
               } else if (Number(metrics.distance) > 0 && !isIntervalRun) {
                 effectiveResult = "review"
+              } else if (patch.fitness !== undefined && patch.fitness !== null) {
+                effectiveResult = patch.fitness >= 70 ? "passed" : "review"
               }
             } else if (sessionType === "pbb") {
-              if (patch.pbb !== undefined && patch.pbb >= 0) {
-                effectiveResult = "passed"
+              if (patch.pbb !== undefined && patch.pbb !== null) {
+                effectiveResult = patch.pbb >= 75 ? "passed" : patch.pbb >= 60 ? "review" : "failed"
+              }
+            } else if (sessionType === "interview") {
+              if (patch.personality !== undefined && patch.personality !== null) {
+                effectiveResult =
+                  patch.personality >= 75 ? "passed" : patch.personality >= 60 ? "review" : "failed"
               }
             }
           }
@@ -2342,11 +3062,88 @@ export function AppProvider({ children }: { children: ReactNode }) {
             patch.stage = activeStageNumber
           }
 
+          // Hitung kehadiran & kepatuhan latihan kandidat secara dinamis dari seluruh sesi yang diikuti
+          const assignedSessions = stateRef.current.sessions.filter((s) =>
+            s.participantIds.includes(cand.id),
+          )
+          if (assignedSessions.length > 0) {
+            let attendedCount = 0
+            let recordedCount = 0
+            for (const s of assignedSessions) {
+              const r =
+                sessionId === s.id
+                  ? { attendance: attendance ?? "hadir", savedAt: "now" }
+                  : records[`${s.id}:${cand.id}`]
+              if (r?.savedAt) {
+                recordedCount++
+                if (!r.attendance || r.attendance === "hadir") {
+                  attendedCount++
+                }
+              }
+            }
+            if (recordedCount > 0) {
+              patch.attendance = Math.round((attendedCount / recordedCount) * 100)
+              patch.trainingCompliance = Math.min(
+                100,
+                Math.round((recordedCount / assignedSessions.length) * 100),
+              )
+            }
+          }
+
           return {
             ...cand,
             ...patch,
           }
         })
+
+      // Jika record sesi yang disimpan masih berstatus "pending" namun effectiveResult sudah terinferensi, perbarui juga di records
+      let finalRecords = records
+      if (sessionId) {
+        const recKey = `${sessionId}:${candidateId}`
+        const currentRec = records[recKey]
+        const targetCand = nextCandidates.find((c) => c.id === candidateId)
+        if (currentRec && currentRec.result === "pending" && targetCand) {
+          const sIdx =
+            sessionType === "administration"
+              ? 0
+              : sessionType === "pip"
+                ? 1
+                : sessionType === "tiu"
+                  ? 2
+                  : sessionType === "medical"
+                    ? 3
+                    : sessionType === "parade"
+                      ? 4
+                      : sessionType === "pbb"
+                        ? 5
+                        : sessionType === "fitness"
+                          ? 6
+                          : sessionType === "interview"
+                            ? 7
+                            : null
+          const inferredStatus = sIdx !== null ? targetCand.stageStatuses[sIdx] : null
+          if (
+            inferredStatus === "passed" ||
+            inferredStatus === "review" ||
+            inferredStatus === "failed"
+          ) {
+            finalRecords = {
+              ...records,
+              [recKey]: {
+                ...currentRec,
+                result: inferredStatus,
+              },
+            }
+            setRecordsRaw(finalRecords)
+          }
+        }
+      }
+
+      stateRef.current = {
+        ...stateRef.current,
+        allCandidates: nextCandidates,
+        records: finalRecords,
+      }
       setAllCandidates(nextCandidates)
       logAudit(
         "SESSION_RECORD_SAVED",
@@ -2354,7 +3151,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         `Menyimpan hasil sesi ${sessionType.toUpperCase()} (status: ${result})`,
       )
       showToast("Hasil sesi & profil kandidat berhasil disinkronkan.")
-      saveToCloud({ candidates: nextCandidates })
+      saveToCloud({ candidates: nextCandidates, records: finalRecords })
       return nextCandidates
     },
     [logAudit, showToast, saveToCloud],
@@ -2790,6 +3587,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const resetAllData = useCallback(() => {
     localStorage.clear()
+    deletedCandidateIdsRef.current.clear()
     setCycles(initialCycles)
     setActiveCycleId(initialCycles[0].id)
     setUsers(initialUsers)
@@ -2806,9 +3604,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAuditLogs(initialAuditLogs)
     setSessions([])
     setRecords({})
+    broadcastStateSync("resetAllData")
     window.dispatchEvent(new CustomEvent("paska-track-updated"))
     showToast("Seluruh data berhasil direset ke kondisi awal.", "info")
-  }, [showToast])
+  }, [broadcastStateSync, showToast])
 
   // Google Sheet Methods
   const setGoogleSheetUrl = useCallback((url: string) => {
@@ -2830,7 +3629,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Fungsi sinkronisasi cloud utama:
   // 1. Membuka pertama kali ("initial")
   // 2. Tombol refresh ("manual")
-  // 3. Ditinggal lama ("idle")
+  // 3. Ditinggal lama / sinkronisasi berkala ("idle")
   const refreshAndSync = useCallback(
     async (reason: "initial" | "manual" | "idle" = "manual") => {
       const targetUrl = googleSheetUrl.trim()
@@ -2841,192 +3640,191 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      if (isSyncingRef.current) return
+      if (isSyncingRef.current || isSavingRef.current) return
       isSyncingRef.current = true
       setCloudSyncStatus(reason === "initial" ? "pulling" : "syncing")
 
       try {
-        const s = stateRef.current
-
         // 1. Tarik data terbaru dari Google Sheet terlebih dahulu (Pull First)
-        // Hal ini krusial agar perangkat pelatih TIDAK menimpa hasil tes santri dari perangkat lain
         const res = await pullStateFromGoogleSheet(targetUrl)
+
+        // 2. KRUSIAL: Ambil stateRef.current dan localStorage SETELAH await pullStateFromGoogleSheet selesai
+        // agar kandidat baru yang didaftarkan saat request jaringan sedang berjalan TIDAK PERNAH tertimpa!
+        const s = stateRef.current
+        deletedCandidateIdsRef.current = loadDeletedCandidateIds()
+        const storageCandidates = loadStorage<Candidate[]>(
+          "paska-clean-candidates",
+          [],
+        )
+        const storageAttempts = loadStorage<CatTryoutAttempt[]>(
+          "paska-cat-tryout-attempts",
+          [],
+        )
+        const activeCatCandidates = readActiveCatCandidatesFromStorage()
+
         if (res.ok && res.data) {
           const d = res.data
-
-          // Smart merge catTryoutAttempts: gabungkan yang di cloud dan lokal (union by id)
-          const localAttempts = s.catTryoutAttempts || []
-          const cloudAttempts = Array.isArray(d.catTryoutAttempts)
-            ? d.catTryoutAttempts.filter(
-                (attempt: CatTryoutAttempt) => !legacyDemoCatAttemptIds.has(attempt.id),
-              )
-            : []
-          const attemptMap = new Map<string, CatTryoutAttempt>()
-          for (const att of cloudAttempts) attemptMap.set(att.id, att)
-          for (const att of localAttempts) {
-            if (!attemptMap.has(att.id)) attemptMap.set(att.id, att)
-          }
-          const mergedAttempts = Array.from(attemptMap.values()).sort(
-            (a, b) => (b.finalizedAt || "").localeCompare(a.finalizedAt || ""),
-          )
-
-          // Map percobaan terbaru per kandidat untuk backfill nilai jika profil kandidat belum terisi
-          const latestAttemptByCand = new Map<string, CatTryoutAttempt>()
-          for (const att of mergedAttempts) {
-            const cid = att.candidateId
-            if (
-              cid &&
-              (!latestAttemptByCand.has(cid) ||
-                (att.finalizedAt || "") >
-                  (latestAttemptByCand.get(cid)?.finalizedAt || ""))
-            ) {
-              latestAttemptByCand.set(cid, att)
-            }
+          const localSnapshot: AppDatabaseState = {
+            candidates: s.allCandidates,
+            catTryoutAttempts: s.catTryoutAttempts,
+            cycles: s.cycles,
+            activeCycleId: s.activeCycleId,
+            sessions: s.sessions,
+            records: s.records,
+            schedules: s.schedules,
+            questions: s.questions,
+            supportingDocs: s.supportingDocs,
+            standardRules: s.standardRules,
+            stageChecklists: s.stageChecklists,
+            users: s.users,
+            auditLogs: s.auditLogs,
+            rankingPublished: s.rankingPublished,
+            ishiharaSessions: s.ishiharaSessions,
+            ishiharaAllowlist: s.ishiharaAllowlist,
+            ishiharaResults: s.ishiharaResults,
+            deletedCandidateIds: Array.from(deletedCandidateIdsRef.current),
           }
 
-          // Smart merge candidates
-          const baseCandList =
-            Array.isArray(d.candidates) && d.candidates.length > 0
-              ? d.candidates
-              : s.allCandidates
-          const localCandMap = new Map<string, Candidate>()
-          for (const c of s.allCandidates) localCandMap.set(c.id, c)
-
-          const sanitizedCandidates = baseCandList.map((c: Candidate) => {
-            const verified = seededCandidates.find((sc) => sc.number === c.number)
-            const localCand = localCandMap.get(c.id)
-            const att = latestAttemptByCand.get(c.id)
-
-            const hasPipAttempt =
-              att &&
-              ((att.pipAnswers && Object.keys(att.pipAnswers).length > 0) ||
-                (typeof att.pipScore === "number" && att.pipScore > 0))
-            const hasTiuAttempt =
-              att &&
-              ((att.tiuAnswers && Object.keys(att.tiuAnswers).length > 0) ||
-                (typeof att.tiuScoreScaled === "number" && att.tiuScoreScaled > 0))
-            const isAydinGhost = c.id === "cand-1792581418049-g66" || (c.name && c.name.includes("AYDIN"))
-
-            // Pertahankan nilai PIP/TIU yang sah:
-            // 1. Dari cloud (jika tidak null)
-            // 2. Dari riwayat attempt CAT yang valid
-            // 3. Jangan warisi ghost score jika kandidat adalah Yusuf Aydin yang belum ujian
-            const pipScore = isAydinGhost && !hasPipAttempt
-              ? null
-              : c.pip !== null && c.pip !== undefined
-                ? c.pip
-                : hasPipAttempt
-                  ? (att?.pipScore ?? null)
-                  : null
-
-            const tiuScore = isAydinGhost && !hasTiuAttempt
-              ? null
-              : c.tiu !== null && c.tiu !== undefined
-                ? c.tiu
-                : hasTiuAttempt
-                  ? (att?.tiuScoreScaled ?? null)
-                  : null
-
-            const stageStatuses: StageStatus[] = [
-              ...(isAydinGhost
-                ? ["passed", "active", "active", "active", "active", "review", "review", "active"]
-                : (c.stageStatuses ??
-                  localCand?.stageStatuses ??
-                  Array<StageStatus>(8).fill("active"))),
-            ]
-            if (hasPipAttempt && att?.pipStatus) stageStatuses[1] = att.pipStatus
-            if (hasTiuAttempt && att?.tiuStatus) stageStatuses[2] = att.tiuStatus
-
-            return {
-              ...c,
-              ...(verified
-                ? {
-                    nik: verified.nik,
-                    birthDate: verified.birthDate,
-                    origin: verified.origin,
-                    className: verified.className,
-                    studentNumber: verified.studentNumber,
-                  }
-                : {}),
-              pip: pipScore,
-              tiu: tiuScore,
-              stageStatuses,
-              documents:
-                Array.isArray(c.documents) && c.documents.length === 6
-                  ? c.documents
-                  : (c.documents ?? [false, false, false, false, false, false]),
-            }
+          const { mergedState, localHasNewerData } = mergeDatabaseStates({
+            localState: localSnapshot,
+            cloudState: d,
+            storageCandidates,
+            storageAttempts,
+            activeCatCandidates,
+            deletedCandidateIds: deletedCandidateIdsRef.current,
+            currentUserId: s.currentUserId,
           })
 
-          setAllCandidates(sanitizedCandidates)
-          setCatTryoutAttempts(mergedAttempts)
-          if (Array.isArray(d.cycles) && d.cycles.length > 0) setCycles(d.cycles)
-          if (d.activeCycleId) setActiveCycleId(d.activeCycleId)
-          if (Array.isArray(d.sessions)) setSessions(d.sessions)
-          if (d.records && typeof d.records === "object") setRecords(d.records)
-          if (Array.isArray(d.schedules)) setSchedules(d.schedules)
-          if (Array.isArray(d.questions)) setQuestions(mergeWithStandardQuestions(d.questions))
-          if (Array.isArray(d.supportingDocs)) setSupportingDocs(d.supportingDocs)
-          if (Array.isArray(d.standardRules)) setStandardRules(d.standardRules)
-          if (d.stageChecklists && typeof d.stageChecklists === "object")
-            setStageChecklists(d.stageChecklists)
-          if (Array.isArray(d.users) && d.users.length > 0) {
-            setUsers((prevUsers) => {
-              const activeCandidate = prevUsers.find(
-                (u) => u.id === currentUserId && u.role === "candidate",
-              )
-              const cleanCloudUsers = d.users.filter(
-                (u: UserProfile) => u.role !== "candidate",
-              )
-              const baseUsers = cleanCloudUsers.length > 0 ? cleanCloudUsers : d.users
-              return activeCandidate && !baseUsers.some((u: UserProfile) => u.id === activeCandidate.id)
-                ? [...baseUsers, activeCandidate]
-                : baseUsers
-            })
+          if (Array.isArray(mergedState.deletedCandidateIds)) {
+            deletedCandidateIdsRef.current = new Set(
+              mergedState.deletedCandidateIds,
+            )
+            saveDeletedCandidateIds(deletedCandidateIdsRef.current)
           }
-          if (Array.isArray(d.auditLogs)) setAuditLogs(d.auditLogs)
-          if (d.rankingPublished !== undefined)
-            setRankingPublishedState(d.rankingPublished)
-          if (Array.isArray(d.ishiharaSessions)) setIshiharaSessions(d.ishiharaSessions)
-          if (Array.isArray(d.ishiharaAllowlist)) setIshiharaAllowlist(d.ishiharaAllowlist)
-          if (Array.isArray(d.ishiharaResults)) setIshiharaResults(d.ishiharaResults)
+
+          const mergedQuestions = mergeWithStandardQuestions(
+            Array.isArray(d.questions) ? d.questions : s.questions,
+          )
+
+          stateRef.current = {
+            ...stateRef.current,
+            allCandidates: mergedState.candidates,
+            catTryoutAttempts: mergedState.catTryoutAttempts || [],
+            sessions: mergedState.sessions || [],
+            records: mergedState.records || {},
+            schedules: mergedState.schedules || [],
+            questions: mergedQuestions,
+            users: mergedState.users || s.users,
+            auditLogs: mergedState.auditLogs || s.auditLogs,
+            ishiharaSessions: mergedState.ishiharaSessions || [],
+            ishiharaResults: mergedState.ishiharaResults || [],
+          }
+
+          setAllCandidates(mergedState.candidates)
+          setCatTryoutAttempts(mergedState.catTryoutAttempts || [])
+          if (Array.isArray(mergedState.cycles) && mergedState.cycles.length > 0) {
+            setCycles(mergedState.cycles)
+          }
+          if (mergedState.activeCycleId) {
+            setActiveCycleId(mergedState.activeCycleId)
+          }
+          setSessions(mergedState.sessions || [])
+          setRecords(mergedState.records || {})
+          if (
+            Array.isArray(mergedState.schedules) &&
+            mergedState.schedules.length > 0
+          ) {
+            setSchedules(mergedState.schedules)
+          }
+          setQuestions(mergedQuestions)
+          if (
+            Array.isArray(mergedState.supportingDocs) &&
+            mergedState.supportingDocs.length > 0
+          ) {
+            setSupportingDocs(mergedState.supportingDocs)
+          }
+          if (
+            Array.isArray(mergedState.standardRules) &&
+            mergedState.standardRules.length > 0
+          ) {
+            setStandardRules(mergedState.standardRules)
+          }
+          if (
+            mergedState.stageChecklists &&
+            typeof mergedState.stageChecklists === "object"
+          ) {
+            setStageChecklists(mergedState.stageChecklists)
+          }
+          if (Array.isArray(mergedState.users) && mergedState.users.length > 0) {
+            setUsers(mergedState.users)
+          }
+          if (
+            Array.isArray(mergedState.auditLogs) &&
+            mergedState.auditLogs.length > 0
+          ) {
+            setAuditLogs(mergedState.auditLogs)
+          }
+          if (mergedState.rankingPublished !== undefined) {
+            setRankingPublishedState(mergedState.rankingPublished)
+          }
+          setIshiharaSessions(mergedState.ishiharaSessions || [])
+          if (
+            Array.isArray(mergedState.ishiharaAllowlist) &&
+            mergedState.ishiharaAllowlist.length > 0
+          ) {
+            setIshiharaAllowlist(mergedState.ishiharaAllowlist)
+          }
+          setIshiharaResults(mergedState.ishiharaResults || [])
+
+          try {
+            localStorage.setItem(
+              "paska-clean-candidates",
+              JSON.stringify(mergedState.candidates),
+            )
+            localStorage.setItem(
+              "paska-cat-tryout-attempts",
+              JSON.stringify(mergedState.catTryoutAttempts || []),
+            )
+          } catch {}
+          broadcastStateSync("refreshAndSync")
 
           const newSyncedHash = JSON.stringify({
-            c: sanitizedCandidates,
-            cat: mergedAttempts,
-            s: d.sessions || s.sessions,
-            r: d.records || s.records,
-            sch: d.schedules || s.schedules,
-            q: d.questions || s.questions,
-            d: d.supportingDocs || s.supportingDocs,
-            st: d.standardRules || s.standardRules,
-            ch: d.stageChecklists || s.stageChecklists || defaultChecklists,
-            ish: d.ishiharaSessions || s.ishiharaSessions || [],
-            alw: d.ishiharaAllowlist || s.ishiharaAllowlist || [],
-            res: d.ishiharaResults || s.ishiharaResults || [],
+            c: mergedState.candidates,
+            cat: mergedState.catTryoutAttempts || [],
+            s: mergedState.sessions || [],
+            r: mergedState.records || {},
+            sch: mergedState.schedules || s.schedules,
+            q: mergedQuestions,
+            d: mergedState.supportingDocs || s.supportingDocs,
+            st: mergedState.standardRules || s.standardRules,
+            ch:
+              mergedState.stageChecklists ||
+              s.stageChecklists ||
+              defaultChecklists,
+            ish: mergedState.ishiharaSessions || [],
+            alw: mergedState.ishiharaAllowlist || s.ishiharaAllowlist || [],
+            res: mergedState.ishiharaResults || [],
           })
           lastSyncedHash.current = newSyncedHash
 
-          // Jika ada attempt lokal yang belum ada di cloud, dorong data gabungan ke cloud
-          if (mergedAttempts.length > cloudAttempts.length) {
+          // Jika ada data lokal yang belum ada atau lebih baru dibanding cloud, dorong data gabungan ke cloud
+          const cloudAttemptsLen = Array.isArray(d.catTryoutAttempts)
+            ? d.catTryoutAttempts.length
+            : 0
+          const cloudCandsLen = Array.isArray(d.candidates)
+            ? d.candidates.length
+            : 0
+          if (
+            (mergedState.catTryoutAttempts || []).length > cloudAttemptsLen ||
+            mergedState.candidates.length > cloudCandsLen ||
+            localHasNewerData
+          ) {
             const mergedStateToPush: AppDatabaseState = {
-              candidates: sanitizedCandidates,
-              catTryoutAttempts: mergedAttempts,
-              cycles: d.cycles || s.cycles,
-              activeCycleId: d.activeCycleId || s.activeCycleId,
-              sessions: d.sessions || s.sessions,
-              records: d.records || s.records,
-              schedules: d.schedules || s.schedules,
-              questions: d.questions || s.questions,
-              supportingDocs: d.supportingDocs || s.supportingDocs,
-              standardRules: d.standardRules || s.standardRules,
-              stageChecklists: d.stageChecklists || s.stageChecklists,
-              users: s.users.filter((u) => u.role !== "candidate"),
-              auditLogs: d.auditLogs || s.auditLogs,
-              rankingPublished: d.rankingPublished !== undefined ? d.rankingPublished : s.rankingPublished,
-              ishiharaSessions: d.ishiharaSessions || s.ishiharaSessions,
-              ishiharaAllowlist: d.ishiharaAllowlist || s.ishiharaAllowlist,
-              ishiharaResults: d.ishiharaResults || s.ishiharaResults,
+              ...mergedState,
+              questions: mergedQuestions,
+              users: (mergedState.users || []).filter(
+                (u) => u.role !== "candidate",
+              ),
             }
             await pushStateToGoogleSheet(mergedStateToPush, targetUrl)
           }
@@ -3039,7 +3837,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             logAudit(
               "SYNC_GOOGLE_SHEET",
               "Google Sheet",
-              `Sinkronisasi ${sanitizedCandidates.length} kandidat & ${mergedAttempts.length} riwayat CAT berhasil`,
+              `Sinkronisasi ${mergedState.candidates.length} kandidat & ${(mergedState.catTryoutAttempts || []).length} riwayat CAT berhasil`,
             )
           }
         } else if (res.ok && !res.data) {
@@ -3057,12 +3855,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
               supportingDocs: s.supportingDocs,
               standardRules: s.standardRules,
               stageChecklists: s.stageChecklists,
-              users: s.users,
+              users: s.users.filter((u) => u.role !== "candidate"),
               auditLogs: s.auditLogs,
               rankingPublished: s.rankingPublished,
               ishiharaSessions: s.ishiharaSessions,
               ishiharaAllowlist: s.ishiharaAllowlist,
               ishiharaResults: s.ishiharaResults,
+              deletedCandidateIds: Array.from(deletedCandidateIdsRef.current),
             }
             await pushStateToGoogleSheet(stateToPush, targetUrl)
             lastSyncedHash.current = computeDataHash()
@@ -3080,7 +3879,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isSyncingRef.current = false
       }
     },
-    [googleSheetUrl, computeDataHash, showToast, logAudit],
+    [
+      googleSheetUrl,
+      computeDataHash,
+      showToast,
+      logAudit,
+      broadcastStateSync,
+      setSessions,
+      setRecords,
+    ],
   )
 
   const syncToGoogleSheet = useCallback(

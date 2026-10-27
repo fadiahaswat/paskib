@@ -1,55 +1,83 @@
 import React from "react"
 import { Layers } from "lucide-react"
 import { Badge, Card } from "../../components/ui"
-import { bmi, type Candidate } from "../../domain/selection"
+import { bmi, type Candidate, type Session, type SessionRecord } from "../../domain/selection"
 import { useApp } from "../../context/AppContext"
 import { latestSessionRecord } from "./readiness"
 import { LineChart, type LineChartColor } from "./LineChart"
 
-type StoredSession = {
-  id: string
-  type: string
-  title: string
-  date: string
-  status: string
-}
+function extractReactiveStageHistory(
+  candidate: Candidate,
+  stageType: "pip" | "tiu" | "pbb" | "fitness" | "personality",
+  sessions: Session[],
+  records: Record<string, SessionRecord>,
+): number[] {
+  const targetType = stageType === "personality" ? "interview" : stageType
+  const matching = sessions
+    .filter((s) => s.type === targetType || (stageType === "pip" && s.type === "cat") || (stageType === "tiu" && s.type === "cat"))
+    .sort((a, b) => a.date.localeCompare(b.date))
 
-type StoredRecord = {
-  metrics: Record<string, string>
-  savedAt?: string
-}
+  const scores: number[] = []
+  for (const sess of matching) {
+    const rec = records[`${sess.id}:${candidate.id}`]
+    if (!rec?.savedAt || !rec.metrics) continue
+    const m = rec.metrics
+    let val = 0
 
-function getStageHistory(candidateId: string, stageType: string): number[] {
-  try {
-    const sessions = JSON.parse(
-      localStorage.getItem("paska-clean-sessions") ?? "[]",
-    ) as StoredSession[]
-    const records = JSON.parse(
-      localStorage.getItem("paska-clean-records") ?? "{}",
-    ) as Record<string, StoredRecord>
-
-    const matching = sessions
-      .filter((s) => s.type === stageType)
-      .sort((a, b) => a.date.localeCompare(b.date))
-
-    const scores: number[] = []
-    for (const sess of matching) {
-      const rec = records[`${sess.id}:${candidateId}`]
-      if (rec?.savedAt && rec.metrics) {
-        const val =
-          Number(rec.metrics.score) ||
-          Number(rec.metrics[`${stageType}Score`]) ||
-          Number(rec.metrics.finalScore) ||
-          Number(rec.metrics.totalScore)
-        if (Number.isFinite(val) && val > 0) {
-          scores.push(val)
+    if (stageType === "pip") {
+      if (sess.type === "cat") {
+        val = Number(m.pipScore) || 0
+      } else {
+        const direct = Number(m.pipScore) || Number(m.score)
+        const c = (Number(m.understanding) || 0) + (Number(m.implementation) || 0) + (Number(m.caseStudy) || 0)
+        val = direct > 0 ? direct : c
+      }
+    } else if (stageType === "tiu") {
+      if (sess.type === "cat") {
+        val = Number(m.tiuScore) || 0
+      } else {
+        const direct = Number(m.tiuScore) || Number(m.score)
+        const c = (Number(m.verbal) || 0) + (Number(m.numerical) || 0) + (Number(m.figural) || 0)
+        val = direct > 0 ? direct : c
+      }
+    } else if (stageType === "pbb") {
+      const direct = Number(m.pbbScore) || Number(m.score) || Number(m.finalScore)
+      const c = (Number(m.static) || 0) + (Number(m.dynamic) || 0) + (Number(m.command) || 0)
+      val = direct > 0 ? direct : c
+    } else if (stageType === "fitness") {
+      const direct = Number(m.fitnessScore) || Number(m.score) || Number(m.finalScore)
+      if (direct > 0) {
+        val = direct
+      } else if (m.runMode !== "interval" && !m.intervalLap1) {
+        const dist = Number(m.distance) || 0
+        const push = Number(m.pushup) || 0
+        const sit = Number(m.situp) || 0
+        const back = Number(m.backup) || 0
+        const shuttle = Number(m.shuttle) || 0
+        if (dist > 0 || push > 0 || sit > 0 || back > 0 || shuttle > 0) {
+          const isPutra = candidate.gender === "Putra"
+          const pDist = dist > 0 ? Math.min(100, Math.round((dist / (isPutra ? 2400 : 2000)) * 100)) : 0
+          const pPush = push > 0 ? Math.min(100, Math.round((push / (isPutra ? 35 : 25)) * 100)) : 0
+          const pSit = sit > 0 ? Math.min(100, Math.round((sit / (isPutra ? 40 : 35)) * 100)) : 0
+          const pBack = back > 0 ? Math.min(100, Math.round((back / (isPutra ? 45 : 40)) * 100)) : 0
+          const pShuttle = shuttle > 0 ? Math.min(100, Math.max(0, Math.round((1 - (shuttle - (isPutra ? 17.2 : 19.0)) / 8) * 100))) : 0
+          const active = [pDist, pPush, pSit, pBack, pShuttle].filter((v) => v > 0)
+          if (active.length > 0) {
+            val = Math.round(active.reduce((a, b) => a + b, 0) / active.length)
+          }
         }
       }
+    } else if (stageType === "personality") {
+      const direct = Number(m.interviewScore) || Number(m.personalityScore) || Number(m.score)
+      const c = (Number(m.star) || 0) + (Number(m.integrity) || 0) + (Number(m.communication) || 0)
+      val = direct > 0 ? direct : c
     }
-    return scores
-  } catch {
-    return []
+
+    if (Number.isFinite(val) && val > 0) {
+      scores.push(val)
+    }
   }
+  return scores
 }
 
 export function StageCards({
@@ -59,7 +87,7 @@ export function StageCards({
   candidate: Candidate
   onOpenModal?: () => void
 }) {
-  const { catTryoutAttempts, sessions, records } = useApp()
+  const { catTryoutAttempts, sessions, records, ishiharaResults } = useApp()
   const validDocs = (candidate.documents ?? []).filter(Boolean).length
   const bmiInfo = bmi(candidate.weightKg ?? 0, candidate.heightCm ?? 0)
 
@@ -73,31 +101,45 @@ export function StageCards({
     sessions,
     records,
   )
-  const pipScore = latestAttempt?.pipScore ?? candidate.pip
-  const tiuScore = latestAttempt?.tiuScoreScaled ?? candidate.tiu
+  const latestIshihara = (ishiharaResults ?? [])
+    .filter((r) => r.participantId === candidate.id)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]
+
+  // Stage historical data (reactive from AppContext state)
+  const pipHistory = extractReactiveStageHistory(candidate, "pip", sessions, records)
+  const tiuHistory = extractReactiveStageHistory(candidate, "tiu", sessions, records)
+  const pbbHistory = extractReactiveStageHistory(candidate, "pbb", sessions, records)
+  const fitnessHistory = extractReactiveStageHistory(candidate, "fitness", sessions, records)
+  const personalityHistory = extractReactiveStageHistory(candidate, "personality", sessions, records)
+
+  const pipScore =
+    latestAttempt?.pipScore ??
+    candidate.pip ??
+    (pipHistory.length > 0 ? pipHistory[pipHistory.length - 1] : null)
+  const tiuScore =
+    latestAttempt?.tiuScoreScaled ??
+    candidate.tiu ??
+    (tiuHistory.length > 0 ? tiuHistory[tiuHistory.length - 1] : null)
   const pipScores = candidateAttempts.length
     ? candidateAttempts.map((attempt) => attempt.pipScore)
-    : candidate.pip !== null
-      ? [candidate.pip]
-      : []
+    : pipHistory.length > 0
+      ? pipHistory
+      : candidate.pip !== null
+        ? [candidate.pip]
+        : []
   const tiuScores = candidateAttempts.length
     ? candidateAttempts.map((attempt) => attempt.tiuScoreScaled)
-    : candidate.tiu !== null
-      ? [candidate.tiu]
-      : []
+    : tiuHistory.length > 0
+      ? tiuHistory
+      : candidate.tiu !== null
+        ? [candidate.tiu]
+        : []
   const paradeHeights = (candidate.anthropometryHistory ?? [])
     .slice()
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((entry) => entry.heightCm)
   if (paradeHeights.length === 0 && candidate.heightCm)
     paradeHeights.push(candidate.heightCm)
-
-  // Stage historical data
-  const pipHistory = getStageHistory(candidate.id, "pip")
-  const tiuHistory = getStageHistory(candidate.id, "tiu")
-  const pbbHistory = getStageHistory(candidate.id, "pbb")
-  const fitnessHistory = getStageHistory(candidate.id, "fitness")
-  const personalityHistory = getStageHistory(candidate.id, "personality")
 
   const stagesData = [
     {
@@ -170,68 +212,95 @@ export function StageCards({
         const anamMetric = candidate.physicalMetrics?.find((m) =>
           m.label.toLowerCase().includes("anamnesis"),
         )
-        const score = medicalRecord?.metrics?.anamnesisScore || (anamMetric ? anamMetric.percent : null)
+        const score =
+          medicalRecord?.metrics?.anamnesisScore ||
+          (anamMetric ? anamMetric.percent : null) ||
+          (latestIshihara ? latestIshihara.accuracy : null)
         if (score !== null && score !== undefined) return `${score}`
-        return medicalRecord
-          ? medicalRecord.result === "passed"
-            ? "Laik"
-            : medicalRecord.result === "failed"
-              ? "Tidak Laik"
-              : medicalRecord.result === "review"
-                ? "Perlu Tinjau"
-                : "Proses"
-          : candidate.stageStatuses[3] === "passed"
-            ? "Laik"
-            : candidate.stageStatuses[3] === "failed"
-              ? "Tidak Laik"
-              : candidate.stageStatuses[3] === "review"
-                ? "Perlu Tinjau"
+        const effStatus =
+          medicalRecord?.result && medicalRecord.result !== "pending"
+            ? medicalRecord.result
+            : candidate.stageStatuses[3] && candidate.stageStatuses[3] !== "locked" && candidate.stageStatuses[3] !== "active"
+              ? candidate.stageStatuses[3]
+              : medicalRecord?.result === "pending"
+                ? "pending"
+                : null
+        return effStatus === "passed"
+          ? "Laik"
+          : effStatus === "failed"
+            ? "Tidak Laik"
+            : effStatus === "review"
+              ? "Perlu Tinjau"
+              : effStatus === "pending"
+                ? "Proses"
                 : "—"
       })(),
       unit: (() => {
         const anamMetric = candidate.physicalMetrics?.find((m) =>
           m.label.toLowerCase().includes("anamnesis"),
         )
-        const score = medicalRecord?.metrics?.anamnesisScore || (anamMetric ? anamMetric.percent : null)
+        const score =
+          medicalRecord?.metrics?.anamnesisScore ||
+          (anamMetric ? anamMetric.percent : null) ||
+          (latestIshihara ? latestIshihara.accuracy : null)
         return score !== null && score !== undefined ? "/ 100" : ""
       })(),
       target: 70,
       targetText: "≥ 70 (Laik)",
-      status: medicalRecord
-        ? medicalRecord.result === "passed"
+      status: (() => {
+        const effStatus =
+          medicalRecord?.result && medicalRecord.result !== "pending"
+            ? medicalRecord.result
+            : candidate.stageStatuses[3] && candidate.stageStatuses[3] !== "locked" && candidate.stageStatuses[3] !== "active"
+              ? candidate.stageStatuses[3]
+              : latestIshihara
+                ? latestIshihara.screeningInterpretation === "normal"
+                  ? "passed"
+                  : "review"
+                : medicalRecord?.result === "pending"
+                  ? "pending"
+                  : null
+        return effStatus === "passed"
           ? "Memenuhi"
-          : medicalRecord.result === "failed"
+          : effStatus === "failed"
             ? "Tidak Memenuhi"
-            : medicalRecord.result === "review"
+            : effStatus === "review"
               ? "Perlu Tinjau"
-              : "Proses"
-        : candidate.stageStatuses[3] === "passed"
-          ? "Memenuhi"
-          : candidate.stageStatuses[3] === "failed"
-            ? "Tidak Memenuhi"
-            : candidate.stageStatuses[3] === "review"
-              ? "Perlu Tinjau"
-              : "Belum Dinilai",
-      tone: medicalRecord
-        ? medicalRecord.result === "passed"
+              : effStatus === "pending"
+                ? "Proses"
+                : "Belum Dinilai"
+      })(),
+      tone: (() => {
+        const effStatus =
+          medicalRecord?.result && medicalRecord.result !== "pending"
+            ? medicalRecord.result
+            : candidate.stageStatuses[3] && candidate.stageStatuses[3] !== "locked" && candidate.stageStatuses[3] !== "active"
+              ? candidate.stageStatuses[3]
+              : latestIshihara
+                ? latestIshihara.screeningInterpretation === "normal"
+                  ? "passed"
+                  : "review"
+                : medicalRecord?.result === "pending"
+                  ? "pending"
+                  : null
+        return effStatus === "passed"
           ? ("success" as const)
-          : medicalRecord.result === "failed"
+          : effStatus === "failed"
             ? ("danger" as const)
-            : ("warning" as const)
-        : candidate.stageStatuses[3] === "passed"
-          ? ("success" as const)
-          : candidate.stageStatuses[3] === "failed"
-            ? ("danger" as const)
-            : candidate.stageStatuses[3] === "review"
+            : effStatus === "review" || effStatus === "pending"
               ? ("warning" as const)
-              : ("neutral" as const),
+              : ("neutral" as const)
+      })(),
       dotColor: "bg-emerald-500",
       color: "emerald" as LineChartColor,
       chartValues: (() => {
         const anamMetric = candidate.physicalMetrics?.find((m) =>
           m.label.toLowerCase().includes("anamnesis"),
         )
-        const score = medicalRecord?.metrics?.anamnesisScore || (anamMetric ? anamMetric.percent : null)
+        const score =
+          medicalRecord?.metrics?.anamnesisScore ||
+          (anamMetric ? anamMetric.percent : null) ||
+          (latestIshihara ? latestIshihara.accuracy : null)
         return score !== null && score !== undefined ? [Number(score)] : []
       })(),
     },

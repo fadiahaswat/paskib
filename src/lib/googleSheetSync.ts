@@ -28,6 +28,7 @@ export type AppDatabaseState = {
   ishiharaSessions?: any[]
   ishiharaAllowlist?: any[]
   ishiharaResults?: any[]
+  deletedCandidateIds?: string[]
   updatedAt?: string
 }
 

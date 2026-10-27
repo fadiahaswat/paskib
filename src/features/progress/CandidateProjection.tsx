@@ -110,7 +110,11 @@ function readHistory(candidateId: string): FitnessEntry[] {
             : null
         }
         const rawDist = numberValue("distance")
-        const dist = rawDist !== null && rawDist >= 2000 ? rawDist : null
+        const isTest12 = record.metrics.runMode === "test12"
+        const dist =
+          rawDist !== null && (isTest12 ? rawDist > 0 : rawDist >= 1200)
+            ? rawDist
+            : null
         return [
           {
             sessionId: session.id,
@@ -185,8 +189,11 @@ export default function CandidateProjection({
         }
 
         const rawDist = numberValue("distance")
-        // Proteksi: tes lari 12 menit resmi tidak mungkin < 2000 m (jika < 2000 berarti porsi interval/drill)
-        const dist = rawDist !== null && rawDist >= 2000 ? rawDist : null
+        const isTest12 = record.metrics.runMode === "test12"
+        const dist =
+          rawDist !== null && (isTest12 ? rawDist > 0 : rawDist >= 1200)
+            ? rawDist
+            : null
 
         return [
           {

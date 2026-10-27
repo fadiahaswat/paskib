@@ -954,14 +954,36 @@ export function CandidateDetailView({
   function saveProfile(e: React.FormEvent) {
     e.preventDefault()
     if (!candidate) return
+    const h = Number(heightCm) || undefined
+    const w = Number(weightKg) || undefined
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const prevAnthro = candidate.anthropometryHistory ?? []
+    const shouldAddAnthro =
+      h &&
+      w &&
+      (h !== candidate.heightCm || w !== candidate.weightKg || prevAnthro.length === 0)
+    const nextAnthro = shouldAddAnthro
+      ? [
+          ...prevAnthro.filter((item) => item.date !== todayStr),
+          {
+            id: `anthro-${Date.now()}`,
+            date: todayStr,
+            heightCm: h,
+            weightKg: w,
+            note: "Pembaruan Profil Kandidat",
+          },
+        ].sort((a, b) => a.date.localeCompare(b.date))
+      : prevAnthro
+
     updateCandidate(candidate.id, {
       name: name.trim() || candidate.name,
       school: school.trim() || candidate.school,
       gender,
       birthDate,
       nik: nik.trim() || undefined,
-      heightCm: Number(heightCm) || undefined,
-      weightKg: Number(weightKg) || undefined,
+      heightCm: h,
+      weightKg: w,
+      anthropometryHistory: nextAnthro,
       phone: phone.trim() || undefined,
       socialMedia: socialMedia.trim() || undefined,
     })
@@ -971,12 +993,27 @@ export function CandidateDetailView({
     e.preventDefault()
     if (!candidate) return
     const parseNum = (val: string) => (val.trim() === "" ? null : Number(val))
+    const nextPip = parseNum(pip)
+    const nextTiu = parseNum(tiu)
+    const nextPbb = parseNum(pbb)
+    const nextFit = parseNum(fitness)
+    const nextPer = parseNum(personality)
+    const nextStatuses: StageStatus[] = [
+      ...(candidate.stageStatuses ?? Array<StageStatus>(8).fill("active")),
+    ]
+    if (nextPip !== null) nextStatuses[1] = nextPip >= 70 ? "passed" : "review"
+    if (nextTiu !== null) nextStatuses[2] = nextTiu >= 70 ? "passed" : "review"
+    if (nextPbb !== null) nextStatuses[5] = nextPbb >= 75 ? "passed" : "review"
+    if (nextFit !== null) nextStatuses[6] = nextFit >= 70 ? "passed" : "review"
+    if (nextPer !== null) nextStatuses[7] = nextPer >= 75 ? "passed" : "review"
+
     updateCandidate(candidate.id, {
-      pip: parseNum(pip),
-      tiu: parseNum(tiu),
-      pbb: parseNum(pbb),
-      fitness: parseNum(fitness),
-      personality: parseNum(personality),
+      pip: nextPip,
+      tiu: nextTiu,
+      pbb: nextPbb,
+      fitness: nextFit,
+      personality: nextPer,
+      stageStatuses: nextStatuses,
       attendance: Number(attendance) || 90,
       trainingCompliance: Number(trainingCompliance) || 85,
       coachNote: coachNote.trim(),
@@ -1538,6 +1575,97 @@ export function CandidateDetailView({
                 })}
               </div>
             </div>
+          ) : null}
+
+          {/* Evaluasi Nilai, Kehadiran & Catatan Pelatih */}
+          {canEdit ? (
+            <form
+              onSubmit={saveScores}
+              className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="font-display text-sm font-bold text-slate-900">
+                    Rekap Nilai Seleksi, Kehadiran & Catatan Pelatih
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Perbarui nilai tahapan, persentase kehadiran latihan, dan catatan pembinaan santri.
+                  </p>
+                </div>
+                <Button size="sm" type="submit">
+                  <Save className="size-3.5" /> Simpan Nilai & Catatan
+                </Button>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                <Input
+                  label="Nilai PIP (0-100)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  value={pip}
+                  onChange={(e) => setPip(e.target.value)}
+                />
+                <Input
+                  label="Nilai TIU (0-100)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  value={tiu}
+                  onChange={(e) => setTiu(e.target.value)}
+                />
+                <Input
+                  label="Nilai PBB (0-100)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  value={pbb}
+                  onChange={(e) => setPbb(e.target.value)}
+                />
+                <Input
+                  label="Nilai Samapta (0-100)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  value={fitness}
+                  onChange={(e) => setFitness(e.target.value)}
+                />
+                <Input
+                  label="Nilai Wawancara (0-100)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.1"
+                  value={personality}
+                  onChange={(e) => setPersonality(e.target.value)}
+                />
+                <Input
+                  label="Kehadiran Latihan (%)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={attendance}
+                  onChange={(e) => setAttendance(e.target.value)}
+                />
+                <Input
+                  label="Kepatuhan Program (%)"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={trainingCompliance}
+                  onChange={(e) => setTrainingCompliance(e.target.value)}
+                />
+                <Input
+                  label="Catatan Pelatih"
+                  value={coachNote}
+                  placeholder="Catatan evaluasi pembinaan..."
+                  onChange={(e) => setCoachNote(e.target.value)}
+                />
+              </div>
+            </form>
           ) : null}
         </div>
       </div>

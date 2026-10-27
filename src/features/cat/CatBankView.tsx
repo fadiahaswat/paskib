@@ -251,14 +251,55 @@ export default function CatBankView() {
       setSelectedCandidateId(currentUser.candidateId)
     }
   }, [currentUser])
+  // Snapshot terkunci dari profil kandidat yang sedang mengikuti sesi CAT aktif
+  // agar sinkronisasi latar belakang dari tab/pengguna lain tidak pernah memutus identitas peserta.
+  const lockedCandidateRef = useRef<Candidate | null>(null)
+
   const selectedCandidate = useMemo(() => {
-    if (currentUser.role === "candidate") {
-      return candidates.find((c) => c.id === currentUser.candidateId) ?? null
-    }
+    const targetId =
+      currentUser.role === "candidate"
+        ? currentUser.candidateId
+        : isCoachSelfTest
+          ? "coach-self"
+          : selectedCandidateId
+
     if (isCoachSelfTest) {
       return coachSelfCandidate
     }
-    return candidates.find((c) => c.id === selectedCandidateId) ?? null
+
+    const found = targetId
+      ? (candidates.find((c) => c.id === targetId) ?? null)
+      : null
+    if (found) {
+      lockedCandidateRef.current = found
+      return found
+    }
+
+    if (
+      lockedCandidateRef.current &&
+      targetId &&
+      lockedCandidateRef.current.id === targetId
+    ) {
+      return lockedCandidateRef.current
+    }
+
+    if (targetId && typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(`paska-cat-active-session-${targetId}`)
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (
+            parsed?.candidateSnapshot &&
+            parsed.candidateSnapshot.id === targetId
+          ) {
+            lockedCandidateRef.current = parsed.candidateSnapshot as Candidate
+            return lockedCandidateRef.current
+          }
+        }
+      } catch {}
+    }
+
+    return null
   }, [
     candidates,
     currentUser.role,
@@ -349,6 +390,10 @@ export default function CatBankView() {
         const payload = {
           sessionPhase,
           selectedCandidateId,
+          candidateSnapshot:
+            selectedCandidate && selectedCandidate.id !== "coach-self"
+              ? selectedCandidate
+              : lockedCandidateRef.current,
           pipExamQuestions,
           tiuExamQuestions,
           pipCurrentIdx,
@@ -402,6 +447,9 @@ export default function CatBankView() {
           )
         if (!sessionData) return
 
+        if (sessionData.candidateSnapshot?.id) {
+          lockedCandidateRef.current = sessionData.candidateSnapshot
+        }
         if (sessionData.selectedCandidateId)
           setSelectedCandidateId(sessionData.selectedCandidateId)
         if (sessionData.pipExamQuestions)
@@ -762,6 +810,9 @@ export default function CatBankView() {
       showToast("Silakan pilih santri / peserta terlebih dahulu.", "warning")
       return
     }
+    if (!effectiveIsCoachSelf) {
+      lockedCandidateRef.current = effectiveCandidate
+    }
     const qs = prepareExamQuestions("pip", packageConfig.pipQuestionCount)
     if (qs.length === 0) {
       showToast("Tidak ada butir soal PIP aktif untuk memulai ujian.", "danger")
@@ -821,10 +872,12 @@ export default function CatBankView() {
     const pipPassed = pipScore >= packageConfig.pipPassingGrade
 
     const isCoachTest =
-      isCoachSelfTest || !candidates.some((c) => c.id === selectedCandidate?.id)
+      isCoachSelfTest || selectedCandidate?.id === "coach-self"
     const targetCandidateId = isCoachTest
       ? currentUser.id || "coach-self"
-      : (selectedCandidate?.id ?? "cand-001")
+      : (selectedCandidate?.id ??
+        (currentUser.role === "candidate" ? currentUser.candidateId : undefined) ??
+        "cand-001")
     const prevAttempts = attempts.filter(
       (a) => a.candidateId === targetCandidateId,
     )
@@ -862,21 +915,9 @@ export default function CatBankView() {
       startedAt: tryoutStartTime || nowStr,
       finalizedAt: nowStr,
     }
+    // saveCatTryoutAttempt sudah menyinkronkan pip, stageStatuses[1], records,
+    // dan melakukan merge non-destruktif lintas pengguna dalam satu transaksi atomik.
     saveCatTryoutAttempt(pipAttempt)
-
-    if (!isCoachTest && selectedCandidate) {
-      updateCandidate(selectedCandidate.id, {
-        pip: pipScore,
-      })
-      updateCandidateStage(
-        selectedCandidate.id,
-        1,
-        pipPassed ? "passed" : "review",
-        pipPassed
-          ? `Lolos Tryout CAT PIP (${pipScore}/100) melampaui PG ${packageConfig.pipPassingGrade}`
-          : `Nilai CAT PIP (${pipScore}/100) di bawah PG ${packageConfig.pipPassingGrade}`,
-      )
-    }
 
     logAudit(
       isCoachTest ? "Simulasi PIP Pelatih" : "Tryout CAT Sesi 1 (PIP) Selesai",
@@ -927,7 +968,7 @@ export default function CatBankView() {
     exitFullscreen()
 
     const isCoachTest =
-      isCoachSelfTest || !candidates.some((c) => c.id === selectedCandidate?.id)
+      isCoachSelfTest || selectedCandidate?.id === "coach-self"
     if (!isCoachTest && activeCatSchedule) {
       setSessions((prev) =>
         prev.map((session) =>
@@ -960,7 +1001,9 @@ export default function CatBankView() {
     // Count attempts for this candidate
     const targetCandidateId = isCoachTest
       ? currentUser.id || "coach-self"
-      : (selectedCandidate?.id ?? "cand-001")
+      : (selectedCandidate?.id ??
+        (currentUser.role === "candidate" ? currentUser.candidateId : undefined) ??
+        "cand-001")
     const prevAttempts = attempts.filter(
       (a) => a.candidateId === targetCandidateId,
     )
@@ -991,32 +1034,10 @@ export default function CatBankView() {
       finalizedAt: nowStr,
     }
 
+    // saveCatTryoutAttempt sudah menyinkronkan pip, tiu, stageStatuses[1..2], records,
+    // dan melakukan merge non-destruktif lintas pengguna dalam satu transaksi atomik.
     saveCatTryoutAttempt(newAttempt)
     setShowTiuResultModal(true)
-
-    // Auto-sync ke profil kandidat (Hanya jika peserta riil, bukan simulasi pelatih)
-    if (!isCoachTest && selectedCandidate) {
-      updateCandidate(selectedCandidate.id, {
-        pip: pipScore,
-        tiu: tiuScoreScaled,
-      })
-      updateCandidateStage(
-        selectedCandidate.id,
-        1,
-        pipPassed ? "passed" : "review",
-        pipPassed
-          ? `Lolos Tryout CAT PIP (${pipScore}/100) melampaui PG ${packageConfig.pipPassingGrade}`
-          : `Nilai CAT PIP (${pipScore}/100) di bawah PG ${packageConfig.pipPassingGrade}`,
-      )
-      updateCandidateStage(
-        selectedCandidate.id,
-        2,
-        tiuPassed ? "passed" : "review",
-        tiuPassed
-          ? `Lolos Tryout CAT TIU (${tiuScoreScaled}/100) melampaui PG ${packageConfig.tiuPassingGrade}`
-          : `Nilai CAT TIU (${tiuScoreScaled}/100) di bawah PG ${packageConfig.tiuPassingGrade}`,
-      )
-    }
     logAudit(
       isCoachTest ? "Simulasi Tryout CAT Pelatih" : "Tryout CAT Selesai",
       isCoachTest ? currentUser.name : (selectedCandidate?.name ?? "Peserta"),

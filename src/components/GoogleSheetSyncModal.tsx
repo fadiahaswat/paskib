@@ -130,22 +130,44 @@ function doPost(e) {
     if (state) state.catTryoutAttempts = mergedAttempts;
 
     if (state && state.candidates && Array.isArray(state.candidates)) {
-      var existCandMap = {};
+      var deletedSet = {};
+      if (Array.isArray(state.deletedCandidateIds)) {
+        for (var di = 0; di < state.deletedCandidateIds.length; di++) {
+          deletedSet[state.deletedCandidateIds[di]] = true;
+        }
+      }
+      var existCandById = {};
       if (existingState && Array.isArray(existingState.candidates)) {
         for (var ec = 0; ec < existingState.candidates.length; ec++) {
           var exc = existingState.candidates[ec];
-          if (exc.id) existCandMap[exc.id] = exc;
-          if (exc.number) existCandMap[exc.number] = exc;
+          if (exc && exc.id && !deletedSet[exc.id]) {
+            existCandById[exc.id] = exc;
+          }
         }
       }
+      var incomingIds = {};
+      var mergedCandidates = [];
       for (var sc = 0; sc < state.candidates.length; sc++) {
         var cand = state.candidates[sc];
-        var oldCand = existCandMap[cand.id] || (cand.number ? existCandMap[cand.number] : null);
+        if (!cand || !cand.id || deletedSet[cand.id]) continue;
+        incomingIds[cand.id] = true;
+        var oldCand = existCandById[cand.id] || null;
         if (oldCand) {
           if ((cand.pip === null || cand.pip === undefined) && (oldCand.pip !== null && oldCand.pip !== undefined)) cand.pip = oldCand.pip;
           if ((cand.tiu === null || cand.tiu === undefined) && (oldCand.tiu !== null && oldCand.tiu !== undefined)) cand.tiu = oldCand.tiu;
         }
+        mergedCandidates.push(cand);
       }
+      // Pertahankan kandidat yang baru didaftarkan pengguna lain di cloud namun belum ada di payload pengirim
+      if (existingState && Array.isArray(existingState.candidates)) {
+        for (var ec2 = 0; ec2 < existingState.candidates.length; ec2++) {
+          var extraCand = existingState.candidates[ec2];
+          if (extraCand && extraCand.id && !incomingIds[extraCand.id] && !deletedSet[extraCand.id]) {
+            mergedCandidates.push(extraCand);
+          }
+        }
+      }
+      state.candidates = mergedCandidates;
     }
 
     // 1. Simpan full JSON state ke sheet _DATABASE_BACKUP (lossless)

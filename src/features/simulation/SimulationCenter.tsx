@@ -1605,9 +1605,10 @@ export default function SimulationCenter() {
           const isDnf = item.key === "distance" && isRunDnf
           const isIntervalDistance =
             item.key === "distance" && currentRunMode === "interval"
-          const hasIntervalLaps = [1, 2, 3, 4, 5, 6].some((i) =>
-            Boolean(record.metrics[`intervalLap${i}`]),
-          )
+          const hasIntervalLaps =
+            Array.from({ length: 12 }, (_, i) => i + 1).some((i) =>
+              Boolean(record.metrics[`intervalLap${i}`]),
+            ) || Boolean(record.metrics.intervalAvg)
           const hasVal =
             isDnf ||
             (rawStr !== "" && !isNaN(Number(rawStr)) && Number(rawStr) > 0) ||
@@ -1629,10 +1630,13 @@ export default function SimulationCenter() {
               laps.length > 0
                 ? laps.length
                 : parseInt(record.metrics.intervalTargetSets || "4", 10) || 4
+            const directAvg = parseFloat(record.metrics.intervalAvg || "")
             const avgSplit =
               laps.length > 0
                 ? laps.reduce((a, b) => a + b, 0) / laps.length
-                : targetPace
+                : !isNaN(directAvg) && directAvg > 0
+                  ? directAvg
+                  : targetPace
             score = calculateIntervalScore(
               targetSets,
               completedSets,
@@ -1836,10 +1840,13 @@ export default function SimulationCenter() {
       ? calcIntervalCompletedSets
       : parseInt(currentIntervalTargetSets, 10) || 4
   const calcIntervalTotalDistance = effectiveSets * calcIntervalDistPerSet
+  const directIntervalAvg = parseFloat(record.metrics.intervalAvg || "")
   const calcIntervalAvgSplit =
     calcIntervalCompletedSets > 0
       ? intervalLaps.reduce((a, b) => a + b, 0) / calcIntervalCompletedSets
-      : 0
+      : !isNaN(directIntervalAvg) && directIntervalAvg > 0
+        ? directIntervalAvg
+        : 0
 
   function updateIntervalMetrics(patch: Record<string, string>) {
     const nextMetrics = {
@@ -1913,8 +1920,30 @@ export default function SimulationCenter() {
     const isAbsent = Boolean(record.attendance && record.attendance !== "hadir")
     const metricsToSave = isAbsent ? {} : { ...record.metrics }
     // Jaminan proteksi: jika mode lari adalah latihan interval, pastikan runMode: 'interval' dan distance tidak disalahartikan
-    if (currentRunMode === "interval") {
+    if (!isAbsent && session.type === "fitness" && currentRunMode === "interval") {
       metricsToSave.runMode = "interval"
+      if (!metricsToSave.intervalDist) {
+        metricsToSave.intervalDist = String(sessionTrackLength || 400)
+      }
+      if (!metricsToSave.intervalTargetSets) {
+        metricsToSave.intervalTargetSets = "4"
+      }
+      if (!metricsToSave.intervalTargetPace) {
+        metricsToSave.intervalTargetPace = "90"
+      }
+      const existingLaps = Array.from({ length: 12 }, (_, i) => i + 1)
+        .map((i) => parseFloat(metricsToSave[`intervalLap${i}`] || ""))
+        .filter((v) => !isNaN(v) && v > 0)
+      if (existingLaps.length === 0) {
+        const avgVal = parseFloat(metricsToSave.intervalAvg || "")
+        if (!isNaN(avgVal) && avgVal > 0) {
+          const tSets = Math.min(12, Math.max(1, parseInt(metricsToSave.intervalTargetSets || "4", 10) || 4))
+          for (let i = 1; i <= tSets; i++) {
+            metricsToSave[`intervalLap${i}`] = String(avgVal)
+          }
+          metricsToSave.laps = String(tSets)
+        }
+      }
       delete metricsToSave.distance
     }
     const nextRecord = {
@@ -1942,12 +1971,8 @@ export default function SimulationCenter() {
     })
     setSaved(true)
     window.setTimeout(() => setSaved(false), 2000)
-    saveToCloud({
-      records: nextRecords,
-      candidates: nextCandidates,
-    })
 
-    const hasScores = hasRecordMetrics(record)
+    const hasScores = hasRecordMetrics({ ...nextRecord, metrics: metricsToSave })
     const actionText = isAbsent
       ? `Status absensi (${record.attendance!.toUpperCase()}) ${candidate.name}`
       : hasScores
@@ -3490,17 +3515,35 @@ export default function SimulationCenter() {
                                         type="number"
                                         step="0.1"
                                         inputMode="decimal"
-                                        placeholder="90.0"
+                                        placeholder={currentIntervalTargetPace || "90.0"}
                                         value={
-                                          calcIntervalAvgSplit > 0
+                                          calcIntervalCompletedSets > 0
                                             ? calcIntervalAvgSplit.toFixed(1)
-                                            : currentIntervalTargetPace
+                                            : (record.metrics.intervalAvg ?? "")
                                         }
-                                        onChange={(e) =>
-                                          updateIntervalMetrics({
-                                            intervalTargetPace: e.target.value,
-                                          })
-                                        }
+                                        onChange={(e) => {
+                                          const val = e.target.value
+                                          if (calcIntervalCompletedSets > 0) {
+                                            const targetSetCount = Math.min(
+                                              12,
+                                              Math.max(
+                                                1,
+                                                parseInt(currentIntervalTargetSets, 10) || 4,
+                                              ),
+                                            )
+                                            const patchLaps: Record<string, string> = {
+                                              intervalAvg: val,
+                                            }
+                                            for (let i = 1; i <= targetSetCount; i++) {
+                                              patchLaps[`intervalLap${i}`] = val
+                                            }
+                                            updateIntervalMetrics(patchLaps)
+                                          } else {
+                                            updateIntervalMetrics({
+                                              intervalAvg: val,
+                                            })
+                                          }
+                                        }}
                                         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3.5 pr-14 font-display text-xl font-extrabold text-slate-900 outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100"
                                       />
                                       <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">

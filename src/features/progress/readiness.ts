@@ -52,18 +52,79 @@ export function getProgressStageStatuses(
     ((latestAttempt.tiuAnswers && Object.keys(latestAttempt.tiuAnswers).length > 0) ||
       (typeof latestAttempt.tiuScoreScaled === "number" && latestAttempt.tiuScoreScaled > 0))
 
-  return [
-    validDocuments === 6 ? "passed" : validDocuments > 0 ? "active" : "locked",
-    scoreToStageStatus(hasPipAttempt ? latestAttempt?.pipScore : candidate.pip, 70),
-    scoreToStageStatus(hasTiuAttempt ? latestAttempt?.tiuScoreScaled : candidate.tiu, 70),
-    resultToStageStatus(medicalRecord?.result),
-    paradeRecord?.savedAt
+  const savedStatuses = candidate.stageStatuses ?? []
+  const adminStatus: StageStatus =
+    validDocuments === 6 || savedStatuses[0] === "passed"
+      ? "passed"
+      : savedStatuses[0] === "failed" || savedStatuses[0] === "review"
+        ? savedStatuses[0]
+        : validDocuments > 0
+          ? "active"
+          : "locked"
+
+  const pipVal = hasPipAttempt ? latestAttempt?.pipScore : candidate.pip
+  const pipStatus: StageStatus =
+    pipVal !== null && pipVal !== undefined
+      ? scoreToStageStatus(pipVal, 70)
+      : savedStatuses[1] && savedStatuses[1] !== "locked"
+        ? savedStatuses[1]
+        : "locked"
+
+  const tiuVal = hasTiuAttempt ? latestAttempt?.tiuScoreScaled : candidate.tiu
+  const tiuStatus: StageStatus =
+    tiuVal !== null && tiuVal !== undefined
+      ? scoreToStageStatus(tiuVal, 70)
+      : savedStatuses[2] && savedStatuses[2] !== "locked"
+        ? savedStatuses[2]
+        : "locked"
+
+  const medicalStatus: StageStatus =
+    medicalRecord?.result && medicalRecord.result !== "pending"
+      ? resultToStageStatus(medicalRecord.result)
+      : savedStatuses[3] && savedStatuses[3] !== "locked" && savedStatuses[3] !== "active"
+        ? savedStatuses[3]
+        : medicalRecord?.savedAt
+          ? "active"
+          : savedStatuses[3] ?? "locked"
+
+  const paradeStatus: StageStatus =
+    paradeRecord?.result && paradeRecord.result !== "pending"
       ? resultToStageStatus(paradeRecord.result)
-      : candidate.heightCm && candidate.weightKg
-        ? "active"
-        : "locked",
-    scoreToStageStatus(candidate.pbb, 80),
-    scoreToStageStatus(candidate.fitness, 80),
-    scoreToStageStatus(candidate.personality, 80),
+      : savedStatuses[4] && savedStatuses[4] !== "locked" && savedStatuses[4] !== "active"
+        ? savedStatuses[4]
+        : paradeRecord?.savedAt || (candidate.heightCm && candidate.weightKg)
+          ? "active"
+          : savedStatuses[4] ?? "locked"
+
+  const pbbStatus: StageStatus =
+    candidate.pbb !== null && candidate.pbb !== undefined
+      ? scoreToStageStatus(candidate.pbb, 80)
+      : savedStatuses[5] && savedStatuses[5] !== "locked"
+        ? savedStatuses[5]
+        : "locked"
+
+  const fitnessStatus: StageStatus =
+    candidate.fitness !== null && candidate.fitness !== undefined
+      ? scoreToStageStatus(candidate.fitness, 80)
+      : savedStatuses[6] && savedStatuses[6] !== "locked"
+        ? savedStatuses[6]
+        : "locked"
+
+  const personalityStatus: StageStatus =
+    candidate.personality !== null && candidate.personality !== undefined
+      ? scoreToStageStatus(candidate.personality, 80)
+      : savedStatuses[7] && savedStatuses[7] !== "locked"
+        ? savedStatuses[7]
+        : "locked"
+
+  return [
+    adminStatus,
+    pipStatus,
+    tiuStatus,
+    medicalStatus,
+    paradeStatus,
+    pbbStatus,
+    fitnessStatus,
+    personalityStatus,
   ]
 }
