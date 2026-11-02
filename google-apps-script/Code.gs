@@ -53,6 +53,39 @@ function doGet(e) {
       }
     }
 
+    // Jika tab visual Konfigurasi_CAT diedit langsung dari Google Sheet (sel B2), sinkronkan ke response aplikasi
+    try {
+      var cfgSheet = ss.getSheetByName("Konfigurasi_CAT");
+      if (cfgSheet && parsedData) {
+        var sheetToken = String(cfgSheet.getRange("B2").getValue() || "").trim().toUpperCase();
+        if (sheetToken.length >= 4) {
+          var backupToken = String(
+            parsedData.catExitToken ||
+            (parsedData.records &&
+              parsedData.records["__sys_config__:cat_kiosk_exit_token"] &&
+              parsedData.records["__sys_config__:cat_kiosk_exit_token"].metrics &&
+              parsedData.records["__sys_config__:cat_kiosk_exit_token"].metrics.token) ||
+            "PASKA27"
+          ).trim().toUpperCase();
+          if (sheetToken !== backupToken) {
+            var nowSheetIso = new Date().toISOString();
+            parsedData.catExitToken = sheetToken;
+            parsedData.catExitTokenUpdatedAt = nowSheetIso;
+            if (!parsedData.records) parsedData.records = {};
+            parsedData.records["__sys_config__:cat_kiosk_exit_token"] = {
+              metrics: { token: sheetToken },
+              result: "pending",
+              discipline: "-",
+              focus: "-",
+              stamina: "-",
+              note: "CAT Kiosk Exit Token (Google Sheet)",
+              savedAt: nowSheetIso
+            };
+          }
+        }
+      }
+    } catch (cfgErr) {}
+
     return createJsonResponse({
       ok: true,
       action: "load",
@@ -194,6 +227,9 @@ function doPost(e) {
     if (state.auditLogs && Array.isArray(state.auditLogs)) {
       renderAuditSheet(ss, state.auditLogs);
     }
+
+    // Render Tab Visual Konfigurasi & Token Admin Kiosk CAT
+    renderCatConfigSheet(ss, state);
 
     return createJsonResponse({
       ok: true,
@@ -540,6 +576,44 @@ function renderAuditSheet(ss, auditLogs) {
     sheet.setFrozenRows(1);
     sheet.autoResizeColumns(1, headers.length);
   }
+}
+
+/**
+ * Render Tab Konfigurasi & Token Admin Kiosk CAT
+ */
+function renderCatConfigSheet(ss, state) {
+  var sheet = getOrCreateSheet(ss, "Konfigurasi_CAT", true);
+  sheet.clear();
+
+  var tokenRec = (state && state.records) ? state.records["__sys_config__:cat_kiosk_exit_token"] : null;
+  var activeToken = String(
+    (state && state.catExitToken) ||
+    (tokenRec && tokenRec.metrics && tokenRec.metrics.token) ||
+    "PASKA27"
+  ).trim().toUpperCase();
+  var updatedAt = (state && state.catExitTokenUpdatedAt) || (tokenRec && tokenRec.savedAt) || new Date().toISOString();
+
+  var headers = ["Parameter Sistem", "Nilai Aktif", "Keterangan", "Terakhir Diperbarui"];
+  var rows = [
+    headers,
+    [
+      "TOKEN_ADMIN_KIOSK_CAT",
+      activeToken,
+      "Token Pengawas untuk membuka kunci pelanggaran / keluar Safe Exam Browser CAT (minimal 4 karakter)",
+      updatedAt
+    ]
+  ];
+
+  sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground("#B45309"); // Amber-700
+  headerRange.setFontColor("#FFFFFF");
+  headerRange.setFontWeight("bold");
+  sheet.getRange("B2").setFontWeight("bold").setBackground("#FEF3C7");
+  sheet.setFrozenRows(1);
+  try {
+    sheet.autoResizeColumns(1, headers.length);
+  } catch (e) {}
 }
 
 /**

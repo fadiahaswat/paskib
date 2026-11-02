@@ -703,8 +703,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       "paska-clean-records",
       initialRecords,
     )
-    if (!loaded || Object.keys(loaded).length === 0) return initialRecords
-    return loaded
+    const base =
+      !loaded || Object.keys(loaded).length === 0 ? { ...initialRecords } : { ...loaded }
+    if (!base[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]) {
+      base[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY] = {
+        metrics: { token: DEFAULT_CAT_EXIT_TOKEN },
+        result: "pending",
+        discipline: "-",
+        focus: "-",
+        stamina: "-",
+        note: "CAT Kiosk Exit Token",
+        savedAt: "2026-01-01T00:00:00.000Z",
+      }
+    }
+    return base
   })
   const setSessions = useCallback(
     (action: SetStateAction<Session[]>) => {
@@ -3354,10 +3366,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       logAudit(
         "UPDATE_CAT_EXIT_TOKEN",
         "Safe Exam Browser CAT",
-        "Memperbarui Token Admin keluar darurat Kiosk CAT",
+        `Token Admin Kiosk CAT diperbarui menjadi [${cleaned}]`,
       )
       showToast("Token Admin Kiosk CAT berhasil disimpan & disinkronkan.", "success")
-      void saveToCloud({ records: nextRecords }, true)
+      void saveToCloud(
+        {
+          records: nextRecords,
+          catExitToken: cleaned,
+          catExitTokenUpdatedAt: nowIso,
+        },
+        true,
+      )
     },
     [setRecords, broadcastStateSync, logAudit, showToast, saveToCloud],
   )
@@ -3570,7 +3589,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const saveIshiharaScreeningResult = useCallback(
     (result: IshiharaScreeningResult) => {
-      const updated = [result, ...ishiharaResults]
+      const updated = [result, ...stateRef.current.ishiharaResults]
+      stateRef.current = { ...stateRef.current, ishiharaResults: updated }
       setIshiharaResults(updated)
       updateSessionAssignment(result.sessionId, `asg-${result.participantId}`, {
         status: result.completionStatus === "completed" ? "completed" : "in_progress",
@@ -3581,10 +3601,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
         avgTimeSec: result.avgTimeSec,
         interpretationCode: result.screeningInterpretation,
       })
+
+      // Kombinasikan status Tahap 4 (Rikkes) dengan hasil Anamnesa yang sudah ada agar status TMS/Review tidak tertimpa
+      const ishiharaStageStatus: StageStatus =
+        result.screeningInterpretation === "normal" ? "passed" : "review"
+      let combinedStageStatus: StageStatus = ishiharaStageStatus
+
+      const medicalSessions = stateRef.current.sessions.filter(
+        (s) => s.type === "medical",
+      )
+      for (const ms of medicalSessions) {
+        const rec = stateRef.current.records[`${ms.id}:${result.participantId}`]
+        const anamStatus = rec?.metrics?.anamnesisStatus
+        if (anamStatus === "failed") {
+          combinedStageStatus = "failed"
+          break
+        } else if (anamStatus === "review" && combinedStageStatus === "passed") {
+          combinedStageStatus = "review"
+        }
+      }
+
       updateCandidateStage(
         result.participantId,
         3,
-        result.screeningInterpretation === "normal" ? "passed" : "review",
+        combinedStageStatus,
         `Skrining Ishihara (${result.sessionName}): Akurasi ${result.accuracy}%. ${result.interpretationLabel}`,
       )
       logAudit(
@@ -3599,7 +3639,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveToCloud({ ishiharaResults: updated })
     },
     [
-      ishiharaResults,
       updateSessionAssignment,
       updateCandidateStage,
       logAudit,
@@ -3620,6 +3659,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({
           candidates: allCandidates,
+          sessions,
+          records,
+          catExitToken,
           schedules,
           questions,
           announcements: supportingDocs,

@@ -8032,7 +8032,14 @@ function AppShell() {
       const parsed = JSON.parse(raw)
       if (
         !parsed ||
-        !["pip", "pip-final", "tiu"].includes(parsed.sessionPhase)
+        ![
+          "pip",
+          "pip-anamnesis",
+          "pip-final",
+          "tiu",
+          "tiu-ishihara",
+          "completed",
+        ].includes(parsed.sessionPhase)
       ) {
         return false
       }

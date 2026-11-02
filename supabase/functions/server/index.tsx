@@ -51,6 +51,7 @@ app.get(`${BASE}/state`, async (c) => {
       "paska:ishiharaSessions",
       "paska:ishiharaAllowlist",
       "paska:ishiharaResults",
+      "paska:catExitToken",
     ]
     const values = await Promise.all(keys.map((k) => kv.get(k)))
     return c.json({
@@ -73,6 +74,7 @@ app.get(`${BASE}/state`, async (c) => {
         ishiharaSessions: values[14] ?? null,
         ishiharaAllowlist: values[15] ?? null,
         ishiharaResults: values[16] ?? null,
+        catExitToken: values[17] ?? null,
       },
     })
   } catch (error) {
@@ -114,6 +116,7 @@ app.put(`${BASE}/state`, async (c) => {
       "ishiharaSessions",
       "ishiharaAllowlist",
       "ishiharaResults",
+      "catExitToken",
     ]
 
     for (const col of allowedCollections) {

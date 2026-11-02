@@ -15,11 +15,13 @@ import {
   Download,
   Edit3,
   ExternalLink,
+  Eye,
   FileSpreadsheet,
   FileText,
   Filter,
   Flag,
   GraduationCap,
+  HeartPulse,
   HelpCircle,
   History,
   Info,
@@ -46,6 +48,7 @@ import {
   UserRoundCheck,
   UsersRound,
   X,
+  XCircle,
   Zap,
 } from "lucide-react"
 import {
@@ -57,13 +60,28 @@ import {
 } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { standardCatQuestions } from "../../data/catQuestions"
+import { anamnesisItems } from "../../data/selectionGuide"
 import { CAT_KIOSK_EXIT_TOKEN_RECORD_KEY } from "../../domain/cloudSyncMerge"
 import type {
   Candidate,
   CatQuestion,
   CatTryoutAttempt,
+  Session,
+  SessionRecord,
 } from "../../domain/selection"
 import { pullStateFromGoogleSheet } from "../../lib/googleSheetSync"
+import {
+  OFFICIAL_ISHIHARA_PLATES,
+  drawOfficialIshiharaPlate,
+  evaluateIshiharaResults,
+  type IshiharaPlateAnswerItem,
+} from "../ishihara/ishiharaEngine"
+import type { IshiharaScreeningResult } from "../ishihara/types"
+import {
+  ANAMNESIS_QUESTIONS_21,
+  evaluateAnamnesisAnswers,
+  saveAnamnesisLocalHistory,
+} from "../medical/anamnesisUtils"
 
 // ============================================================================
 // CATEGORY DEFINITIONS
@@ -106,7 +124,14 @@ const tiuCategories = [
 // PRD DATA TYPES
 // ============================================================================
 type MainTab = "tryout" | "pip-bank" | "tiu-bank" | "rekap" | "history" | "settings"
-type SessionPhase = "idle" | "pip" | "pip-final" | "tiu" | "completed"
+type SessionPhase =
+  | "idle"
+  | "pip"
+  | "pip-anamnesis"
+  | "pip-final"
+  | "tiu"
+  | "tiu-ishihara"
+  | "completed"
 
 export default function CatBankView() {
   const {
@@ -116,6 +141,9 @@ export default function CatBankView() {
     records,
     currentUser,
     setSessions,
+    setRecords,
+    saveToCloud,
+    saveIshiharaScreeningResult,
     catTryoutAttempts: attempts,
     saveCatTryoutAttempt,
     deleteCatTryoutAttempt,
@@ -353,7 +381,7 @@ export default function CatBankView() {
   const [violationReason, setViolationReason] = useState("")
   const [showExitTokenModal, setShowExitTokenModal] = useState(false)
   const [exitTokenPurpose, setExitTokenPurpose] = useState<
-    "exit" | "discard-pending" | "violation-lock"
+    "exit" | "discard-pending" | "violation-lock" | "complete-exit"
   >("exit")
   const [exitTokenInput, setExitTokenInput] = useState("")
   const [exitTokenError, setExitTokenError] = useState("")
@@ -364,12 +392,40 @@ export default function CatBankView() {
     setDraftAdminToken(catExitToken)
   }, [catExitToken])
 
+  // GATE PRA-RILIS NILAI: SURVEY 21 ANAMNESA & TES BUTA WARNA (SELURUH NILAI BARU KELUAR DI AKHIR)
+  const [gateAnamnesisAnswers, setGateAnamnesisAnswers] = useState<
+    Record<string, "yes" | "no">
+  >({})
+  const gateAnamnesisEval = useMemo(
+    () => evaluateAnamnesisAnswers(gateAnamnesisAnswers),
+    [gateAnamnesisAnswers],
+  )
+  const gateAnamnesisAllAnswered =
+    gateAnamnesisEval.answeredCount >= ANAMNESIS_QUESTIONS_21.length
+
+  const [gateIshiharaStarted, setGateIshiharaStarted] = useState(false)
+  const [gateIshiharaFinished, setGateIshiharaFinished] = useState(false)
+  const [gateIshiharaIndex, setGateIshiharaIndex] = useState(0)
+  const [gateIshiharaResults, setGateIshiharaResults] = useState<
+    IshiharaPlateAnswerItem[]
+  >([])
+  const [gateIshiharaInput, setGateIshiharaInput] = useState("")
+  const gateIshiharaCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const gateIshiharaPlateStartRef = useRef<number>(Date.now())
+  const gateIshiharaStats = useMemo(
+    () => evaluateIshiharaResults(gateIshiharaResults),
+    [gateIshiharaResults],
+  )
+
   const isKioskSessionActive =
     sessionPhase === "pip" ||
+    sessionPhase === "pip-anamnesis" ||
     sessionPhase === "pip-final" ||
-    sessionPhase === "tiu"
+    sessionPhase === "tiu" ||
+    sessionPhase === "tiu-ishihara" ||
+    sessionPhase === "completed"
 
-  // Kandidat selalu terkunci penuh dalam Kiosk dari awal PIP hingga TIU selesai
+  // Kandidat selalu terkunci penuh dalam Kiosk dari awal PIP hingga selesai lihat pembahasan & masukkan Token Admin
   const isKioskLocked =
     isKioskSessionActive &&
     (Boolean(packageConfig.examBrowserLock) || currentUser.role === "candidate")
@@ -525,12 +581,15 @@ export default function CatBankView() {
   const [hasPendingSession, setHasPendingSession] = useState(false)
   const [pendingSessionSummary, setPendingSessionSummary] = useState("")
 
-  // Continuously autosave active exam session to localStorage
+  // Continuously autosave active exam session to localStorage (termasuk layar evaluasi & pembahasan hingga Token Admin dimasukkan)
   useEffect(() => {
     if (
       sessionPhase === "pip" ||
+      sessionPhase === "pip-anamnesis" ||
       sessionPhase === "pip-final" ||
-      sessionPhase === "tiu"
+      sessionPhase === "tiu" ||
+      sessionPhase === "tiu-ishihara" ||
+      (sessionPhase === "completed" && isKioskLocked)
     ) {
       try {
         const payload = {
@@ -548,6 +607,11 @@ export default function CatBankView() {
           tiuAnswers,
           pipFlagged,
           tiuFlagged,
+          gateAnamnesisAnswers,
+          gateIshiharaStarted,
+          gateIshiharaFinished,
+          gateIshiharaIndex,
+          gateIshiharaResults,
           secondsLeft,
           tryoutStartTime,
           violationCount,
@@ -560,12 +624,13 @@ export default function CatBankView() {
           JSON.stringify(payload),
         )
       } catch {}
-    } else if (sessionPhase === "completed") {
+    } else if (sessionPhase === "completed" && !isKioskLocked) {
       localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY)
       setHasPendingSession(false)
     }
   }, [
     sessionPhase,
+    isKioskLocked,
     ACTIVE_SESSION_STORAGE_KEY,
     selectedCandidateId,
     selectedCandidate,
@@ -577,6 +642,11 @@ export default function CatBankView() {
     tiuAnswers,
     pipFlagged,
     tiuFlagged,
+    gateAnamnesisAnswers,
+    gateIshiharaStarted,
+    gateIshiharaFinished,
+    gateIshiharaIndex,
+    gateIshiharaResults,
     secondsLeft,
     tryoutStartTime,
     violationCount,
@@ -613,6 +683,16 @@ export default function CatBankView() {
         if (sessionData.tiuAnswers) setTiuAnswers(sessionData.tiuAnswers)
         if (sessionData.pipFlagged) setPipFlagged(sessionData.pipFlagged)
         if (sessionData.tiuFlagged) setTiuFlagged(sessionData.tiuFlagged)
+        if (sessionData.gateAnamnesisAnswers)
+          setGateAnamnesisAnswers(sessionData.gateAnamnesisAnswers)
+        if (typeof sessionData.gateIshiharaStarted === "boolean")
+          setGateIshiharaStarted(sessionData.gateIshiharaStarted)
+        if (typeof sessionData.gateIshiharaFinished === "boolean")
+          setGateIshiharaFinished(sessionData.gateIshiharaFinished)
+        if (typeof sessionData.gateIshiharaIndex === "number")
+          setGateIshiharaIndex(sessionData.gateIshiharaIndex)
+        if (Array.isArray(sessionData.gateIshiharaResults))
+          setGateIshiharaResults(sessionData.gateIshiharaResults)
         if (typeof sessionData.pipCurrentIdx === "number")
           setPipCurrentIdx(sessionData.pipCurrentIdx)
         if (typeof sessionData.tiuCurrentIdx === "number")
@@ -644,14 +724,22 @@ export default function CatBankView() {
           setIsTimerRunning(
             remSec > 0 && violationsCount < maxAllowedViolations,
           )
+        } else {
+          setIsTimerRunning(false)
         }
 
         setSessionPhase(sessionData.sessionPhase)
         setHasPendingSession(false)
         showToast(
-          sessionData.sessionPhase === "pip-final"
-            ? "Sesi PIP selesai. Silakan lanjutkan Sesi 2 (TIU) untuk keluar dari Safe Exam Browser."
-            : "Sesi Safe Exam Browser CAT berhasil dipulihkan otomatis.",
+          sessionData.sessionPhase === "pip-anamnesis"
+            ? "Silakan selesaikan & simpan Survey 21 Anamnesa Kesehatan sebelum lanjut ke Sesi 2 (TIU)."
+            : sessionData.sessionPhase === "tiu-ishihara"
+              ? "Silakan selesaikan Tes Buta Warna untuk menampilkan seluruh nilai & pembahasan."
+              : sessionData.sessionPhase === "pip-final"
+                ? "Sesi 1 & Anamnesa tersimpan. Silakan lanjutkan Sesi 2 (TIU)."
+                : sessionData.sessionPhase === "completed"
+                  ? "Seluruh nilai & pembahasan ditampilkan. Masukkan Token Admin untuk keluar dari Kiosk."
+                  : "Sesi Safe Exam Browser CAT berhasil dipulihkan otomatis.",
           "info",
         )
       } catch {}
@@ -665,7 +753,13 @@ export default function CatBankView() {
   )
 
   const openAdminTokenModal = useCallback(
-    (purpose: "exit" | "discard-pending" | "violation-lock" = "exit") => {
+    (
+      purpose:
+        | "exit"
+        | "discard-pending"
+        | "violation-lock"
+        | "complete-exit" = "exit",
+    ) => {
       setExitTokenPurpose(purpose)
       setExitTokenInput("")
       setExitTokenError("")
@@ -686,10 +780,15 @@ export default function CatBankView() {
         try {
           const res = await pullStateFromGoogleSheet(googleSheetUrl)
           const cloudToken =
-            res.ok &&
-            res.data?.records?.[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]?.metrics?.token
-              ?.trim()
-              .toUpperCase()
+            res.ok
+              ? (
+                  res.data?.catExitToken ||
+                  res.data?.records?.[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]?.metrics
+                    ?.token
+                )
+                  ?.trim()
+                  .toUpperCase()
+              : undefined
           if (cloudToken && cleaned === cloudToken) {
             return true
           }
@@ -701,7 +800,7 @@ export default function CatBankView() {
   )
 
   const executeAuthorizedKioskExit = useCallback(
-    (detailMessage: string) => {
+    (detailMessage: string, isCompletedExit = false) => {
       setIsTimerRunning(false)
       localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY)
       setHasPendingSession(false)
@@ -709,20 +808,31 @@ export default function CatBankView() {
       setViolationCount(0)
       setShowViolationModal(false)
       setShowPipResultModal(false)
+      setShowTiuResultModal(false)
       setShowConfirmSubmitModal(false)
       setShowExitTokenModal(false)
+      setGateAnamnesisAnswers({})
+      setGateIshiharaStarted(false)
+      setGateIshiharaFinished(false)
+      setGateIshiharaIndex(0)
+      setGateIshiharaResults([])
+      setGateIshiharaInput("")
       setExitTokenInput("")
       setExitTokenError("")
       exitFullscreen()
       setSessionPhase("idle")
       logAudit(
-        "KELUAR_DARURAT_KIOSK_CAT",
+        isCompletedExit
+          ? "SELESAI_DAN_KELUAR_KIOSK_CAT"
+          : "KELUAR_DARURAT_KIOSK_CAT",
         selectedCandidate?.name || currentUser.name,
         detailMessage,
       )
       showToast(
-        "Keluar dari mode Safe Exam Browser dengan otorisasi Token Admin.",
-        "info",
+        isCompletedExit
+          ? "Token Admin terverifikasi. Mode Safe Exam Browser ditutup — seluruh nilai telah tersimpan."
+          : "Keluar dari mode Safe Exam Browser dengan otorisasi Token Admin.",
+        isCompletedExit ? "success" : "info",
       )
     },
     [
@@ -772,12 +882,17 @@ export default function CatBankView() {
             `Pengawas membuka kunci pelanggaran Safe Exam Browser pada fase ${sessionPhase.toUpperCase()}`,
           )
           showToast(
-            "Kunci pelanggaran dibuka oleh Admin. Silakan lanjutkan ujian.",
+            "Kunci pelanggaran dibuka oleh Admin. Silakan lanjutkan.",
             "success",
           )
         } else {
+          const isCompletedExit =
+            sessionPhase === "completed" || exitTokenPurpose === "complete-exit"
           executeAuthorizedKioskExit(
-            `Sesi ${sessionPhase.toUpperCase()} dihentikan menggunakan Token Admin`,
+            isCompletedExit
+              ? "Peserta telah melihat seluruh nilai & pembahasan, lalu keluar dari Kiosk menggunakan Token Admin"
+              : `Sesi ${sessionPhase.toUpperCase()} dihentikan menggunakan Token Admin`,
+            isCompletedExit,
           )
         }
       } finally {
@@ -788,6 +903,7 @@ export default function CatBankView() {
       exitTokenInput,
       verifyAdminTokenValue,
       sessionPhase,
+      exitTokenPurpose,
       secondsLeft,
       enterFullscreen,
       logAudit,
@@ -827,12 +943,7 @@ export default function CatBankView() {
         return
       }
       const saved = JSON.parse(raw)
-      if (
-        !saved ||
-        !saved.sessionPhase ||
-        saved.sessionPhase === "completed" ||
-        saved.sessionPhase === "idle"
-      ) {
+      if (!saved || !saved.sessionPhase || saved.sessionPhase === "idle") {
         localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY)
         setHasPendingSession(false)
         return
@@ -846,11 +957,14 @@ export default function CatBankView() {
         return
       }
 
-      // Untuk kandidat: otomatis pulihkan ke Kiosk tanpa bisa keluar sebelum TIU selesai!
+      // Untuk kandidat & fase terikat Kiosk (termasuk layar hasil/pembahasan): otomatis pulihkan ke Kiosk!
       if (sessionPhase === "idle") {
         if (
           currentUser.role === "candidate" ||
-          saved.sessionPhase === "pip-final"
+          saved.sessionPhase === "pip-anamnesis" ||
+          saved.sessionPhase === "pip-final" ||
+          saved.sessionPhase === "tiu-ishihara" ||
+          saved.sessionPhase === "completed"
         ) {
           restoreActiveSession(saved)
         } else {
@@ -872,16 +986,17 @@ export default function CatBankView() {
     restoreActiveSession,
   ])
 
-  // Prevent Browser Back / Swipe-Back navigation across PIP -> PIP-FINAL -> TIU
+  // Prevent Browser Back / Swipe-Back navigation across PIP -> ANAMNESIS -> TIU -> ISHIHARA -> COMPLETED (until Token Admin exit)
   useEffect(() => {
-    if (sessionPhase === "idle" || sessionPhase === "completed") return
+    if (sessionPhase === "idle" || (sessionPhase === "completed" && !isKioskLocked))
+      return
 
     window.history.pushState({ catSessionActive: sessionPhase }, "")
 
     const handlePopState = () => {
       window.history.pushState({ catSessionActive: sessionPhase }, "")
       showToast(
-        "Safe Exam Browser aktif! Selesaikan hingga Sesi 2 (TIU) selesai atau gunakan Token Admin.",
+        "Safe Exam Browser aktif! Gunakan Token Admin untuk keluar dari Kiosk.",
         "warning",
       )
     }
@@ -898,7 +1013,7 @@ export default function CatBankView() {
       window.removeEventListener("popstate", handlePopState)
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
-  }, [sessionPhase, showToast])
+  }, [sessionPhase, isKioskLocked, showToast])
 
   useEffect(() => {
     const timer = window.setInterval(
@@ -943,8 +1058,8 @@ export default function CatBankView() {
           new Date(`${b.date}T${b.time || "00:00"}`).getTime(),
       )[0]
 
-  // Review & Explanation Modal / Tab
-  const [reviewTab, setReviewTab] = useState<"pip" | "tiu">("pip")
+  // Review & Explanation Modal / Tab ("all" = 100 soal PIP + TIU sekaligus)
+  const [reviewTab, setReviewTab] = useState<"all" | "pip" | "tiu">("all")
 
   // --------------------------------------------------------------------------
   // Riwayat CAT dikelola AppContext agar tersimpan di profil lokal dan Google Sheet.
@@ -1142,6 +1257,12 @@ export default function CatBankView() {
     setPipCurrentIdx(0)
     setPipAnswers({})
     setPipFlagged({})
+    setGateAnamnesisAnswers({})
+    setGateIshiharaStarted(false)
+    setGateIshiharaFinished(false)
+    setGateIshiharaIndex(0)
+    setGateIshiharaResults([])
+    setGateIshiharaInput("")
     setSecondsLeft(packageConfig.pipDurationSec)
     setIsTimerRunning(true)
     setSessionPhase("pip")
@@ -1172,84 +1293,170 @@ export default function CatBankView() {
   }
 
   // --------------------------------------------------------------------------
-  // FINALIZE SESSION 1: PIP -> SHOW PIP SCORECARD
+  // FINALIZE SESSION 1: PIP -> ARAHKAN KE SURVEY 21 ANAMNESA KESEHATAN DULU
   // --------------------------------------------------------------------------
   function finalizePipSession() {
     setIsTimerRunning(false)
     setShowConfirmSubmitModal(false)
     setShowViolationModal(false)
-    setSessionPhase("pip-final")
-    // JANGAN keluar dari fullscreen/kiosk! Kandidat tetap terkunci sampai TIU selesai.
+    setGateAnamnesisAnswers({})
+    setSessionPhase("pip-anamnesis")
+    // JANGAN keluar dari fullscreen/kiosk! Seluruh nilai baru keluar serentak setelah Tes Buta Warna selesai.
     if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
       enterFullscreen()
     }
+    const attemptId = currentAttemptIdRef.current || `att-${Date.now()}`
+    currentAttemptIdRef.current = attemptId
 
-    // Hitung dan simpan nilai PIP secara instan agar tidak hilang jika kandidat ke-back/refresh
-    const pipCorrect = pipExamQuestions.filter(
-      (q) => pipAnswers[q.id] === q.correctIndex,
-    ).length
-    const pipScore = pipCorrect * 2
-    const pipPassed = pipScore >= packageConfig.pipPassingGrade
+    showToast(
+      "Sesi 1 (PIP) terkumpul! Isi & simpan Survey 21 Anamnesa Kesehatan sebelum lanjut ke Sesi 2 (TIU).",
+      "info",
+    )
+  }
+
+  // --------------------------------------------------------------------------
+  // SIMPAN SURVEY 21 ANAMNESA KESEHATAN -> LANJUT KE SESI 2 (TIU) TANPA TAMPILKAN NILAI DULU
+  // --------------------------------------------------------------------------
+  function handleSavePipAnamnesisAndShowScore() {
+    if (gateAnamnesisEval.answeredCount < ANAMNESIS_QUESTIONS_21.length) {
+      const remaining =
+        ANAMNESIS_QUESTIONS_21.length - gateAnamnesisEval.answeredCount
+      showToast(
+        `Masih ada ${remaining} pertanyaan Anamnesa yang belum dijawab. Jawab seluruh 21 butir sebelum menyimpan.`,
+        "warning",
+      )
+      const firstUnansweredIdx = ANAMNESIS_QUESTIONS_21.findIndex(
+        (_, idx) =>
+          gateAnamnesisAnswers[String(idx)] !== "yes" &&
+          gateAnamnesisAnswers[String(idx)] !== "no",
+      )
+      if (firstUnansweredIdx >= 0) {
+        document
+          .getElementById(`cat-gate-anamnesis-q-${firstUnansweredIdx}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+      return
+    }
 
     const isCoachTest =
       isCoachSelfTest || selectedCandidate?.id === "coach-self"
-    const targetCandidateId = isCoachTest
-      ? currentUser.id || "coach-self"
-      : (selectedCandidate?.id ??
-        (currentUser.role === "candidate" ? currentUser.candidateId : undefined) ??
-        "cand-001")
-    const prevAttempts = attempts.filter(
-      (a) => a.candidateId === targetCandidateId,
-    )
-    const attemptNumber = prevAttempts.length + 1
     const attemptId = currentAttemptIdRef.current || `att-${Date.now()}`
     currentAttemptIdRef.current = attemptId
-    const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19)
+    const nowIso = new Date().toISOString()
 
-    const existingTiu = (!isCoachTest && selectedCandidate?.tiu !== undefined && selectedCandidate?.tiu !== null) ? selectedCandidate.tiu : null
-    const existingTiuRaw = existingTiu !== null ? Math.round(existingTiu / 2) : 0
-    const existingTiuStatus: "passed" | "failed" = existingTiu !== null ? (existingTiu >= 70 ? "passed" : "failed") : "failed"
+    // Simpan hasil Survey 21 Anamnesa Kesehatan ke Rikkes Tahap 4 (nilai PIP ditahan hingga akhir setelah Tes Buta Warna)
+    if (!isCoachTest && selectedCandidate) {
+      let activeMedicalSession: Session | undefined = sessions.find(
+        (s) => s.type === "medical",
+      )
+      let nextSessionsList = sessions
+      if (!activeMedicalSession) {
+        activeMedicalSession = {
+          id: "session-rikkes-tahap4",
+          type: "medical",
+          title: "Pemeriksaan Kesehatan (Rikkes Tahap 4)",
+          date: nowIso.slice(0, 10),
+          time: "08:00",
+          location: "Klinik / Posko Medis Rikkes",
+          coach: "TIM MEDIS",
+          participantIds: candidates.map((c) => c.id),
+          status: "ongoing",
+        }
+        nextSessionsList = [activeMedicalSession, ...sessions]
+        setSessions(nextSessionsList)
+      }
 
-    // Simpan data tryout PIP ke catatan riwayat secara instan
-    const pipAttempt: CatTryoutAttempt = {
-      id: attemptId,
-      candidateId: targetCandidateId,
-      candidateName: isCoachTest
-        ? `${currentUser.name} (Simulasi Pelatih)`
-        : (selectedCandidate?.name ?? "Peserta Tryout"),
-      candidateGroup: isCoachTest
-        ? currentUser.title || "Tim Pelatih / Pembina"
-        : (selectedCandidate?.school ?? "Grup Mandiri"),
-      packageName: packageConfig.packageName,
-      attemptNumber,
-      pipAnswers,
-      tiuAnswers: {},
-      pipCorrect,
-      pipScore,
-      pipStatus: pipPassed ? "passed" : "failed",
-      tiuCorrect: existingTiuRaw,
-      tiuScoreRaw: existingTiuRaw,
-      tiuScoreScaled: existingTiu ?? 0,
-      tiuStatus: existingTiuStatus,
-      combinedScore: existingTiu !== null ? Math.round((pipScore + existingTiu) / 2) : pipScore,
-      startedAt: tryoutStartTime || nowStr,
-      finalizedAt: nowStr,
+      const medKey = `${activeMedicalSession.id}:${selectedCandidate.id}`
+      const existingMedRec = records[medKey]
+      const patchedMetrics: Record<string, string> = {
+        ...(existingMedRec?.metrics ?? {}),
+        anamnesis: String(gateAnamnesisEval.yesCount),
+        anamnesisScore: String(gateAnamnesisEval.score),
+        anamnesisStatus: gateAnamnesisEval.status,
+        anamnesisCritical:
+          gateAnamnesisEval.criticalTriggered.length > 0 ? "yes" : "no",
+        anamnesisCompleted: "true",
+        anamnesisCompletedAt: nowIso,
+      }
+      anamnesisItems.forEach((_, idx) => {
+        patchedMetrics[`anamnesis-${idx}`] =
+          gateAnamnesisAnswers[String(idx)] || "no"
+      })
+
+      const updatedMedRecord: SessionRecord = {
+        attendance: existingMedRec?.attendance ?? "hadir",
+        discipline: existingMedRec?.discipline ?? "4",
+        focus: existingMedRec?.focus ?? "4",
+        stamina: existingMedRec?.stamina ?? "4",
+        note:
+          existingMedRec?.note ??
+          "Survey 21 Anamnesa Kesehatan terintegrasi CAT",
+        metrics: patchedMetrics,
+        result: gateAnamnesisEval.status,
+        savedAt: nowIso,
+        updatedAt: nowIso,
+      }
+
+      const nextRecordsMap: Record<string, SessionRecord> = {
+        ...records,
+        [medKey]: updatedMedRecord,
+      }
+      setRecords(nextRecordsMap)
+
+      const statusNote =
+        gateAnamnesisEval.status === "failed"
+          ? `Screening Kesehatan: Gagal Kritis (${gateAnamnesisEval.criticalTriggered
+              .map((c) => c.item[0].split("/")[0])
+              .join(", ")})`
+          : gateAnamnesisEval.status === "review"
+            ? `Screening Kesehatan: Perlu Tinjau (${gateAnamnesisEval.yesCount} YA > ambang 5)`
+            : `Screening Kesehatan: Laik (${gateAnamnesisEval.yesCount} YA · Skor ${gateAnamnesisEval.score}/100)`
+
+      updateCandidateStage(
+        selectedCandidate.id,
+        3,
+        gateAnamnesisEval.status,
+        statusNote,
+      )
+
+      const existingPhysical = selectedCandidate.physicalMetrics ?? []
+      updateCandidate(selectedCandidate.id, {
+        physicalMetrics: [
+          ...existingPhysical.filter(
+            (m) => !m.label.toLowerCase().includes("anamnesis"),
+          ),
+          {
+            label: "Anamnesis Rikkes",
+            current: `${gateAnamnesisEval.score}/100 (${gateAnamnesisEval.yesCount} YA)`,
+            target: "≥70 (Maks 5 YA)",
+            percent: gateAnamnesisEval.score,
+          },
+        ],
+      })
+
+      saveAnamnesisLocalHistory(
+        selectedCandidate.id,
+        gateAnamnesisAnswers,
+        gateAnamnesisEval,
+      )
+      void saveToCloud({ sessions: nextSessionsList, records: nextRecordsMap })
     }
-    // saveCatTryoutAttempt sudah menyinkronkan pip, stageStatuses[1], records,
-    // dan melakukan merge non-destruktif lintas pengguna dalam satu transaksi atomik.
-    saveCatTryoutAttempt(pipAttempt)
 
     logAudit(
-      isCoachTest ? "Simulasi PIP Pelatih" : "Tryout CAT Sesi 1 (PIP) Selesai",
+      isCoachTest
+        ? "Simulasi Anamnesa & PIP Pelatih"
+        : "Survey 21 Anamnesa & CAT PIP Tersimpan",
       isCoachTest ? currentUser.name : (selectedCandidate?.name ?? "Peserta"),
-      `Skor PIP: ${pipScore}/100 (${pipPassed ? "Lolos PG" : "Remedial"}). Menunggu pengerjaan TIU.`,
+      `Jawaban Sesi 1 (PIP) & Survey 21 Anamnesa telah diamankan (${gateAnamnesisEval.yesCount} YA). Menunggu Sesi 2 (TIU) & Tes Buta Warna sebelum seluruh nilai dirilis.`,
     )
 
-    // Tampilkan modal hasil skor PIP langsung ke kandidat
-    setShowPipResultModal(true)
-
+    setShowPipResultModal(false)
+    setSessionPhase("pip-final")
+    if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
+      enterFullscreen()
+    }
     showToast(
-      `Sesi 1 (PIP) selesai! Nilai: ${pipScore}/100 (${pipPassed ? "Lolos" : "Remedial"}).`,
+      "Survey 21 Anamnesa tersimpan! Silakan lanjutkan ke Sesi 2 (CAT TIU). Seluruh nilai keluar di akhir.",
       "success",
     )
   }
@@ -1278,14 +1485,147 @@ export default function CatBankView() {
   }
 
   // --------------------------------------------------------------------------
-  // FINALIZE SESSION 2: TIU -> COMPLETE TRYOUT
+  // FINALIZE SESSION 2: TIU -> ARAHKAN KE TES BUTA WARNA (ISHIHARA) DULU
   // --------------------------------------------------------------------------
   function finalizeTiuSession() {
     setIsTimerRunning(false)
     setShowConfirmSubmitModal(false)
     setShowViolationModal(false)
-    setSessionPhase("completed")
-    exitFullscreen()
+    setGateIshiharaStarted(false)
+    setGateIshiharaFinished(false)
+    setGateIshiharaIndex(0)
+    setGateIshiharaResults([])
+    setGateIshiharaInput("")
+    setSessionPhase("tiu-ishihara")
+    // JANGAN keluar dari fullscreen/kiosk! Seluruh nilai baru keluar setelah Tes Buta Warna selesai.
+    if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
+      enterFullscreen()
+    }
+    showToast(
+      "Sesi 2 (TIU) terkumpul! Selesaikan Tes Buta Warna terlebih dahulu untuk menampilkan seluruh nilai & pembahasan.",
+      "info",
+    )
+  }
+
+  // --------------------------------------------------------------------------
+  // EMBEDDED ISHIHARA RUNNER HELPERS (SEBELUM NILAI TIU KELUAR)
+  // --------------------------------------------------------------------------
+  const handleStartGateIshihara = useCallback(() => {
+    setGateIshiharaIndex(0)
+    setGateIshiharaResults([])
+    setGateIshiharaInput("")
+    setGateIshiharaFinished(false)
+    setGateIshiharaStarted(true)
+    gateIshiharaPlateStartRef.current = Date.now()
+  }, [])
+
+  const handleAnswerGateIshihara = useCallback(
+    (answerNum: number | null) => {
+      const currentPlate =
+        OFFICIAL_ISHIHARA_PLATES[
+          gateIshiharaIndex % OFFICIAL_ISHIHARA_PLATES.length
+        ]
+      const targetNum = currentPlate.number
+      const timeSpent = Math.max(
+        1,
+        Math.round((Date.now() - gateIshiharaPlateStartRef.current) / 1000),
+      )
+      const item: IshiharaPlateAnswerItem = {
+        plateIndex: gateIshiharaIndex + 1,
+        targetNumber: targetNum,
+        userAnswer: answerNum,
+        isCorrect: answerNum === targetNum,
+        timeSpentSec: timeSpent,
+      }
+      setGateIshiharaResults((prev) => [...prev, item])
+      setGateIshiharaInput("")
+      const nextIndex = gateIshiharaIndex + 1
+      if (nextIndex >= OFFICIAL_ISHIHARA_PLATES.length) {
+        setGateIshiharaFinished(true)
+        setGateIshiharaStarted(false)
+      } else {
+        setGateIshiharaIndex(nextIndex)
+        gateIshiharaPlateStartRef.current = Date.now()
+      }
+    },
+    [gateIshiharaIndex],
+  )
+
+  // Gambar piringan Ishihara setiap kali piringan aktif berubah atau layar penuh berubah
+  useEffect(() => {
+    if (
+      sessionPhase !== "tiu-ishihara" ||
+      !gateIshiharaStarted ||
+      gateIshiharaFinished
+    ) {
+      return
+    }
+    const targetNum =
+      OFFICIAL_ISHIHARA_PLATES[
+        gateIshiharaIndex % OFFICIAL_ISHIHARA_PLATES.length
+      ].number
+    const timer = window.setTimeout(() => {
+      drawOfficialIshiharaPlate(gateIshiharaCanvasRef.current, targetNum)
+    }, 40)
+    return () => window.clearTimeout(timer)
+  }, [
+    sessionPhase,
+    gateIshiharaStarted,
+    gateIshiharaFinished,
+    gateIshiharaIndex,
+    isFullscreen,
+  ])
+
+  // Dukungan keyboard numpad / Enter untuk Tes Buta Warna di dalam Kiosk
+  useEffect(() => {
+    if (
+      sessionPhase !== "tiu-ishihara" ||
+      !gateIshiharaStarted ||
+      gateIshiharaFinished ||
+      showExitTokenModal ||
+      showViolationModal
+    ) {
+      return
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      if (e.key >= "0" && e.key <= "9") {
+        setGateIshiharaInput((prev) => (prev.length < 2 ? prev + e.key : prev))
+      } else if (e.key === "Backspace") {
+        setGateIshiharaInput((prev) => prev.slice(0, -1))
+      } else if (e.key === "Enter") {
+        if (gateIshiharaInput) {
+          e.preventDefault()
+          handleAnswerGateIshihara(Number(gateIshiharaInput))
+        }
+      } else if (e.key.toLowerCase() === "x" || e.key === " ") {
+        e.preventDefault()
+        handleAnswerGateIshihara(null)
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [
+    sessionPhase,
+    gateIshiharaStarted,
+    gateIshiharaFinished,
+    showExitTokenModal,
+    showViolationModal,
+    gateIshiharaInput,
+    handleAnswerGateIshihara,
+  ])
+
+  // --------------------------------------------------------------------------
+  // SIMPAN HASIL TES BUTA WARNA -> BUKA KIOSK & TAMPILKAN NILAI TIU + AKHIR
+  // --------------------------------------------------------------------------
+  function handleSaveTiuIshiharaAndShowScore() {
+    if (!gateIshiharaFinished || !gateIshiharaStats) {
+      showToast(
+        "Selesaikan seluruh 25 piringan Tes Buta Warna terlebih dahulu.",
+        "warning",
+      )
+      return
+    }
 
     const isCoachTest =
       isCoachSelfTest || selectedCandidate?.id === "coach-self"
@@ -1299,38 +1639,37 @@ export default function CatBankView() {
       )
     }
 
-    // Calculate final scores according to PRD 4.3 formulas:
-    // PIP: S_pip = 2 * C_pip (Max 100)
     const pipCorrect = pipExamQuestions.filter(
       (q) => pipAnswers[q.id] === q.correctIndex,
     ).length
-    const pipScore = pipCorrect * 2 // Formula PRD: +2 each
+    const pipScore = pipCorrect * 2
     const pipPassed = pipScore >= packageConfig.pipPassingGrade
 
-    // TIU: S_tiu = C_tiu (Raw max 50). Scaled 100: N_tiu = S_tiu * 2 (or /50 * 100)
     const tiuCorrect = tiuExamQuestions.filter(
       (q) => tiuAnswers[q.id] === q.correctIndex,
     ).length
-    const tiuScoreRaw = tiuCorrect // Formula PRD: +1 each
-    const tiuScoreScaled = tiuCorrect * 2 // Scaled 0-100
+    const tiuScoreRaw = tiuCorrect
+    const tiuScoreScaled = tiuCorrect * 2
     const tiuPassed = tiuScoreScaled >= packageConfig.tiuPassingGrade
 
     const combined = Math.round((pipScore + tiuScoreScaled) / 2)
     const nowStr = new Date().toISOString().replace("T", " ").substring(0, 19)
+    const nowIso = new Date().toISOString()
 
-    // Count attempts for this candidate
     const targetCandidateId = isCoachTest
       ? currentUser.id || "coach-self"
       : (selectedCandidate?.id ??
         (currentUser.role === "candidate" ? currentUser.candidateId : undefined) ??
         "cand-001")
+    const attemptId = currentAttemptIdRef.current || `att-${Date.now()}`
+    currentAttemptIdRef.current = attemptId
     const prevAttempts = attempts.filter(
-      (a) => a.candidateId === targetCandidateId,
+      (a) => a.candidateId === targetCandidateId && a.id !== attemptId,
     )
     const attemptNumber = prevAttempts.length + 1
 
     const newAttempt: CatTryoutAttempt = {
-      id: currentAttemptIdRef.current || `att-${Date.now()}`,
+      id: attemptId,
       candidateId: targetCandidateId,
       candidateName: isCoachTest
         ? `${currentUser.name} (Simulasi Pelatih)`
@@ -1354,21 +1693,85 @@ export default function CatBankView() {
       finalizedAt: nowStr,
     }
 
-    // saveCatTryoutAttempt sudah menyinkronkan pip, tiu, stageStatuses[1..2], records,
-    // dan melakukan merge non-destruktif lintas pengguna dalam satu transaksi atomik.
+    // 1. Simpan nilai lengkap CAT (PIP + TIU)
     saveCatTryoutAttempt(newAttempt)
+
+    // 2. Simpan hasil Tes Buta Warna (Ishihara) ke Rikkes Tahap 4 (untuk kandidat asli)
+    if (!isCoachTest && selectedCandidate) {
+      const ishiharaResultObj: IshiharaScreeningResult = {
+        id: `res-${Date.now()}-${selectedCandidate.id.slice(-4)}`,
+        attemptId: `att-ish-${Date.now()}`,
+        sessionId: "free-session",
+        sessionName: "Skrining Buta Warna Terintegrasi CAT",
+        sessionMode: "scheduled",
+        participantId: selectedCandidate.id,
+        participantName: selectedCandidate.name,
+        participantNumber: selectedCandidate.number,
+        school: selectedCandidate.school,
+        completionStatus: "completed",
+        accuracy: gateIshiharaStats.accuracy,
+        totalPlates: gateIshiharaStats.total,
+        correctCount: gateIshiharaStats.correctCount,
+        avgTimeSec: Number(gateIshiharaStats.avgTime),
+        screeningInterpretation:
+          gateIshiharaStats.status === "normal"
+            ? "normal"
+            : "partial_protan_deutan",
+        interpretationLabel: gateIshiharaStats.statusLabel,
+        protocolVersion: "BPIP-ISH-25-CAT",
+        clinicalFollowUp:
+          gateIshiharaStats.status === "normal"
+            ? "not_required"
+            : "pending_professional_review",
+        followUpNote:
+          gateIshiharaStats.status === "normal"
+            ? "Skrining visual primer memenuhi ambang batas protokol."
+            : "Diperlukan konfirmasi pemeriksaan klinis oleh dokter spesialis mata menggunakan buku cetak fisik resmi.",
+        selectionDecision:
+          gateIshiharaStats.status === "normal" ? "eligible" : "pending",
+        decisionNote:
+          gateIshiharaStats.status === "normal"
+            ? "Memenuhi syarat kriteria kesehatan mata Rikkes Tahap 4."
+            : "Menunggu hasil verifikasi medis klinis lebih lanjut.",
+        createdAt: nowIso,
+      }
+      saveIshiharaScreeningResult(ishiharaResultObj)
+
+      const latestCand =
+        candidates.find((c) => c.id === selectedCandidate.id) ??
+        selectedCandidate
+      const existingPhysical = latestCand.physicalMetrics ?? []
+      updateCandidate(selectedCandidate.id, {
+        physicalMetrics: [
+          ...existingPhysical.filter(
+            (m) => !m.label.toLowerCase().includes("buta warna"),
+          ),
+          {
+            label: "Tes Buta Warna",
+            current: `${gateIshiharaStats.accuracy}% (${gateIshiharaStats.correctCount}/${gateIshiharaStats.total})`,
+            target: "≥85% (Normal)",
+            percent: gateIshiharaStats.accuracy,
+          },
+        ],
+      })
+    }
+
+    // 3. Tampilkan seluruh nilai & pembahasan lengkap 100 soal DI DALAM KIOSK (Kiosk tetap terkunci sampai Token Admin dimasukkan)
+    setReviewTab("all")
+    setSessionPhase("completed")
+    if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
+      enterFullscreen()
+    }
     setShowTiuResultModal(true)
     logAudit(
-      isCoachTest ? "Simulasi Tryout CAT Pelatih" : "Tryout CAT Selesai",
+      isCoachTest
+        ? "Simulasi Tes Buta Warna & CAT Pelatih Selesai"
+        : "Tes Buta Warna & Tryout CAT Selesai",
       isCoachTest ? currentUser.name : (selectedCandidate?.name ?? "Peserta"),
-      `PIP: ${pipScore}/100 (${
-        pipPassed ? "Lolos" : "Remedial"
-      }), TIU: ${tiuScoreScaled}/100 (${tiuPassed ? "Lolos" : "Remedial"})`,
+      `PIP: ${pipScore}/100 (${pipPassed ? "Lolos" : "Remedial"}), TIU: ${tiuScoreScaled}/100 (${tiuPassed ? "Lolos" : "Remedial"}), Anamnesa: ${gateAnamnesisEval.score}/100, Ishihara: ${gateIshiharaStats.accuracy}%. Menunggu Token Admin untuk keluar Kiosk.`,
     )
     showToast(
-      isCoachTest
-        ? "Simulasi CAT Pelatih selesai! Skor Anda telah dievaluasi."
-        : "Seluruh paket Tryout CAT selesai dievaluasi!",
+      "Tes Buta Warna selesai! Seluruh nilai (PIP, TIU, Anamnesa & Buta Warna) serta pembahasan 100 soal telah dibuka.",
       "success",
     )
   }
@@ -2383,9 +2786,9 @@ export default function CatBankView() {
                 {/* TWO SEQUENTIAL SESSIONS TIMELINE */}
                 <details className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/50 p-4">
                   <summary className="cursor-pointer list-none text-xs font-bold uppercase tracking-wider text-slate-700 marker:hidden">
-                    Ketentuan ujian · 75 menit total
+                    Ketentuan ujian · 75 menit total + Skrining Rikkes
                     <span className="ml-2 text-3xs font-medium normal-case tracking-normal text-slate-500">
-                      PIP 45 menit → TIU 30 menit · Lihat rincian
+                      PIP → Survey 21 Anamnesa → TIU → Tes Buta Warna · Lihat rincian
                     </span>
                   </summary>
 
@@ -2406,9 +2809,9 @@ export default function CatBankView() {
                         <li>&bull; Benar +2, Salah/Kosong 0 (Maks 100)</li>
                         <li>&bull; Passing Grade: &ge; 70.0</li>
                       </ul>
-                      <div className="mt-3 border-t border-slate-100 pt-2 text-2xs font-semibold text-emerald-700 flex items-center gap-1">
-                        <CheckCircle2 className="size-3 text-emerald-600" />{" "}
-                        Nilai langsung keluar saat selesai
+                      <div className="mt-3 border-t border-slate-100 pt-2 text-2xs font-semibold text-red-700 flex items-center gap-1.5">
+                        <HeartPulse className="size-3.5 shrink-0 text-red-600" />{" "}
+                        <span>Lanjut isi Survey 21 Anamnesa (Nilai PIP keluar serentak di akhir)</span>
                       </div>
                     </div>
 
@@ -2431,9 +2834,9 @@ export default function CatBankView() {
                           &bull; Nilai Skala 100: Skor Mentah &times; 2 (PG: 70)
                         </li>
                       </ul>
-                      <div className="mt-3 border-t border-slate-100 pt-2 text-2xs text-slate-500 flex items-center gap-1">
-                        <ShieldCheck className="size-3 text-purple-600" />{" "}
-                        Terkunci sampai Sesi 1 PIP selesai
+                      <div className="mt-3 border-t border-slate-100 pt-2 text-2xs font-semibold text-purple-700 flex items-center gap-1.5">
+                        <Eye className="size-3.5 shrink-0 text-purple-600" />{" "}
+                        <span>Tes Buta Warna &rarr; Seluruh nilai &amp; pembahasan keluar (Keluar wajib Token Admin)</span>
                       </div>
                     </div>
                   </div>
@@ -2988,7 +3391,291 @@ export default function CatBankView() {
             </div>
           )}
 
-          {/* -------------------- 3. INTER-SESSION GATE: PIP FINALIZED (LOCKED INSIDE KIOSK UNTIL TIU COMPLETED) -------------------- */}
+          {/* -------------------- 2B. GATE PRA-NILAI PIP: SURVEY 21 ANAMNESA KESEHATAN -------------------- */}
+          {sessionPhase === "pip-anamnesis" && (
+            <div
+              className={
+                isKioskLocked
+                  ? "fixed inset-0 z-[100] flex flex-col bg-slate-900 select-none overflow-hidden"
+                  : "grid gap-5"
+              }
+            >
+              {/* MANDATORY FULLSCREEN GATE DURING ANAMNESIS */}
+              {isKioskLocked &&
+                supportsFullscreenApi &&
+                !isFullscreen &&
+                !showExitTokenModal &&
+                !showViolationModal && (
+                  <div className="absolute inset-0 z-[115] flex items-center justify-center bg-slate-950/96 p-4 backdrop-blur-xl">
+                    <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-slate-900 p-6 sm:p-7 text-center text-white shadow-2xl">
+                      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        <Lock className="size-7" />
+                      </div>
+                      <h3 className="mt-4 font-display text-lg font-black text-white">
+                        Layar Penuh Wajib Aktif — Survey 21 Anamnesa
+                      </h3>
+                      <p className="mt-2 text-xs text-slate-300 leading-relaxed">
+                        Selesaikan &amp; simpan <strong className="text-white">Survey 21 Anamnesa Kesehatan</strong> dalam mode layar penuh sebelum melanjutkan ke Sesi 2 (CAT TIU).
+                      </p>
+                      <div className="mt-6 grid gap-2.5">
+                        <button
+                          type="button"
+                          onClick={enterFullscreen}
+                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 py-3 px-4 text-xs sm:text-sm font-extrabold text-white shadow-lg transition cursor-pointer"
+                        >
+                          <Maximize2 className="size-4 shrink-0" />
+                          <span>Masuk Kembali ke Layar Penuh</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openAdminTokenModal("exit")}
+                          className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-2xs sm:text-xs font-bold text-slate-300 transition cursor-pointer"
+                        >
+                          <KeyRound className="size-3.5 text-amber-400 shrink-0" />
+                          <span>Keluar Darurat (Wajib Token Admin)</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              {/* KIOSK TOP BAR FOR ANAMNESIS GATE */}
+              <div
+                className={
+                  isKioskLocked
+                    ? "shrink-0 flex items-center justify-between gap-2 bg-slate-950 px-3 py-2.5 sm:px-5 text-white border-b border-slate-800 shadow-md"
+                    : "flex items-center justify-between gap-2 rounded-2xl bg-slate-900 p-3.5 text-white shadow-lg"
+                }
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Badge tone="danger" className="text-2xs font-extrabold px-2 py-0.5 shrink-0">
+                    SURVEY 21 ANAMNESA
+                  </Badge>
+                  <span className="text-xs sm:text-sm font-bold truncate">
+                    {selectedCandidate?.name ?? "Peserta"}
+                  </span>
+                  {isKioskLocked && (
+                    <span className="hidden sm:inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-bold text-emerald-400 border border-emerald-500/20 shrink-0">
+                      <Lock className="size-2.5" />
+                      Safe Exam Browser Terkunci
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="rounded-lg bg-slate-800 px-2.5 py-1 text-2xs font-bold text-emerald-300 border border-slate-700">
+                    {gateAnamnesisEval.answeredCount} / {ANAMNESIS_QUESTIONS_21.length} Terjawab
+                  </span>
+                  {isKioskLocked && (
+                    <>
+                      <div
+                        className={`flex items-center gap-1 rounded-lg px-2 py-1 text-2xs font-bold border ${
+                          violationCount > 0
+                            ? "bg-red-500/20 text-red-300 border-red-500/40"
+                            : "bg-slate-800/90 text-slate-300 border-slate-700"
+                        }`}
+                      >
+                        <ShieldAlert className="size-3 shrink-0" />
+                        <span>
+                          {violationCount}/{maxAllowedViolations}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openAdminTokenModal("exit")}
+                        className="flex items-center gap-1 rounded-lg bg-slate-800/90 px-2.5 py-1 text-2xs font-bold text-amber-300 border border-amber-500/30 hover:bg-slate-800 transition cursor-pointer"
+                      >
+                        <KeyRound className="size-3 shrink-0 text-amber-400" />
+                        <span className="hidden sm:inline">Token Admin</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* SCROLLABLE 21 ANAMNESIS SURVEY CONTENT */}
+              <div
+                className={
+                  isKioskLocked
+                    ? "flex-1 overflow-y-auto bg-slate-100 p-3.5 sm:p-6"
+                    : ""
+                }
+              >
+                <div className="mx-auto max-w-4xl grid gap-4 pb-6">
+                  {/* INFO BANNER */}
+                  <Card className="border-red-200 bg-gradient-to-r from-red-50 via-white to-amber-50/60 p-4 sm:p-5 shadow-xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-red-600 text-white shadow-sm">
+                          <HeartPulse className="size-5" />
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="rounded-md bg-red-100 px-2 py-0.5 text-3xs font-extrabold uppercase tracking-wider text-red-800">
+                              Tahap Wajib Sebelum Sesi 2 (TIU)
+                            </span>
+                            <span className="rounded-md bg-slate-200/80 px-2 py-0.5 text-3xs font-bold text-slate-700">
+                              Rikkes Tahap 4
+                            </span>
+                          </div>
+                          <h2 className="mt-1 font-display text-base sm:text-lg font-extrabold text-slate-950">
+                            Survey 21 Anamnesa Kesehatan Calon Paskibraka
+                          </h2>
+                          <p className="mt-0.5 text-xs text-slate-600 leading-relaxed">
+                            Jawaban Sesi 1 (PIP) Anda telah diamankan. Jawab seluruh <strong>21 pertanyaan kondisi kesehatan</strong> di bawah secara jujur untuk melanjutkan ke Sesi 2 (TIU). <em>Seluruh nilai akan ditampilkan serentak di akhir ujian.</em>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="shrink-0 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-center shadow-2xs">
+                        <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">
+                          Progres Isi
+                        </p>
+                        <p className="font-display text-xl font-black text-slate-950 tabular-nums">
+                          {gateAnamnesisEval.answeredCount}
+                          <span className="text-xs font-semibold text-slate-400">
+                            /{ANAMNESIS_QUESTIONS_21.length}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* PROGRESS BAR */}
+                    <div className="mt-3.5 h-2 w-full overflow-hidden rounded-full bg-slate-200/80">
+                      <div
+                        className="h-full rounded-full bg-emerald-600 transition-all duration-200"
+                        style={{
+                          width: `${Math.round(
+                            (gateAnamnesisEval.answeredCount /
+                              ANAMNESIS_QUESTIONS_21.length) *
+                              100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </Card>
+
+                  {/* 21 QUESTIONS LIST */}
+                  <Card className="overflow-hidden border-slate-200 bg-white shadow-2xs">
+                    <div className="divide-y divide-slate-100">
+                      {ANAMNESIS_QUESTIONS_21.map((questionText, idx) => {
+                        const ans = gateAnamnesisAnswers[String(idx)]
+                        const isYes = ans === "yes"
+                        const isNo = ans === "no"
+                        return (
+                          <div
+                            key={idx}
+                            id={`cat-gate-anamnesis-q-${idx}`}
+                            className={`flex flex-col gap-3 p-3.5 sm:p-4 transition-colors sm:flex-row sm:items-center sm:justify-between ${
+                              isYes
+                                ? "bg-emerald-50/35"
+                                : isNo
+                                  ? "bg-red-50/25"
+                                  : "hover:bg-slate-50/60"
+                            }`}
+                          >
+                            <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                              <span
+                                className={`flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-extrabold ${
+                                  isYes || isNo
+                                    ? "bg-slate-900 text-white"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}
+                              >
+                                {idx + 1}
+                              </span>
+                              <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
+                                {questionText}
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setGateAnamnesisAnswers((prev) => ({
+                                    ...prev,
+                                    [String(idx)]: "no",
+                                  }))
+                                }
+                                className={`flex h-9 items-center gap-1.5 rounded-xl border px-3.5 text-xs font-bold transition active:scale-95 cursor-pointer ${
+                                  isNo
+                                    ? "border-red-600 bg-red-600 text-white shadow-2xs"
+                                    : "border-slate-200 bg-white text-slate-700 hover:border-red-200 hover:bg-red-50/50"
+                                }`}
+                              >
+                                <XCircle
+                                  className={`size-3.5 ${
+                                    isNo ? "text-white" : "text-red-500"
+                                  }`}
+                                />
+                                TIDAK
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setGateAnamnesisAnswers((prev) => ({
+                                    ...prev,
+                                    [String(idx)]: "yes",
+                                  }))
+                                }
+                                className={`flex h-9 items-center gap-1.5 rounded-xl border px-3.5 text-xs font-bold transition active:scale-95 cursor-pointer ${
+                                  isYes
+                                    ? "border-emerald-600 bg-emerald-600 text-white shadow-2xs"
+                                    : "border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/50"
+                                }`}
+                              >
+                                <CheckCircle2
+                                  className={`size-3.5 ${
+                                    isYes ? "text-white" : "text-emerald-600"
+                                  }`}
+                                />
+                                YA
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* FOOTER ACTION BAR */}
+                    <div className="border-t border-slate-200 bg-slate-50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="text-xs text-slate-600">
+                        {gateAnamnesisAllAnswered ? (
+                          <span className="font-bold text-emerald-700 flex items-center gap-1.5">
+                            <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                            Seluruh 21 pertanyaan telah dijawab. Klik Simpan untuk lanjut ke Sesi 2 (CAT TIU)!
+                          </span>
+                        ) : (
+                          <span>
+                            Jawab{" "}
+                            <strong className="text-red-600">
+                              {ANAMNESIS_QUESTIONS_21.length -
+                                gateAnamnesisEval.answeredCount}{" "}
+                              pertanyaan lagi
+                            </strong>{" "}
+                            untuk dapat menyimpan &amp; melanjutkan ke Sesi 2 (TIU).
+                          </span>
+                        )}
+                      </div>
+
+                      <Button
+                        onClick={handleSavePipAnamnesisAndShowScore}
+                        className={`!px-6 !py-3 !text-xs sm:!text-sm font-extrabold shadow-lg transition cursor-pointer ${
+                          gateAnamnesisAllAnswered
+                            ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25"
+                            : "bg-slate-800 hover:bg-slate-700 text-white"
+                        }`}
+                      >
+                        <Save className="size-4 shrink-0" />
+                        <span>Simpan Survey Anamnesa &amp; Lanjut ke Sesi 2 (TIU)</span>
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* -------------------- 3. INTER-SESSION GATE: PIP & ANAMNESA SAVED (NO SCORE REVEALED YET) -------------------- */}
           {sessionPhase === "pip-final" && (
             <div
               className={
@@ -3013,7 +3700,7 @@ export default function CatBankView() {
                       </h3>
                       <p className="mt-2 text-xs text-slate-300 leading-relaxed">
                         Anda tidak dapat keluar dari Safe Exam Browser sebelum menuntaskan{" "}
-                        <strong className="text-white">Sesi 2: CAT TIU</strong>. Aktifkan kembali layar penuh untuk melanjutkan.
+                        <strong className="text-white">Sesi 2: CAT TIU &amp; Tes Buta Warna</strong>. Aktifkan kembali layar penuh untuk melanjutkan.
                       </p>
                       <div className="mt-6 grid gap-2.5">
                         <button
@@ -3087,16 +3774,14 @@ export default function CatBankView() {
                 <div className={isKioskLocked ? "w-full max-w-2xl" : "w-full"}>
                   <Card className="overflow-hidden border-slate-700 bg-slate-950 text-white shadow-2xl">
                     <div className="p-5 sm:p-7">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge
-                              tone={currentPipResults.passed ? "success" : "danger"}
-                              className="text-2xs font-extrabold uppercase px-2 py-0.5 whitespace-nowrap"
+                              tone="success"
+                              className="text-2xs font-extrabold uppercase px-2.5 py-0.5 whitespace-nowrap"
                             >
-                              {currentPipResults.passed
-                                ? "LOLOS PASSING GRADE PIP (≥ 70)"
-                                : "BELUM MEMENUHI PASSING GRADE (< 70)"}
+                              SESI 1 &amp; SURVEY ANAMNESA TERSIMPAN
                             </Badge>
                             <span className="text-2xs text-slate-400">·</span>
                             <span className="text-2xs text-slate-300 truncate">
@@ -3104,27 +3789,19 @@ export default function CatBankView() {
                             </span>
                           </div>
                           <h2 className="mt-2 font-display text-xl sm:text-2xl font-extrabold text-white">
-                            Sesi 1 (CAT PIP) Selesai — Lanjutkan ke Sesi 2 (CAT TIU)
+                            Sesi 1 (PIP) &amp; Survey 21 Anamnesa Selesai — Lanjutkan ke Sesi 2 (CAT TIU)
                           </h2>
                         </div>
 
-                        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 flex items-center gap-3">
-                          <div>
-                            <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">
-                              Skor PIP
+                        <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-2.5 flex items-center gap-3">
+                          <CheckCircle2 className="size-6 text-emerald-400 shrink-0" />
+                          <div className="text-left">
+                            <p className="text-xs font-extrabold text-emerald-300">
+                              {Object.keys(pipAnswers).length} / {pipExamQuestions.length} PIP &middot; 21/21 Anamnesa
                             </p>
-                            <div className="flex items-baseline gap-1">
-                              <span className="font-display text-3xl font-black text-amber-400">
-                                {currentPipResults.score}
-                              </span>
-                              <span className="text-xs text-slate-400">/ 100</span>
-                            </div>
-                          </div>
-                          <div className="border-l border-white/10 pl-3 text-left">
-                            <p className="text-xs font-bold text-white">
-                              {currentPipResults.correct} / 50 Benar
+                            <p className="text-3xs text-slate-300">
+                              Nilai keluar serentak di akhir
                             </p>
-                            <p className="text-3xs text-slate-400">&times; 2 poin per butir</p>
                           </div>
                         </div>
                       </div>
@@ -3132,9 +3809,11 @@ export default function CatBankView() {
                       <div className="mt-5 rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 text-xs text-amber-200 flex items-start gap-2.5">
                         <Lock className="size-4 shrink-0 text-amber-400 mt-0.5" />
                         <p className="leading-relaxed">
-                          <strong className="text-amber-300">Protokol Kiosk Berkelanjutan:</strong>{" "}
-                          Nilai Sesi 1 (PIP) Anda telah tersimpan aman. Mode Safe Exam Browser tetap terkunci dan{" "}
-                          <strong>tidak dapat ditutup sebelum Sesi 2 (CAT TIU) diselesaikan</strong>. Pembahasan lengkap PIP &amp; TIU akan terbuka setelah kedua sesi tuntas.
+                          <strong className="text-amber-300">Nilai Ditampilkan Serentak di Akhir:</strong>{" "}
+                          Jawaban Sesi 1 (PIP) dan Survey 21 Anamnesa Anda telah diamankan. Seluruh nilai{" "}
+                          <strong>(PIP, TIU, Anamnesa &amp; Tes Buta Warna)</strong> beserta{" "}
+                          <strong>pembahasan lengkap 100 soal</strong> akan langsung ditampilkan setelah Anda menuntaskan{" "}
+                          <strong>Sesi 2: CAT TIU</strong> dan <strong>Tes Buta Warna</strong>.
                         </p>
                       </div>
 
@@ -3163,238 +3842,847 @@ export default function CatBankView() {
             </div>
           )}
 
-          {/* -------------------- 4. TRYOUT COMPLETED SCREEN (COMBINED REPORT) -------------------- */}
-          {sessionPhase === "completed" && (
-            <div className="grid gap-4">
-              {/* TOP HEADER RESULTS CARD */}
-              <Card className="overflow-hidden border-slate-200">
-                <div className="bg-slate-950 p-4 sm:p-5 text-white">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge
-                          tone={
-                            currentPipResults.passed && currentTiuResults.passed
-                              ? "success"
-                              : !currentPipResults.passed && !currentTiuResults.passed
-                                ? "danger"
-                                : "warning"
-                          }
-                          className="text-2xs font-bold px-2 py-0.5 whitespace-nowrap"
-                        >
-                          {currentPipResults.passed && currentTiuResults.passed
-                            ? "LOLOS KEDUA TAHAP (TAHAP 2 & 3)"
-                            : !currentPipResults.passed && !currentTiuResults.passed
-                              ? "REMEDIAL TAHAP 2 & 3"
-                              : !currentPipResults.passed
-                                ? "REMEDIAL TAHAP 2 (PIP)"
-                                : "REMEDIAL TAHAP 3 (TIU)"}
-                        </Badge>
-                        <span className="text-2xs text-slate-400">·</span>
-                        <span className="text-2xs text-slate-300 whitespace-nowrap">
-                          2 Tahapan CAT Selesai
-                        </span>
+          {/* -------------------- 3B. GATE PRA-NILAI TIU: TES BUTA WARNA (ISHIHARA 25 PIRINGAN) -------------------- */}
+          {sessionPhase === "tiu-ishihara" && (
+            <div
+              className={
+                isKioskLocked
+                  ? "fixed inset-0 z-[100] flex flex-col bg-slate-900 select-none overflow-hidden"
+                  : "grid gap-5"
+              }
+            >
+              {/* MANDATORY FULLSCREEN GATE DURING ISHIHARA */}
+              {isKioskLocked &&
+                supportsFullscreenApi &&
+                !isFullscreen &&
+                !showExitTokenModal &&
+                !showViolationModal && (
+                  <div className="absolute inset-0 z-[115] flex items-center justify-center bg-slate-950/96 p-4 backdrop-blur-xl">
+                    <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-slate-900 p-6 sm:p-7 text-center text-white shadow-2xl">
+                      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        <Lock className="size-7" />
                       </div>
-
-                      <h2 className="mt-1.5 font-display text-lg sm:text-xl font-bold text-white">
-                        Laporan Evaluasi Lengkap CAT BPIP
-                      </h2>
-                      <p className="mt-0.5 text-xs text-slate-300">
-                        Santri / Peserta:{" "}
-                        <strong>{selectedCandidate?.name ?? "Peserta"}</strong>{" "}
-                        <span className="text-slate-400">
-                          ({selectedCandidate?.school ?? "—"})
-                        </span>
+                      <h3 className="mt-4 font-display text-lg font-black text-white">
+                        Layar Penuh Wajib Aktif — Tes Buta Warna
+                      </h3>
+                      <p className="mt-2 text-xs text-slate-300 leading-relaxed">
+                        Selesaikan &amp; simpan <strong className="text-white">Tes Buta Warna (Ishihara)</strong> dalam mode layar penuh untuk membuka seluruh nilai (PIP, TIU, Anamnesa &amp; Buta Warna) beserta pembahasan lengkap.
                       </p>
-                    </div>
-
-                    {/* ACTION BUTTONS (IN HEADER) */}
-                    <div className="flex flex-wrap items-center gap-2 shrink-0">
-                      {isCoachSelfTest ? (
-                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30 px-2.5 py-1 text-2xs text-amber-200 font-medium">
-                          <ShieldCheck className="size-3.5 text-amber-400 shrink-0" />
-                          <span>Uji Coba Pelatih — Tersimpan di Riwayat</span>
-                        </div>
-                      ) : (
-                        <Button
-                          onClick={handleSyncToCandidateProfile}
-                          className="!px-3 !py-1.5 !text-xs font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap"
+                      <div className="mt-6 grid gap-2.5">
+                        <button
+                          type="button"
+                          onClick={enterFullscreen}
+                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 py-3 px-4 text-xs sm:text-sm font-extrabold text-white shadow-lg transition cursor-pointer"
                         >
-                          <Save className="size-3.5" /> Sinkronkan ke Profil
-                        </Button>
-                      )}
-
-                      <Button
-                        variant="secondary"
-                        onClick={() => setSessionPhase("idle")}
-                        className="bg-white/10 text-white hover:bg-white/20 !px-3 !py-1.5 !text-xs whitespace-nowrap"
-                      >
-                        <RotateCcw className="size-3.5" /> Mulai Baru
-                      </Button>
+                          <Maximize2 className="size-4 shrink-0" />
+                          <span>Masuk Kembali ke Layar Penuh</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openAdminTokenModal("exit")}
+                          className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-2xs sm:text-xs font-bold text-slate-300 transition cursor-pointer"
+                        >
+                          <KeyRound className="size-3.5 text-amber-400 shrink-0" />
+                          <span>Keluar Darurat (Wajib Token Admin)</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* TWO INDEPENDENT STAGES METRICS (TAHAP 2 PIP & TAHAP 3 TIU) */}
-                  <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {/* TAHAP 2: PIP */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-200">
-                          Tahap 2: Pancasila &amp; Wawasan (PIP)
+              {/* KIOSK TOP BAR FOR ISHIHARA GATE */}
+              <div
+                className={
+                  isKioskLocked
+                    ? "shrink-0 flex items-center justify-between gap-2 bg-slate-950 px-3 py-2.5 sm:px-5 text-white border-b border-slate-800 shadow-md"
+                    : "flex items-center justify-between gap-2 rounded-2xl bg-slate-900 p-3.5 text-white shadow-lg"
+                }
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Badge tone="info" className="text-2xs font-extrabold px-2 py-0.5 shrink-0">
+                    TES BUTA WARNA (ISHIHARA)
+                  </Badge>
+                  <span className="text-xs sm:text-sm font-bold truncate">
+                    {selectedCandidate?.name ?? "Peserta"}
+                  </span>
+                  {isKioskLocked && (
+                    <span className="hidden sm:inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-bold text-emerald-400 border border-emerald-500/20 shrink-0">
+                      <Lock className="size-2.5" />
+                      Safe Exam Browser Terkunci
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="rounded-lg bg-slate-800 px-2.5 py-1 text-2xs font-bold text-sky-300 border border-slate-700">
+                    {gateIshiharaFinished
+                      ? `${OFFICIAL_ISHIHARA_PLATES.length}/${OFFICIAL_ISHIHARA_PLATES.length} Selesai`
+                      : gateIshiharaStarted
+                        ? `Plat ${gateIshiharaIndex + 1}/${OFFICIAL_ISHIHARA_PLATES.length}`
+                        : `0/${OFFICIAL_ISHIHARA_PLATES.length} Plat`}
+                  </span>
+                  {isKioskLocked && (
+                    <>
+                      <div
+                        className={`flex items-center gap-1 rounded-lg px-2 py-1 text-2xs font-bold border ${
+                          violationCount > 0
+                            ? "bg-red-500/20 text-red-300 border-red-500/40"
+                            : "bg-slate-800/90 text-slate-300 border-slate-700"
+                        }`}
+                      >
+                        <ShieldAlert className="size-3 shrink-0" />
+                        <span>
+                          {violationCount}/{maxAllowedViolations}
                         </span>
-                        <Badge
-                          tone={currentPipResults.passed ? "success" : "danger"}
-                          className="text-3xs px-2 py-0.5 font-bold"
-                        >
-                          {currentPipResults.passed ? "Lolos (≥70)" : "Remedial"}
-                        </Badge>
                       </div>
-                      <div className="my-2 flex items-baseline justify-between">
-                        <div className="flex items-baseline gap-1">
-                          <span className="font-display text-3xl font-black text-white">
-                            {currentPipResults.score}
+                      <button
+                        type="button"
+                        onClick={() => openAdminTokenModal("exit")}
+                        className="flex items-center gap-1 rounded-lg bg-slate-800/90 px-2.5 py-1 text-2xs font-bold text-amber-300 border border-amber-500/30 hover:bg-slate-800 transition cursor-pointer"
+                      >
+                        <KeyRound className="size-3 shrink-0 text-amber-400" />
+                        <span className="hidden sm:inline">Token Admin</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* SCROLLABLE ISHIHARA WORKSPACE */}
+              <div
+                className={
+                  isKioskLocked
+                    ? "flex-1 overflow-y-auto bg-slate-100 p-3.5 sm:p-6"
+                    : ""
+                }
+              >
+                <div className="mx-auto max-w-5xl pb-6">
+                  {!gateIshiharaStarted && !gateIshiharaFinished ? (
+                    /* INTRO CARD SEBELUM MEMULAI 25 PIRINGAN ISHIHARA */
+                    <Card className="mx-auto max-w-2xl border-slate-200 bg-white p-6 sm:p-8 shadow-md">
+                      <div className="flex items-start gap-3.5">
+                        <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-purple-600 text-white shadow-sm">
+                          <Eye className="size-6" />
+                        </div>
+                        <div>
+                          <span className="inline-block rounded-md bg-purple-100 px-2.5 py-0.5 text-2xs font-extrabold uppercase tracking-wider text-purple-800">
+                            Tahap Akhir Sebelum Seluruh Nilai Keluar
                           </span>
-                          <span className="text-xs font-normal text-slate-400">
-                            / 100
+                          <h2 className="mt-1.5 font-display text-lg sm:text-xl font-extrabold text-slate-950">
+                            Tes Buta Warna — Standar 25 Piringan Resmi Ishihara
+                          </h2>
+                          <p className="mt-1 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                            Jawaban Sesi 1 (PIP), Survey 21 Anamnesa, dan Sesi 2 (CAT TIU) Anda telah diamankan. Tuntaskan 25 piringan persepsi warna ini untuk menampilkan seluruh nilai serta pembahasan soal.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid gap-2.5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                          <span>
+                            Jumlah piringan uji: <strong>25 Piringan Standar BPIP</strong>
                           </span>
                         </div>
-                        <span className="text-xs text-slate-300 font-medium">
-                          {currentPipResults.correct} / 50 Butir Benar (&times;2)
-                        </span>
-                      </div>
-                      <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
-                        Passing Grade Mandiri: &ge; {packageConfig.pipPassingGrade} · Materi: Sejarah, Sila, UUD, NKRI
-                      </p>
-                    </div>
-
-                    {/* TAHAP 3: TIU */}
-                    <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-200">
-                          Tahap 3: Intelegensia Umum (TIU)
-                        </span>
-                        <Badge
-                          tone={currentTiuResults.passed ? "success" : "danger"}
-                          className="text-3xs px-2 py-0.5 font-bold"
-                        >
-                          {currentTiuResults.passed ? "Lolos (≥70)" : "Remedial"}
-                        </Badge>
-                      </div>
-                      <div className="my-2 flex items-baseline justify-between">
-                        <div className="flex items-baseline gap-1">
-                          <span className="font-display text-3xl font-black text-white">
-                            {currentTiuResults.scaled}
-                          </span>
-                          <span className="text-xs font-normal text-slate-400">
-                            / 100
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                          <span>
+                            Pastikan kecerahan layar cukup dan matikan filter warna (<em>Night Light / Eye Comfort</em>).
                           </span>
                         </div>
-                        <span className="text-xs text-slate-300 font-medium">
-                          Mentah: {currentTiuResults.raw} / 50 (&times;2)
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                          <span>
+                            Setelah piringan ke-25 disimpan, <strong>seluruh nilai (PIP, TIU, Anamnesa &amp; Buta Warna) + pembahasan 100 soal langsung keluar</strong> di dalam Kiosk.
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
-                        Passing Grade Mandiri: &ge; {packageConfig.tiuPassingGrade} · Materi: Verbal, Numerik, Logika
-                      </p>
+
+                      <div className="mt-6 flex justify-end">
+                        <Button
+                          onClick={handleStartGateIshihara}
+                          className="w-full sm:w-auto justify-center !px-6 !py-3 !text-xs sm:!text-sm font-extrabold bg-red-600 hover:bg-red-700 text-white shadow-lg cursor-pointer"
+                        >
+                          <Play className="size-4 fill-white shrink-0" />
+                          <span>Mulai Tes Buta Warna Sekarang (25 Piringan)</span>
+                        </Button>
+                      </div>
+                    </Card>
+                  ) : gateIshiharaStarted && !gateIshiharaFinished ? (
+                    /* RUNNER 25 PIRINGAN ISHIHARA */
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                      <Card className="lg:col-span-7 border-slate-200 bg-white p-5 sm:p-6 flex flex-col items-center justify-center">
+                        <div className="w-full flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                          <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+                            Piringan ke-{gateIshiharaIndex + 1} dari{" "}
+                            {OFFICIAL_ISHIHARA_PLATES.length}
+                          </span>
+                          <Badge tone="info" className="text-2xs font-bold">
+                            Rikkes Tahap 4
+                          </Badge>
+                        </div>
+
+                        <div className="relative p-2 rounded-2xl bg-white border border-slate-200/80 shadow-inner">
+                          <canvas
+                            ref={gateIshiharaCanvasRef}
+                            className="rounded-xl max-w-full h-auto drop-shadow-sm select-none"
+                            style={{ width: 310, height: 310 }}
+                          />
+                        </div>
+
+                        <p className="text-xs text-slate-500 mt-4 text-center">
+                          Angka berapa yang tampak di dalam lingkaran titik-titik warna di atas?
+                        </p>
+                      </Card>
+
+                      <Card className="lg:col-span-5 border-slate-200 bg-white p-5 sm:p-6">
+                        <h3 className="font-display text-sm font-bold text-slate-900 mb-1">
+                          Masukkan Angka yang Terbaca
+                        </h3>
+                        <p className="text-xs text-slate-500 mb-4">
+                          Tekan tombol angka di layar atau ketik menggunakan keyboard.
+                        </p>
+
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="flex-1 h-13 rounded-xl border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-2xl font-bold font-display text-slate-900 tracking-wider">
+                            {gateIshiharaInput || (
+                              <span className="text-slate-300 font-normal text-sm">
+                                Ketik angka...
+                              </span>
+                            )}
+                          </div>
+                          {gateIshiharaInput ? (
+                            <button
+                              type="button"
+                              onClick={() => setGateIshiharaInput("")}
+                              className="size-13 rounded-xl border border-slate-200 bg-white grid place-items-center text-slate-500 hover:bg-slate-50 cursor-pointer"
+                              title="Hapus"
+                            >
+                              <X className="size-5" />
+                            </button>
+                          ) : null}
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
+                            <button
+                              key={digit}
+                              type="button"
+                              onClick={() =>
+                                setGateIshiharaInput((prev) =>
+                                  prev.length < 2 ? prev + digit : prev,
+                                )
+                              }
+                              className="h-12 rounded-xl border border-slate-200 bg-white font-display text-lg font-bold text-slate-800 hover:bg-slate-50 active:bg-slate-100 shadow-2xs transition cursor-pointer"
+                            >
+                              {digit}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => setGateIshiharaInput("")}
+                            className="h-12 rounded-xl border border-slate-200 bg-slate-100 font-bold text-xs text-slate-600 hover:bg-slate-200 transition cursor-pointer"
+                          >
+                            Clear
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setGateIshiharaInput((prev) =>
+                                prev.length < 2 ? prev + "0" : prev,
+                              )
+                            }
+                            className="h-12 rounded-xl border border-slate-200 bg-white font-display text-lg font-bold text-slate-800 hover:bg-slate-50 active:bg-slate-100 shadow-2xs transition cursor-pointer"
+                          >
+                            0
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (gateIshiharaInput) {
+                                handleAnswerGateIshihara(
+                                  Number(gateIshiharaInput),
+                                )
+                              }
+                            }}
+                            disabled={!gateIshiharaInput}
+                            className="h-12 rounded-xl bg-red-600 font-bold text-xs text-white hover:bg-red-700 disabled:opacity-40 transition shadow-xs cursor-pointer"
+                          >
+                            Kirim
+                          </button>
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t border-slate-100">
+                          <button
+                            type="button"
+                            onClick={() => handleAnswerGateIshihara(null)}
+                            className="w-full min-h-11 py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs"
+                          >
+                            <HelpCircle className="size-4 text-slate-400 shrink-0" />
+                            <span>Tidak Ada Angka / Tidak Terbaca</span>
+                          </button>
+                        </div>
+                      </Card>
                     </div>
+                  ) : (
+                    /* RINGKASAN SELESAI ISHIHARA -> KLIK SIMPAN UNTUK MEMBUKA SELURUH NILAI & PEMBAHASAN */
+                    gateIshiharaStats && (
+                      <Card className="mx-auto max-w-2xl border-slate-200 bg-white p-6 sm:p-8 shadow-md">
+                        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 pb-4">
+                          <div>
+                            <span className="text-2xs font-extrabold uppercase tracking-wider text-emerald-700">
+                              25 / 25 Piringan Selesai Dijawab
+                            </span>
+                            <h2 className="mt-1 font-display text-xl font-extrabold text-slate-950">
+                              Seluruh Rangkaian Ujian &amp; Tes Buta Warna Selesai
+                            </h2>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              Klik tombol Simpan di bawah untuk menampilkan seluruh nilai (PIP, TIU, Anamnesa &amp; Buta Warna) beserta pembahasan lengkap 100 soal.
+                            </p>
+                          </div>
+                          <Badge
+                            tone="success"
+                            className="text-xs px-3 py-1 font-bold"
+                          >
+                            25 / 25 Plat Terisi
+                          </Badge>
+                        </div>
+
+                        <div className="mt-4 rounded-2xl p-4 border border-emerald-200 bg-emerald-50/70 text-xs text-emerald-950">
+                          <p className="font-bold text-sm flex items-center gap-1.5">
+                            <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+                            <span>Siap Menampilkan Seluruh Nilai &amp; Pembahasan</span>
+                          </p>
+                          <p className="mt-1 opacity-90 leading-relaxed">
+                            Seluruh tahapan telah terisi lengkap (rata-rata respon Ishihara{" "}
+                            <strong>{gateIshiharaStats.avgTime} detik/plat</strong>). Mode Safe Exam Browser tetap terkunci saat Anda mempelajari pembahasan hingga Pengawas memasukkan <strong>Token Admin</strong>.
+                          </p>
+                        </div>
+
+                        <div className="mt-6 flex justify-end">
+                          <Button
+                            onClick={handleSaveTiuIshiharaAndShowScore}
+                            className="w-full sm:w-auto justify-center !px-6 !py-3 !text-xs sm:!text-sm font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25 cursor-pointer"
+                          >
+                            <Save className="size-4 shrink-0" />
+                            <span>
+                              Simpan Tes Buta Warna &amp; Tampilkan Seluruh Nilai + Pembahasan
+                            </span>
+                          </Button>
+                        </div>
+                      </Card>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* -------------------- 4. TRYOUT COMPLETED SCREEN (LOCKED INSIDE KIOSK UNTIL ADMIN TOKEN EXIT) -------------------- */}
+          {sessionPhase === "completed" && (
+            <div
+              className={
+                isKioskLocked
+                  ? "fixed inset-0 z-[100] flex flex-col bg-slate-900 select-none overflow-hidden"
+                  : "grid gap-4"
+              }
+            >
+              {/* MANDATORY FULLSCREEN GATE DURING COMPLETED REVIEW */}
+              {isKioskLocked &&
+                supportsFullscreenApi &&
+                !isFullscreen &&
+                !showExitTokenModal &&
+                !showViolationModal && (
+                  <div className="absolute inset-0 z-[115] flex items-center justify-center bg-slate-950/96 p-4 backdrop-blur-xl">
+                    <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-slate-900 p-6 sm:p-7 text-center text-white shadow-2xl">
+                      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        <Lock className="size-7" />
+                      </div>
+                      <h3 className="mt-4 font-display text-lg font-black text-white">
+                        Kiosk Masih Terkunci — Wajib Token Admin untuk Keluar
+                      </h3>
+                      <p className="mt-2 text-xs text-slate-300 leading-relaxed">
+                        Seluruh nilai Anda telah tersimpan aman. Masuk kembali ke{" "}
+                        <strong className="text-white">Layar Penuh</strong> untuk mempelajari nilai &amp; pembahasan soal, atau masukkan{" "}
+                        <strong className="text-amber-300">Token Admin</strong> untuk keluar dari Kiosk.
+                      </p>
+                      <div className="mt-6 grid gap-2.5">
+                        <button
+                          type="button"
+                          onClick={enterFullscreen}
+                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-3 px-4 text-xs sm:text-sm font-extrabold text-white shadow-lg transition cursor-pointer"
+                        >
+                          <Maximize2 className="size-4 shrink-0" />
+                          <span>Kembali ke Layar Penuh (Lihat Nilai &amp; Pembahasan)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openAdminTokenModal("complete-exit")}
+                          className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 py-2.5 px-4 text-2xs sm:text-xs font-extrabold text-amber-300 transition cursor-pointer"
+                        >
+                          <KeyRound className="size-3.5 text-amber-400 shrink-0" />
+                          <span>Keluar dari Kiosk (Masukkan Token Admin)</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              {/* KIOSK TOP BAR FOR COMPLETED REVIEW */}
+              {isKioskLocked && (
+                <div className="shrink-0 flex items-center justify-between gap-2 bg-slate-950 px-3 py-2.5 sm:px-5 text-white border-b border-slate-800 shadow-md">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Badge tone="success" className="text-2xs font-extrabold px-2 py-0.5 shrink-0">
+                      HASIL &amp; PEMBAHASAN
+                    </Badge>
+                    <span className="text-xs sm:text-sm font-bold truncate">
+                      {selectedCandidate?.name ?? "Peserta"}
+                    </span>
+                    <span className="hidden md:inline-flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-3xs font-bold text-amber-300 border border-amber-500/25 shrink-0">
+                      <Lock className="size-2.5" />
+                      Wajib Token Admin untuk Keluar
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div
+                      className={`hidden sm:flex items-center gap-1 rounded-lg px-2 py-1 text-2xs font-bold border ${
+                        violationCount > 0
+                          ? "bg-red-500/20 text-red-300 border-red-500/40"
+                          : "bg-slate-800/90 text-slate-300 border-slate-700"
+                      }`}
+                    >
+                      <ShieldAlert className="size-3 shrink-0" />
+                      <span>
+                        {violationCount}/{maxAllowedViolations}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openAdminTokenModal("complete-exit")}
+                      className="flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 px-3 py-1.5 text-2xs sm:text-xs font-extrabold text-slate-950 shadow-sm transition cursor-pointer"
+                    >
+                      <KeyRound className="size-3.5 shrink-0" />
+                      <span>Keluar Kiosk (Token Admin)</span>
+                    </button>
                   </div>
                 </div>
+              )}
 
-                {/* DETAILED QUESTIONS REVIEW & EXPLANATIONS */}
-                <div className="p-4 sm:p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                    <div>
-                      <h3 className="font-display text-sm sm:text-base font-bold text-slate-900">
-                        Tinjauan Pembahasan &amp; Kunci Jawaban Lengkap
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Pelajari butir soal dan rasionalisasi pembahasan untuk evaluasi pembinaan.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 w-full sm:w-auto shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setReviewTab("pip")}
-                        className={`flex-1 sm:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                          reviewTab === "pip"
-                            ? "bg-white text-slate-900 shadow-2xs"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        Pembahasan PIP (50)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setReviewTab("tiu")}
-                        className={`flex-1 sm:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-                          reviewTab === "tiu"
-                            ? "bg-white text-slate-900 shadow-2xs"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
-                      >
-                        Pembahasan TIU (50)
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* QUESTIONS LIST ACCORDING TO ACTIVE REVIEW TAB */}
-                  <div className="mt-3 divide-y divide-slate-100 max-h-[32rem] overflow-y-auto pr-2">
-                    {(reviewTab === "pip"
-                      ? pipExamQuestions
-                      : tiuExamQuestions
-                    ).map((q, idx) => {
-                      const userAns =
-                        reviewTab === "pip"
-                          ? pipAnswers[q.id]
-                          : tiuAnswers[q.id]
-                      const isCorrect = userAns === q.correctIndex
-
-                      return (
-                        <div key={q.id} className="py-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <span className="text-xs font-bold text-slate-900">
-                              Nomor {idx + 1} · {q.category}
+              {/* SCROLLABLE COMBINED REPORT & 100 QUESTIONS EXPLANATION */}
+              <div
+                className={
+                  isKioskLocked
+                    ? "flex-1 overflow-y-auto bg-slate-100 p-3.5 sm:p-6"
+                    : "grid gap-4"
+                }
+              >
+                <div className={isKioskLocked ? "mx-auto max-w-5xl grid gap-4 pb-8" : "grid gap-4"}>
+                  {/* TOP HEADER RESULTS CARD */}
+                  <Card className="overflow-hidden border-slate-200 shadow-sm">
+                    <div className="bg-slate-950 p-4 sm:p-5 text-white">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge
+                              tone={
+                                currentPipResults.passed && currentTiuResults.passed
+                                  ? "success"
+                                  : !currentPipResults.passed && !currentTiuResults.passed
+                                    ? "danger"
+                                    : "warning"
+                              }
+                              className="text-2xs font-bold px-2 py-0.5 whitespace-nowrap"
+                            >
+                              {currentPipResults.passed && currentTiuResults.passed
+                                ? "LOLOS KEDUA TAHAP (TAHAP 2 & 3)"
+                                : !currentPipResults.passed && !currentTiuResults.passed
+                                  ? "REMEDIAL TAHAP 2 & 3"
+                                  : !currentPipResults.passed
+                                    ? "REMEDIAL TAHAP 2 (PIP)"
+                                    : "REMEDIAL TAHAP 3 (TIU)"}
+                            </Badge>
+                            <span className="text-2xs text-slate-400">·</span>
+                            <span className="text-2xs text-slate-300 whitespace-nowrap">
+                              Seluruh Nilai CAT &amp; Skrining Rikkes
                             </span>
-                            <Badge tone={isCorrect ? "success" : "danger"} className="text-3xs px-2 py-0.5">
-                              {isCorrect ? "Jawaban Benar" : "Salah / Kosong"}
+                          </div>
+
+                          <h2 className="mt-1.5 font-display text-lg sm:text-xl font-bold text-white">
+                            Laporan Evaluasi Lengkap CAT &amp; Skrining Rikkes
+                          </h2>
+                          <p className="mt-0.5 text-xs text-slate-300">
+                            Santri / Peserta:{" "}
+                            <strong>{selectedCandidate?.name ?? "Peserta"}</strong>{" "}
+                            <span className="text-slate-400">
+                              ({selectedCandidate?.school ?? "—"})
+                            </span>
+                          </p>
+                        </div>
+
+                        {/* ACTION BUTTONS (IN HEADER) */}
+                        <div className="flex flex-wrap items-center gap-2 shrink-0">
+                          {isCoachSelfTest ? (
+                            <div className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/20 border border-amber-400/30 px-2.5 py-1 text-2xs text-amber-200 font-medium">
+                              <ShieldCheck className="size-3.5 text-amber-400 shrink-0" />
+                              <span>Uji Coba Pelatih — Tersimpan di Riwayat</span>
+                            </div>
+                          ) : !isKioskLocked ? (
+                            <Button
+                              onClick={handleSyncToCandidateProfile}
+                              className="!px-3 !py-1.5 !text-xs font-bold shadow-sm bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap"
+                            >
+                              <Save className="size-3.5" /> Sinkronkan ke Profil
+                            </Button>
+                          ) : null}
+
+                          {isKioskLocked ? (
+                            <Button
+                              onClick={() => openAdminTokenModal("complete-exit")}
+                              className="!px-3.5 !py-2 !text-xs font-extrabold shadow-md bg-amber-500 hover:bg-amber-400 !text-slate-950 whitespace-nowrap cursor-pointer"
+                            >
+                              <KeyRound className="size-3.5" /> Selesai &amp; Keluar Kiosk (Token Admin)
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              onClick={() => setSessionPhase("idle")}
+                              className="bg-white/10 text-white hover:bg-white/20 !px-3 !py-1.5 !text-xs whitespace-nowrap"
+                            >
+                              <RotateCcw className="size-3.5" /> Mulai Baru
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* ALL 4 METRICS RELEASED SIMULTANEOUSLY: PIP, TIU, ANAMNESA 21, TES BUTA WARNA */}
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* 1. TAHAP 2: PIP */}
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-200">
+                              Tahap 2: Pancasila &amp; Wawasan (PIP)
+                            </span>
+                            <Badge
+                              tone={currentPipResults.passed ? "success" : "danger"}
+                              className="text-3xs px-2 py-0.5 font-bold"
+                            >
+                              {currentPipResults.passed ? "Lolos (≥70)" : "Remedial"}
                             </Badge>
                           </div>
-
-                          <p className="mt-1 text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
-                            {q.question}
-                          </p>
-
-                          <div className="mt-2.5 flex flex-wrap gap-2 text-xs">
-                            <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-slate-700">
-                              Pilihan Peserta:{" "}
-                              <strong>
-                                {userAns !== undefined
-                                  ? `${["A", "B", "C", "D", "E"][userAns]}. ${q.options[userAns]}`
-                                  : "Tidak Dijawab"}
-                              </strong>
-                            </span>
-                            <span className="rounded-lg bg-emerald-100 px-2.5 py-1 text-emerald-800">
-                              Kunci Benar:{" "}
-                              <strong>
-                                {["A", "B", "C", "D", "E"][q.correctIndex]}.{" "}
-                                {q.options[q.correctIndex]}
-                              </strong>
+                          <div className="my-2 flex items-baseline justify-between">
+                            <div className="flex items-baseline gap-1">
+                              <span className="font-display text-3xl font-black text-amber-400">
+                                {currentPipResults.score}
+                              </span>
+                              <span className="text-xs font-normal text-slate-400">
+                                / 100
+                              </span>
+                            </div>
+                            <span className="text-xs text-slate-300 font-medium">
+                              {currentPipResults.correct} / 50 Butir Benar (&times;2)
                             </span>
                           </div>
+                          <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
+                            Passing Grade Mandiri: &ge; {packageConfig.pipPassingGrade} · Materi: Sejarah, Sila, UUD, NKRI
+                          </p>
+                        </div>
 
-                          <div className="mt-2 rounded-xl bg-slate-50 p-2.5 text-xs leading-relaxed text-slate-700">
-                            <strong className="text-slate-900">
-                              Pembahasan:
-                            </strong>{" "}
-                            {q.explanation}
+                        {/* 2. TAHAP 3: TIU */}
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-200">
+                              Tahap 3: Intelegensia Umum (TIU)
+                            </span>
+                            <Badge
+                              tone={currentTiuResults.passed ? "success" : "danger"}
+                              className="text-3xs px-2 py-0.5 font-bold"
+                            >
+                              {currentTiuResults.passed ? "Lolos (≥70)" : "Remedial"}
+                            </Badge>
+                          </div>
+                          <div className="my-2 flex items-baseline justify-between">
+                            <div className="flex items-baseline gap-1">
+                              <span className="font-display text-3xl font-black text-purple-300">
+                                {currentTiuResults.scaled}
+                              </span>
+                              <span className="text-xs font-normal text-slate-400">
+                                / 100
+                              </span>
+                            </div>
+                            <span className="text-xs text-slate-300 font-medium">
+                              Mentah: {currentTiuResults.raw} / 50 (&times;2)
+                            </span>
+                          </div>
+                          <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
+                            Passing Grade Mandiri: &ge; {packageConfig.tiuPassingGrade} · Materi: Verbal, Numerik, Logika
+                          </p>
+                        </div>
+
+                        {/* 3. SURVEY 21 ANAMNESA KESEHATAN */}
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                              <HeartPulse className="size-3.5 text-red-400 shrink-0" />
+                              Survey 21 Anamnesa Kesehatan
+                            </span>
+                            <Badge
+                              tone={
+                                gateAnamnesisEval.status === "passed"
+                                  ? "success"
+                                  : gateAnamnesisEval.status === "review"
+                                    ? "warning"
+                                    : "danger"
+                              }
+                              className="text-3xs px-2 py-0.5 font-bold"
+                            >
+                              {gateAnamnesisEval.status === "passed"
+                                ? "Laik"
+                                : gateAnamnesisEval.status === "review"
+                                  ? "Perlu Tinjau"
+                                  : "Atensi Medis"}
+                            </Badge>
+                          </div>
+                          <div className="my-2 flex items-baseline justify-between">
+                            <div className="flex items-baseline gap-1">
+                              <span className="font-display text-2xl font-black text-white">
+                                {gateAnamnesisEval.score}
+                              </span>
+                              <span className="text-xs font-normal text-slate-400">
+                                / 100
+                              </span>
+                            </div>
+                            <span className="text-xs text-slate-300 font-medium">
+                              {gateAnamnesisEval.yesCount} YA dari 21 Butir
+                            </span>
+                          </div>
+                          <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
+                            Rikkes Tahap 4 · Tersinkron otomatis ke Rekam Medis Kandidat
+                          </p>
+                        </div>
+
+                        {/* 4. TES BUTA WARNA (ISHIHARA 25 PIRINGAN) */}
+                        <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col justify-between">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                              <Eye className="size-3.5 text-sky-400 shrink-0" />
+                              Tes Buta Warna (25 Piringan)
+                            </span>
+                            <Badge
+                              tone={gateIshiharaStats ? gateIshiharaStats.tone : "neutral"}
+                              className="text-3xs px-2 py-0.5 font-bold"
+                            >
+                              {gateIshiharaStats
+                                ? gateIshiharaStats.status === "normal"
+                                  ? "Normal (≥85%)"
+                                  : gateIshiharaStats.status === "partial"
+                                    ? "Perlu Konfirmasi"
+                                    : "Indikasi Defisiensi"
+                                : "—"}
+                            </Badge>
+                          </div>
+                          <div className="my-2 flex items-baseline justify-between">
+                            <div className="flex items-baseline gap-1">
+                              <span className="font-display text-2xl font-black text-sky-300">
+                                {gateIshiharaStats ? `${gateIshiharaStats.accuracy}%` : "—"}
+                              </span>
+                            </div>
+                            <span className="text-xs text-slate-300 font-medium">
+                              {gateIshiharaStats
+                                ? `${gateIshiharaStats.correctCount} / ${gateIshiharaStats.total} Plat Benar`
+                                : "—"}
+                            </span>
+                          </div>
+                          <p className="text-3xs text-slate-400 border-t border-white/10 pt-1.5">
+                            {gateIshiharaStats
+                              ? gateIshiharaStats.statusLabel
+                              : "Standar 25 Piringan Resmi Ishihara BPIP"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* DETAILED QUESTIONS REVIEW & EXPLANATIONS (ALL 100 QUESTIONS) */}
+                    <div className="p-4 sm:p-5 bg-white">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+                        <div>
+                          <h3 className="font-display text-sm sm:text-base font-bold text-slate-900">
+                            Tinjauan Pembahasan &amp; Kunci Jawaban Seluruh Soal ({pipExamQuestions.length + tiuExamQuestions.length} Butir)
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            Pelajari seluruh jawaban Anda beserta kunci dan rasionalisasi pembahasan lengkap sebelum keluar dari Kiosk.
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1 rounded-xl bg-slate-100 p-1 w-full lg:w-auto shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setReviewTab("all")}
+                            className={`flex-1 lg:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                              reviewTab === "all"
+                                ? "bg-slate-900 text-white shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                          >
+                            Semua Soal ({pipExamQuestions.length + tiuExamQuestions.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReviewTab("pip")}
+                            className={`flex-1 lg:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                              reviewTab === "pip"
+                                ? "bg-white text-slate-900 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                          >
+                            PIP ({pipExamQuestions.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReviewTab("tiu")}
+                            className={`flex-1 lg:flex-initial text-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+                              reviewTab === "tiu"
+                                ? "bg-white text-slate-900 shadow-2xs"
+                                : "text-slate-600 hover:text-slate-900"
+                            }`}
+                          >
+                            TIU ({tiuExamQuestions.length})
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* QUESTIONS LIST ACCORDING TO ACTIVE REVIEW TAB */}
+                      <div
+                        className={`mt-3 divide-y divide-slate-100 ${
+                          isKioskLocked ? "" : "max-h-[38rem] overflow-y-auto pr-2"
+                        }`}
+                      >
+                        {(reviewTab === "all"
+                          ? [
+                              ...pipExamQuestions.map((q, i) => ({
+                                q,
+                                sessionType: "pip" as const,
+                                sessionNum: i + 1,
+                              })),
+                              ...tiuExamQuestions.map((q, i) => ({
+                                q,
+                                sessionType: "tiu" as const,
+                                sessionNum: i + 1,
+                              })),
+                            ]
+                          : reviewTab === "pip"
+                            ? pipExamQuestions.map((q, i) => ({
+                                q,
+                                sessionType: "pip" as const,
+                                sessionNum: i + 1,
+                              }))
+                            : tiuExamQuestions.map((q, i) => ({
+                                q,
+                                sessionType: "tiu" as const,
+                                sessionNum: i + 1,
+                              }))
+                        ).map(({ q, sessionType, sessionNum }) => {
+                          const userAns =
+                            sessionType === "pip"
+                              ? pipAnswers[q.id]
+                              : tiuAnswers[q.id]
+                          const isCorrect = userAns === q.correctIndex
+
+                          return (
+                            <div key={`${sessionType}-${q.id}`} className="py-3.5">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`inline-flex items-center rounded-md px-2 py-0.5 text-3xs font-extrabold uppercase tracking-wider ${
+                                      sessionType === "pip"
+                                        ? "bg-red-100 text-red-800"
+                                        : "bg-purple-100 text-purple-800"
+                                    }`}
+                                  >
+                                    {sessionType.toUpperCase()} #{sessionNum}
+                                  </span>
+                                  <span className="text-xs font-bold text-slate-900">
+                                    {q.category}
+                                  </span>
+                                </div>
+                                <Badge
+                                  tone={isCorrect ? "success" : "danger"}
+                                  className="text-3xs px-2 py-0.5"
+                                >
+                                  {isCorrect ? "Jawaban Benar" : "Salah / Kosong"}
+                                </Badge>
+                              </div>
+
+                              <p className="mt-1.5 text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+                                {q.question}
+                              </p>
+
+                              <div className="mt-2.5 flex flex-wrap gap-2 text-xs">
+                                <span
+                                  className={`rounded-lg px-2.5 py-1 ${
+                                    isCorrect
+                                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                      : "bg-rose-50 text-rose-800 border border-rose-200"
+                                  }`}
+                                >
+                                  Pilihan Peserta:{" "}
+                                  <strong>
+                                    {userAns !== undefined
+                                      ? `${["A", "B", "C", "D", "E"][userAns]}. ${q.options[userAns]}`
+                                      : "Tidak Dijawab"}
+                                  </strong>
+                                </span>
+                                <span className="rounded-lg bg-emerald-100 px-2.5 py-1 text-emerald-900">
+                                  Kunci Benar:{" "}
+                                  <strong>
+                                    {["A", "B", "C", "D", "E"][q.correctIndex]}.{" "}
+                                    {q.options[q.correctIndex]}
+                                  </strong>
+                                </span>
+                              </div>
+
+                              <div className="mt-2 rounded-xl bg-slate-50 border border-slate-100 p-3 text-xs leading-relaxed text-slate-700">
+                                <strong className="text-slate-900">
+                                  Pembahasan:
+                                </strong>{" "}
+                                {q.explanation}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* BOTTOM ADMIN TOKEN EXIT CALLOUT INSIDE KIOSK */}
+                  {isKioskLocked && (
+                    <Card className="border-amber-300 bg-slate-950 p-5 text-white shadow-lg">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            <KeyRound className="size-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-display text-sm sm:text-base font-extrabold text-white">
+                              Sudah Selesai Melihat Nilai &amp; Pembahasan?
+                            </h4>
+                            <p className="mt-0.5 text-xs text-slate-300 leading-relaxed">
+                              Seluruh nilai Anda telah tersimpan permanen. Mode Safe Exam Browser tidak dapat ditutup tanpa memasukkan{" "}
+                              <strong className="text-amber-300">Token Admin</strong> dari Pengawas / Pelatih.
+                            </p>
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
+
+                        <Button
+                          onClick={() => openAdminTokenModal("complete-exit")}
+                          className="w-full sm:w-auto justify-center !px-5 !py-3 !text-xs sm:!text-sm font-extrabold bg-amber-500 hover:bg-amber-400 !text-slate-950 shadow-lg shrink-0 cursor-pointer"
+                        >
+                          <KeyRound className="size-4 shrink-0" />
+                          <span>Masukkan Token Admin &amp; Keluar Kiosk</span>
+                        </Button>
+                      </div>
+                    </Card>
+                  )}
                 </div>
-              </Card>
+              </div>
             </div>
           )}
         </div>
@@ -4887,25 +6175,74 @@ export default function CatBankView() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 p-3.5 text-xs text-emerald-200 leading-relaxed">
-              <p className="font-bold flex items-center gap-1.5 text-emerald-300">
-                <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
-                Seluruh Nilai Tersimpan &amp; Mode Kiosk Dibuka
+            {/* RIKKES SCREENING SUMMARY (ANAMNESA 21 + TES BUTA WARNA) */}
+            {(gateAnamnesisEval.answeredCount > 0 || gateIshiharaStats) && (
+              <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-xl bg-slate-800/60 p-3 border border-slate-700/60">
+                  <span className="text-3xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                    <HeartPulse className="size-3 text-red-400" />
+                    Anamnesa 21
+                  </span>
+                  <p className="mt-1 text-sm font-extrabold text-white">
+                    {gateAnamnesisEval.score}/100{" "}
+                    <span className="text-3xs font-normal text-slate-400">
+                      ({gateAnamnesisEval.yesCount} YA)
+                    </span>
+                  </p>
+                </div>
+                <div className="rounded-xl bg-slate-800/60 p-3 border border-slate-700/60">
+                  <span className="text-3xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                    <Eye className="size-3 text-sky-400" />
+                    Tes Buta Warna
+                  </span>
+                  <p className="mt-1 text-sm font-extrabold text-white">
+                    {gateIshiharaStats ? `${gateIshiharaStats.accuracy}%` : "—"}{" "}
+                    <span className="text-3xs font-normal text-slate-400">
+                      {gateIshiharaStats
+                        ? `(${gateIshiharaStats.correctCount}/${gateIshiharaStats.total})`
+                        : ""}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 rounded-xl bg-amber-950/40 border border-amber-800/40 p-3.5 text-xs text-amber-200 leading-relaxed">
+              <p className="font-bold flex items-center gap-1.5 text-amber-300">
+                <Lock className="size-4 shrink-0 text-amber-400" />
+                Seluruh Nilai Tersimpan — Kiosk Tetap Terkunci
               </p>
-              <p className="mt-0.5 text-2xs text-emerald-300/80">
-                Kedua sesi (PIP &amp; TIU) telah selesai. Data tryout tersinkron ke profil siswa dan Safe Exam Browser telah dinonaktifkan.
+              <p className="mt-0.5 text-2xs text-amber-200/85">
+                Silakan tutup dialog ini untuk <strong>mempelajari pembahasan seluruh 100 soal</strong> (PIP &amp; TIU). Untuk keluar dari Safe Exam Browser setelah selesai, wajib memasukkan <strong>Token Admin</strong>.
               </p>
             </div>
 
-            <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="mt-6 flex flex-col gap-2.5">
               <button
                 type="button"
-                onClick={() => setShowTiuResultModal(false)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 text-xs font-bold transition cursor-pointer"
+                onClick={() => {
+                  setReviewTab("all")
+                  setShowTiuResultModal(false)
+                  if (isKioskLocked) enterFullscreen()
+                }}
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-extrabold shadow-lg transition cursor-pointer"
               >
                 <BookOpenCheck className="size-4 shrink-0" />
-                <span>Lihat Laporan Evaluasi &amp; Pembahasan Lengkap</span>
+                <span>Lihat Pembahasan Semua Soal (100 Soal)</span>
               </button>
+              {isKioskLocked && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTiuResultModal(false)
+                    openAdminTokenModal("complete-exit")
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-xs font-bold text-amber-300 transition cursor-pointer"
+                >
+                  <KeyRound className="size-3.5 shrink-0 text-amber-400" />
+                  <span>Keluar dari Kiosk (Masukkan Token Admin)</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -4964,7 +6301,7 @@ export default function CatBankView() {
               ) : (
                 <span>
                   Anda wajib tetap berada dalam mode <strong>Layar Penuh</strong> hingga{" "}
-                  <strong>Sesi 2 (TIU) selesai</strong> dan dilarang berpindah tab/aplikasi. Mencapai {maxAllowedViolations} pelanggaran akan mengunci layar ujian.
+                  <strong>Pengawas mengotorisasi keluar dengan Token Admin</strong> dan dilarang berpindah tab/aplikasi. Mencapai {maxAllowedViolations} pelanggaran akan mengunci layar.
                 </span>
               )}
             </p>
@@ -5014,8 +6351,8 @@ export default function CatBankView() {
                 </h3>
                 <p className="text-xs text-slate-500">
                   {sessionPhase === "pip"
-                    ? "Setelah PIP dikumpulkan, Anda langsung melanjutkan ke Sesi 2 (TIU) di dalam Kiosk."
-                    : "Setelah TIU dikumpulkan, seluruh ujian selesai dan mode Kiosk akan dibuka."}
+                    ? "Setelah PIP dikumpulkan, Anda diarahkan ke Survey 21 Anamnesa Kesehatan lalu lanjut ke Sesi 2 (TIU). Seluruh nilai keluar di akhir."
+                    : "Setelah TIU dikumpulkan, Anda diarahkan ke Tes Buta Warna lalu seluruh nilai & pembahasan 100 soal akan ditampilkan."}
                 </p>
               </div>
             </div>
@@ -5071,8 +6408,8 @@ export default function CatBankView() {
                 className="!text-xs font-bold"
               >
                 {sessionPhase === "pip"
-                  ? "Selesaikan PIP & Lanjut TIU"
-                  : "Ya, Selesaikan Seluruh Ujian"}
+                  ? "Kumpulkan PIP & Isi Survey Anamnesa"
+                  : "Kumpulkan TIU & Lanjut Tes Buta Warna"}
               </Button>
             </div>
           </div>
@@ -5100,7 +6437,10 @@ export default function CatBankView() {
                   <h3 className="font-display text-base sm:text-lg font-black text-white">
                     {exitTokenPurpose === "violation-lock"
                       ? "Buka Kunci Pelanggaran Kiosk"
-                      : "Keluar Darurat Safe Exam Browser"}
+                      : exitTokenPurpose === "complete-exit" ||
+                          sessionPhase === "completed"
+                        ? "Verifikasi Token Admin — Keluar Kiosk"
+                        : "Keluar Darurat Safe Exam Browser"}
                   </h3>
                 </div>
               </div>
@@ -5122,7 +6462,10 @@ export default function CatBankView() {
             <p className="mt-4 text-xs text-slate-300 leading-relaxed">
               {exitTokenPurpose === "violation-lock"
                 ? "Layar kandidat terkunci karena melampaui batas pelanggaran. Masukkan Token Admin untuk membuka kunci ujian atau menghentikan sesi."
-                : "Peserta wajib menyelesaikan Sesi 1 (PIP) dan Sesi 2 (TIU) sebelum keluar. Untuk keluar lebih awal dari mode Kiosk, masukkan Token Admin resmi."}
+                : exitTokenPurpose === "complete-exit" ||
+                    sessionPhase === "completed"
+                  ? "Seluruh nilai (PIP, TIU, Anamnesa & Buta Warna) telah tersimpan aman. Masukkan Token Admin dari Pengawas/Pelatih untuk menutup Safe Exam Browser."
+                  : "Peserta wajib menuntaskan seluruh rangkaian ujian hingga selesai. Untuk keluar lebih awal dari mode Kiosk, masukkan Token Admin resmi."}
             </p>
 
             <div className="mt-4">
@@ -5173,7 +6516,7 @@ export default function CatBankView() {
                   <span>
                     {isVerifyingExitToken
                       ? "Memverifikasi..."
-                      : "Buka Kunci & Izinkan Lanjut Ujian"}
+                      : "Buka Kunci & Izinkan Lanjut"}
                   </span>
                 </button>
               )}
@@ -5182,13 +6525,21 @@ export default function CatBankView() {
                 type="button"
                 disabled={isVerifyingExitToken}
                 onClick={() => void handleVerifyAdminTokenAction("exit")}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 py-2.5 px-4 text-xs font-extrabold text-white shadow-lg transition cursor-pointer"
+                className={`w-full flex items-center justify-center gap-2 rounded-xl disabled:opacity-50 py-3 px-4 text-xs font-extrabold text-white shadow-lg transition cursor-pointer ${
+                  exitTokenPurpose === "complete-exit" ||
+                  sessionPhase === "completed"
+                    ? "bg-emerald-600 hover:bg-emerald-500"
+                    : "bg-red-600 hover:bg-red-500"
+                }`}
               >
                 <LogOut className="size-4 shrink-0" />
                 <span>
                   {isVerifyingExitToken
                     ? "Memverifikasi..."
-                    : "Hentikan Sesi & Keluar dari Kiosk"}
+                    : exitTokenPurpose === "complete-exit" ||
+                        sessionPhase === "completed"
+                      ? "Verifikasi Token & Keluar dari Kiosk"
+                      : "Hentikan Sesi & Keluar dari Kiosk"}
                 </span>
               </button>
 
@@ -5202,7 +6553,10 @@ export default function CatBankView() {
                 }}
                 className="w-full rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-xs font-bold text-slate-300 transition cursor-pointer"
               >
-                Batal &amp; Kembali ke Ujian
+                {exitTokenPurpose === "complete-exit" ||
+                sessionPhase === "completed"
+                  ? "Batal & Kembali ke Pembahasan Soal"
+                  : "Batal & Kembali ke Ujian"}
               </button>
             </div>
           </div>

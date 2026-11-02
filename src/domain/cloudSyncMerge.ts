@@ -939,6 +939,49 @@ export function mergeDatabaseStates({
     }
   }
 
+  // Pastikan Token Admin Kiosk CAT selalu eksplisit tersimpan di records & top-level state database
+  const existingTokenRec = mergedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]
+  const cloudDirectToken =
+    typeof d.catExitToken === "string" && d.catExitToken.trim().length >= 4
+      ? d.catExitToken.trim().toUpperCase()
+      : null
+  const cloudDirectTokenTime = d.catExitTokenUpdatedAt || d.updatedAt || ""
+  const existingTokenTime = existingTokenRec?.savedAt || ""
+
+  if (
+    cloudDirectToken &&
+    (!existingTokenRec || cloudDirectTokenTime > existingTokenTime)
+  ) {
+    mergedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY] = {
+      metrics: { token: cloudDirectToken },
+      result: "pending",
+      discipline: "-",
+      focus: "-",
+      stamina: "-",
+      note: "CAT Kiosk Exit Token",
+      savedAt: cloudDirectTokenTime || "2026-01-01T00:00:00.000Z",
+    }
+  } else if (!mergedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]) {
+    mergedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY] = {
+      metrics: { token: DEFAULT_CAT_EXIT_TOKEN },
+      result: "pending",
+      discipline: "-",
+      focus: "-",
+      stamina: "-",
+      note: "CAT Kiosk Exit Token",
+      savedAt: "2026-01-01T00:00:00.000Z",
+    }
+    localHasNewerData = true
+  }
+
+  const resolvedExitToken =
+    mergedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]?.metrics?.token
+      ?.trim()
+      .toUpperCase() || DEFAULT_CAT_EXIT_TOKEN
+  const resolvedExitTokenTime =
+    mergedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]?.savedAt ||
+    "2026-01-01T00:00:00.000Z"
+
   // 4. Merge Ishihara Results & Sessions
   const localIshResults: IshiharaScreeningResult[] =
     localState.ishiharaResults || []
@@ -1115,6 +1158,8 @@ export function mergeDatabaseStates({
     ishiharaAllowlist: mergedAllowlist,
     ishiharaResults: mergedIshResults,
     deletedCandidateIds: Array.from(mergedDeletedIds),
+    catExitToken: resolvedExitToken,
+    catExitTokenUpdatedAt: resolvedExitTokenTime,
   }
 
   return {
