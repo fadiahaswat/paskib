@@ -825,6 +825,7 @@ export function CandidateDetailView({
 }) {
   const {
     allCandidates,
+    currentUser,
     updateCandidate,
     deleteCandidate,
     updateCandidateStage,
@@ -833,6 +834,7 @@ export function CandidateDetailView({
     ishiharaResults,
   } = useApp()
 
+  const canEdit = currentUser.role !== "candidate"
   const candidate = allCandidates.find((c) => c.id === candidateId) ?? null
   const [tab, setTab] = useState<"profile" | "stages">("profile")
 
@@ -1344,8 +1346,10 @@ export function CandidateDetailView({
                                     {file.name}
                                   </p>
                                   <p className="text-3xs text-slate-400">
-                                    {(file.size / 1024).toFixed(0)} KB ·{" "}
-                                    {file.uploadedAt}
+                                    {typeof file.size === "number"
+                                      ? `${(file.size / 1024).toFixed(0)} KB`
+                                      : (file.size ?? "—")}{" "}
+                                    · {file.uploadedAt}
                                   </p>
                                 </div>
                               </div>
@@ -1531,141 +1535,137 @@ export function CandidateDetailView({
                       </div>
 
                       <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {([
-                          "passed",
-                          "active",
-                          "review",
-                          "failed",
-                        ] as keyof typeof STAGE_STATUS_CONFIG[]).map(
-                          (statusVal) => {
-                            const config = STAGE_STATUS_CONFIG[statusVal]
-                            const Icon = config.icon
-                            const isSelected = st === statusVal
-                            return (
-                              <button
-                                key={statusVal}
-                                type="button"
-                                onClick={() =>
-                                  updateCandidateStage(
-                                    candidate.id,
-                                    idx,
-                                    statusVal,
-                                  )
-                                }
-                                className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition active:scale-[0.98] ${
-                                  isSelected
-                                    ? config.activeClass
-                                    : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
-                                }`}
-                              >
-                                <Icon className="size-3.5 shrink-0" />
-                                <span className="whitespace-nowrap sm:hidden">
-                                  {config.shortLabel}
-                                </span>
-                                <span className="hidden whitespace-nowrap sm:inline">
-                                  {config.label}
-                                </span>
-                              </button>
-                            )
-                          },
-                        )}
+                        {(
+                          ["passed", "active", "review", "failed"] as const
+                        ).map((statusVal) => {
+                          const config = STAGE_STATUS_CONFIG[statusVal]
+                          const Icon = config.icon
+                          const isSelected = st === statusVal
+                          return (
+                            <button
+                              key={statusVal}
+                              type="button"
+                              disabled={!canEdit}
+                              onClick={() =>
+                                updateCandidateStage(
+                                  candidate.id,
+                                  idx,
+                                  statusVal,
+                                )
+                              }
+                              className={`inline-flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+                                isSelected
+                                  ? config.activeClass
+                                  : "border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+                              }`}
+                            >
+                              <Icon className="size-3.5 shrink-0" />
+                              <span className="whitespace-nowrap sm:hidden">
+                                {config.shortLabel}
+                              </span>
+                              <span className="hidden whitespace-nowrap sm:inline">
+                                {config.label}
+                              </span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                   )
                 })}
               </div>
-            </div>
-          ) : null}
 
-          {/* Evaluasi Nilai, Kehadiran & Catatan Pelatih */}
-          {canEdit ? (
-            <form
-              onSubmit={saveScores}
-              className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <h3 className="font-display text-sm font-bold text-slate-900">
-                    Rekap Nilai Seleksi, Kehadiran & Catatan Pelatih
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Perbarui nilai tahapan, persentase kehadiran latihan, dan catatan pembinaan santri.
-                  </p>
-                </div>
-                <Button size="sm" type="submit">
-                  <Save className="size-3.5" /> Simpan Nilai & Catatan
-                </Button>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-4">
-                <Input
-                  label="Nilai PIP (0-100)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  value={pip}
-                  onChange={(e) => setPip(e.target.value)}
-                />
-                <Input
-                  label="Nilai TIU (0-100)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  value={tiu}
-                  onChange={(e) => setTiu(e.target.value)}
-                />
-                <Input
-                  label="Nilai PBB (0-100)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  value={pbb}
-                  onChange={(e) => setPbb(e.target.value)}
-                />
-                <Input
-                  label="Nilai Samapta (0-100)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  value={fitness}
-                  onChange={(e) => setFitness(e.target.value)}
-                />
-                <Input
-                  label="Nilai Wawancara (0-100)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  step="0.1"
-                  value={personality}
-                  onChange={(e) => setPersonality(e.target.value)}
-                />
-                <Input
-                  label="Kehadiran Latihan (%)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={attendance}
-                  onChange={(e) => setAttendance(e.target.value)}
-                />
-                <Input
-                  label="Kepatuhan Program (%)"
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={trainingCompliance}
-                  onChange={(e) => setTrainingCompliance(e.target.value)}
-                />
-                <Input
-                  label="Catatan Pelatih"
-                  value={coachNote}
-                  placeholder="Catatan evaluasi pembinaan..."
-                  onChange={(e) => setCoachNote(e.target.value)}
-                />
-              </div>
-            </form>
+              {/* Evaluasi Nilai, Kehadiran & Catatan Pelatih */}
+              {canEdit ? (
+                <form
+                  onSubmit={saveScores}
+                  className="rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-2xs"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h3 className="font-display text-sm font-bold text-slate-900">
+                        Rekap Nilai Seleksi, Kehadiran &amp; Catatan Pelatih
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Perbarui nilai tahapan, persentase kehadiran latihan, dan catatan pembinaan santri.
+                      </p>
+                    </div>
+                    <Button size="sm" type="submit">
+                      <Save className="size-3.5" /> Simpan Nilai &amp; Catatan
+                    </Button>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-4">
+                    <Input
+                      label="Nilai PIP (0-100)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.1"
+                      value={pip}
+                      onChange={(e) => setPip(e.target.value)}
+                    />
+                    <Input
+                      label="Nilai TIU (0-100)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.1"
+                      value={tiu}
+                      onChange={(e) => setTiu(e.target.value)}
+                    />
+                    <Input
+                      label="Nilai PBB (0-100)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.1"
+                      value={pbb}
+                      onChange={(e) => setPbb(e.target.value)}
+                    />
+                    <Input
+                      label="Nilai Samapta (0-100)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.1"
+                      value={fitness}
+                      onChange={(e) => setFitness(e.target.value)}
+                    />
+                    <Input
+                      label="Nilai Wawancara (0-100)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.1"
+                      value={personality}
+                      onChange={(e) => setPersonality(e.target.value)}
+                    />
+                    <Input
+                      label="Kehadiran Latihan (%)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={attendance}
+                      onChange={(e) => setAttendance(e.target.value)}
+                    />
+                    <Input
+                      label="Kepatuhan Program (%)"
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={trainingCompliance}
+                      onChange={(e) => setTrainingCompliance(e.target.value)}
+                    />
+                    <Input
+                      label="Catatan Pelatih"
+                      value={coachNote}
+                      placeholder="Catatan evaluasi pembinaan..."
+                      onChange={(e) => setCoachNote(e.target.value)}
+                    />
+                  </div>
+                </form>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>
