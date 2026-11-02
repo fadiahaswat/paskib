@@ -29,6 +29,8 @@ export type AppDatabaseState = {
   ishiharaAllowlist?: any[]
   ishiharaResults?: any[]
   deletedCandidateIds?: string[]
+  catExitToken?: string
+  catExitTokenUpdatedAt?: string
   updatedAt?: string
 }
 

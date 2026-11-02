@@ -30,7 +30,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
       "Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'",
       "Kemerdekaan harus bersendi kekeluargaan bangsa Indonesia",
-      "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
+      "1) Permusyawaratan dan mufakat adat, 2) Perwakilan kerakyatan, serta 3) Kebijaksanaan rasional",
       "Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai"
     ],
     "correctIndex": 3,
@@ -41,7 +41,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0003",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional Mohammad Yamin menyampaikan pidato mengenai gagasan dasar negara (1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakila...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional Mohammad Yamin menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "22 Juni 1945",
       "30 Mei 1945",
@@ -75,7 +75,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam persidangan pertama BPUPK pada tanggal 29 Mei 1945, R.A.A. Wiranatakoesoema menyampaikan pandangan mengenai dasar negara Indonesia merdeka. Pokok gagasan yang dikemukakan oleh R.A.A. Wiranatakoesoema adalah...",
     "options": [
-      "Pentingnya keselarasan/harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai",
+      "Pentingnya keselarasan serta harmoni dengan kehendak Tuhan Yang Maha Esa dan syarat utama 'rasa persatuan' yang tidak membeda-bedakan serta saling menghargai",
       "Dasar fundamental negara antara lain: (1) semangat kebangsaan, (2) hasrat persatuan, dan (3) rasa kekeluargaan",
       "1) Permusyawaratan (Quran)-mufakat (adat), 2) Perwakilan (adat), dan 3) Kebijaksanaan (rationalism)",
       "Indonesia merdeka haruslah berdasar pada 'iman dan tawakal kepada Tuhan Allah Yang Mengendalikan langit dan bumi'",
@@ -89,7 +89,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0006",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional R.A.A. Wiranatakoesoema menyampaikan pidato mengenai gagasan dasar negara (Pentingnya keselarasan/harmoni dengan kehendak Tuhan Ya...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional R.A.A. Wiranatakoesoema menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "1 Juni 1945",
       "30 Mei 1945",
@@ -137,7 +137,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0009",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional K.R.M.T.H. Woerjaningrat menyampaikan pidato mengenai gagasan dasar negara (Kemerdekaan harus bersendi kekeluargaan bangsa Indonesi...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional K.R.M.T.H. Woerjaningrat menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "29 Mei 1945",
       "31 Mei 1945",
@@ -185,7 +185,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0012",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional Soesanto Tirtoprodjo menyampaikan pidato mengenai gagasan dasar negara (Dasar fundamental negara antara lain: (1) semangat keba...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional Soesanto Tirtoprodjo menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "29 Mei 1945",
       "30 Mei 1945",
@@ -233,7 +233,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0015",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional A.M. Dasaad menyampaikan pidato mengenai gagasan dasar negara (Indonesia merdeka haruslah berdasar pada 'iman dan tawa...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional A.M. Dasaad menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "30 Mei 1945",
       "22 Juni 1945",
@@ -281,7 +281,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0018",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional Moh. Hatta menyampaikan pidato mengenai gagasan dasar negara (Dasar ketuhanan harus diwujudkan dengan memisahkan urus...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional Moh. Hatta menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "29 Mei 1945",
       "30 Mei 1945",
@@ -329,7 +329,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0021",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional R. Abdoelrahim Pratalykrama menyampaikan pidato mengenai gagasan dasar negara (Dasar negara yaitu (1) persatuan rakyat, dan (2) agama...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional R. Abdoelrahim Pratalykrama menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "30 Mei 1945",
       "1 Juni 1945",
@@ -377,7 +377,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0024",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional Soepomo menyampaikan pidato mengenai gagasan dasar negara (Dasar persatuan, semangat kekeluargaan, dan semangat go...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional Soepomo menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "1 Juni 1945",
       "30 Mei 1945",
@@ -425,7 +425,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0027",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional Ki Bagoes Hadikoesoemo menyampaikan pidato mengenai gagasan dasar negara (Meminta agar Islam dijadikan dasar dan sendi negara...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional Ki Bagoes Hadikoesoemo menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "31 Mei 1945",
       "1 Juni 1945",
@@ -473,7 +473,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0030",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Tokoh pergerakan nasional Sukarno menyampaikan pidato mengenai gagasan dasar negara (Lima dasar negara yang dinamai Pancasila: (1) Kebangsaa...) pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
+    "question": "Tokoh pergerakan nasional Sukarno menyampaikan pidato mengenai gagasan dasar negara pada masa Sidang Pertama BPUPK yang berlangsung pada tanggal...",
     "options": [
       "31 Mei 1945",
       "30 Mei 1945",
@@ -489,7 +489,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0031",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Selasa, 29 Mei 1945 adalah sebanyak...",
+    "question": "Dalam Sidang Pertama BPUPK, jumlah pembicara yang menyampaikan pandangan pada hari Selasa, 29 Mei 1945 adalah sebanyak...",
     "options": [
       "9 pembicara",
       "12 pembicara",
@@ -697,7 +697,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0044",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Rabu, 30 Mei 1945 adalah sebanyak...",
+    "question": "Dalam Sidang Pertama BPUPK, jumlah pembicara yang menyampaikan pandangan pada hari Rabu, 30 Mei 1945 adalah sebanyak...",
     "options": [
       "8 pembicara",
       "6 pembicara",
@@ -857,7 +857,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0054",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Kamis, 31 Mei 1945 adalah sebanyak...",
+    "question": "Dalam Sidang Pertama BPUPK, jumlah pembicara yang menyampaikan pandangan pada hari Kamis, 31 Mei 1945 adalah sebanyak...",
     "options": [
       "14 pembicara",
       "10 pembicara",
@@ -1097,7 +1097,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0069",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Jumlah pembicara yang menyampaikan pandangan pada hari Jumat, 1 Juni 1945 adalah sebanyak...",
+    "question": "Dalam Sidang Pertama BPUPK, jumlah pembicara yang menyampaikan pandangan pada hari Jumat, 1 Juni 1945 adalah sebanyak...",
     "options": [
       "10 pembicara",
       "9 pembicara",
@@ -1707,11 +1707,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Menurut tulisan Muhammad Hatta dkk. yang berjudul 'Uraian Pancasila' (1984), alasan sebagian besar anggota BPUPK dalam pidatonya lebih banyak membahas bentuk negara dan cara menjalankan pemerintahan daripada menjawab langsung soal dasar negara secara utuh adalah...",
     "options": [
-      "Ketua BPUPK melarang pembahasan filsafat dasar negara",
-      "Mereka mendapat tekanan dan ancaman keras dari penguasa militer Jepang",
-      "Mereka belum memahami konsep ketatanegaraan modern",
-      "Waktu berpidato dibatasi hanya lima menit bagi setiap anggota",
-      "Mereka khawatir jawaban mereka tidak dapat diterima secara keseluruhan oleh seluruh anggota sidang dan akan menimbulkan perdebatan berkepanjangan"
+      "Ketua sidang secara tegas melarang pembahasan mengenai filsafat dasar negara",
+      "Seluruh anggota mendapat tekanan militer langsung dari pemerintah pendudukan Jepang",
+      "Sebagian besar anggota sidang belum mengenal konsep ketatanegaraan modern",
+      "Waktu penyampaian pidato tiap anggota dibatasi hanya lima menit oleh pimpinan",
+      "Khawatir usulan mereka tidak diterima utuh oleh seluruh peserta dan memicu perdebatan panjang"
     ],
     "correctIndex": 4,
     "explanation": "Menurut Moh. Hatta dkk. dalam 'Uraian Pancasila' (1984), para anggota BPUPK khawatir jawaban tentang dasar negara tidak dapat diterima seluruh anggota sidang dan menimbulkan perdebatan berkepanjangan (hlm. 6).",
@@ -1727,7 +1727,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Struktur birokrasi pemerintahan daerah otonom",
       "Sistem pertahanan militer semesta sebuah negara merdeka",
       "Hukum acara perdata dan pidana warisan kolonial",
-      "Filsafat atau pikiran yang menjadi dasar/norma dasar dari sebuah negara"
+      "Filsafat atau pikiran yang menjadi dasar dan norma pokok dari sebuah negara"
     ],
     "correctIndex": 4,
     "explanation": "Filosofische grondslag berasal dari bahasa Belanda yang berarti filsafat atau pikiran yang menjadi dasar/norma dasar dari sebuah negara (hlm. 8 & 30).",
@@ -1739,11 +1739,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Ketika menjelaskan dasar pertama yakni Kebangsaan pada pidato 1 Juni 1945, Sukarno mengutip frasa bahasa Prancis 'le desir d'etre ensemble' (keinginan untuk hidup bersama) dan menegaskan bahwa bangsa Indonesia (Natie Indonesia) adalah...",
     "options": [
-      "Sekadar satu golongan orang yang memiliki kesamaan suku dan bahasa daerah tertentu",
-      "Persekutuan kerajaan-kerajaan kuno yang tunduk pada hukum adat setempat",
-      "Seluruh manusia yang ditentukan oleh Allah swt tinggal di kesatuan semua pulau-pulau Indonesia dari ujung Utara Sumatera sampai ke Irian beserta tanah airnya",
-      "Hanya penduduk yang tinggal di wilayah pulau Jawa dan Madura",
-      "Kelompok bangsawan dan birokrat yang pernah mengenyam pendidikan Barat"
+      "Sekadar golongan penduduk yang memiliki kesamaan satu suku dan bahasa daerah tertentu",
+      "Persekutuan kerajaan-kerajaan tradisional yang masing-masing berdiri secara terpisah",
+      "Kesatuan seluruh manusia yang tinggal di gugusan pulau Nusantara dari ujung Sumatra hingga Irian",
+      "Khusus masyarakat yang berdomisili tetap di wilayah Pulau Jawa dan Madura semata",
+      "Kelompok cendekiawan dan bangsawan yang pernah menempuh pendidikan tinggi modern"
     ],
     "correctIndex": 2,
     "explanation": "Sukarno menegaskan bahwa kebangsaan Indonesia bukan sekadar 'le desir d'etre ensemble' di daerah kecil, melainkan kebersatuan seluruh manusia Indonesia dengan tanah airnya dari ujung Utara Sumatera sampai ke Irian (hlm. 9).",
@@ -1755,11 +1755,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam pidato 1 Juni 1945, Sukarno mengemukakan bahwa prinsip kedua yang diusulkannya adalah internasionalisme atau perikemanusiaan. Makna internasionalisme menurut Sukarno adalah...",
     "options": [
-      "Menganggap bangsa Indonesia sebagai bangsa yang paling mulia dan terbagus di dunia",
-      "Menghapuskan batas-batas kedaulatan negara nasional untuk melebur ke dalam satu pemerintahan dunia",
-      "Menjadikan hukum internasional sebagai satu-satunya hukum yang berlaku di dalam negeri",
-      "Penghargaan bangsa Indonesia terhadap nilai-nilai kemanusiaan universal, tidak meremehkan bangsa lain (bukan chauvinisme), dan menuju persaudaraan/kekeluargaan bangsa-bangsa dunia",
-      "Mengutamakan produk dan budaya bangsa asing di atas kebudayaan nasional"
+      "Keyakinan bahwa bangsa Indonesia memiliki derajat paling unggul dibanding bangsa lain",
+      "Penghapusan batas kedaulatan nasional untuk melebur ke dalam satu pemerintahan dunia",
+      "Penetapan hukum internasional sebagai satu-satunya kaidah yang berlaku di dalam negeri",
+      "Penghargaan atas kemanusiaan universal tanpa merendahkan bangsa lain menuju persaudaraan dunia",
+      "Pengutamaan kebudayaan serta kepentingan bangsa asing di atas kepribadian nasional"
     ],
     "correctIndex": 3,
     "explanation": "Internasionalisme yang dimaksud Sukarno adalah penghargaan terhadap nilai-nilai kemanusiaan universal dan menuju kekeluargaan bangsa-bangsa tanpa meremehkan bangsa lain (hlm. 9).",
@@ -1787,11 +1787,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Pada penutup pidatonya tanggal 1 Juni 1945, Sukarno menggelorakan semangat perjuangan rakyat Indonesia dengan kalimat penutup yang berbunyi...",
     "options": [
-      "Kemerdekaan adalah hadiah terindah yang diberikan oleh pemerintah militer Jepang!",
-      "Dengan tercapainya kemerdekaan, maka selesailah seluruh perjuangan bangsa Indonesia!",
-      "Biarkan sejarah yang menentukan nasib kemerdekaan bangsa kita di masa depan!",
-      "Perjuangan kemerdekaan cukup dilakukan melalui jalur diplomasi tanpa pengorbanan!",
-      "Kemerdekaan hanyalah didapat dan dimiliki oleh bangsa yang jiwanya berkobar-kobar dengan tekad, merdeka, merdeka atau mati!"
+      "Kemerdekaan sejati merupakan anugerah terindah yang dijanjikan oleh pemerintah bala tentara Jepang kepada rakyat Asia!",
+      "Dengan disahkannya rancangan dasar negara ini, maka berakhirlah seluruh perjuangan berat bangsa Indonesia!",
+      "Biarkan perjalanan sejarah dunia yang kelak menentukan sendiri nasib kemerdekaan tanah air kita di masa depan!",
+      "Perjuangan menuju Indonesia merdeka cukup ditempuh melalui perundingan meja diplomasi tanpa perlu pengorbanan!",
+      "Kemerdekaan hanyalah didapat dan dimiliki oleh bangsa yang jiwanya berkobar-kobar dengan tekad: merdeka, merdeka atau mati!"
     ],
     "correctIndex": 4,
     "explanation": "Sebagai penutup pidato 1 Juni 1945, Sukarno mengatakan: 'Kemerdekaan hanyalah didapat dan dimiliki oleh bangsa yang jiwanya berkobar-kobar dengan tekad, merdeka, merdeka atau mati!' (hlm. 11).",
@@ -1883,11 +1883,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Alasan historis mengapa penamaan yang tepat untuk Dokuritsu Zyunbi Tyoosakai yang dibentuk pada 29 April 1945 adalah BPUPK (tanpa kata 'Indonesia') adalah...",
     "options": [
-      "Karena badan tersebut hanya bertugas menyusun anggaran belanja pemerintah daerah",
-      "Karena badan tersebut dibentuk oleh Tentara ke-16 Jepang yang hanya memiliki wewenang untuk wilayah Jawa dan Madura, bukan seluruh Indonesia",
-      "Karena anggota BPUPK seluruhnya berasal dari kota Jakarta",
-      "Karena wilayah Sumatra dan Sulawesi sudah merdeka terlebih dahulu",
-      "Karena kata Indonesia dilarang sepenuhnya oleh Kaisar Jepang sejak tahun 1942"
+      "Badan tersebut hanya ditugaskan menyusun rencana anggaran belanja pemerintahan daerah",
+      "Dibentuk oleh Tentara ke-16 Jepang yang wewenangnya hanya meliputi wilayah Jawa dan Madura",
+      "Seluruh anggota badan penyelidik tersebut hanya berasal dari keresidenan wilayah Jakarta",
+      "Wilayah Sumatra, Kalimantan, dan Sulawesi telah memperoleh kemerdekaan terlebih dahulu",
+      "Penggunaan nama Indonesia dilarang mutlak dalam seluruh dokumen resmi sejak tahun 1942"
     ],
     "correctIndex": 1,
     "explanation": "Badan ini dinamai BPUPK karena dibentuk oleh Pemerintahan Militer Angkatan Darat ke-16 Jepang yang hanya memiliki wewenang untuk Jawa dan Madura; sedangkan di Sumatra BPUPK serupa baru diizinkan berdiri pada 25 Juli 1945 (hlm. 13).",
@@ -1931,11 +1931,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Jumlah keseluruhan anggota BPUPK sebagaimana dicatat oleh A.B. Kusuma dalam bukunya 'Lahirnya Undang-Undang Dasar 1945' adalah...",
     "options": [
-      "60 orang (1 ketua, 1 wakil ketua, dan 58 anggota)",
-      "62 orang (termasuk seluruh anggota tambahan dan Jepang)",
-      "85 orang (termasuk seluruh anggota Chuo Sangi In)",
-      "69 orang (tanpa anggota istimewa dari pihak Jepang)",
-      "76 orang (1 ketua, 2 wakil ketua, 60 anggota biasa, 6 anggota tambahan, dan 7 anggota istimewa Jepang)"
+      "60 orang: 1 ketua, 2 wakil ketua, 50 anggota biasa, dan 7 anggota istimewa pihak Jepang",
+      "69 orang: 1 ketua, 2 wakil ketua, 60 anggota biasa, dan 6 anggota tambahan sidang kedua",
+      "85 orang: 1 ketua, 2 wakil ketua, 70 anggota biasa, dan 12 anggota Chuo Sangi In",
+      "62 orang: 1 ketua, 1 wakil ketua, 54 anggota biasa, dan 6 anggota kehormatan daerah",
+      "76 orang: 1 ketua, 2 wakil ketua, 60 anggota biasa, 6 anggota tambahan, dan 7 anggota istimewa"
     ],
     "correctIndex": 4,
     "explanation": "Secara keseluruhan keanggotaan BPUPK berjumlah 76 orang: 1 ketua (kaico), 2 wakil ketua (fuku kaico), 60 anggota (iin), 6 anggota tambahan, dan 7 anggota istimewa (tokubetsu iin) (hlm. 13).",
@@ -1963,11 +1963,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dua tokoh perempuan Indonesia yang tercatat menjadi anggota BPUPK (nomor urut 53 dan 54) adalah...",
     "options": [
-      "Cut Nyak Dien dan Christina Martha Tiahahu",
-      "Fatmawati dan S.K. Trimurti",
-      "Dewi Sartika dan Rohana Kudus",
-      "Maria Walanda Maramis dan Rasuna Said",
-      "Ny. Mr. Maria Oelfah Santoso dan Ny. R.S.S. Soenarjo Mangoenpoespito"
+      "Cut Nyak Dien dan Martha Christina Tiahahu",
+      "Fatmawati Sukarno dan Surastri Karma Trimurti",
+      "Raden Dewi Sartika dan Hajjah Rangkayo Rasuna Said",
+      "Maria Walanda Maramis dan Siti Walidah Dahlan",
+      "Maria Oelfah Santoso dan R.S.S. Soenarjo Mangoenpoespito"
     ],
     "correctIndex": 4,
     "explanation": "Dua perempuan anggota BPUPK adalah Ny. Mr. Maria Oelfah Santoso dan Ny. R.S.S. Soenarjo Mangoenpoespito (hlm. 13–14).",
@@ -2043,11 +2043,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Alasan mengapa tokoh Muhammadiyah Ki Bagoes Hadikoesoemo yang semula masuk Panitia Delapan tidak masuk ke dalam susunan Panitia Sembilan pada tanggal 22 Juni 1945 adalah...",
     "options": [
-      "Karena dilarang oleh pemerintah militer Angkatan Darat ke-16 Jepang",
-      "Karena ia sedang melaksanakan tugas diplomasi ke Bukittinggi",
-      "Karena ia telah kembali lebih dulu ke Yogyakarta pada tanggal 21 Juni 1945 seusai mengikuti sidang Chuo Sangi In",
-      "Karena ia baru bergabung pada sidang kedua BPUPK bulan Juli 1945",
-      "Karena ia mengundurkan diri dari seluruh keanggotaan BPUPK"
+      "Keanggotaannya dibatalkan secara sepihak oleh pimpinan militer Angkatan Darat ke-16 Jepang",
+      "Ia sedang menjalankan penugasan diplomasi pergerakan nasional ke wilayah Bukittinggi",
+      "Ia telah kembali lebih dahulu ke Yogyakarta pada 21 Juni 1945 seusai sidang Chuo Sangi In",
+      "Ia baru dilantik sebagai anggota tambahan pada persidangan kedua bulan Juli 1945",
+      "Ia menyatakan mengundurkan diri dari seluruh kepanitiaan kecil di lingkungan BPUPK"
     ],
     "correctIndex": 2,
     "explanation": "Ki Bagoes Hadikoesoemo tidak masuk Panitia Sembilan karena terburu-buru kembali ke Yogyakarta pada 21 Juni 1945 setelah sidang Chuo Sangi In berakhir (hlm. 20).",
@@ -2108,7 +2108,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Setelah Sekutu menjatuhkan bom atom di Hiroshima pada 6 Agustus 1945, perwira tinggi Jepang yang mengumumkan pembentukan PPKI pada 7 Agustus 1945 dan keanggotaannya pada 12 Agustus 1945 adalah...",
     "options": [
       "Laksamana Tadashi Maeda",
-      "wakil Ketua Itjibangase Yosio",
+      "Wakil Ketua Itjibangase Yosio",
       "Jenderal Hisaichi Terauchi",
       "Jenderal Kumakichi Harada",
       "Perdana Menteri Kuniaki Koiso"
@@ -2223,7 +2223,7 @@ const baseCatQuestions: CatQuestion[] = [
       "(1) Pembentukan Komite Nasional, (2) Pembentukan Partai Nasional Indonesia (PNI), dan (3) Pembentukan Badan Keamanan Rakyat (BKR)",
       "(1) Pengesahan UUD 1945, (2) Pemilihan Presiden dan Wakil Presiden, dan (3) Pembentukan Komite Nasional",
       "(1) Penetapan mata uang Oeang Republik Indonesia, (2) Pembentukan Dewan Pertimbangan Agung, dan (3) Pembentukan DPR",
-      "(1) Pembagian wilayah Indonesia atas 8 provinsi, (2) Pembentukan Komite Nasional di daerah, dan (3) Penetapan 12 departemen/kementerian beserta menterinya"
+      "(1) Pembagian wilayah Indonesia atas 8 provinsi, (2) Pembentukan Komite Nasional di daerah, dan (3) Penetapan 12 departemen atau kementerian beserta menterinya"
     ],
     "correctIndex": 4,
     "explanation": "Sidang Kedua PPKI (19 Agustus 1945) memutuskan: 1) Pembagian wilayah Indonesia atas 8 provinsi, 2) Membentuk Komite Nasional di daerah, 3) Menetapkan 12 departemen/kementerian (hlm. 26).",
@@ -2239,7 +2239,7 @@ const baseCatQuestions: CatQuestion[] = [
       "(1) Pengesahan UUD 1945, (2) Pemilihan Presiden-Wapres, dan (3) Pembentukan MPR Sementara",
       "(1) Pembentukan Tentara Nasional Indonesia, (2) Pembentukan Kepolisian Negara, dan (3) Pembentukan Mahkamah Konstitusi",
       "(1) Pengesahan lambang negara Garuda Pancasila, (2) Penetapan lagu Indonesia Raya, dan (3) Penetapan bendera Merah Putih",
-      "(1) Pembentukan Komite Nasional, (2) Pembentukan Partai Nasional Indonesia (PNI), dan (3) Pembentukan Badan Keamanan Rakyat (BKR)"
+      "(1) Pembentukan Komite Nasional, (2) Pembentukan Partai Nasional Indonesia, dan (3) Pembentukan Badan Keamanan Rakyat"
     ],
     "correctIndex": 4,
     "explanation": "Sidang Ketiga PPKI (22 Agustus 1945) menghasilkan putusan: 1) Pembentukan Komite Nasional, 2) Pembentukan Partai Nasional Indonesia, dan 3) Pembentukan Badan Keamanan Rakyat atau BKR (hlm. 26).",
@@ -2316,7 +2316,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Berdasarkan data We Are Social tahun 2019 dan laporan Kementerian Komunikasi dan Informatika (Kominfo) hingga 5 Mei 2020, berapa jumlah pengguna media sosial di Indonesia dan jumlah konten hoaks terkait Covid-19 yang tercatat?",
     "options": [
       "Pengguna media sosial mencapai 50 juta (20% populasi) dan tercatat 100 konten hoaks",
-      "Pengguna media sosial mencapai 150 juta (56% populasi) dan tercatat 1.401 konten hoaks/disinformasi Covid-19",
+      "Pengguna media sosial mencapai 150 juta (56% populasi) dan tercatat 1.401 konten hoaks serta disinformasi Covid-19",
       "Pengguna media sosial mencapai 80 juta (30% populasi) dan tercatat 500 konten hoaks",
       "Pengguna media sosial mencapai 270 juta (100% populasi) dan tercatat 10.000 konten hoaks",
       "Pengguna media sosial mencapai 200 juta (75% populasi) dan tercatat 250 konten hoaks"
@@ -2345,7 +2345,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0147",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-1 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-1 adalah...",
     "options": [
       "Sumber daya manusia Indonesia yang kecerdasannya mengungguli bangsa-bangsa lain di dunia",
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
@@ -2361,7 +2361,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0148",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-2 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-2 adalah...",
     "options": [
       "Masyarakat dan aparatur pemerintah yang bebas dari perilaku korupsi",
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
@@ -2377,7 +2377,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0149",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-3 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-3 adalah...",
     "options": [
       "Masyarakat dan aparatur pemerintah yang bebas dari perilaku korupsi",
       "Masyarakat Indonesia yang menjunjung tinggi pluralisme, berbudaya, religius, dan nilai-nilai etika",
@@ -2393,7 +2393,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0150",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-4 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-4 adalah...",
     "options": [
       "Indonesia menjadi pusat pendidikan, teknologi, dan peradaban dunia",
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
@@ -2409,7 +2409,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0151",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-5 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-5 adalah...",
     "options": [
       "Terbangunnya infrastruktur yang merata di seluruh Indonesia",
       "Indonesia menjadi pusat pendidikan, teknologi, dan peradaban dunia",
@@ -2425,7 +2425,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0152",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-6 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-6 adalah...",
     "options": [
       "Sumber daya manusia Indonesia yang kecerdasannya mengungguli bangsa-bangsa lain di dunia",
       "Indonesia menjadi negara yang mandiri dan paling berpengaruh di Asia Pasifik",
@@ -2441,7 +2441,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0153",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Bunyi impian urutan ke-7 adalah...",
+    "question": "Dalam dokumen Visi Indonesia 2015–2085 (7 Impian Indonesia), bunyi impian urutan ke-7 adalah...",
     "options": [
       "Indonesia menjadi pusat pendidikan, teknologi, dan peradaban dunia",
       "Indonesia menjadi barometer pertumbuhan ekonomi dunia",
@@ -2476,7 +2476,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Untuk menjamin keberlangsungan dan keseimbangan dalam hubungan antarwarga masyarakat, penyusunan peraturan hukum harus memenuhi empat unsur utama hukum, yaitu...",
     "options": [
       "(1) Bersumber dari tradisi lokal, (2) Tidak dapat diubah selamanya, (3) Tanpa sanksi tegas, dan (4) Mengatur keyakinan batiniah",
-      "(1) Peraturan mengenai tingkah laku manusia, (2) Ditetapkan oleh lembaga resmi yang berwenang/sah, (3) Bersifat memaksa, dan (4) Adanya sanksi bagi pelanggarnya",
+      "(1) Peraturan mengenai tingkah laku manusia, (2) Ditetapkan oleh lembaga resmi yang berwenang dan sah, (3) Bersifat memaksa, dan (4) Adanya sanksi bagi pelanggarnya",
       "(1) Dibuat secara tidak tertulis, (2) Bersifat sukarela, (3) Hanya berlaku bagi pejabat negara, dan (4) Sanksinya berupa teguran batin",
       "(1) Disusun oleh organisasi swasta, (2) Berlaku surut, (3) Bebas ditafsirkan setiap warga, dan (4) Mengutamakan keuntungan ekonomi",
       "(1) Mengatur hubungan ibadah ritual, (2) Ditetapkan oleh tokoh adat, (3) Bersifat anjuran, dan (4) Sanksi dosa di akhirat"
@@ -2510,7 +2510,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Kerahasiaan proses, kecepatan pengesahan, kekebalan pejabat, keuntungan finansial, keseragaman daerah, sentralisasi mutlak, serta ketertutupan",
       "Kepatuhan paksa, sanksi maksimal, intervensi eksekutif, pembatasan partisipasi publik, dominasi pusat, serta kesamaan denda",
       "Keseragaman adat, penghapusan perda, pemusatan kekuasaan, pencabutan hak uji materi, serta penyederhanaan konstitusi",
-      "Kejelasan tujuan, kelembagaan/pejabat pembentuk yang tepat, kesesuaian antara jenis/hierarki/materi muatan, dapat dilaksanakan, kedayagunaan dan kehasilgunaan, kejelasan rumusan, serta keterbukaan",
+      "Kejelasan tujuan, kelembagaan atau pejabat pembentuk yang tepat, kesesuaian antara jenis, hierarki, dan materi muatan, dapat dilaksanakan, kedayagunaan dan kehasilgunaan, kejelasan rumusan, serta keterbukaan",
       "Kebebasan mutlak, persaingan bebas, hak veto parlemen, imunitas yudisial, fleksibilitas tafsir, dualisme hukum, serta kemandirian anggaran"
     ],
     "correctIndex": 3,
@@ -2555,11 +2555,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Ketetapan MPR No. III/MPR/2000, yang dimaksud dengan sumber hukum adalah...",
     "options": [
-      "Seluruh peraturan kolonial Belanda yang masih tersimpan di arsip negara",
-      "Sumber yang dijadikan sebagai bahan dalam penyusunan hukum atau peraturan perundang-undangan, baik tertulis maupun tidak tertulis",
-      "Anggaran pendapatan dan belanja negara yang disahkan setiap tahun",
-      "Kumpulan putusan hakim pengadilan negeri yang belum berkekuatan hukum tetap",
-      "Pendapat pribadi pejabat eksekutif dalam pidato kenegaraan"
+      "Seluruh arsip peraturan masa kolonial Belanda yang disimpan di perpustakaan negara",
+      "Bahan penyusunan hukum atau peraturan perundang-undangan, baik tertulis maupun tidak tertulis",
+      "Rincian anggaran pendapatan dan belanja tahunan yang ditetapkan oleh pemerintah pusat",
+      "Kumpulan putusan pengadilan tingkat pertama yang masih dalam proses upaya banding",
+      "Pidato sambutan pejabat kementerian dalam kegiatan seremonial kenegaraan tahunan"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Tap MPR No. III/MPR/2000, sumber hukum adalah sumber yang dijadikan sebagai bahan dalam penyusunan hukum atau peraturan perundang-undangan, yang terdiri atas sumber hukum tertulis dan tidak tertulis (hlm. 69).",
@@ -2603,11 +2603,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Norma hukum memiliki empat sifat utama, yaitu mengikat, memaksa, otonom, dan responsif. Yang dimaksud dengan hukum bersifat 'otonom' adalah...",
     "options": [
-      "Hukum memberikan kebebasan kepada setiap warga untuk membuat aturan sendiri",
-      "Hukum hanya berlaku di daerah otonom provinsi dan kabupaten/kota",
-      "Hukum sebagai pranata independen yang tidak boleh diintervensi oleh kepentingan lain, kecuali kepentingan penegakan hukum dan keadilan",
-      "Hukum dapat dikesampingkan kapan saja oleh pejabat eksekutif",
-      "Hukum berfungsi sebagai fasilitator untuk menjawab tantangan masa depan masyarakat"
+      "Keleluasaan bagi setiap warga masyarakat untuk menyusun aturan pidana sendiri",
+      "Keberlakuan norma hukum yang terbatas hanya pada pemerintah daerah otonom",
+      "Pranata independen yang bebas dari intervensi luar demi tegaknya hukum dan keadilan",
+      "Kewenangan pejabat eksekutif untuk mengesampingkan undang-undang setiap saat",
+      "Instrumen birokrasi yang semata mengikuti perubahan selera pasar internasional"
     ],
     "correctIndex": 2,
     "explanation": "Hukum bersifat otonom artinya hukum sebagai pranata independen yang tidak boleh diintervensi oleh kepentingan lain, kecuali kepentingan penegakan hukum dan keadilan (hlm. 76).",
@@ -2619,11 +2619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Sementara itu, yang dimaksud dengan sifat norma hukum yang 'responsif' adalah...",
     "options": [
-      "Hukum yang tunduk sepenuhnya pada kepentingan pemilik modal",
-      "Hukum berfungsi sebagai fasilitator yang berorientasi masa depan serta mencerminkan rasa keadilan dan mampu menjawab tuntutan/harapan masyarakat",
-      "Hukum yang dibuat secara tergesa-gesa tanpa melibatkan partisipasi masyarakat",
-      "Hukum yang hanya mengutamakan kecepatan penjatuhan sanksi pidana",
-      "Hukum yang tidak memiliki sanksi memaksa bagi pelanggarnya"
+      "Aturan yang tunduk sepenuhnya pada kehendak kelompok pemodal berskala besar",
+      "Fasilitator berorientasi masa depan yang mencerminkan keadilan dan menjawab kebutuhan masyarakat",
+      "Regulasi yang disahkan secara kilat tanpa membuka ruang partisipasi masyarakat",
+      "Ketentuan yang hanya menitikberatkan beratnya ancaman hukuman penjara fisik",
+      "Kaidah sosial sukarela yang tidak memuat sanksi mengikat bagi para pelanggarnya"
     ],
     "correctIndex": 1,
     "explanation": "Hukum bersifat responsif artinya hukum berfungsi sebagai fasilitator untuk menjawab tantangan masyarakat, mencerminkan rasa keadilan, dan memenuhi harapan masyarakat (hlm. 76 & 106).",
@@ -2747,11 +2747,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Menurut Tauruy dan Indra (2023: 122–128), cara mewujudkan keadilan berdasarkan Pancasila dalam pemerolehan hak setiap warga negara adalah membangun cara pandang yang berorientasi pada...",
     "options": [
-      "Persaingan bebas tanpa campur tangan negara",
-      "Kesamaan mutlak (Equality) tanpa memedulikan perbedaan kebutuhan dasar",
-      "Kepantasan (Equity) atau secara proporsional sesuai tingkat kebutuhan individu, bukan semata kesamaan rata (Equality)",
-      "Kekuatan modal (Capital) sesuai kontribusi pajak masing-masing",
-      "Senioritas usia dan kedudukan sosial di dalam masyarakat"
+      "Persaingan pasar bebas sepenuhnya tanpa keterlibatan maupun perlindungan negara",
+      "Pembagian jatah secara identik sama rata tanpa menimbang perbedaan kondisi dasar",
+      "Kepantasan secara proporsional sesuai tingkat kebutuhan warga, bukan sekadar sama rata",
+      "Pemberian hak pelayanan publik sebanding dengan besarnya setoran pajak individu",
+      "Pengutamaan hak istimewa berdasarkan jenjang usia dan kedudukan sosial masyarakat"
     ],
     "correctIndex": 2,
     "explanation": "Mewujudkan keadilan sesuai Pancasila berorientasi pada kepantasan (equity) secara proporsional dengan mempertimbangkan tingkat kebutuhan individu, bukan semata menyamakan rata (equality) (hlm. 86).",
@@ -2859,11 +2859,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Hubungan antara Pancasila dengan Pembukaan UUD NRI Tahun 1945 bersifat 'formal' dan 'materiel'. Yang dimaksud dengan hubungan bersifat 'materiel' adalah...",
     "options": [
-      "Pancasila dapat diubah sewaktu-waktu oleh MPR melalui prosedur perubahan pasal-pasal UUD",
-      "Rumusan lima sila Pancasila tercantum secara resmi di dalam Alinea IV Pembukaan UUD NRI Tahun 1945",
-      "Pembukaan UUD NRI Tahun 1945 merupakan kaidah hukum negara yang seluruh unsur dan pokok kaidahnya bersumberkan pada Pancasila, dan secara kronologis Pancasila dirumuskan lebih dahulu sebelum Pembukaan UUD",
-      "Pancasila hanya berlaku bagi peraturan daerah dan tidak mengikat konstitusi",
-      "Pembukaan UUD 1945 berkedudukan lebih tinggi daripada nilai-nilai dasar Pancasila"
+      "Substansi sila-sila Pancasila dapat diubah melalui mekanisme amandemen pasal-pasal batang tubuh UUD",
+      "Hubungan Pancasila dengan konstitusi semata terletak pada letak penulisan teks di alinea keempat",
+      "Seluruh unsur dan pokok kaidah Pembukaan UUD 1945 bersumber pada Pancasila yang dirumuskan lebih dahulu",
+      "Nilai dasar Pancasila hanya mengikat peraturan daerah tanpa menjadi sumber kaidah bagi konstitusi",
+      "Pokok pikiran Pembukaan UUD 1945 berkedudukan di atas Pancasila sebagai sumber hukum materiil"
     ],
     "correctIndex": 2,
     "explanation": "Bersifat formal artinya rumusan Pancasila tercantum dalam Pembukaan UUD 1945; sedangkan bersifat materiel artinya seluruh unsur/pokok kaidah Pembukaan UUD 1945 bersumber pada Pancasila yang secara historis dirumuskan lebih dahulu sebagai usulan dasar negara (hlm. 117).",
@@ -3003,11 +3003,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Sifatnya', yang dimaksud dengan 'Hukum yang dalam keadaan bagaimanapun harus ditegakkan secara mutlak dan tidak dapat dikesampingkan oleh perjanjian individu' disebut sebagai...",
     "options": [
-      "Hukum yang Bersifat Memaksa (Dwingend Recht)",
-      "Hukum Tertulis",
-      "Hukum Tidak Tertulis",
-      "Hukum Publik",
-      "Hukum Privat (Sipil)"
+      "Hukum Memaksa",
+      "Hukum Mengatur",
+      "Hukum Materiel",
+      "Hukum Formal",
+      "Hukum Konvensi"
     ],
     "correctIndex": 0,
     "explanation": "Berdasarkan Sifatnya, Hukum yang Bersifat Memaksa (Dwingend Recht) adalah Hukum yang dalam keadaan bagaimanapun harus ditegakkan secara mutlak dan tidak dapat dikesampingkan oleh perjanjian individu. Contohnya: Ketentuan sanksi dalam perkara tindak pidana (hlm. 78–80).",
@@ -3019,11 +3019,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Sifatnya', contoh produk atau bidang hukum seperti 'Ketentuan sanksi dalam perkara tindak pidana' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Tidak Tertulis",
-      "Hukum Tertulis",
-      "Hukum Privat (Sipil)",
-      "Hukum Publik",
-      "Hukum yang Bersifat Memaksa (Dwingend Recht)"
+      "Hukum Mengatur",
+      "Hukum Perdata",
+      "Hukum Acara",
+      "Hukum Kebiasaan",
+      "Hukum Memaksa"
     ],
     "correctIndex": 4,
     "explanation": "Ketentuan sanksi dalam perkara tindak pidana merupakan contoh dari Hukum yang Bersifat Memaksa (Dwingend Recht) (Hukum yang dalam keadaan bagaimanapun harus ditegakkan secara mutlak dan tidak dapat dikesampingkan oleh perjanjian individu) (hlm. 78–80).",
@@ -3035,11 +3035,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Sifatnya', yang dimaksud dengan 'Hukum yang dapat dikesampingkan apabila pihak-pihak yang bersangkutan sudah membuat peraturan/kesepakatan tersendiri dalam suatu perjanjian' disebut sebagai...",
     "options": [
+      "Hukum Memaksa",
+      "Hukum Pidana",
       "Hukum Publik",
-      "Hukum Privat (Sipil)",
-      "Hukum Tertulis",
-      "Hukum yang Bersifat Mengatur (Aanvullend Recht)",
-      "Hukum Tidak Tertulis"
+      "Hukum Mengatur",
+      "Hukum Traktat"
     ],
     "correctIndex": 3,
     "explanation": "Berdasarkan Sifatnya, Hukum yang Bersifat Mengatur (Aanvullend Recht) adalah Hukum yang dapat dikesampingkan apabila pihak-pihak yang bersangkutan sudah membuat peraturan/kesepakatan tersendiri dalam suatu perjanjian. Contohnya: Hukum mengenai pembagian warisan yang diselesaikan melalui kesepakatan keluarga (hlm. 78–80).",
@@ -3051,11 +3051,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Sifatnya', contoh produk atau bidang hukum seperti 'Hukum mengenai pembagian warisan yang diselesaikan melalui kesepakatan keluarga' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Privat (Sipil)",
-      "Hukum Tidak Tertulis",
-      "Hukum Tertulis",
-      "Hukum Publik",
-      "Hukum yang Bersifat Mengatur (Aanvullend Recht)"
+      "Hukum Memaksa",
+      "Hukum Pidana",
+      "Hukum Tata Negara",
+      "Hukum Administrasi",
+      "Hukum Mengatur"
     ],
     "correctIndex": 4,
     "explanation": "Hukum mengenai pembagian warisan yang diselesaikan melalui kesepakatan keluarga merupakan contoh dari Hukum yang Bersifat Mengatur (Aanvullend Recht) (Hukum yang dapat dikesampingkan apabila pihak-pihak yang bersangkutan sudah membuat peraturan/kesepakatan tersendiri dalam suatu perjanjian) (hlm. 78–80).",
@@ -3067,11 +3067,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Cara Mempertahankannya', yang dimaksud dengan 'Hukum yang mengatur hubungan antaranggota masyarakat yang berlaku secara umum mengenai hal-hal yang dilarang dan hal-hal yang diperbolehkan' disebut sebagai...",
     "options": [
-      "Hukum Tertulis",
+      "Hukum Formal",
       "Hukum Materiel",
-      "Hukum Publik",
-      "Hukum Tidak Tertulis",
-      "Hukum Privat (Sipil)"
+      "Hukum Internasional",
+      "Hukum Traktat",
+      "Ius Constituendum"
     ],
     "correctIndex": 1,
     "explanation": "Berdasarkan Cara Mempertahankannya, Hukum Materiel adalah Hukum yang mengatur hubungan antaranggota masyarakat yang berlaku secara umum mengenai hal-hal yang dilarang dan hal-hal yang diperbolehkan. Contohnya: Hukum Pidana (KUHP), Hukum Perdata (KUHPerdata), dan Hukum Dagang (hlm. 78–80).",
@@ -3083,10 +3083,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Cara Mempertahankannya', contoh produk atau bidang hukum seperti 'Hukum Pidana (KUHP), Hukum Perdata (KUHPerdata), dan Hukum Dagang' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Tertulis",
-      "Hukum Publik",
-      "Hukum Tidak Tertulis",
-      "Hukum Privat (Sipil)",
+      "Hukum Formal",
+      "Hukum Internasional",
+      "Hukum Yurisprudensi",
+      "Ius Constituendum",
       "Hukum Materiel"
     ],
     "correctIndex": 4,
@@ -3099,11 +3099,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Cara Mempertahankannya', yang dimaksud dengan 'Hukum yang mengatur tata cara mempertahankan dan melaksanakan hukum materiel di hadapan pengadilan' disebut sebagai...",
     "options": [
-      "Hukum Publik",
-      "Hukum Tertulis",
-      "Hukum Acara (Hukum Formal)",
-      "Hukum Tidak Tertulis",
-      "Hukum Privat (Sipil)"
+      "Hukum Materiel",
+      "Hukum Kebiasaan",
+      "Hukum Formal",
+      "Hukum Traktat",
+      "Ius Constituendum"
     ],
     "correctIndex": 2,
     "explanation": "Berdasarkan Cara Mempertahankannya, Hukum Acara (Hukum Formal) adalah Hukum yang mengatur tata cara mempertahankan dan melaksanakan hukum materiel di hadapan pengadilan. Contohnya: Hukum Acara Perdata dan Hukum Acara Pidana (KUHAP) (hlm. 78–80).",
@@ -3115,11 +3115,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Cara Mempertahankannya', contoh produk atau bidang hukum seperti 'Hukum Acara Perdata dan Hukum Acara Pidana (KUHAP)' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Tidak Tertulis",
-      "Hukum Privat (Sipil)",
-      "Hukum Acara (Hukum Formal)",
-      "Hukum Publik",
-      "Hukum Tertulis"
+      "Hukum Materiel",
+      "Hukum Adat",
+      "Hukum Formal",
+      "Hukum Doktrin",
+      "Ius Constituendum"
     ],
     "correctIndex": 2,
     "explanation": "Hukum Acara Perdata dan Hukum Acara Pidana (KUHAP) merupakan contoh dari Hukum Acara (Hukum Formal) (Hukum yang mengatur tata cara mempertahankan dan melaksanakan hukum materiel di hadapan pengadilan) (hlm. 78–80).",
@@ -3131,11 +3131,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Waktu Berlakunya', yang dimaksud dengan 'Hukum yang berlaku sekarang (saat ini) bagi masyarakat tertentu di dalam suatu wilayah tertentu' disebut sebagai...",
     "options": [
-      "Hukum Privat (Sipil)",
-      "Hukum Tertulis",
-      "Ius Constitutum (Hukum Positif)",
-      "Hukum Tidak Tertulis",
-      "Hukum Publik"
+      "Ius Constituendum",
+      "Ius Sanguinis",
+      "Ius Constitutum",
+      "Ius Soli",
+      "Lex Specialis"
     ],
     "correctIndex": 2,
     "explanation": "Berdasarkan Waktu Berlakunya, Ius Constitutum (Hukum Positif) adalah Hukum yang berlaku sekarang (saat ini) bagi masyarakat tertentu di dalam suatu wilayah tertentu. Contohnya: UUD NRI Tahun 1945, UU No. 22 Tahun 2009 tentang LLAJ, dan UU No. 12 Tahun 2006 tentang Kewarganegaraan (hlm. 78–80).",
@@ -3147,11 +3147,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Waktu Berlakunya', contoh produk atau bidang hukum seperti 'UUD NRI Tahun 1945, UU No. 22 Tahun 2009 tentang LLAJ, dan UU No. 12 Tahun 2006 tentang Kewarganegaraan' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Tidak Tertulis",
-      "Hukum Publik",
-      "Hukum Tertulis",
-      "Hukum Privat (Sipil)",
-      "Ius Constitutum (Hukum Positif)"
+      "Ius Constituendum",
+      "Ius Sanguinis",
+      "Ius Soli",
+      "Hukum Traktat",
+      "Ius Constitutum"
     ],
     "correctIndex": 4,
     "explanation": "UUD NRI Tahun 1945, UU No. 22 Tahun 2009 tentang LLAJ, dan UU No. 12 Tahun 2006 tentang Kewarganegaraan merupakan contoh dari Ius Constitutum (Hukum Positif) (Hukum yang berlaku sekarang (saat ini) bagi masyarakat tertentu di dalam suatu wilayah tertentu) (hlm. 78–80).",
@@ -3163,11 +3163,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Waktu Berlakunya', yang dimaksud dengan 'Hukum yang dicita-citakan atau diharapkan berlaku pada waktu yang akan datang' disebut sebagai...",
     "options": [
-      "Hukum Publik",
-      "Hukum Privat (Sipil)",
+      "Ius Constitutum",
+      "Ius Sanguinis",
       "Ius Constituendum",
-      "Hukum Tidak Tertulis",
-      "Hukum Tertulis"
+      "Ius Soli",
+      "Lex Superior"
     ],
     "correctIndex": 2,
     "explanation": "Berdasarkan Waktu Berlakunya, Ius Constituendum adalah Hukum yang dicita-citakan atau diharapkan berlaku pada waktu yang akan datang. Contohnya: Rancangan Undang-Undang (RUU) yang sedang disusun untuk masa depan (hlm. 78–80).",
@@ -3179,11 +3179,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Waktu Berlakunya', contoh produk atau bidang hukum seperti 'Rancangan Undang-Undang (RUU) yang sedang disusun untuk masa depan' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Tertulis",
-      "Hukum Privat (Sipil)",
+      "Ius Constitutum",
+      "Hukum Yurisprudensi",
       "Ius Constituendum",
-      "Hukum Tidak Tertulis",
-      "Hukum Publik"
+      "Hukum Traktat",
+      "Hukum Kebiasaan"
     ],
     "correctIndex": 2,
     "explanation": "Rancangan Undang-Undang (RUU) yang sedang disusun untuk masa depan merupakan contoh dari Ius Constituendum (Hukum yang dicita-citakan atau diharapkan berlaku pada waktu yang akan datang) (hlm. 78–80).",
@@ -3196,10 +3196,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Tempat Berlakunya', yang dimaksud dengan 'Hukum yang berlaku di dalam wilayah suatu negara tertentu' disebut sebagai...",
     "options": [
       "Hukum Nasional",
-      "Hukum Publik",
-      "Hukum Tertulis",
-      "Hukum Privat (Sipil)",
-      "Hukum Tidak Tertulis"
+      "Hukum Internasional",
+      "Hukum Gereja",
+      "Hukum Asing",
+      "Ius Constituendum"
     ],
     "correctIndex": 0,
     "explanation": "Berdasarkan Tempat Berlakunya, Hukum Nasional adalah Hukum yang berlaku di dalam wilayah suatu negara tertentu. Contohnya: UUD NRI Tahun 1945, Undang-Undang, dan Peraturan Pemerintah di wilayah RI (hlm. 78–80).",
@@ -3211,11 +3211,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Tempat Berlakunya', contoh produk atau bidang hukum seperti 'UUD NRI Tahun 1945, Undang-Undang, dan Peraturan Pemerintah di wilayah RI' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Tertulis",
-      "Hukum Tidak Tertulis",
+      "Hukum Internasional",
+      "Hukum Asing",
       "Hukum Nasional",
-      "Hukum Privat (Sipil)",
-      "Hukum Publik"
+      "Hukum Traktat",
+      "Ius Constituendum"
     ],
     "correctIndex": 2,
     "explanation": "UUD NRI Tahun 1945, Undang-Undang, dan Peraturan Pemerintah di wilayah RI merupakan contoh dari Hukum Nasional (Hukum yang berlaku di dalam wilayah suatu negara tertentu) (hlm. 78–80).",
@@ -3227,11 +3227,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan klasifikasi pembagian hukum menurut 'Tempat Berlakunya', yang dimaksud dengan 'Hukum yang mengatur hubungan atau pergaulan antarbangsa/antarnegara di dunia' disebut sebagai...",
     "options": [
-      "Hukum Privat (Sipil)",
-      "Hukum Tidak Tertulis",
-      "Hukum Tertulis",
+      "Hukum Nasional",
+      "Hukum Adat",
+      "Hukum Acara",
       "Hukum Internasional",
-      "Hukum Publik"
+      "Hukum Privat"
     ],
     "correctIndex": 3,
     "explanation": "Berdasarkan Tempat Berlakunya, Hukum Internasional adalah Hukum yang mengatur hubungan atau pergaulan antarbangsa/antarnegara di dunia. Contohnya: Perjanjian bilateral, Konvensi PBB, dan Traktat internasional (hlm. 78–80).",
@@ -3243,11 +3243,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam pembagian hukum berdasarkan 'Tempat Berlakunya', contoh produk atau bidang hukum seperti 'Perjanjian bilateral, Konvensi PBB, dan Traktat internasional' termasuk ke dalam kategori...",
     "options": [
-      "Hukum Privat (Sipil)",
-      "Hukum Tidak Tertulis",
+      "Hukum Nasional",
+      "Hukum Perdata",
       "Hukum Internasional",
-      "Hukum Publik",
-      "Hukum Tertulis"
+      "Hukum Dagang",
+      "Hukum Adat"
     ],
     "correctIndex": 2,
     "explanation": "Perjanjian bilateral, Konvensi PBB, dan Traktat internasional merupakan contoh dari Hukum Internasional (Hukum yang mengatur hubungan atau pergaulan antarbangsa/antarnegara di dunia) (hlm. 78–80).",
@@ -3355,11 +3355,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Jenis peraturan perundang-undangan yang proses penetapan/pengesahannya 'Ditetapkan oleh Presiden dalam hal ihwal kegentingan yang memaksa karena belum ada payung hukumnya' adalah...",
     "options": [
-      "Peraturan Pemerintah (PP)",
-      "UUD NRI Tahun 1945",
-      "Ketetapan MPR (Tap MPR)",
-      "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)",
-      "Undang-Undang (UU)"
+      "Peraturan Pemerintah Pelaksana UU (PP)",
+      "Undang-Undang Dasar NRI Tahun 1945",
+      "Ketetapan Majelis Permusyawaratan Rakyat",
+      "Peraturan Pemerintah Pengganti UU (Perppu)",
+      "Peraturan Daerah Tingkat Provinsi (Perda)"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Tabel 2.3 (hlm. 104–105), Peraturan Pemerintah Pengganti Undang-Undang (Perppu) ditetapkan/disahkan melalui mekanisme: Ditetapkan oleh Presiden dalam hal ihwal kegentingan yang memaksa karena belum ada payung hukumnya.",
@@ -3371,11 +3371,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Peraturan perundang-undangan yang memiliki materi muatan berupa 'Materi muatannya sama dengan materi muatan Undang-Undang (UU)' adalah...",
     "options": [
-      "Peraturan Pemerintah (PP)",
-      "Undang-Undang (UU)",
-      "UUD NRI Tahun 1945",
-      "Ketetapan MPR (Tap MPR)",
-      "Peraturan Pemerintah Pengganti Undang-Undang (Perppu)"
+      "Peraturan Pemerintah Pelaksana UU (PP)",
+      "Peraturan Presiden Republik Indonesia",
+      "Undang-Undang Dasar NRI Tahun 1945",
+      "Ketetapan Majelis Permusyawaratan Rakyat",
+      "Peraturan Pemerintah Pengganti UU (Perppu)"
     ],
     "correctIndex": 4,
     "explanation": "Materi muatan Peraturan Pemerintah Pengganti Undang-Undang (Perppu) adalah: Materi muatannya sama dengan materi muatan Undang-Undang (UU) (Tabel 2.3 hlm. 104–105).",
@@ -3547,11 +3547,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kutipan Kakawin Sutasoma 'Bhinneka tunggal ika tan hana dharma mangrwa', arti dari frasa 'tan hana dharma mangrwa' adalah...",
     "options": [
-      "Dua kerajaan besar tidak mungkin bersatu",
-      "Tiada kebenaran/hukum (dharma) yang mendua",
-      "Perbedaan itu harus diseragamkan menjadi satu agama",
-      "Kemakmuran rakyat adalah tujuan utama raja",
-      "Hukum kerajaan berada di atas seluruh hukum adat"
+      "Dua kerajaan besar tidak mungkin disatukan",
+      "Tiada kebenaran atau hukum dharma yang mendua",
+      "Perbedaan keyakinan harus dilebur menjadi satu",
+      "Kemakmuran negeri bergantung pada titah raja",
+      "Hukum kerajaan menghapus seluruh adat desa"
     ],
     "correctIndex": 1,
     "explanation": "Terjemahan bebas kalimat 'Keduanya memang hanya satu, tiada dharma (hukum/kebenaran) yang mendua' berasal dari 'Bhinneka tunggal ika tan hana dharma mangrwa' (hlm. 133).",
@@ -3564,10 +3564,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Secara tekstual atau harfiah dari bahasa Jawa Kuno, kata 'bhinneka', 'tunggal', dan 'ika' masing-masing memiliki arti...",
     "options": [
       "Bhinneka berarti budaya, tunggal berarti bangsa, dan ika berarti tanah air",
-      "Bhinneka berarti pulau-pulau, tunggal berarti negara, dan ika berarti raya",
-      "Bhinneka berarti bersatu, tunggal berarti kuat, dan ika berarti selamanya",
-      "Bhinneka berarti berbeda/beragam, tunggal berarti satu, dan ika berarti itu ('berbeda-beda tetapi tetap satu itu')",
-      "Bhinneka berarti toleransi, tunggal berarti damai, dan ika berarti adil"
+      "Bhinneka berarti kepulauan, tunggal berarti negara, dan ika berarti raya",
+      "Bhinneka berarti bersatu, tunggal berarti teguh, dan ika berarti selamanya",
+      "Bhinneka berarti beragam, tunggal berarti satu, dan ika berarti itu",
+      "Bhinneka berarti rukun, tunggal berarti damai, dan ika berarti sejahtera"
     ],
     "correctIndex": 3,
     "explanation": "Secara harfiah (hlm. 134), bhinneka berarti berbeda/beragam, tunggal berarti satu, dan ika berarti itu.",
@@ -3676,10 +3676,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Konsep 'Berdikari' (berdiri di atas kaki sendiri) dalam bidang perekonomian merupakan bagian dari konsep besar yang dicetuskan oleh Presiden Sukarno, yaitu...",
     "options": [
       "Konsep Nawacita Pembangunan Nasional",
-      "Konsep Trisakti (Berdaulat di bidang politik, berdikari di bidang ekonomi, dan berkepribadian dalam kebudayaan)",
+      "Konsep Trisakti Kemandirian Bangsa",
       "Konsep Politik Etis Balas Budi",
-      "Konsep Panca Usaha Tani",
-      "Konsep Deklarasi Ekonomi (Dekon)"
+      "Konsep Panca Usaha Pertanian",
+      "Konsep Deklarasi Ekonomi Nasional"
     ],
     "correctIndex": 1,
     "explanation": "Berdikari dalam bidang ekonomi merupakan bagian dari konsep Trisakti Presiden Sukarno (hlm. 140 & 206).",
@@ -3691,11 +3691,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Secara etimologis, kata 'gotong royong' berasal dari bahasa Jawa, yaitu kata 'gotong' dan 'royong' yang memiliki arti harfiah...",
     "options": [
-      "Gotong berarti patuh pada pemimpin, dan royong berarti menjaga keamanan kampung",
-      "Gotong berarti bekerja di sawah, dan royong berarti membagi hasil panen",
-      "Gotong berarti memberi, dan royong berarti menerima secara seimbang",
-      "Gotong berarti pikul atau angkat, dan royong berarti bersama-sama (mengangkat beban secara bersama-sama agar menjadi ringan)",
-      "Gotong berarti berkumpul, dan royong berarti berunding di balai desa"
+      "Gotong berarti menaati pemimpin, dan royong berarti menjaga keamanan kampung",
+      "Gotong berarti menggarap sawah, dan royong berarti membagi rata hasil panen",
+      "Gotong berarti memberi bantuan, dan royong berarti menerima imbalan sepadan",
+      "Gotong berarti memikul atau mengangkat, dan royong berarti secara bersama-sama",
+      "Gotong berarti berkumpul bersama, dan royong berarti berunding di balai desa"
     ],
     "correctIndex": 3,
     "explanation": "Kata gotong berarti pikul atau angkat, sedangkan royong berarti bersama-sama; sehingga secara harfiah berarti mengangkat beban secara bersama-sama agar beban menjadi ringan (hlm. 150).",
@@ -3707,11 +3707,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Antropolog Indonesia Koentjaraningrat membagi gotong royong yang dikenal masyarakat Indonesia menjadi dua jenis utama, yaitu...",
     "options": [
-      "Gotong royong politik (pemilu) dan gotong royong birokrasi",
-      "Gotong royong material (berupa uang) dan gotong royong imaterial (berupa doa)",
-      "Gotong royong perkotaan (industri) dan gotong royong perdesaan (agraris)",
-      "Gotong royong tolong-menolong (bersifat individual/antarwarga) dan gotong royong kerja bakti (untuk kepentingan umum)",
-      "Gotong royong paksaan (wajib militer) dan gotong royong sukarela"
+      "Gotong royong kampanye pemilihan umum dan gotong royong administrasi birokrasi pemerintahan",
+      "Gotong royong sumbangan dana tunai dan gotong royong penyusunan peraturan perundang-undangan",
+      "Gotong royong kawasan industri perkotaan dan gotong royong perdagangan komoditas ekspor",
+      "Gotong royong tolong-menolong antarwarga dan gotong royong kerja bakti untuk kepentingan umum",
+      "Gotong royong wajib militer bersenjata dan gotong royong pemungutan pajak penghasilan warga"
     ],
     "correctIndex": 3,
     "explanation": "Koentjaraningrat membagi dua jenis gotong royong: 1) gotong royong tolong-menolong, dan 2) gotong royong kerja bakti (hlm. 150).",
@@ -4251,11 +4251,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan pengaturan hak dan kewajiban warga negara dalam Pasal 28E ayat (1) UUD NRI Tahun 1945, bunyi ketentuan konstitusional yang tepat adalah...",
     "options": [
-      "Setiap anak berhak atas kelangsungan hidup, tumbuh, dan berkembang serta berhak atas perlindungan dari kekerasan dan diskriminasi",
-      "Setiap orang berhak untuk hidup serta berhak mempertahankan hidup dan kehidupannya",
-      "Setiap orang berhak membentuk keluarga dan melanjutkan keturunan melalui perkawinan yang sah",
+      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya, demi meningkatkan kualitas hidupnya dan demi kesejahteraan umat manusia",
+      "Setiap orang berhak atas pengakuan, jaminan, perlindungan, dan kepastian hukum yang adil serta perlakuan yang sama di hadapan hukum, dan setiap warga negara berhak memperoleh kesempatan yang sama dalam pemerintahan",
+      "Negara mengembangkan sistem jaminan sosial bagi seluruh rakyat dan memberdayakan masyarakat yang lemah dan tidak mampu sesuai dengan martabat kemanusiaan serta bertanggung jawab atas penyediaan fasilitas pelayanan kesehatan yang layak",
       "Setiap orang berhak memeluk agama dan beribadat menurut agamanya, memilih pendidikan dan pengajaran, memilih pekerjaan, memilih kewarganegaraan, memilih tempat tinggal di wilayah negara dan meninggalkannya, serta berhak kembali",
-      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya"
+      "Pemerintah memajukan ilmu pengetahuan dan teknologi dengan menjunjung tinggi nilai-nilai agama dan persatuan bangsa untuk kemajuan peradaban serta kesejahteraan umat manusia di seluruh wilayah Negara Kesatuan Republik Indonesia"
     ],
     "correctIndex": 3,
     "explanation": "Pasal 28E ayat (1) UUD NRI Tahun 1945 mengatur tentang Hak memeluk agama, memilih pendidikan, pekerjaan, kewarganegaraan, dan tempat tinggal, yang berbunyi: 'Setiap orang berhak memeluk agama dan beribadat menurut agamanya, memilih pendidikan dan pengajaran, memilih pekerjaan, memilih kewarganegaraan, memilih tempat tinggal di wilayah negara dan meninggalkannya, serta berhak kembali' (hlm. 175–181).",
@@ -4731,11 +4731,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan pengaturan hak dan kewajiban warga negara dalam Pasal 28I ayat (1) UUD NRI Tahun 1945, bunyi ketentuan konstitusional yang tepat adalah...",
     "options": [
-      "Setiap orang berhak untuk hidup serta berhak mempertahankan hidup dan kehidupannya",
-      "Setiap orang berhak membentuk keluarga dan melanjutkan keturunan melalui perkawinan yang sah",
-      "Hak untuk hidup, hak untuk tidak disiksa, hak kemerdekaan pikiran dan hati nurani, hak beragama, hak untuk tidak diperbudak, hak untuk diakui sebagai pribadi di hadapan hukum, dan hak untuk tidak dituntut atas dasar hukum yang berlaku surut adalah hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun (non-derogable rights)",
-      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya",
-      "Setiap anak berhak atas kelangsungan hidup, tumbuh, dan berkembang serta berhak atas perlindungan dari kekerasan dan diskriminasi"
+      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya, demi meningkatkan kualitas hidupnya dan demi kesejahteraan umat manusia",
+      "Setiap orang berhak atas pengakuan, jaminan, perlindungan, dan kepastian hukum yang adil serta perlakuan yang sama di hadapan hukum, dan setiap warga negara berhak memperoleh kesempatan yang sama dalam pemerintahan",
+      "Hak untuk hidup, hak untuk tidak disiksa, hak kemerdekaan pikiran dan hati nurani, hak beragama, hak untuk tidak diperbudak, hak untuk diakui sebagai pribadi di hadapan hukum, dan hak untuk tidak dituntut atas dasar hukum yang berlaku surut adalah hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun",
+      "Negara mengembangkan sistem jaminan sosial bagi seluruh rakyat dan memberdayakan masyarakat yang lemah dan tidak mampu sesuai dengan martabat kemanusiaan serta bertanggung jawab atas penyediaan fasilitas pelayanan kesehatan yang layak",
+      "Pemerintah memajukan ilmu pengetahuan dan teknologi dengan menjunjung tinggi nilai-nilai agama dan persatuan bangsa untuk kemajuan peradaban serta kesejahteraan umat manusia di seluruh wilayah Negara Kesatuan Republik Indonesia"
     ],
     "correctIndex": 2,
     "explanation": "Pasal 28I ayat (1) UUD NRI Tahun 1945 mengatur tentang Tujuh hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun (non-derogable rights), yang berbunyi: 'Hak untuk hidup, hak untuk tidak disiksa, hak kemerdekaan pikiran dan hati nurani, hak beragama, hak untuk tidak diperbudak, hak untuk diakui sebagai pribadi di hadapan hukum, dan hak untuk tidak dituntut atas dasar hukum yang berlaku surut adalah hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun (non-derogable rights)' (hlm. 175–181).",
@@ -4971,10 +4971,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan pengaturan hak dan kewajiban warga negara dalam Pasal 28J ayat (2) UUD NRI Tahun 1945, bunyi ketentuan konstitusional yang tepat adalah...",
     "options": [
-      "Setiap orang berhak membentuk keluarga dan melanjutkan keturunan melalui perkawinan yang sah",
-      "Setiap anak berhak atas kelangsungan hidup, tumbuh, dan berkembang serta berhak atas perlindungan dari kekerasan dan diskriminasi",
-      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya",
-      "Setiap orang berhak untuk hidup serta berhak mempertahankan hidup dan kehidupannya",
+      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya, demi meningkatkan kualitas hidupnya dan demi kesejahteraan umat manusia",
+      "Setiap orang berhak atas pengakuan, jaminan, perlindungan, dan kepastian hukum yang adil serta perlakuan yang sama di hadapan hukum, dan setiap warga negara berhak memperoleh kesempatan yang sama dalam pemerintahan",
+      "Negara mengembangkan sistem jaminan sosial bagi seluruh rakyat dan memberdayakan masyarakat yang lemah dan tidak mampu sesuai dengan martabat kemanusiaan serta bertanggung jawab atas penyediaan fasilitas pelayanan kesehatan yang layak",
+      "Pemerintah memajukan ilmu pengetahuan dan teknologi dengan menjunjung tinggi nilai-nilai agama dan persatuan bangsa untuk kemajuan peradaban serta kesejahteraan umat manusia di seluruh wilayah Negara Kesatuan Republik Indonesia",
       "Dalam menjalankan hak dan kebebasannya, setiap orang wajib tunduk kepada pembatasan yang ditetapkan dengan undang-undang untuk menjamin pengakuan serta penghormatan atas hak dan kebebasan orang lain sesuai pertimbangan moral, nilai agama, keamanan, dan ketertiban umum"
     ],
     "correctIndex": 4,
@@ -6027,11 +6027,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan pengaturan hak dan kewajiban warga negara dalam Pasal 33 ayat (4) UUD NRI Tahun 1945, bunyi ketentuan konstitusional yang tepat adalah...",
     "options": [
-      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya",
+      "Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya, demi meningkatkan kualitas hidupnya dan demi kesejahteraan umat manusia",
       "Perekonomian nasional diselenggarakan berdasar atas demokrasi ekonomi dengan prinsip kebersamaan, efisiensi berkeadilan, berkelanjutan, berwawasan lingkungan, kemandirian, serta dengan menjaga keseimbangan kemajuan dan kesatuan ekonomi nasional",
-      "Setiap orang berhak untuk hidup serta berhak mempertahankan hidup dan kehidupannya",
-      "Setiap anak berhak atas kelangsungan hidup, tumbuh, dan berkembang serta berhak atas perlindungan dari kekerasan dan diskriminasi",
-      "Setiap orang berhak membentuk keluarga dan melanjutkan keturunan melalui perkawinan yang sah"
+      "Setiap orang berhak atas pengakuan, jaminan, perlindungan, dan kepastian hukum yang adil serta perlakuan yang sama di hadapan hukum, dan setiap warga negara berhak memperoleh kesempatan yang sama dalam pemerintahan",
+      "Negara mengembangkan sistem jaminan sosial bagi seluruh rakyat dan memberdayakan masyarakat yang lemah dan tidak mampu sesuai dengan martabat kemanusiaan serta bertanggung jawab atas penyediaan fasilitas pelayanan kesehatan yang layak",
+      "Pemerintah memajukan ilmu pengetahuan dan teknologi dengan menjunjung tinggi nilai-nilai agama dan persatuan bangsa untuk kemajuan peradaban serta kesejahteraan umat manusia di seluruh wilayah Negara Kesatuan Republik Indonesia"
     ],
     "correctIndex": 1,
     "explanation": "Pasal 33 ayat (4) UUD NRI Tahun 1945 mengatur tentang Penyelenggaraan perekonomian nasional berdasar atas demokrasi ekonomi beserta prinsip-prinsipnya, yang berbunyi: 'Perekonomian nasional diselenggarakan berdasar atas demokrasi ekonomi dengan prinsip kebersamaan, efisiensi berkeadilan, berkelanjutan, berwawasan lingkungan, kemandirian, serta dengan menjaga keseimbangan kemajuan dan kesatuan ekonomi nasional' (hlm. 175–181).",
@@ -6235,7 +6235,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Undang-Undang yang mengatur hak mendasar bagi tenaga kerja untuk mendapatkan upah yang adil serta kesempatan dan perlakuan yang adil dari perusahaan adalah...",
     "options": [
-      "Undang-Undang Nomor 13 Tahun 2003 tentang Ketenagakerjaan",
+      "Undang-Undang Nomor 13 Tahun 2003",
       "Undang-Undang Nomor 12 Tahun 2006",
       "Undang-Undang Nomor 9 Tahun 1998",
       "Undang-Undang Nomor 24 Tahun 2009",
@@ -6331,11 +6331,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Menurut Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia, bagi anak hasil perkawinan campuran (WNI dan WNA) yang memiliki kewarganegaraan ganda terbatas, pada usia berapa anak tersebut wajib memilih salah satu kewarganegaraan?",
     "options": [
-      "Pada usia 15 tahun, paling lambat usia 17 tahun",
-      "Pada usia 21 tahun, paling lambat usia 25 tahun",
-      "Pada usia 12 tahun saat lulus sekolah dasar",
-      "Dapat mempertahankan dua kewarganegaraan seumur hidup",
-      "Pada usia 18 tahun (atau sudah kawin), dan pernyataan memilih disampaikan paling lambat usia 21 tahun"
+      "Setelah berusia 15 tahun saat masuk SMA, dan disampaikan paling lambat usia 17 tahun",
+      "Setelah berusia 21 tahun penuh, dan pernyataan disampaikan paling lambat usia 25 tahun",
+      "Sejak berusia 12 tahun ketika menyelesaikan jenjang pendidikan sekolah dasar",
+      "Tidak diwajibkan memilih karena dapat memegang dua kewarganegaraan seumur hidup",
+      "Setelah berusia 18 tahun atau sudah kawin, dan disampaikan paling lambat usia 21 tahun"
     ],
     "correctIndex": 4,
     "explanation": "Di Indonesia berlaku asas kewarganegaraan ganda terbatas bagi anak hasil perkawinan campuran, di mana pada usia 18 tahun atau paling lambat 21 tahun anak tersebut harus memilih menjadi WNI atau WNA (hlm. 184, 187).",
@@ -6377,7 +6377,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0399",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan konsep Warga Negara yang Baik menurut Eko Winarto (2006),, warga negara yang baik terbentuk dari perpaduan tiga lingkaran utama, yaitu Pengetahuan, Keterampilan, dan Nilai-Nilai. Irisan antara 'Pengetahuan' dan 'Keterampilan' menghasilkan sifat...",
+    "question": "Berdasarkan konsep Warga Negara yang Baik menurut Eko Winarto (2006), warga negara yang baik terbentuk dari perpaduan tiga lingkaran utama, yaitu Pengetahuan, Keterampilan, dan Nilai-Nilai. Irisan antara 'Pengetahuan' dan 'Keterampilan' menghasilkan sifat...",
     "options": [
       "Kompeten",
       "Eksklusif",
@@ -6409,13 +6409,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0401",
     "type": "pip",
     "category": "NKRI, Wasantara & Moderasi",
-    "question": "Berdasarkan data Global Firepower 2022,, kekuatan militer Indonesia dari 140 negara menempati peringkat...",
+    "question": "Berdasarkan data Global Firepower 2022, kekuatan militer Indonesia dari 140 negara yang dinilai menempati posisi...",
     "options": [
       "Peringkat 1 dunia",
       "Peringkat 5 dunia",
-      "Peringkat 15 dunia (dengan skor PowerIndex 0,2251)",
-      "Peringkat 50 dunia",
-      "Peringkat 25 dunia"
+      "Peringkat 15 dunia",
+      "Peringkat 25 dunia",
+      "Peringkat 50 dunia"
     ],
     "correctIndex": 2,
     "explanation": "Menurut laporan Global Firepower 2022 pada Gambar 4.14 (hlm. 192), kekuatan militer Indonesia menempati peringkat 15 dunia dari 140 negara dengan PowerIndex 0,2251.",
@@ -6459,11 +6459,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam melaksanakan hubungan internasional, Indonesia menerapkan politik luar negeri 'Bebas Aktif'. Pengertian dari politik luar negeri 'Bebas Aktif' adalah...",
     "options": [
-      "Bebas menjalin aliansi pakta pertahanan militer dengan salah satu blok negara adidaya",
-      "Bebas membatalkan perjanjian internasional secara sepihak kapan saja",
-      "Bebas mengambil sikap dan kebijaksanaan terhadap permasalahan internasional tanpa terikat pada satu kekuatan dunia tertentu, serta secara aktif berkontribusi menyumbangkan pemikiran dan langkah nyata bagi perdamaian dunia",
-      "Aktif mengintervensi urusan rumah tangga negara tetangga demi kepentingan ekonomi nasional",
-      "Bersikap netral dan pasif dengan tidak ikut campur dalam organisasi internasional mana pun"
+      "Bebas mengikatkan diri pada pakta pertahanan militer salah satu blok negara adidaya dunia",
+      "Bebas membatalkan traktat internasional yang telah diratifikasi kapan saja secara sepihak",
+      "Bebas menentukan sikap tanpa terikat blok kekuatan dunia serta aktif memperjuangkan perdamaian dunia",
+      "Aktif mencampuri urusan pemerintahan dalam negeri negara tetangga demi kepentingan ekonomi",
+      "Bersikap netral pasif dengan menarik diri dari seluruh organisasi kerja sama internasional"
     ],
     "correctIndex": 2,
     "explanation": "Bebas aktif bukan berarti politik netral/pasif, melainkan bebas mengambil sikap tanpa terikat satu blok kekuatan dunia serta aktif berkontribusi menciptakan ketertiban dan perdamaian dunia (hlm. 201–202).",
@@ -6492,7 +6492,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Asas dalam hubungan internasional yang menyatakan bahwa kekuasaan suatu negara tetap berlaku atas warga negaranya meskipun warga negara tersebut sedang berada di luar negeri disebut...",
     "options": [
       "Asas Teritorial",
-      "Asas Kebangsaan (Ekstrateritorial/Nasionalitas)",
+      "Asas Kebangsaan",
       "Asas Keterbukaan",
       "Asas Kepentingan Umum",
       "Asas Pacta Sunt Servanda"
@@ -6555,11 +6555,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Peran bersejarah Indonesia dalam Organisasi Kerja Sama Islam (OKI / OIC) yang dibentuk di Rabat, Maroko pada 25 September 1969 antara lain adalah...",
     "options": [
-      "Menetapkan mata uang tunggal bagi seluruh negara anggota OKI",
-      "Menjadi Ketua OIC Peace Committee for Southern Philippines (OIC PCSP) tahun 1993 yang memfasilitasi perundingan damai antara Pemerintah Filipina dengan Moro National Liberation Front (MNLF)",
-      "Menjadi lokasi markas besar tetap Sekretariat Jenderal OKI di Jakarta sejak 1969",
-      "Membubarkan keanggotaan negara-negara Asia Tenggara di dalam OKI",
-      "Memimpin pasukan militer gabungan OKI dalam Perang Teluk tahun 1991"
+      "Menetapkan pemberlakuan mata uang tunggal bersama bagi seluruh negara anggota Organisasi Kerja Sama Islam",
+      "Memimpin Komite Perdamaian OKI tahun 1993 yang memfasilitasi perundingan damai Pemerintah Filipina dan MNLF",
+      "Menjadi tempat kedudukan tetap Markas Besar Sekretariat Jenderal OKI di Jakarta sejak tahun 1969",
+      "Mengusulkan pembekuan keanggotaan negara-negara kawasan Asia Tenggara di dalam forum sidang OKI",
+      "Memimpin komando gabungan angkatan bersenjata negara-negara anggota OKI dalam konflik Perang Teluk"
     ],
     "correctIndex": 1,
     "explanation": "Peran Indonesia dalam OKI di antaranya menjadi Ketua OIC Peace Committee for Southern Philippines (OIC PCSP) tahun 1993 yang memfasilitasi perundingan damai Pemerintah Filipina dengan MNLF (hlm. 204).",
@@ -6603,11 +6603,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-1), bagaimana status kewarganegaraan bagi 'Setiap orang yang sudah menjadi WNI berdasarkan peraturan perundang-undangan dan/atau perjanjian Pemerintah RI dengan negara lain sebelum UU No. 12 Tahun 2006 berlaku'?",
     "options": [
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Asas keberlanjutan status WNI terdahulu)",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 1), Setiap orang yang sudah menjadi WNI berdasarkan peraturan perundang-undangan dan/atau perjanjian Pemerintah RI dengan negara lain sebelum UU No. 12 Tahun 2006 berlaku adalah Warga Negara Indonesia (Asas keberlanjutan status WNI terdahulu).",
@@ -6619,11 +6619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-2), bagaimana status kewarganegaraan bagi 'Anak yang lahir dari perkawinan yang sah dari seorang ayah dan ibu Warga Negara Indonesia'?",
     "options": [
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis (ayah dan ibu WNI))",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 2), Anak yang lahir dari perkawinan yang sah dari seorang ayah dan ibu Warga Negara Indonesia adalah Warga Negara Indonesia (Penerapan asas ius sanguinis (ayah dan ibu WNI)).",
@@ -6635,11 +6635,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-3), bagaimana status kewarganegaraan bagi 'Anak yang lahir dari perkawinan yang sah dari seorang ayah WNI dan ibu warga negara asing (WNA)'?",
     "options": [
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis melalui garis ayah WNI)",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 3), Anak yang lahir dari perkawinan yang sah dari seorang ayah WNI dan ibu warga negara asing (WNA) adalah Warga Negara Indonesia (Penerapan asas ius sanguinis melalui garis ayah WNI).",
@@ -6651,11 +6651,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-4), bagaimana status kewarganegaraan bagi 'Anak yang lahir dari perkawinan yang sah dari seorang ayah WNA dan ibu Warga Negara Indonesia'?",
     "options": [
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis melalui garis ibu WNI)",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen"
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 4), Anak yang lahir dari perkawinan yang sah dari seorang ayah WNA dan ibu Warga Negara Indonesia adalah Warga Negara Indonesia (Penerapan asas ius sanguinis melalui garis ibu WNI).",
@@ -6667,11 +6667,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-5), bagaimana status kewarganegaraan bagi 'Anak yang lahir dari perkawinan yang sah dari seorang ibu WNI, tetapi ayahnya tidak mempunyai kewarganegaraan (apatride) atau hukum negara asal ayahnya tidak memberikan kewarganegaraan kepada anak tersebut'?",
     "options": [
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis & perlindungan pencegahan apatride)",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 5), Anak yang lahir dari perkawinan yang sah dari seorang ibu WNI, tetapi ayahnya tidak mempunyai kewarganegaraan (apatride) atau hukum negara asal ayahnya tidak memberikan kewarganegaraan kepada anak tersebut adalah Warga Negara Indonesia (Penerapan asas ius sanguinis & perlindungan pencegahan apatride).",
@@ -6683,11 +6683,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-6), bagaimana status kewarganegaraan bagi 'Anak yang lahir dalam tenggang waktu 300 hari setelah ayahnya meninggal dunia dari perkawinan yang sah dan ayahnya Warga Negara Indonesia'?",
     "options": [
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis bagi anak yang lahir maksimal 300 hari setelah ayah WNI wafat)",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 6), Anak yang lahir dalam tenggang waktu 300 hari setelah ayahnya meninggal dunia dari perkawinan yang sah dan ayahnya Warga Negara Indonesia adalah Warga Negara Indonesia (Penerapan asas ius sanguinis bagi anak yang lahir maksimal 300 hari setelah ayah WNI wafat).",
@@ -6699,11 +6699,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-7), bagaimana status kewarganegaraan bagi 'Anak yang lahir di luar perkawinan yang sah dari seorang ibu Warga Negara Indonesia'?",
     "options": [
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis melalui ibu WNI)",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 7), Anak yang lahir di luar perkawinan yang sah dari seorang ibu Warga Negara Indonesia adalah Warga Negara Indonesia (Penerapan asas ius sanguinis melalui ibu WNI).",
@@ -6715,11 +6715,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-8), bagaimana status kewarganegaraan bagi 'Anak yang lahir di luar perkawinan yang sah dari seorang ibu WNA yang diakui oleh seorang ayah WNI sebagai anaknya dan pengakuan itu dilakukan sebelum anak tersebut berusia 18 tahun atau belum kawin'?",
     "options": [
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius sanguinis melalui pengakuan ayah WNI sebelum anak berusia 18 tahun)",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 8), Anak yang lahir di luar perkawinan yang sah dari seorang ibu WNA yang diakui oleh seorang ayah WNI sebagai anaknya dan pengakuan itu dilakukan sebelum anak tersebut berusia 18 tahun atau belum kawin adalah Warga Negara Indonesia (Penerapan asas ius sanguinis melalui pengakuan ayah WNI sebelum anak berusia 18 tahun).",
@@ -6731,11 +6731,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-9), bagaimana status kewarganegaraan bagi 'Anak yang lahir di wilayah negara Republik Indonesia yang pada waktu lahir tidak jelas status kewarganegaraan ayah dan ibunya'?",
     "options": [
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius soli terbatas di Indonesia)"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006"
     ],
     "correctIndex": 4,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 9), Anak yang lahir di wilayah negara Republik Indonesia yang pada waktu lahir tidak jelas status kewarganegaraan ayah dan ibunya adalah Warga Negara Indonesia (Penerapan asas ius soli terbatas di Indonesia).",
@@ -6747,11 +6747,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-10), bagaimana status kewarganegaraan bagi 'Anak yang baru lahir yang ditemukan di wilayah negara Republik Indonesia selama ayah dan ibunya tidak diketahui'?",
     "options": [
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius soli terbatas untuk mencegah apatride pada anak temuan)",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen"
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 10), Anak yang baru lahir yang ditemukan di wilayah negara Republik Indonesia selama ayah dan ibunya tidak diketahui adalah Warga Negara Indonesia (Penerapan asas ius soli terbatas untuk mencegah apatride pada anak temuan).",
@@ -6763,11 +6763,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-11), bagaimana status kewarganegaraan bagi 'Anak yang lahir di wilayah negara Republik Indonesia apabila ayah dan ibunya tidak mempunyai kewarganegaraan (apatride) atau tidak diketahui keberadaannya'?",
     "options": [
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan asas ius soli terbatas bagi anak dari orang tua apatride di wilayah RI)",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 11), Anak yang lahir di wilayah negara Republik Indonesia apabila ayah dan ibunya tidak mempunyai kewarganegaraan (apatride) atau tidak diketahui keberadaannya adalah Warga Negara Indonesia (Penerapan asas ius soli terbatas bagi anak dari orang tua apatride di wilayah RI).",
@@ -6779,11 +6779,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-12), bagaimana status kewarganegaraan bagi 'Anak yang dilahirkan di luar wilayah negara Republik Indonesia dari seorang ayah dan ibu WNI yang karena ketentuan dari negara tempat anak tersebut dilahirkan memberikan kewarganegaraan kepada anak yang bersangkutan'?",
     "options": [
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Penerapan kewarganegaraan ganda terbatas akibat kelahiran di negara berasas ius soli)"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006"
     ],
     "correctIndex": 4,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 12), Anak yang dilahirkan di luar wilayah negara Republik Indonesia dari seorang ayah dan ibu WNI yang karena ketentuan dari negara tempat anak tersebut dilahirkan memberikan kewarganegaraan kepada anak yang bersangkutan adalah Warga Negara Indonesia (Penerapan kewarganegaraan ganda terbatas akibat kelahiran di negara berasas ius soli).",
@@ -6795,11 +6795,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Berdasarkan ketentuan Pasal 4 Undang-Undang Nomor 12 Tahun 2006 tentang Kewarganegaraan Republik Indonesia (butir ke-13), bagaimana status kewarganegaraan bagi 'Anak dari seorang ayah atau ibu yang telah dikabulkan permohonan kewarganegaraannya, kemudian ayah atau ibunya meninggal dunia sebelum mengucapkan sumpah atau menyatakan janji setia'?",
     "options": [
-      "Otomatis berstatus Warga Negara Asing (WNA) dan wajib dideportasi",
-      "Harus menunggu hingga berusia 30 tahun untuk mengajukan visa tinggal",
-      "Hanya diberikan status penduduk sementara tanpa hak kewarganegaraan",
-      "Berstatus Apatride (tanpa kewarganegaraan) secara permanen",
-      "Sah menjadi Warga Negara Indonesia (WNI) berdasarkan UU No. 12 Tahun 2006 (Perlindungan status kewarganegaraan anak dari pemohon naturalisasi yang wafat sebelum sumpah)"
+      "Berstatus tanpa kewarganegaraan tetap hingga mengajukan permohonan pewarganegaraan pada usia 21 tahun",
+      "Otomatis berstatus Warga Negara Asing dan diwajibkan mengurus izin tinggal keimigrasian berkala",
+      "Hanya memperoleh hak tinggal sementara tanpa diakui sebagai Warga Negara Indonesia yang sah",
+      "Wajib menunggu penetapan pengadilan negeri setelah berusia 30 tahun untuk memperoleh status WNI",
+      "Sah menjadi Warga Negara Indonesia secara otomatis berdasarkan Undang-Undang Nomor 12 Tahun 2006"
     ],
     "correctIndex": 4,
     "explanation": "Menurut Pasal 4 UU No. 12 Tahun 2006 (hlm. 188–189 butir 13), Anak dari seorang ayah atau ibu yang telah dikabulkan permohonan kewarganegaraannya, kemudian ayah atau ibunya meninggal dunia sebelum mengucapkan sumpah atau menyatakan janji setia adalah Warga Negara Indonesia (Perlindungan status kewarganegaraan anak dari pemohon naturalisasi yang wafat sebelum sumpah).",
@@ -6811,11 +6811,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sesuatu yang menjadi tumpuan berpikir dan berpendapat\" adalah...",
     "options": [
-      "chauvinisme",
-      "budaya",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "asas dasar"
+      "Harmonisasi",
+      "Kerukunan",
+      "Norma Sosial",
+      "Ras",
+      "Asas Dasar"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'asas dasar' memiliki arti: Sesuatu yang menjadi tumpuan berpikir dan berpendapat.",
@@ -6827,10 +6827,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'asas dasar' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
+      "Pengesahan suatu perjanjian internasional oleh negara",
+      "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan",
+      "Pembedaan perlakuan terhadap sesama warga",
       "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
     ],
     "correctIndex": 4,
@@ -6843,11 +6843,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan\" adalah...",
     "options": [
-      "budaya",
-      "BPUPK",
-      "asas dasar",
-      "chauvinisme",
-      "bhinneka tunggal ika"
+      "Hoaks",
+      "Kesadaran",
+      "PPKI",
+      "Ratifikasi",
+      "Bhinneka Tunggal Ika"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'bhinneka tunggal ika' memiliki arti: Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan.",
@@ -6860,10 +6860,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'bhinneka tunggal ika' adalah...",
     "options": [
       "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama",
+      "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif",
+      "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati",
+      "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'bhinneka tunggal ika' diartikan sebagai: Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan.",
@@ -6875,10 +6875,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan\" adalah...",
     "options": [
-      "budaya",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "chauvinisme",
+      "Hukum",
+      "Kewarganegaraan",
+      "Panitia Sembilan",
+      "Bentuk Republik",
       "BPUPK"
     ],
     "correctIndex": 4,
@@ -6891,11 +6891,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'BPUPK' adalah...",
     "options": [
-      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan",
+      "Asas penentuan kewarganegaraan berdasarkan tempat kelahiran",
+      "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat",
       "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Pengesahan suatu perjanjian internasional oleh negara"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'BPUPK' diartikan sebagai: Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan.",
@@ -6907,11 +6907,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "budaya",
-      "asas dasar",
-      "BPUPK",
-      "chauvinisme"
+      "Ideologi",
+      "Budaya",
+      "Konstitusi",
+      "Sistem Parlementer",
+      "Sanksi Hukum"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'budaya' memiliki arti: Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia.",
@@ -6923,11 +6923,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'budaya' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain"
+      "Keseluruhan gagasan, perilaku, dan karya manusia yang berkaitan erat dengan budi serta akal pikiran dalam masyarakat",
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
+      "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
+      "Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan",
+      "Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'budaya' diartikan sebagai: Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia.",
@@ -6939,11 +6939,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain\" adalah...",
     "options": [
-      "BPUPK",
-      "budaya",
-      "chauvinisme",
-      "asas dasar",
-      "bhinneka tunggal ika"
+      "Individualisme",
+      "Liberalisme",
+      "Chauvinisme",
+      "Partisipasi Politik",
+      "Sinkronisasi"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'chauvinisme' memiliki arti: Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain.",
@@ -6955,11 +6955,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'chauvinisme' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya",
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
+      "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan",
       "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Sesuatu yang tidak membahayakan dan bersifat pasif, tetapi harus diwaspadai untuk menjaga kestabilan"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'chauvinisme' diartikan sebagai: Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain.",
@@ -6971,11 +6971,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "dasar negara",
-      "budaya",
-      "BPUPK",
-      "asas dasar"
+      "Integrasi Nasional",
+      "Dasar Negara",
+      "Mukadimah Konstitusi",
+      "Patriotisme",
+      "Solidaritas"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'dasar negara' memiliki arti: Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional.",
@@ -6988,10 +6988,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'dasar negara' adalah...",
     "options": [
       "Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan",
+      "Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia",
+      "Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu",
+      "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'dasar negara' diartikan sebagai: Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional.",
@@ -7003,11 +7003,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat\" adalah...",
     "options": [
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "dekrit Presiden",
-      "BPUPK",
-      "budaya"
+      "Intoleransi",
+      "Musyawarah",
+      "Dekret Presiden",
+      "Perundungan",
+      "Staatsfundamentalnorm"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'dekrit Presiden' memiliki arti: Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat.",
@@ -7019,11 +7019,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'dekrit Presiden' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat"
+      "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
+      "Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan",
+      "Keseluruhan gagasan, perilaku, dan karya manusia yang berkaitan erat dengan budi serta akal pikiran dalam masyarakat",
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
+      "Keputusan yang dikeluarkan presiden selaku kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat"
     ],
     "correctIndex": 4,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'dekrit Presiden' diartikan sebagai: Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat.",
@@ -7035,11 +7035,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan\" adalah...",
     "options": [
-      "demokrasi Pancasila",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "budaya",
-      "asas dasar"
+      "Demokrasi Pancasila",
+      "Ius Sanguinis",
+      "Nasionalisme",
+      "Penduduk",
+      "Suku Bangsa"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'demokrasi Pancasila' memiliki arti: Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan.",
@@ -7051,11 +7051,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'demokrasi Pancasila' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus",
+      "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
+      "Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak",
       "Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'demokrasi Pancasila' diartikan sebagai: Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan.",
@@ -7067,11 +7067,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Pembedaan perlakuan terhadap sesama warga\" adalah...",
     "options": [
-      "diskriminasi",
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "budaya"
+      "Diskriminasi",
+      "Ius Soli",
+      "Negara",
+      "Pertahanan Negara",
+      "Tantangan Nasional"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'diskriminasi' memiliki arti: Pembedaan perlakuan terhadap sesama warga.",
@@ -7083,11 +7083,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'diskriminasi' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Situasi dan kondisi yang harmonis, damai, dan saling menghormati",
+      "Paham yang menganggap diri sendiri lebih penting daripada orang lain",
       "Pembedaan perlakuan terhadap sesama warga",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
+      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'diskriminasi' diartikan sebagai: Pembedaan perlakuan terhadap sesama warga.",
@@ -7099,11 +7099,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya\" adalah...",
     "options": [
-      "BPUPK",
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "budaya",
-      "doktrin"
+      "Judicial Review",
+      "Negara Hukum",
+      "Sistem Presidensial",
+      "Terorisme",
+      "Doktrin Hukum"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'doktrin' memiliki arti: Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya.",
@@ -7115,10 +7115,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'doktrin' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
+      "Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan",
+      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
       "Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya"
     ],
     "correctIndex": 4,
@@ -7131,11 +7131,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Mengangkat beban secara bersama-sama agar menjadi ringan; kesadaran dan semangat untuk mengerjakan sesuatu secara bersama-sama tanpa memikirkan keuntungan pribadi, dilandasi keikhlasan, kerelaan, kebersamaan, toleransi, dan kepercayaan\" adalah...",
     "options": [
-      "gotong royong",
-      "BPUPK",
-      "asas dasar",
-      "budaya",
-      "bhinneka tunggal ika"
+      "Gotong Royong",
+      "Kearifan Lokal",
+      "Negara Kesatuan",
+      "Produk Hukum",
+      "Toleransi"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'gotong royong' memiliki arti: Mengangkat beban secara bersama-sama agar menjadi ringan; kesadaran dan semangat untuk mengerjakan sesuatu secara bersama-sama tanpa memikirkan keuntungan pribadi, dilandasi keikhlasan, kerelaan, kebersamaan, toleransi, dan kepercayaan.",
@@ -7147,10 +7147,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'gotong royong' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia",
+      "Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak",
+      "Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional",
+      "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut",
       "Mengangkat beban secara bersama-sama agar menjadi ringan; kesadaran dan semangat untuk mengerjakan sesuatu secara bersama-sama tanpa memikirkan keuntungan pribadi, dilandasi keikhlasan, kerelaan, kebersamaan, toleransi, dan kepercayaan"
     ],
     "correctIndex": 4,
@@ -7163,11 +7163,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Penyelarasan atau penyerasian agar sesuai dengan prinsip atau tata aturan yang berlaku\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "budaya",
-      "harmonisasi",
-      "BPUPK",
-      "asas dasar"
+      "Kerukunan",
+      "Norma Sosial",
+      "Harmonisasi",
+      "Ras",
+      "Undang-Undang"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'harmonisasi' memiliki arti: Penyelarasan atau penyerasian agar sesuai dengan prinsip atau tata aturan yang berlaku.",
@@ -7179,11 +7179,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'harmonisasi' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
+      "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati",
       "Penyelarasan atau penyerasian agar sesuai dengan prinsip atau tata aturan yang berlaku",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'harmonisasi' diartikan sebagai: Penyelarasan atau penyerasian agar sesuai dengan prinsip atau tata aturan yang berlaku.",
@@ -7195,11 +7195,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Informasi palsu, berita bohong, atau fakta yang diplintir atau direkayasa untuk tujuan lelucon hingga serius (politis)\" adalah...",
     "options": [
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "budaya",
-      "hoaks",
-      "BPUPK"
+      "Kesadaran",
+      "PPKI",
+      "Ratifikasi",
+      "Hoaks",
+      "UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'hoaks' memiliki arti: Informasi palsu, berita bohong, atau fakta yang diplintir atau direkayasa untuk tujuan lelucon hingga serius (politis).",
@@ -7211,11 +7211,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'hoaks' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Informasi palsu, berita bohong, atau fakta yang diplintir atau direkayasa untuk tujuan lelucon hingga serius (politis)",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
+      "Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya",
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)",
+      "Informasi palsu, kabar bohong, atau fakta yang dipelintir dan direkayasa untuk menyesatkan persepsi publik",
+      "Keseluruhan gagasan, perilaku, dan karya manusia yang berkaitan erat dengan budi serta akal pikiran dalam masyarakat"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'hoaks' diartikan sebagai: Informasi palsu, berita bohong, atau fakta yang diplintir atau direkayasa untuk tujuan lelucon hingga serius (politis).",
@@ -7227,11 +7227,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar\" adalah...",
     "options": [
-      "budaya",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "hukum",
-      "BPUPK"
+      "Kewarganegaraan",
+      "Panitia Sembilan",
+      "Bentuk Republik",
+      "Hukum",
+      "Wawasan Nusantara"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'hukum' memiliki arti: Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar.",
@@ -7244,10 +7244,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'hukum' adalah...",
     "options": [
       "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus",
+      "Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional",
+      "Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan",
+      "Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'hukum' diartikan sebagai: Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar.",
@@ -7259,11 +7259,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Kumpulan konsep bersistem yang dijadikan asas pendapat yang memberikan arah dan tujuan kelangsungan hidup\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "ideologi",
-      "budaya",
-      "BPUPK"
+      "Konstitusi",
+      "Sistem Parlementer",
+      "Ideologi",
+      "Sanksi Hukum",
+      "Kekuasaan Yudikatif"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'ideologi' memiliki arti: Kumpulan konsep bersistem yang dijadikan asas pendapat yang memberikan arah dan tujuan kelangsungan hidup.",
@@ -7276,10 +7276,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'ideologi' adalah...",
     "options": [
       "Kumpulan konsep bersistem yang dijadikan asas pendapat yang memberikan arah dan tujuan kelangsungan hidup",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya",
+      "Sesuatu yang tidak membahayakan dan bersifat pasif, tetapi harus diwaspadai untuk menjaga kestabilan",
+      "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya",
+      "Proses uji materi suatu peraturan, baik secara formal maupun material terhadap peraturan yang tingkatannya lebih tinggi"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'ideologi' diartikan sebagai: Kumpulan konsep bersistem yang dijadikan asas pendapat yang memberikan arah dan tujuan kelangsungan hidup.",
@@ -7291,11 +7291,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Paham yang menganggap diri sendiri lebih penting daripada orang lain\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "individualisme",
-      "BPUPK",
-      "asas dasar",
-      "budaya"
+      "Liberalisme",
+      "Individualisme",
+      "Partisipasi Politik",
+      "Sinkronisasi",
+      "Asas Dasar"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'individualisme' memiliki arti: Paham yang menganggap diri sendiri lebih penting daripada orang lain.",
@@ -7307,11 +7307,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'individualisme' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis",
       "Paham yang menganggap diri sendiri lebih penting daripada orang lain",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan",
+      "Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara",
+      "Paham yang menghendaki pemberian kebebasan yang luas kepada manusia"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'individualisme' diartikan sebagai: Paham yang menganggap diri sendiri lebih penting daripada orang lain.",
@@ -7323,11 +7323,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Usaha dan proses mempersatukan perbedaan-perbedaan yang ada pada suatu negara sehingga tercipta keserasian dan keselarasan secara nasional\" adalah...",
     "options": [
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "budaya",
-      "integrasi nasional"
+      "Mukadimah Konstitusi",
+      "Patriotisme",
+      "Solidaritas",
+      "Bhinneka Tunggal Ika",
+      "Integrasi Nasional"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'integrasi nasional' memiliki arti: Usaha dan proses mempersatukan perbedaan-perbedaan yang ada pada suatu negara sehingga tercipta keserasian dan keselarasan secara nasional.",
@@ -7339,11 +7339,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'integrasi nasional' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri",
+      "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
       "Usaha dan proses mempersatukan perbedaan-perbedaan yang ada pada suatu negara sehingga tercipta keserasian dan keselarasan secara nasional",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar",
+      "Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'integrasi nasional' diartikan sebagai: Usaha dan proses mempersatukan perbedaan-perbedaan yang ada pada suatu negara sehingga tercipta keserasian dan keselarasan secara nasional.",
@@ -7355,11 +7355,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan\" adalah...",
     "options": [
-      "asas dasar",
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "intoleransi",
-      "budaya"
+      "Musyawarah",
+      "Perundungan",
+      "Staatsfundamentalnorm",
+      "Intoleransi",
+      "BPUPK"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'intoleransi' memiliki arti: Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan.",
@@ -7371,11 +7371,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'intoleransi' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus",
+      "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
       "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan",
+      "Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'intoleransi' diartikan sebagai: Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan.",
@@ -7387,11 +7387,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Asas penentuan kewarganegaraan berdasarkan keturunan\" adalah...",
     "options": [
-      "budaya",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "asas dasar",
-      "ius sanguinis"
+      "Nasionalisme",
+      "Penduduk",
+      "Suku Bangsa",
+      "Budaya",
+      "Ius Sanguinis"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'ius sanguinis' memiliki arti: Asas penentuan kewarganegaraan berdasarkan keturunan.",
@@ -7403,11 +7403,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'ius sanguinis' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Pembedaan perlakuan terhadap sesama warga",
       "Asas penentuan kewarganegaraan berdasarkan keturunan",
       "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Berunding atau berembuk tentang masalah bersama"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'ius sanguinis' diartikan sebagai: Asas penentuan kewarganegaraan berdasarkan keturunan.",
@@ -7419,11 +7419,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Asas penentuan kewarganegaraan berdasarkan tempat kelahiran\" adalah...",
     "options": [
-      "ius soli",
-      "BPUPK",
-      "budaya",
-      "asas dasar",
-      "bhinneka tunggal ika"
+      "Ius Soli",
+      "Negara",
+      "Pertahanan Negara",
+      "Tantangan Nasional",
+      "Chauvinisme"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'ius soli' memiliki arti: Asas penentuan kewarganegaraan berdasarkan tempat kelahiran.",
@@ -7436,9 +7436,9 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'ius soli' adalah...",
     "options": [
       "Asas penentuan kewarganegaraan berdasarkan tempat kelahiran",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Asas penentuan kewarganegaraan berdasarkan keturunan",
+      "Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan",
       "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
     ],
     "correctIndex": 0,
@@ -7451,11 +7451,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Proses uji materi suatu peraturan, baik secara formal maupun material terhadap peraturan yang tingkatannya lebih tinggi\" adalah...",
     "options": [
-      "asas dasar",
-      "BPUPK",
-      "budaya",
-      "judicial review",
-      "bhinneka tunggal ika"
+      "Negara Hukum",
+      "Sistem Presidensial",
+      "Terorisme",
+      "Judicial Review",
+      "Dasar Negara"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'judicial review' memiliki arti: Proses uji materi suatu peraturan, baik secara formal maupun material terhadap peraturan yang tingkatannya lebih tinggi.",
@@ -7467,10 +7467,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'judicial review' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri",
+      "Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945",
+      "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
       "Proses uji materi suatu peraturan, baik secara formal maupun material terhadap peraturan yang tingkatannya lebih tinggi"
     ],
     "correctIndex": 4,
@@ -7483,11 +7483,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Nilai-nilai budaya baik yang ada di dalam suatu masyarakat\" adalah...",
     "options": [
-      "BPUPK",
-      "budaya",
-      "kearifan lokal",
-      "bhinneka tunggal ika",
-      "asas dasar"
+      "Negara Kesatuan",
+      "Produk Hukum",
+      "Kearifan Lokal",
+      "Toleransi",
+      "Dekret Presiden"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'kearifan lokal' memiliki arti: Nilai-nilai budaya baik yang ada di dalam suatu masyarakat.",
@@ -7499,11 +7499,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'kearifan lokal' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Paham yang menganggap diri sendiri lebih penting daripada orang lain",
       "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Asas penentuan kewarganegaraan berdasarkan tempat kelahiran",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan",
+      "Situasi dan kondisi yang harmonis, damai, dan saling menghormati"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'kearifan lokal' diartikan sebagai: Nilai-nilai budaya baik yang ada di dalam suatu masyarakat.",
@@ -7515,11 +7515,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Situasi dan kondisi yang harmonis, damai, dan saling menghormati\" adalah...",
     "options": [
-      "budaya",
-      "BPUPK",
-      "kerukunan",
-      "bhinneka tunggal ika",
-      "asas dasar"
+      "Norma Sosial",
+      "Ras",
+      "Kerukunan",
+      "Undang-Undang",
+      "Demokrasi Pancasila"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'kerukunan' memiliki arti: Situasi dan kondisi yang harmonis, damai, dan saling menghormati.",
@@ -7533,9 +7533,9 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Situasi dan kondisi yang harmonis, damai, dan saling menghormati",
       "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
       "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Asas penentuan kewarganegaraan berdasarkan tempat kelahiran",
+      "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'kerukunan' diartikan sebagai: Situasi dan kondisi yang harmonis, damai, dan saling menghormati.",
@@ -7547,11 +7547,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak\" adalah...",
     "options": [
-      "kesadaran",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "BPUPK",
-      "budaya"
+      "Kesadaran",
+      "PPKI",
+      "Ratifikasi",
+      "UUD NRI Tahun 1945",
+      "Diskriminasi"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'kesadaran' memiliki arti: Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak.",
@@ -7564,10 +7564,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'kesadaran' adalah...",
     "options": [
       "Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan",
+      "Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional",
+      "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut",
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'kesadaran' diartikan sebagai: Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak.",
@@ -7577,13 +7577,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0474",
     "type": "pip",
     "category": "NKRI, Wasantara & Moderasi",
-    "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan\" adalah...",
+    "question": "Konsep dalam hukum tata negara yang didefinisikan sebagai \"Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan\" adalah...",
     "options": [
-      "asas dasar",
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "budaya",
-      "kewarganegaraan"
+      "Panitia Sembilan",
+      "Bentuk Republik",
+      "Wawasan Nusantara",
+      "Doktrin Hukum",
+      "Kewarganegaraan"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'kewarganegaraan' memiliki arti: Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan.",
@@ -7595,11 +7595,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'kewarganegaraan' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut",
       "Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar",
+      "Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan",
+      "Kondisi mental atau psikologis menyadari bahwa kita memiliki perbedaan dengan yang lain; sikap mawas diri sehingga dapat membedakan baik dan buruk, benar dan salah, layak dan tidak layak"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'kewarganegaraan' diartikan sebagai: Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan.",
@@ -7611,11 +7611,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis\" adalah...",
     "options": [
-      "asas dasar",
-      "BPUPK",
-      "konstitusi",
-      "budaya",
-      "bhinneka tunggal ika"
+      "Sistem Parlementer",
+      "Sanksi Hukum",
+      "Konstitusi",
+      "Kekuasaan Yudikatif",
+      "Gotong Royong"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'konstitusi' memiliki arti: Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis.",
@@ -7627,11 +7627,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'konstitusi' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma",
+      "Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara",
+      "Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu",
       "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'konstitusi' diartikan sebagai: Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis.",
@@ -7643,11 +7643,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Paham yang menghendaki pemberian kebebasan yang luas kepada manusia\" adalah...",
     "options": [
-      "BPUPK",
-      "asas dasar",
-      "liberalisme",
-      "bhinneka tunggal ika",
-      "budaya"
+      "Partisipasi Politik",
+      "Sinkronisasi",
+      "Liberalisme",
+      "Asas Dasar",
+      "Harmonisasi"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'liberalisme' memiliki arti: Paham yang menghendaki pemberian kebebasan yang luas kepada manusia.",
@@ -7659,11 +7659,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'liberalisme' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma",
       "Paham yang menghendaki pemberian kebebasan yang luas kepada manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis",
+      "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat",
+      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'liberalisme' diartikan sebagai: Paham yang menghendaki pemberian kebebasan yang luas kepada manusia.",
@@ -7675,11 +7675,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945\" adalah...",
     "options": [
-      "mukadimah/pendahuluan",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "budaya",
-      "asas dasar"
+      "Mukadimah Konstitusi",
+      "Patriotisme",
+      "Solidaritas",
+      "Bhinneka Tunggal Ika",
+      "Hoaks"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'mukadimah/pendahuluan' memiliki arti: Kata pengantar Undang-Undang Dasar Negara Republik Indonesia Tahun 1945.",
@@ -7691,11 +7691,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'mukadimah/pendahuluan' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain",
       "Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama",
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)",
+      "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'mukadimah/pendahuluan' diartikan sebagai: Kata pengantar Undang-Undang Dasar Negara Republik Indonesia Tahun 1945.",
@@ -7707,11 +7707,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Berunding atau berembuk tentang masalah bersama\" adalah...",
     "options": [
-      "asas dasar",
+      "Perundungan",
+      "Staatsfundamentalnorm",
       "BPUPK",
-      "bhinneka tunggal ika",
-      "musyawarah",
-      "budaya"
+      "Musyawarah",
+      "Hukum"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'musyawarah' memiliki arti: Berunding atau berembuk tentang masalah bersama.",
@@ -7723,11 +7723,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'musyawarah' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Sikap untuk saling menghormati dan menghargai perbedaan",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan",
       "Berunding atau berembuk tentang masalah bersama",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
+      "Paham yang menghendaki pemberian kebebasan yang luas kepada manusia",
+      "Pembedaan perlakuan terhadap sesama warga"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'musyawarah' diartikan sebagai: Berunding atau berembuk tentang masalah bersama.",
@@ -7739,11 +7739,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia\" adalah...",
     "options": [
-      "asas dasar",
-      "nasionalisme",
-      "BPUPK",
-      "budaya",
-      "bhinneka tunggal ika"
+      "Penduduk",
+      "Nasionalisme",
+      "Suku Bangsa",
+      "Budaya",
+      "Ideologi"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'nasionalisme' memiliki arti: Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia.",
@@ -7755,11 +7755,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'nasionalisme' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus",
+      "Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan",
+      "Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan",
       "Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'nasionalisme' diartikan sebagai: Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia.",
@@ -7771,11 +7771,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut\" adalah...",
     "options": [
-      "negara",
-      "asas dasar",
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "budaya"
+      "Negara",
+      "Pertahanan Negara",
+      "Tantangan Nasional",
+      "Chauvinisme",
+      "Individualisme"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'negara' memiliki arti: Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut.",
@@ -7787,11 +7787,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'negara' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan",
       "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan",
+      "Keanggotaan yang menunjukkan hubungan atau ikatan antara negara dan warga negara yang mengakibatkan adanya kewajiban negara untuk melindungi orang yang bersangkutan",
+      "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'negara' diartikan sebagai: Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut.",
@@ -7803,11 +7803,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "budaya",
-      "BPUPK",
-      "negara hukum"
+      "Sistem Presidensial",
+      "Terorisme",
+      "Dasar Negara",
+      "Integrasi Nasional",
+      "Negara Hukum"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'negara hukum' memiliki arti: Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif.",
@@ -7819,11 +7819,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'negara hukum' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu",
       "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
+      "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati",
+      "Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'negara hukum' diartikan sebagai: Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif.",
@@ -7835,11 +7835,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Negara berdaulat yang diselenggarakan sebagai satu kesatuan tunggal, di mana pemerintah pusat adalah yang tertinggi dan satuan-satuan subnasionalnya hanya menjalankan kekuasaan yang didelegasikan pemerintah pusat\" adalah...",
     "options": [
-      "budaya",
-      "asas dasar",
-      "negara kesatuan",
-      "bhinneka tunggal ika",
-      "BPUPK"
+      "Produk Hukum",
+      "Toleransi",
+      "Negara Kesatuan",
+      "Dekret Presiden",
+      "Intoleransi"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'negara kesatuan' memiliki arti: Negara berdaulat yang diselenggarakan sebagai satu kesatuan tunggal, di mana pemerintah pusat adalah yang tertinggi dan satuan-satuan subnasionalnya hanya menjalankan kekuasaan yang didelegasikan pemerintah pusat.",
@@ -7851,11 +7851,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'negara kesatuan' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar",
+      "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
       "Negara berdaulat yang diselenggarakan sebagai satu kesatuan tunggal, di mana pemerintah pusat adalah yang tertinggi dan satuan-satuan subnasionalnya hanya menjalankan kekuasaan yang didelegasikan pemerintah pusat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan",
+      "Kaidah, aturan, atau ketentuan yang mengikat warga kelompok dalam masyarakat, dipakai sebagai panduan, tatanan, dan pengendali tingkah laku pergaulan dalam masyarakat"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'negara kesatuan' diartikan sebagai: Negara berdaulat yang diselenggarakan sebagai satu kesatuan tunggal, di mana pemerintah pusat adalah yang tertinggi dan satuan-satuan subnasionalnya hanya menjalankan kekuasaan yang didelegasikan pemerintah pusat.",
@@ -7867,11 +7867,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Kaidah, aturan, atau ketentuan yang mengikat warga kelompok dalam masyarakat, dipakai sebagai panduan, tatanan, dan pengendali tingkah laku pergaulan dalam masyarakat\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "budaya",
-      "norma",
-      "BPUPK",
-      "asas dasar"
+      "Ras",
+      "Undang-Undang",
+      "Norma Sosial",
+      "Demokrasi Pancasila",
+      "Ius Sanguinis"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'norma' memiliki arti: Kaidah, aturan, atau ketentuan yang mengikat warga kelompok dalam masyarakat, dipakai sebagai panduan, tatanan, dan pengendali tingkah laku pergaulan dalam masyarakat.",
@@ -7883,11 +7883,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'norma' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
       "Kaidah, aturan, atau ketentuan yang mengikat warga kelompok dalam masyarakat, dipakai sebagai panduan, tatanan, dan pengendali tingkah laku pergaulan dalam masyarakat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional",
+      "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar",
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'norma' diartikan sebagai: Kaidah, aturan, atau ketentuan yang mengikat warga kelompok dalam masyarakat, dipakai sebagai panduan, tatanan, dan pengendali tingkah laku pergaulan dalam masyarakat.",
@@ -7899,11 +7899,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan\" adalah...",
     "options": [
-      "budaya",
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "Panitia Persiapan Kemerdekaan Indonesia (PPKI)",
-      "BPUPK"
+      "Ratifikasi",
+      "UUD NRI Tahun 1945",
+      "Diskriminasi",
+      "PPKI",
+      "Ius Soli"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'Panitia Persiapan Kemerdekaan Indonesia (PPKI)' memiliki arti: Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan.",
@@ -7915,10 +7915,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'Panitia Persiapan Kemerdekaan Indonesia (PPKI)' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
+      "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif",
+      "Penyelarasan atau penyerasian agar sesuai dengan prinsip atau tata aturan yang berlaku",
+      "Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu",
       "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan"
     ],
     "correctIndex": 4,
@@ -7931,11 +7931,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "BPUPK",
+      "Bentuk Republik",
+      "Wawasan Nusantara",
       "Panitia Sembilan",
-      "asas dasar",
-      "budaya"
+      "Doktrin Hukum",
+      "Judicial Review"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'Panitia Sembilan' memiliki arti: Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta).",
@@ -7947,11 +7947,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'Panitia Sembilan' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
+      "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan",
+      "Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan",
+      "Kumpulan konsep bersistem yang dijadikan asas pendapat yang memberikan arah dan tujuan kelangsungan hidup",
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia",
+      "Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'Panitia Sembilan' diartikan sebagai: Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta).",
@@ -7963,11 +7963,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "budaya",
-      "parlementer",
-      "BPUPK",
-      "asas dasar"
+      "Sanksi Hukum",
+      "Kekuasaan Yudikatif",
+      "Sistem Parlementer",
+      "Gotong Royong",
+      "Kearifan Lokal"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'parlementer' memiliki arti: Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri.",
@@ -7979,11 +7979,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'parlementer' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan",
+      "Usaha dan proses mempersatukan perbedaan-perbedaan yang ada pada suatu negara sehingga tercipta keserasian dan keselarasan secara nasional",
       "Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
+      "Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'parlementer' diartikan sebagai: Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri.",
@@ -7995,11 +7995,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan\" adalah...",
     "options": [
-      "asas dasar",
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "partisipasi politik",
-      "budaya"
+      "Sinkronisasi",
+      "Asas Dasar",
+      "Harmonisasi",
+      "Partisipasi Politik",
+      "Kerukunan"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'partisipasi politik' memiliki arti: Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan.",
@@ -8011,11 +8011,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'partisipasi politik' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri",
+      "Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu",
       "Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
+      "Keseluruhan gagasan, perilaku, dan karya manusia yang berkaitan erat dengan budi serta akal pikiran dalam masyarakat"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'partisipasi politik' diartikan sebagai: Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan.",
@@ -8027,11 +8027,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara\" adalah...",
     "options": [
-      "BPUPK",
-      "patriotisme",
-      "budaya",
-      "bhinneka tunggal ika",
-      "asas dasar"
+      "Solidaritas",
+      "Patriotisme",
+      "Bhinneka Tunggal Ika",
+      "Hoaks",
+      "Kesadaran"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'patriotisme' memiliki arti: Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara.",
@@ -8043,10 +8043,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'patriotisme' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama",
+      "Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma",
+      "Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain",
+      "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan",
       "Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara"
     ],
     "correctIndex": 4,
@@ -8059,11 +8059,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Perilaku yang tidak menyenangkan, baik secara verbal, fisik, ataupun sosial di dunia nyata maupun dunia maya yang membuat seseorang merasa tidak nyaman, sakit hati, dan tertekan\" adalah...",
     "options": [
-      "budaya",
+      "Staatsfundamentalnorm",
       "BPUPK",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "perundungan atau bullying"
+      "Hukum",
+      "Kewarganegaraan",
+      "Perundungan"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'perundungan atau bullying' memiliki arti: Perilaku yang tidak menyenangkan, baik secara verbal, fisik, ataupun sosial di dunia nyata maupun dunia maya yang membuat seseorang merasa tidak nyaman, sakit hati, dan tertekan.",
@@ -8076,10 +8076,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'perundungan atau bullying' adalah...",
     "options": [
       "Perilaku yang tidak menyenangkan, baik secara verbal, fisik, ataupun sosial di dunia nyata maupun dunia maya yang membuat seseorang merasa tidak nyaman, sakit hati, dan tertekan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Kaidah, aturan, atau ketentuan yang mengikat warga kelompok dalam masyarakat, dipakai sebagai panduan, tatanan, dan pengendali tingkah laku pergaulan dalam masyarakat",
+      "Sekumpulan peraturan yang berlaku di masyarakat dan dibuat oleh badan resmi yang berwajib, bersifat memaksa, dan akan mendapat sanksi tegas apabila dilanggar",
+      "Ketiadaan tenggang rasa; suatu kondisi jika kelompok secara spesifik menolak untuk menoleransi praktik-praktik, para penganut, atau kepercayaan",
+      "Sistem demokrasi Indonesia yang berlandaskan pada nilai-nilai Pancasila terutama sila keempat, kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'perundungan atau bullying' diartikan sebagai: Perilaku yang tidak menyenangkan, baik secara verbal, fisik, ataupun sosial di dunia nyata maupun dunia maya yang membuat seseorang merasa tidak nyaman, sakit hati, dan tertekan.",
@@ -8091,11 +8091,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus\" adalah...",
     "options": [
-      "penduduk",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "budaya",
-      "BPUPK"
+      "Penduduk",
+      "Suku Bangsa",
+      "Budaya",
+      "Ideologi",
+      "Konstitusi"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'penduduk' memiliki arti: Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus.",
@@ -8107,10 +8107,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'penduduk' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut",
+      "Usaha dan proses mempersatukan perbedaan-perbedaan yang ada pada suatu negara sehingga tercipta keserasian dan keselarasan secara nasional",
+      "Fondasi bagi berdirinya suatu negara, sumber pelaksanaan kehidupan ketatanegaraan atau sumber segala peraturan yang ada dalam suatu negara dilaksanakan secara nasional",
+      "Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia",
       "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus"
     ],
     "correctIndex": 4,
@@ -8123,11 +8123,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "asas dasar",
-      "budaya",
-      "pertahanan negara"
+      "Tantangan Nasional",
+      "Chauvinisme",
+      "Individualisme",
+      "Liberalisme",
+      "Pertahanan Negara"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'pertahanan negara' memiliki arti: Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan.",
@@ -8139,11 +8139,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'pertahanan negara' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri",
+      "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
+      "Suatu wilayah di permukaan bumi yang kekuasaannya, baik politik, militer, ekonomi, sosial maupun budayanya diatur oleh pemerintahan yang berada di wilayah tersebut",
       "Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'pertahanan negara' diartikan sebagai: Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan.",
@@ -8155,11 +8155,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan\" adalah...",
     "options": [
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "presidensial",
-      "budaya"
+      "Terorisme",
+      "Dasar Negara",
+      "Integrasi Nasional",
+      "Sistem Presidensial",
+      "Mukadimah Konstitusi"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'presidensial' memiliki arti: Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan.",
@@ -8171,11 +8171,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'presidensial' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya",
       "Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
+      "Pendapat para ahli hukum terkemuka yang dijadikan dasar atau asas penting dalam hukum dan penerapannya",
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'presidensial' diartikan sebagai: Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan.",
@@ -8187,11 +8187,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu\" adalah...",
     "options": [
-      "budaya",
-      "produk hukum",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "asas dasar"
+      "Toleransi",
+      "Produk Hukum",
+      "Dekret Presiden",
+      "Intoleransi",
+      "Musyawarah"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'produk hukum' memiliki arti: Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu.",
@@ -8203,11 +8203,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'produk hukum' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan",
+      "Bagian pendahuluan atau pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945",
       "Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama",
+      "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'produk hukum' diartikan sebagai: Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu.",
@@ -8219,11 +8219,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan\" adalah...",
     "options": [
-      "asas dasar",
-      "ras",
-      "BPUPK",
-      "budaya",
-      "bhinneka tunggal ika"
+      "Undang-Undang",
+      "Ras",
+      "Demokrasi Pancasila",
+      "Ius Sanguinis",
+      "Nasionalisme"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'ras' memiliki arti: Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan.",
@@ -8235,10 +8235,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'ras' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
+      "Bentuk pemerintahan yang berkedaulatan rakyat dan dipimpin oleh presiden",
       "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Asas penentuan kewarganegaraan berdasarkan tempat kelahiran",
+      "Paham yang menganggap diri sendiri lebih penting daripada orang lain",
       "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan"
     ],
     "correctIndex": 4,
@@ -8251,11 +8251,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Pengesahan suatu perjanjian internasional oleh negara\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "budaya",
-      "BPUPK",
-      "ratifikasi",
-      "asas dasar"
+      "UUD NRI Tahun 1945",
+      "Diskriminasi",
+      "Ius Soli",
+      "Ratifikasi",
+      "Negara"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'ratifikasi' memiliki arti: Pengesahan suatu perjanjian internasional oleh negara.",
@@ -8267,11 +8267,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'ratifikasi' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Pengesahan suatu perjanjian internasional oleh negara",
+      "Pembedaan perlakuan terhadap sesama warga",
       "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Pengesahan suatu perjanjian internasional oleh negara",
+      "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'ratifikasi' diartikan sebagai: Pengesahan suatu perjanjian internasional oleh negara.",
@@ -8283,11 +8283,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Bentuk pemerintahan yang berkedaulatan rakyat dan dipimpin oleh presiden\" adalah...",
     "options": [
-      "republik",
-      "BPUPK",
-      "asas dasar",
-      "budaya",
-      "bhinneka tunggal ika"
+      "Bentuk Republik",
+      "Wawasan Nusantara",
+      "Doktrin Hukum",
+      "Judicial Review",
+      "Negara Hukum"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'republik' memiliki arti: Bentuk pemerintahan yang berkedaulatan rakyat dan dipimpin oleh presiden.",
@@ -8299,11 +8299,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'republik' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama",
+      "Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma",
       "Bentuk pemerintahan yang berkedaulatan rakyat dan dipimpin oleh presiden",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
+      "Sikap yang berani, pantang menyerah, dan rela berkorban demi bangsa dan negara",
+      "Golongan bangsa berdasarkan ciri-ciri fisik dan garis keturunan"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'republik' diartikan sebagai: Bentuk pemerintahan yang berkedaulatan rakyat dan dipimpin oleh presiden.",
@@ -8315,11 +8315,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma\" adalah...",
     "options": [
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "sanksi",
-      "budaya"
+      "Kekuasaan Yudikatif",
+      "Gotong Royong",
+      "Kearifan Lokal",
+      "Sanksi Hukum",
+      "Negara Kesatuan"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'sanksi' memiliki arti: Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma.",
@@ -8332,10 +8332,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'sanksi' adalah...",
     "options": [
       "Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
       "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis",
+      "Situasi dan kondisi yang harmonis, damai, dan saling menghormati",
+      "Asas penentuan kewarganegaraan berdasarkan tempat kelahiran"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'sanksi' diartikan sebagai: Tindakan atau hukuman yang dikenakan kepada pelanggar hukum atau norma.",
@@ -8347,11 +8347,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "sinkronisasi",
-      "BPUPK",
-      "asas dasar",
-      "budaya"
+      "Asas Dasar",
+      "Sinkronisasi",
+      "Harmonisasi",
+      "Kerukunan",
+      "Norma Sosial"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'sinkronisasi' memiliki arti: Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain.",
@@ -8363,11 +8363,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'sinkronisasi' adalah...",
     "options": [
+      "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif",
+      "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan",
       "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
       "Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat"
+      "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'sinkronisasi' diartikan sebagai: Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain.",
@@ -8379,11 +8379,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "solidaritas",
-      "asas dasar",
-      "budaya"
+      "Bhinneka Tunggal Ika",
+      "Hoaks",
+      "Solidaritas",
+      "Kesadaran",
+      "PPKI"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'solidaritas' memiliki arti: Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama.",
@@ -8395,11 +8395,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'solidaritas' adalah...",
     "options": [
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
+      "Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu",
+      "Penyelarasan atau penyerasian suatu aturan agar tidak tumpang tindih dengan aturan lain",
       "Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Panitia yang bertugas untuk mempersiapkan kemerdekaan Indonesia setelah BPUPK dibubarkan",
+      "Hukum dasar dalam suatu negara, baik yang tertulis maupun tidak tertulis"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'solidaritas' diartikan sebagai: Perasaan atau ungkapan dalam sebuah kelompok yang dibentuk oleh kepentingan bersama.",
@@ -8411,11 +8411,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
       "BPUPK",
-      "staatsfundamental-norm",
-      "budaya",
-      "asas dasar"
+      "Hukum",
+      "Staatsfundamentalnorm",
+      "Kewarganegaraan",
+      "Panitia Sembilan"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'staatsfundamental-norm' memiliki arti: Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental.",
@@ -8428,10 +8428,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'staatsfundamental-norm' adalah...",
     "options": [
       "Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu",
+      "Proses uji materi suatu peraturan, baik secara formal maupun material terhadap peraturan yang tingkatannya lebih tinggi",
+      "Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat",
+      "Hukum dasar tertulis yang menjadi konstitusi tertinggi penyelenggaraan pemerintahan Negara Republik Indonesia"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'staatsfundamental-norm' diartikan sebagai: Pembukaan Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 yang berkedudukan sebagai pokok kaidah negara yang fundamental.",
@@ -8443,11 +8443,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya\" adalah...",
     "options": [
-      "budaya",
-      "suku bangsa",
-      "bhinneka tunggal ika",
-      "asas dasar",
-      "BPUPK"
+      "Budaya",
+      "Suku Bangsa",
+      "Ideologi",
+      "Konstitusi",
+      "Sistem Parlementer"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'suku bangsa' memiliki arti: Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya.",
@@ -8459,11 +8459,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'suku bangsa' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan",
+      "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati",
+      "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif",
       "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'suku bangsa' diartikan sebagai: Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya.",
@@ -8475,11 +8475,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sesuatu yang tidak membahayakan dan bersifat pasif, tetapi harus diwaspadai untuk menjaga kestabilan\" adalah...",
     "options": [
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "budaya",
-      "tantangan",
-      "asas dasar"
+      "Chauvinisme",
+      "Individualisme",
+      "Liberalisme",
+      "Tantangan Nasional",
+      "Partisipasi Politik"
     ],
     "correctIndex": 3,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'tantangan' memiliki arti: Sesuatu yang tidak membahayakan dan bersifat pasif, tetapi harus diwaspadai untuk menjaga kestabilan.",
@@ -8492,10 +8492,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'tantangan' adalah...",
     "options": [
       "Sesuatu yang tidak membahayakan dan bersifat pasif, tetapi harus diwaspadai untuk menjaga kestabilan",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya",
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
+      "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati",
+      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'tantangan' diartikan sebagai: Sesuatu yang tidak membahayakan dan bersifat pasif, tetapi harus diwaspadai untuk menjaga kestabilan.",
@@ -8507,11 +8507,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu\" adalah...",
     "options": [
-      "BPUPK",
-      "asas dasar",
-      "terorisme",
-      "bhinneka tunggal ika",
-      "budaya"
+      "Dasar Negara",
+      "Integrasi Nasional",
+      "Terorisme",
+      "Mukadimah Konstitusi",
+      "Patriotisme"
     ],
     "correctIndex": 2,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'terorisme' memiliki arti: Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu.",
@@ -8524,10 +8524,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'terorisme' adalah...",
     "options": [
       "Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Satu paham yang menciptakan dan mempertahankan kedaulatan sebuah negara dengan mewujudkan satu konsep identitas bersama untuk sekelompok manusia",
+      "Orang-orang yang berada di dalam suatu wilayah yang terikat oleh aturan-aturan yang berlaku dan saling berinteraksi satu sama lain secara terus-menerus",
+      "Keseluruhan gagasan, perilaku, dan karya manusia yang berkaitan erat dengan budi serta akal pikiran dalam masyarakat",
+      "Segala usaha untuk mempertahankan kedaulatan negara, keutuhan wilayah sebuah negara, dan keselamatan segenap bangsa dari ancaman dan gangguan"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'terorisme' diartikan sebagai: Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu.",
@@ -8539,11 +8539,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Sikap untuk saling menghormati dan menghargai perbedaan\" adalah...",
     "options": [
-      "budaya",
-      "asas dasar",
-      "bhinneka tunggal ika",
-      "BPUPK",
-      "toleransi"
+      "Dekret Presiden",
+      "Intoleransi",
+      "Musyawarah",
+      "Perundungan",
+      "Toleransi"
     ],
     "correctIndex": 4,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'toleransi' memiliki arti: Sikap untuk saling menghormati dan menghargai perbedaan.",
@@ -8555,10 +8555,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'toleransi' adalah...",
     "options": [
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Berunding atau berembuk tentang masalah bersama",
+      "Paham yang menghendaki pemberian kebebasan yang luas kepada manusia",
+      "Pengesahan suatu perjanjian internasional oleh negara",
+      "Nilai-nilai budaya baik yang ada di dalam suatu masyarakat",
       "Sikap untuk saling menghormati dan menghargai perbedaan"
     ],
     "correctIndex": 4,
@@ -8571,11 +8571,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat (DPR) dengan persetujuan bersama presiden\" adalah...",
     "options": [
-      "budaya",
-      "undang-undang (UU)",
-      "asas dasar",
-      "BPUPK",
-      "bhinneka tunggal ika"
+      "Demokrasi Pancasila",
+      "Undang-Undang",
+      "Ius Sanguinis",
+      "Nasionalisme",
+      "Penduduk"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'undang-undang (UU)' memiliki arti: Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat (DPR) dengan persetujuan bersama presiden.",
@@ -8587,11 +8587,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'undang-undang (UU)' adalah...",
     "options": [
-      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat (DPR) dengan persetujuan bersama presiden",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan"
+      "Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat dengan persetujuan bersama presiden",
+      "Rasa cinta tanah air yang berlebihan dengan mengagungkan bangsa sendiri dan merendahkan bangsa lain",
+      "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya",
+      "Hukum dasar tertulis yang menjadi konstitusi tertinggi penyelenggaraan pemerintahan Negara Republik Indonesia",
+      "Sistem pemerintahan di mana presiden berkedudukan sebagai kepala negara sekaligus kepala pemerintahan"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'undang-undang (UU)' diartikan sebagai: Peraturan perundang-undangan yang dibentuk oleh Dewan Perwakilan Rakyat (DPR) dengan persetujuan bersama presiden.",
@@ -8603,11 +8603,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Hukum dasar tertulis (basic law) konstitusi pemerintahan Negara Republik Indonesia saat ini\" adalah...",
     "options": [
-      "Undang-Undang Dasar NRI Tahun 1945",
-      "asas dasar",
-      "BPUPK",
-      "budaya",
-      "bhinneka tunggal ika"
+      "UUD NRI Tahun 1945",
+      "Diskriminasi",
+      "Ius Soli",
+      "Negara",
+      "Pertahanan Negara"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'Undang-Undang Dasar NRI Tahun 1945' memiliki arti: Hukum dasar tertulis (basic law) konstitusi pemerintahan Negara Republik Indonesia saat ini.",
@@ -8619,11 +8619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'Undang-Undang Dasar NRI Tahun 1945' adalah...",
     "options": [
-      "Hukum dasar tertulis (basic law) konstitusi pemerintahan Negara Republik Indonesia saat ini",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia"
+      "Hukum dasar tertulis yang menjadi konstitusi tertinggi penyelenggaraan pemerintahan Negara Republik Indonesia",
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)",
+      "Sekelompok manusia yang memiliki kesatuan budaya dan terikat oleh kesadaran dan identitas budaya",
+      "Kumpulan konsep bersistem yang dijadikan asas pendapat yang memberikan arah dan tujuan kelangsungan hidup",
+      "Keputusan yang dikeluarkan presiden/kepala negara atas suatu permasalahan yang sangat penting, mendesak, dan darurat"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'Undang-Undang Dasar NRI Tahun 1945' diartikan sebagai: Hukum dasar tertulis (basic law) konstitusi pemerintahan Negara Republik Indonesia saat ini.",
@@ -8635,11 +8635,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945\" adalah...",
     "options": [
-      "wawasan Nusantara",
-      "bhinneka tunggal ika",
-      "budaya",
-      "BPUPK",
-      "asas dasar"
+      "Wawasan Nusantara",
+      "Doktrin Hukum",
+      "Judicial Review",
+      "Negara Hukum",
+      "Sistem Presidensial"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'wawasan Nusantara' memiliki arti: Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945.",
@@ -8651,11 +8651,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'wawasan Nusantara' adalah...",
     "options": [
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
+      "Proses uji materi suatu peraturan, baik secara formal maupun material terhadap peraturan yang tingkatannya lebih tinggi",
+      "Praktik-praktik tindakan teror yang biasanya menggunakan kekerasan untuk menimbulkan ketakutan dalam usaha mencapai tujuan-tujuan tertentu",
+      "Sistem pemerintahan yang kepala negaranya adalah presiden/raja/ratu/sultan dan kepala pemerintahannya dijalankan oleh perdana menteri",
       "Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan"
+      "Keterlibatan warga dalam segala tahapan kebijakan, mulai dari pembuatan keputusan sampai dengan penilaian dan pelaksanaan keputusan"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Glosarium (hlm. 216–220), 'wawasan Nusantara' diartikan sebagai: Cara pandang dan sikap bangsa Indonesia terhadap diri dan lingkungannya berdasarkan Pancasila dan UUD Negara Republik Indonesia Tahun 1945.",
@@ -8667,11 +8667,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Istilah ketatanegaraan atau kewarganegaraan yang didefinisikan sebagai \"Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati\" adalah...",
     "options": [
-      "yudikatif",
-      "budaya",
-      "BPUPK",
-      "bhinneka tunggal ika",
-      "asas dasar"
+      "Kekuasaan Yudikatif",
+      "Gotong Royong",
+      "Kearifan Lokal",
+      "Negara Kesatuan",
+      "Produk Hukum"
     ],
     "correctIndex": 0,
     "explanation": "Dalam Glosarium Buku Pendidikan Pancasila Kelas X (hlm. 216–220), 'yudikatif' memiliki arti: Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati.",
@@ -8683,10 +8683,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam kajian ketatanegaraan dan kewarganegaraan, pengertian yang tepat dari istilah 'yudikatif' adalah...",
     "options": [
-      "Sesuatu yang menjadi tumpuan berpikir dan berpendapat",
-      "Berasal dari bahasa Sanskerta 'buddhayah' (bentuk jamak dari 'buddhi' yang berarti budi atau akal), diartikan sebagai hal-hal yang berkaitan dengan budi dan akal manusia",
-      "Singkatan dari Badan Penyelidik Usaha-usaha Persiapan Kemerdekaan",
-      "Semboyan yang bermakna meskipun berbeda-beda, tetapi pada hakikatnya satu kesatuan",
+      "Panitia yang beranggotakan 9 orang yang bertugas merumuskan dasar negara Indonesia (Piagam Jakarta)",
+      "Suatu negara yang segala sesuatu dalam penyelenggaraan negara berdasarkan hukum positif",
+      "Penyelarasan atau penyerasian agar sesuai dengan prinsip atau tata aturan yang berlaku",
+      "Segala peraturan atau hukum yang dihasilkan oleh lembaga yang berwenang untuk itu",
       "Kekuasaan dalam ketatanegaraan untuk mengawasi dan menegakkan agar undang-undang ditaati"
     ],
     "correctIndex": 4,
@@ -9371,10 +9371,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam sejarah keanggotaan BPUPK, tokoh yang dikenal sebagai 'Insinyur anggota BPUPK yang berbicara pada sidang tanggal 30 Mei 1945' adalah...",
     "options": [
-      "Mr. A.A. Maramis",
-      "Mr. R. Hindromartono",
-      "K.H. Abdoel Halim",
-      "Mr. R. Sastromoeljono",
+      "K.R.M.T.H. Woerjaningrat",
+      "R.A.A. Wiranatakoesoema",
+      "M. Soetardjo Kartohadikoesoemo",
+      "R.M.A.A. Koesoemo Oetojo",
       "Ir. R.M.P. Soerachman Tjokroadisoerjo"
     ],
     "correctIndex": 4,
@@ -9659,11 +9659,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menjalankan perintah agama/kepercayaan dan menjauhi larangannya baik dalam aspek ritual maupun kehidupan sosial-bermasyarakat\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Menjalankan perintah agama/kepercayaan dan menjauhi larangannya baik dalam aspek ritual maupun kehidupan sosial-bermasyarakat' merupakan wujud aktualisasi dan pengamalan dari Sila Pertama: Ketuhanan Yang Maha Esa (Lambang Bintang Emas berlatar hitam) sebagaimana diuraikan pada Tabel 1.5 hlm. 40.",
@@ -9675,11 +9675,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Pertama: Ketuhanan Yang Maha Esa' (Lambang Bintang Emas berlatar hitam)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Menjalankan perintah agama/kepercayaan dan menjauhi larangannya baik dalam aspek ritual maupun kehidupan sosial-bermasyarakat"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Menjalankan perintah agama maupun kepercayaan dan menjauhi larangannya baik dalam aspek ritual maupun kehidupan sosial-bermasyarakat"
     ],
     "correctIndex": 4,
     "explanation": "Tindakan 'Menjalankan perintah agama/kepercayaan dan menjauhi larangannya baik dalam aspek ritual maupun kehidupan sosial-bermasyarakat' sesuai dengan nilai dan butir pengamalan Sila Pertama: Ketuhanan Yang Maha Esa (Tabel 1.5 hlm. 40).",
@@ -9691,11 +9691,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menghormati dan bekerja sama dengan kelompok agama atau kepercayaan yang berbeda dalam kegiatan sosial\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 2,
     "explanation": "Perilaku 'Menghormati dan bekerja sama dengan kelompok agama atau kepercayaan yang berbeda dalam kegiatan sosial' merupakan wujud aktualisasi dan pengamalan dari Sila Pertama: Ketuhanan Yang Maha Esa (Lambang Bintang Emas berlatar hitam) sebagaimana diuraikan pada Tabel 1.5 hlm. 40.",
@@ -9707,10 +9707,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Pertama: Ketuhanan Yang Maha Esa' (Lambang Bintang Emas berlatar hitam)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
       "Menghormati dan bekerja sama dengan kelompok agama atau kepercayaan yang berbeda dalam kegiatan sosial"
     ],
     "correctIndex": 4,
@@ -9723,11 +9723,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Membantu teman yang berbeda agama atau kepercayaan agar dapat melaksanakan ibadah secara nyaman dan aman\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Membantu teman yang berbeda agama atau kepercayaan agar dapat melaksanakan ibadah secara nyaman dan aman' merupakan wujud aktualisasi dan pengamalan dari Sila Pertama: Ketuhanan Yang Maha Esa (Lambang Bintang Emas berlatar hitam) sebagaimana diuraikan pada Tabel 1.5 hlm. 40.",
@@ -9739,10 +9739,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Pertama: Ketuhanan Yang Maha Esa' (Lambang Bintang Emas berlatar hitam)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
       "Membantu teman yang berbeda agama atau kepercayaan agar dapat melaksanakan ibadah secara nyaman dan aman"
     ],
     "correctIndex": 4,
@@ -9755,11 +9755,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Berperan aktif menciptakan kerukunan antarumat beragama dan menolak sikap intoleransi serta radikalisme atas nama agama\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Berperan aktif menciptakan kerukunan antarumat beragama dan menolak sikap intoleransi serta radikalisme atas nama agama' merupakan wujud aktualisasi dan pengamalan dari Sila Pertama: Ketuhanan Yang Maha Esa (Lambang Bintang Emas berlatar hitam) sebagaimana diuraikan pada hlm. 40 & 49.",
@@ -9771,10 +9771,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Pertama: Ketuhanan Yang Maha Esa' (Lambang Bintang Emas berlatar hitam)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
       "Berperan aktif menciptakan kerukunan antarumat beragama dan menolak sikap intoleransi serta radikalisme atas nama agama"
     ],
     "correctIndex": 4,
@@ -9787,11 +9787,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Warga yang memeluk agama berbeda membantu penyediaan lahan halaman rumah untuk parkir jemaah tempat ibadah tetangga saat hari besar keagamaan\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Warga yang memeluk agama berbeda membantu penyediaan lahan halaman rumah untuk parkir jemaah tempat ibadah tetangga saat hari besar keagamaan' merupakan wujud aktualisasi dan pengamalan dari Sila Pertama: Ketuhanan Yang Maha Esa (Lambang Bintang Emas berlatar hitam) sebagaimana diuraikan pada Contoh Penerapan Perilaku Bab 2 hlm. 85.",
@@ -9803,11 +9803,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Pertama: Ketuhanan Yang Maha Esa' (Lambang Bintang Emas berlatar hitam)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
       "Warga yang memeluk agama berbeda membantu penyediaan lahan halaman rumah untuk parkir jemaah tempat ibadah tetangga saat hari besar keagamaan",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama"
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Warga yang memeluk agama berbeda membantu penyediaan lahan halaman rumah untuk parkir jemaah tempat ibadah tetangga saat hari besar keagamaan' sesuai dengan nilai dan butir pengamalan Sila Pertama: Ketuhanan Yang Maha Esa (Contoh Penerapan Perilaku Bab 2 hlm. 85).",
@@ -9819,11 +9819,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Membangun kepribadian manusia Indonesia secara mental dan spiritual serta menjaga keluhuran akal budi sesuai ajaran Tuhan YME dalam pembangunan nasional\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Membangun kepribadian manusia Indonesia secara mental dan spiritual serta menjaga keluhuran akal budi sesuai ajaran Tuhan YME dalam pembangunan nasional' merupakan wujud aktualisasi dan pengamalan dari Sila Pertama: Ketuhanan Yang Maha Esa (Lambang Bintang Emas berlatar hitam) sebagaimana diuraikan pada Bab 4 hlm. 207.",
@@ -9835,10 +9835,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Pertama: Ketuhanan Yang Maha Esa' (Lambang Bintang Emas berlatar hitam)?",
     "options": [
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
       "Membangun kepribadian manusia Indonesia secara mental dan spiritual serta menjaga keluhuran akal budi sesuai ajaran Tuhan YME dalam pembangunan nasional"
     ],
     "correctIndex": 4,
@@ -9851,11 +9851,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menempatkan setiap manusia, apa pun latar belakang dan identitasnya, dalam posisi yang setara sesuai harkat dan martabat ciptaan Tuhan YME\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 2,
     "explanation": "Perilaku 'Menempatkan setiap manusia, apa pun latar belakang dan identitasnya, dalam posisi yang setara sesuai harkat dan martabat ciptaan Tuhan YME' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada Tabel 1.5 hlm. 40 & 42.",
@@ -9867,10 +9867,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
       "Menempatkan setiap manusia, apa pun latar belakang dan identitasnya, dalam posisi yang setara sesuai harkat dan martabat ciptaan Tuhan YME"
     ],
     "correctIndex": 4,
@@ -9883,11 +9883,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menolong teman, tetangga, atau bahkan orang asing yang sedang mengalami kesulitan atau musibah bencana\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Menolong teman, tetangga, atau bahkan orang asing yang sedang mengalami kesulitan atau musibah bencana' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada Tabel 1.5 hlm. 40.",
@@ -9899,10 +9899,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
       "Menolong teman, tetangga, atau bahkan orang asing yang sedang mengalami kesulitan atau musibah bencana"
     ],
     "correctIndex": 4,
@@ -9915,11 +9915,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menjalankan norma sosial-budaya dan adab kesopanan yang berlaku di lingkungan sekitar\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 2,
     "explanation": "Perilaku 'Menjalankan norma sosial-budaya dan adab kesopanan yang berlaku di lingkungan sekitar' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada Tabel 1.5 hlm. 40.",
@@ -9931,10 +9931,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
       "Menjalankan norma sosial-budaya dan adab kesopanan yang berlaku di lingkungan sekitar"
     ],
     "correctIndex": 4,
@@ -9947,11 +9947,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Memberikan bantuan kemanusiaan apabila ada kelompok manusia di negara lain yang mengalami kesulitan atau krisis kemanusiaan\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Memberikan bantuan kemanusiaan apabila ada kelompok manusia di negara lain yang mengalami kesulitan atau krisis kemanusiaan' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada Tabel 1.5 hlm. 40.",
@@ -9963,10 +9963,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
       "Memberikan bantuan kemanusiaan apabila ada kelompok manusia di negara lain yang mengalami kesulitan atau krisis kemanusiaan"
     ],
     "correctIndex": 4,
@@ -9979,11 +9979,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Melawan segala bentuk tindakan perundungan (bullying), diskriminasi, ujaran kebencian, dan kekerasan terhadap sesama peserta didik maupun guru\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Melawan segala bentuk tindakan perundungan (bullying), diskriminasi, ujaran kebencian, dan kekerasan terhadap sesama peserta didik maupun guru' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada hlm. 42 & 169.",
@@ -9995,11 +9995,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Melawan segala bentuk tindakan perundungan (bullying), diskriminasi, ujaran kebencian, dan kekerasan terhadap sesama peserta didik maupun guru",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain"
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Melawan segala bentuk tindakan perundungan, diskriminasi, ujaran kebencian, dan kekerasan terhadap sesama peserta didik maupun guru",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 1,
     "explanation": "Tindakan 'Melawan segala bentuk tindakan perundungan (bullying), diskriminasi, ujaran kebencian, dan kekerasan terhadap sesama peserta didik maupun guru' sesuai dengan nilai dan butir pengamalan Sila Kedua: Kemanusiaan yang Adil dan Beradab (hlm. 42 & 169).",
@@ -10011,11 +10011,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Melakukan kegiatan donor darah sebagai wujud cinta pada kemanusiaan tanpa memandang perbedaan suku, agama, dan status sosial\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Melakukan kegiatan donor darah sebagai wujud cinta pada kemanusiaan tanpa memandang perbedaan suku, agama, dan status sosial' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada Gambar 2.13 hlm. 86.",
@@ -10027,11 +10027,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
       "Melakukan kegiatan donor darah sebagai wujud cinta pada kemanusiaan tanpa memandang perbedaan suku, agama, dan status sosial",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 2,
     "explanation": "Tindakan 'Melakukan kegiatan donor darah sebagai wujud cinta pada kemanusiaan tanpa memandang perbedaan suku, agama, dan status sosial' sesuai dengan nilai dan butir pengamalan Sila Kedua: Kemanusiaan yang Adil dan Beradab (Gambar 2.13 hlm. 86).",
@@ -10043,11 +10043,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Memberikan uang saku kepada kakak yang bersekolah di SMA dan adik di SD secara proporsional sesuai tingkat kebutuhan (equity)\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Ketiga: Persatuan Indonesia"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)"
     ],
     "correctIndex": 3,
     "explanation": "Perilaku 'Memberikan uang saku kepada kakak yang bersekolah di SMA dan adik di SD secara proporsional sesuai tingkat kebutuhan (equity)' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada Contoh Penerapan Perilaku hlm. 86.",
@@ -10059,11 +10059,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memberikan uang saku kepada kakak yang bersekolah di SMA dan adik di SD secara proporsional sesuai tingkat kebutuhan (equity)",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Memberikan uang saku kepada kakak yang bersekolah di SMA dan adik di SD secara proporsional sesuai tingkat kebutuhan",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat"
     ],
     "correctIndex": 2,
     "explanation": "Tindakan 'Memberikan uang saku kepada kakak yang bersekolah di SMA dan adik di SD secara proporsional sesuai tingkat kebutuhan (equity)' sesuai dengan nilai dan butir pengamalan Sila Kedua: Kemanusiaan yang Adil dan Beradab (Contoh Penerapan Perilaku hlm. 86).",
@@ -10075,11 +10075,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menumbuhkan empati dan solidaritas sosial untuk saling membantu sesama warga di tengah krisis seperti pandemi\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Menumbuhkan empati dan solidaritas sosial untuk saling membantu sesama warga di tengah krisis seperti pandemi' merupakan wujud aktualisasi dan pengamalan dari Sila Kedua: Kemanusiaan yang Adil dan Beradab (Lambang Rantai Emas berlatar merah) sebagaimana diuraikan pada hlm. 49–50.",
@@ -10091,10 +10091,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kedua: Kemanusiaan yang Adil dan Beradab' (Lambang Rantai Emas berlatar merah)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
       "Menumbuhkan empati dan solidaritas sosial untuk saling membantu sesama warga di tengah krisis seperti pandemi"
     ],
     "correctIndex": 4,
@@ -10107,11 +10107,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Memberikan kontribusi nyata sebagai peserta didik untuk menjaga persatuan di tengah kemajemukan suku, agama, ras, dan budaya\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Memberikan kontribusi nyata sebagai peserta didik untuk menjaga persatuan di tengah kemajemukan suku, agama, ras, dan budaya' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada Tabel 1.5 hlm. 41.",
@@ -10124,10 +10124,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
       "Memberikan kontribusi nyata sebagai peserta didik untuk menjaga persatuan di tengah kemajemukan suku, agama, ras, dan budaya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya"
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Memberikan kontribusi nyata sebagai peserta didik untuk menjaga persatuan di tengah kemajemukan suku, agama, ras, dan budaya' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (Tabel 1.5 hlm. 41).",
@@ -10139,11 +10139,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menjaga keutuhan Negara Kesatuan Republik Indonesia (NKRI) sehingga terhindar dari ancaman separatisme dan disintegrasi bangsa\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Menjaga keutuhan Negara Kesatuan Republik Indonesia (NKRI) sehingga terhindar dari ancaman separatisme dan disintegrasi bangsa' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada Tabel 1.5 hlm. 41 & 50.",
@@ -10155,11 +10155,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
-      "Menjaga keutuhan Negara Kesatuan Republik Indonesia (NKRI) sehingga terhindar dari ancaman separatisme dan disintegrasi bangsa",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain"
+      "Menjaga keutuhan Negara Kesatuan Republik Indonesia sehingga terhindar dari ancaman separatisme dan disintegrasi bangsa",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Menjaga keutuhan Negara Kesatuan Republik Indonesia (NKRI) sehingga terhindar dari ancaman separatisme dan disintegrasi bangsa' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (Tabel 1.5 hlm. 41 & 50).",
@@ -10171,11 +10171,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menempatkan produk buatan dalam negeri (Bangga Buatan Indonesia) sebagai prioritas utama dibanding produk luar negeri\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Menempatkan produk buatan dalam negeri (Bangga Buatan Indonesia) sebagai prioritas utama dibanding produk luar negeri' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada Tabel 1.5 hlm. 41 & 138.",
@@ -10187,11 +10187,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menempatkan produk buatan dalam negeri (Bangga Buatan Indonesia) sebagai prioritas utama dibanding produk luar negeri",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas"
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Menempatkan produk buatan dalam negeri sebagai prioritas utama dibanding produk luar negeri",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Menempatkan produk buatan dalam negeri (Bangga Buatan Indonesia) sebagai prioritas utama dibanding produk luar negeri' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (Tabel 1.5 hlm. 41 & 138).",
@@ -10203,11 +10203,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Melerai dan mendamaikan teman yang terlibat tawuran atau permusuhan antarpelajar demi menjaga kerukunan sekolah\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia"
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Melerai dan mendamaikan teman yang terlibat tawuran atau permusuhan antarpelajar demi menjaga kerukunan sekolah' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada Tabel 1.5 hlm. 41.",
@@ -10220,10 +10220,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
       "Melerai dan mendamaikan teman yang terlibat tawuran atau permusuhan antarpelajar demi menjaga kerukunan sekolah",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya"
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Melerai dan mendamaikan teman yang terlibat tawuran atau permusuhan antarpelajar demi menjaga kerukunan sekolah' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (Tabel 1.5 hlm. 41).",
@@ -10235,11 +10235,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Mencegah penyebaran berita bohong (hoaks) dan ujaran kebencian (hate speech) di media sosial yang dapat mengoyak tenun kebangsaan\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 3,
     "explanation": "Perilaku 'Mencegah penyebaran berita bohong (hoaks) dan ujaran kebencian (hate speech) di media sosial yang dapat mengoyak tenun kebangsaan' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada hlm. 50.",
@@ -10251,11 +10251,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mencegah penyebaran berita bohong (hoaks) dan ujaran kebencian (hate speech) di media sosial yang dapat mengoyak tenun kebangsaan",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Mencegah penyebaran berita bohong dan ujaran kebencian di media sosial yang dapat mengoyak tenun kebangsaan",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat"
     ],
     "correctIndex": 2,
     "explanation": "Tindakan 'Mencegah penyebaran berita bohong (hoaks) dan ujaran kebencian (hate speech) di media sosial yang dapat mengoyak tenun kebangsaan' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (hlm. 50).",
@@ -10267,11 +10267,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Beradaptasi dan berteman di dalam kelas yang multikultural tanpa membeda-bedakan suku, etnis, maupun asal daerah\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Beradaptasi dan berteman di dalam kelas yang multikultural tanpa membeda-bedakan suku, etnis, maupun asal daerah' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada Contoh Penerapan Perilaku hlm. 87.",
@@ -10283,11 +10283,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
       "Beradaptasi dan berteman di dalam kelas yang multikultural tanpa membeda-bedakan suku, etnis, maupun asal daerah",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas"
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 1,
     "explanation": "Tindakan 'Beradaptasi dan berteman di dalam kelas yang multikultural tanpa membeda-bedakan suku, etnis, maupun asal daerah' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (Contoh Penerapan Perilaku hlm. 87).",
@@ -10299,11 +10299,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menempatkan kepentingan bangsa dan negara Indonesia di atas kepentingan pribadi atau golongan dalam pelaksanaan pembangunan nasional\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa"
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)"
     ],
     "correctIndex": 3,
     "explanation": "Perilaku 'Menempatkan kepentingan bangsa dan negara Indonesia di atas kepentingan pribadi atau golongan dalam pelaksanaan pembangunan nasional' merupakan wujud aktualisasi dan pengamalan dari Sila Ketiga: Persatuan Indonesia (Lambang Pohon Beringin) sebagaimana diuraikan pada hlm. 50 & 207.",
@@ -10315,11 +10315,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Ketiga: Persatuan Indonesia' (Lambang Pohon Beringin)?",
     "options": [
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
       "Menempatkan kepentingan bangsa dan negara Indonesia di atas kepentingan pribadi atau golongan dalam pelaksanaan pembangunan nasional",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain"
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Menempatkan kepentingan bangsa dan negara Indonesia di atas kepentingan pribadi atau golongan dalam pelaksanaan pembangunan nasional' sesuai dengan nilai dan butir pengamalan Sila Ketiga: Persatuan Indonesia (hlm. 50 & 207).",
@@ -10331,11 +10331,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Memberikan usul, pemikiran, dan saran secara santun dalam suatu kegiatan musyawarah kelas atau organisasi\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Memberikan usul, pemikiran, dan saran secara santun dalam suatu kegiatan musyawarah kelas atau organisasi' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada Tabel 1.5 hlm. 41.",
@@ -10347,10 +10347,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
       "Memberikan usul, pemikiran, dan saran secara santun dalam suatu kegiatan musyawarah kelas atau organisasi"
     ],
     "correctIndex": 4,
@@ -10363,11 +10363,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Berlapang dada menerima keputusan bersama apabila usulan atau ide pribadi tidak diterima dalam musyawarah\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Berlapang dada menerima keputusan bersama apabila usulan atau ide pribadi tidak diterima dalam musyawarah' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada Tabel 1.5 hlm. 41.",
@@ -10379,10 +10379,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
       "Berlapang dada menerima keputusan bersama apabila usulan atau ide pribadi tidak diterima dalam musyawarah"
     ],
     "correctIndex": 4,
@@ -10395,11 +10395,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Tetap melaksanakan hasil keputusan musyawarah dengan penuh tanggung jawab meskipun berbeda dengan kehendak pribadi\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Tetap melaksanakan hasil keputusan musyawarah dengan penuh tanggung jawab meskipun berbeda dengan kehendak pribadi' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada Tabel 1.5 hlm. 41 & 88.",
@@ -10411,11 +10411,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
       "Tetap melaksanakan hasil keputusan musyawarah dengan penuh tanggung jawab meskipun berbeda dengan kehendak pribadi",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 2,
     "explanation": "Tindakan 'Tetap melaksanakan hasil keputusan musyawarah dengan penuh tanggung jawab meskipun berbeda dengan kehendak pribadi' sesuai dengan nilai dan butir pengamalan Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Tabel 1.5 hlm. 41 & 88).",
@@ -10427,11 +10427,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menyampaikan aspirasi di ruang publik atau kepada wakil rakyat secara tertib, elegan, santun, dan tidak anarkis\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Ketiga: Persatuan Indonesia"
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)"
     ],
     "correctIndex": 0,
     "explanation": "Perilaku 'Menyampaikan aspirasi di ruang publik atau kepada wakil rakyat secara tertib, elegan, santun, dan tidak anarkis' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada hlm. 87–88.",
@@ -10443,11 +10443,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
       "Menyampaikan aspirasi di ruang publik atau kepada wakil rakyat secara tertib, elegan, santun, dan tidak anarkis",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya"
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat"
     ],
     "correctIndex": 1,
     "explanation": "Tindakan 'Menyampaikan aspirasi di ruang publik atau kepada wakil rakyat secara tertib, elegan, santun, dan tidak anarkis' sesuai dengan nilai dan butir pengamalan Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (hlm. 87–88).",
@@ -10459,11 +10459,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menolak praktik politik uang (money politic), jual beli jabatan, korupsi, dan nepotisme dalam penyelenggaraan demokrasi\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 2,
     "explanation": "Perilaku 'Menolak praktik politik uang (money politic), jual beli jabatan, korupsi, dan nepotisme dalam penyelenggaraan demokrasi' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada hlm. 50–51.",
@@ -10475,11 +10475,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
-      "Menolak praktik politik uang (money politic), jual beli jabatan, korupsi, dan nepotisme dalam penyelenggaraan demokrasi",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama"
+      "Menolak praktik politik uang, jual beli jabatan, korupsi, dan nepotisme dalam penyelenggaraan demokrasi",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Menolak praktik politik uang (money politic), jual beli jabatan, korupsi, dan nepotisme dalam penyelenggaraan demokrasi' sesuai dengan nilai dan butir pengamalan Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (hlm. 50–51).",
@@ -10489,13 +10489,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0656",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "(Jurnal Harian Aktivitas 1.7 ), perilaku berupa \"Berdiskusi bersama anggota keluarga di rumah ketika menentukan pilihan bersama seperti menu masakan harian\" merupakan wujud nyata pengamalan dari...",
+    "question": "Perilaku berupa \"Berdiskusi bersama anggota keluarga di rumah ketika menentukan pilihan bersama seperti menu masakan harian\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Berdiskusi bersama anggota keluarga di rumah ketika menentukan pilihan bersama seperti menu masakan harian' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada Jurnal Harian Aktivitas 1.7 hlm. 44.",
@@ -10507,11 +10507,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
       "Berdiskusi bersama anggota keluarga di rumah ketika menentukan pilihan bersama seperti menu masakan harian",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain"
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Berdiskusi bersama anggota keluarga di rumah ketika menentukan pilihan bersama seperti menu masakan harian' sesuai dengan nilai dan butir pengamalan Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Jurnal Harian Aktivitas 1.7 hlm. 44).",
@@ -10523,11 +10523,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Melaksanakan pembangunan nasional secara gotong royong, kolaboratif, demokratis, dan mengutamakan kepentingan rakyat\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Melaksanakan pembangunan nasional secara gotong royong, kolaboratif, demokratis, dan mengutamakan kepentingan rakyat' merupakan wujud aktualisasi dan pengamalan dari Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang Kepala Banteng) sebagaimana diuraikan pada hlm. 207.",
@@ -10540,10 +10540,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' (Lambang Kepala Banteng)?",
     "options": [
       "Melaksanakan pembangunan nasional secara gotong royong, kolaboratif, demokratis, dan mengutamakan kepentingan rakyat",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Melaksanakan pembangunan nasional secara gotong royong, kolaboratif, demokratis, dan mengutamakan kepentingan rakyat' sesuai dengan nilai dan butir pengamalan Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (hlm. 207).",
@@ -10555,11 +10555,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Melaksanakan hak dan kewajiban secara seimbang, serasi, dan selaras baik sebagai peserta didik, anggota keluarga, maupun warga negara\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Ketiga: Persatuan Indonesia"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)"
     ],
     "correctIndex": 3,
     "explanation": "Perilaku 'Melaksanakan hak dan kewajiban secara seimbang, serasi, dan selaras baik sebagai peserta didik, anggota keluarga, maupun warga negara' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada Tabel 1.5 hlm. 41 & 92.",
@@ -10571,11 +10571,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
       "Melaksanakan hak dan kewajiban secara seimbang, serasi, dan selaras baik sebagai peserta didik, anggota keluarga, maupun warga negara",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya"
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Melaksanakan hak dan kewajiban secara seimbang, serasi, dan selaras baik sebagai peserta didik, anggota keluarga, maupun warga negara' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Tabel 1.5 hlm. 41 & 92).",
@@ -10587,11 +10587,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Bersikap adil dan objektif tanpa membedakan perlakuan antara teman dekat dengan orang lain dalam penegakan aturan\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)"
     ],
     "correctIndex": 4,
     "explanation": "Perilaku 'Bersikap adil dan objektif tanpa membedakan perlakuan antara teman dekat dengan orang lain dalam penegakan aturan' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada Tabel 1.5 hlm. 41.",
@@ -10604,10 +10604,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
       "Bersikap adil dan objektif tanpa membedakan perlakuan antara teman dekat dengan orang lain dalam penegakan aturan",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain"
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Bersikap adil dan objektif tanpa membedakan perlakuan antara teman dekat dengan orang lain dalam penegakan aturan' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Tabel 1.5 hlm. 41).",
@@ -10619,11 +10619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Membantu teman yang secara ekonomi kurang mampu serta tidak bergaya hidup mewah/berfoya-foya di tengah kesulitan sesama\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 3,
     "explanation": "Perilaku 'Membantu teman yang secara ekonomi kurang mampu serta tidak bergaya hidup mewah/berfoya-foya di tengah kesulitan sesama' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada hlm. 32 & 41.",
@@ -10635,11 +10635,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Membantu teman yang secara ekonomi kurang mampu serta tidak bergaya hidup mewah/berfoya-foya di tengah kesulitan sesama"
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Membantu teman yang secara ekonomi kurang mampu serta tidak bergaya hidup mewah dan berfoya-foya di tengah kesulitan sesama"
     ],
     "correctIndex": 4,
     "explanation": "Tindakan 'Membantu teman yang secara ekonomi kurang mampu serta tidak bergaya hidup mewah/berfoya-foya di tengah kesulitan sesama' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (hlm. 32 & 41).",
@@ -10651,11 +10651,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Menghapuskan ketidakadilan berbasis gender dengan memberikan hak belajar yang setara bagi laki-laki dan perempuan serta menolak pemaksaan nikah muda\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Ketiga: Persatuan Indonesia"
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)"
     ],
     "correctIndex": 3,
     "explanation": "Perilaku 'Menghapuskan ketidakadilan berbasis gender dengan memberikan hak belajar yang setara bagi laki-laki dan perempuan serta menolak pemaksaan nikah muda' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada hlm. 41 & 43.",
@@ -10667,11 +10667,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
       "Menghapuskan ketidakadilan berbasis gender dengan memberikan hak belajar yang setara bagi laki-laki dan perempuan serta menolak pemaksaan nikah muda",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas"
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Menghapuskan ketidakadilan berbasis gender dengan memberikan hak belajar yang setara bagi laki-laki dan perempuan serta menolak pemaksaan nikah muda' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (hlm. 41 & 43).",
@@ -10683,11 +10683,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Berbagi informasi dan kiat-kiat meraih beasiswa studi lanjut kepada teman maupun adik kelas agar memperoleh kesempatan maju bersama\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan"
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Berbagi informasi dan kiat-kiat meraih beasiswa studi lanjut kepada teman maupun adik kelas agar memperoleh kesempatan maju bersama' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada Contoh Penerapan Perilaku hlm. 89.",
@@ -10700,10 +10700,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
       "Berbagi informasi dan kiat-kiat meraih beasiswa studi lanjut kepada teman maupun adik kelas agar memperoleh kesempatan maju bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama"
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat"
     ],
     "correctIndex": 0,
     "explanation": "Tindakan 'Berbagi informasi dan kiat-kiat meraih beasiswa studi lanjut kepada teman maupun adik kelas agar memperoleh kesempatan maju bersama' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Contoh Penerapan Perilaku hlm. 89).",
@@ -10715,11 +10715,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Mengintensifkan pemberdayaan masyarakat dan UMKM serta mengembangkan koperasi berdasarkan asas kekeluargaan\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 2,
     "explanation": "Perilaku 'Mengintensifkan pemberdayaan masyarakat dan UMKM serta mengembangkan koperasi berdasarkan asas kekeluargaan' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada hlm. 51 & 142.",
@@ -10731,11 +10731,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
+      "Menolak pelaksanaan keputusan rapat organisasi yang sah hanya karena usulan pribadinya tidak terpilih dalam forum",
+      "Mengutamakan kepentingan pribadi maupun kelompok sendiri di atas kesepakatan musyawarah bersama warga masyarakat",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
       "Mengintensifkan pemberdayaan masyarakat dan UMKM serta mengembangkan koperasi berdasarkan asas kekeluargaan",
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain"
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat"
     ],
     "correctIndex": 3,
     "explanation": "Tindakan 'Mengintensifkan pemberdayaan masyarakat dan UMKM serta mengembangkan koperasi berdasarkan asas kekeluargaan' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (hlm. 51 & 142).",
@@ -10747,11 +10747,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Perilaku berupa \"Membayar pajak tepat waktu dan menjaga fasilitas umum demi pemerataan kesejahteraan seluruh rakyat Indonesia\" merupakan wujud nyata pengamalan dari...",
     "options": [
-      "Sila Ketiga: Persatuan Indonesia",
-      "Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia",
-      "Sila Keempat: Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan",
-      "Sila Pertama: Ketuhanan Yang Maha Esa",
-      "Sila Kedua: Kemanusiaan yang Adil dan Beradab"
+      "Sila Ketiga Pancasila (Persatuan Indonesia)",
+      "Sila Kelima Pancasila (Keadilan Sosial bagi Seluruh Rakyat)",
+      "Sila Keempat Pancasila (Kerakyatan dalam Permusyawaratan)",
+      "Sila Pertama Pancasila (Ketuhanan Yang Maha Esa)",
+      "Sila Kedua Pancasila (Kemanusiaan yang Adil dan Beradab)"
     ],
     "correctIndex": 1,
     "explanation": "Perilaku 'Membayar pajak tepat waktu dan menjaga fasilitas umum demi pemerataan kesejahteraan seluruh rakyat Indonesia' merupakan wujud aktualisasi dan pengamalan dari Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang Padi dan Kapas) sebagaimana diuraikan pada hlm. 82 & 207.",
@@ -10763,11 +10763,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Manakah di antara tindakan berikut yang paling tepat mencerminkan aktualisasi 'Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia' (Lambang Padi dan Kapas)?",
     "options": [
-      "Memaksakan kehendak kelompok sendiri kepada kelompok masyarakat lain",
+      "Menyebarluaskan informasi yang belum terverifikasi kebenarannya di media sosial sehingga memicu keresahan masyarakat",
       "Membayar pajak tepat waktu dan menjaga fasilitas umum demi pemerataan kesejahteraan seluruh rakyat Indonesia",
-      "Menyebarkan informasi di media sosial tanpa memeriksa kebenaran sumbernya",
-      "Mengutamakan kepentingan pribadi di atas kesepakatan musyawarah bersama",
-      "Mengabaikan kewajiban menaati peraturan lalu lintas saat tidak ada petugas"
+      "Memaksakan kehendak serta pandangan kelompok mayoritas kepada kelompok lain tanpa menghormati hak berpendapat",
+      "Mengabaikan kepatuhan terhadap peraturan ketertiban umum apabila sedang tidak diawasi oleh petugas berwenang",
+      "Membeda-bedakan perlakuan sosial serta pertemanan di lingkungan sekolah berdasarkan latar belakang suku dan ekonomi"
     ],
     "correctIndex": 1,
     "explanation": "Tindakan 'Membayar pajak tepat waktu dan menjaga fasilitas umum demi pemerataan kesejahteraan seluruh rakyat Indonesia' sesuai dengan nilai dan butir pengamalan Sila Kelima: Keadilan Sosial bagi Seluruh Rakyat Indonesia (hlm. 82 & 207).",
@@ -10779,7 +10779,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam sidang parlemen, Perdana Menteri Jepang, Koiso, mengumumkan bahwa Jepang akan memberikan kemerdekaan kepada Indonesia. Sebagai bentuk usaha, dibentuklah badan yang dinamai BPUPK. Ketua badan tersebut adalah...",
     "options": [
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "R.P. Soeroso",
       "Prof. Mr. Dr. Soepomo",
       "Ir. Sukarno",
@@ -10857,13 +10857,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0679",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam kedudukan Pancasila bagi bangsa Indonesia,, pengertian bahwa 'setiap sendi-sendi ketatanegaraan di negara Indonesia harus berlandaskan pada nilai-nilai Pancasila' merupakan makna dari kedudukan...",
+    "question": "Dalam kedudukan Pancasila bagi bangsa Indonesia, pengertian bahwa 'setiap sendi-sendi ketatanegaraan di negara Indonesia harus berlandaskan pada nilai-nilai Pancasila' merupakan makna dari kedudukan...",
     "options": [
       "Pancasila sebagai Pandangan Hidup Bangsa",
       "Pancasila sebagai Ideologi Negara",
       "Pancasila sebagai Dasar Negara",
-      "Peraturan Presiden",
-      "Peraturan Pemerintah"
+      "Pancasila sebagai Jiwa dan Kepribadian Bangsa",
+      "Pancasila sebagai Perjanjian Luhur Bangsa"
     ],
     "correctIndex": 2,
     "explanation": "Penilaian 3 Bab 1 No. 1 (hlm. 58): Setiap sendi ketatanegaraan harus berlandaskan nilai-nilai Pancasila merupakan pengertian Pancasila sebagai Dasar Negara.",
@@ -10873,13 +10873,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0680",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam kedudukan Pancasila bagi bangsa Indonesia,, 'sebuah tata nilai yang berfungsi seperti halnya budaya atau norma yang telah hidup turun-temurun di tengah-tengah masyarakat' merupakan pengertian dari...",
+    "question": "Dalam kedudukan Pancasila bagi bangsa Indonesia, 'sebuah tata nilai yang berfungsi seperti halnya budaya atau norma yang telah hidup turun-temurun di tengah-tengah masyarakat' merupakan pengertian dari...",
     "options": [
-      "Pancasila sebagai Pandangan Hidup",
+      "Pancasila sebagai Pandangan Hidup Bangsa",
       "Pancasila sebagai Dasar Negara",
-      "Peraturan Pemerintah",
-      "Peraturan Presiden",
-      "Pancasila sebagai Ideologi Negara"
+      "Pancasila sebagai Ideologi Negara",
+      "Pancasila sebagai Sumber Hukum Formal",
+      "Pancasila sebagai Konstitusi Tertulis"
     ],
     "correctIndex": 0,
     "explanation": "Penilaian 3 Bab 1 No. 3 (hlm. 58): Tata nilai yang berfungsi seperti budaya/norma turun-temurun di masyarakat adalah Pancasila sebagai Pandangan Hidup.",
@@ -10889,13 +10889,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0681",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Dalam kedudukan Pancasila bagi bangsa Indonesia,, 'seperangkat pemikiran yang bersumber dari pengalaman di dalam kehidupan bangsa Indonesia yang diyakini kebenarannya karena mampu menjaga keberlanjutan kehidupan bangsa Indonesia' merupakan pengertian dari...",
+    "question": "Dalam kedudukan Pancasila bagi bangsa Indonesia, 'seperangkat pemikiran yang bersumber dari pengalaman di dalam kehidupan bangsa Indonesia yang diyakini kebenarannya karena mampu menjaga keberlanjutan kehidupan bangsa Indonesia' merupakan pengertian dari...",
     "options": [
       "Pancasila sebagai Ideologi Negara",
-      "Pancasila sebagai Pandangan Hidup",
-      "Peraturan Daerah",
-      "Peraturan Pemerintah",
-      "Pancasila sebagai Dasar Negara"
+      "Pancasila sebagai Pandangan Hidup Bangsa",
+      "Pancasila sebagai Dasar Negara",
+      "Pancasila sebagai Hukum Adat Daerah",
+      "Pancasila sebagai Konvensi Ketatanegaraan"
     ],
     "correctIndex": 0,
     "explanation": "Penilaian 3 Bab 1 No. 4 (hlm. 58): Seperangkat pemikiran dari pengalaman bangsa Indonesia yang diyakini kebenarannya menjaga kehidupan bangsa adalah Pancasila sebagai Ideologi Negara.",
@@ -10987,11 +10987,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Prinsip gotong royong menjadi sendi dalam membangun sistem ekonomi Pancasila yang inklusif dan berkeadilan. Berikut ini yang BUKAN merupakan prinsip gotong royong dalam ekonomi Pancasila adalah...",
     "options": [
-      "Persaingan bebas (free fight liberalism)",
-      "Asas kekeluargaan",
-      "Semangat tolong-menolong",
-      "Solidaritas sosial",
-      "Mengupayakan kebermanfaatan/keuntungan bersama"
+      "Persaingan bebas yang saling mematikan",
+      "Penyelenggaraan usaha berasaskan kekeluargaan",
+      "Semangat tolong-menolong antarpelaku ekonomi",
+      "Solidaritas sosial dalam membangun kesejahteraan",
+      "Pengupayaan kemanfaatan bagi kepentingan bersama"
     ],
     "correctIndex": 0,
     "explanation": "Uji Kompetensi 3.2 Penilaian 1 No. 1 (hlm. 146): Persaingan bebas (free fight liberalism) merupakan ciri ekonomi liberal, bukan prinsip gotong royong dalam sistem ekonomi Pancasila.",
@@ -11163,11 +11163,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian 'Perbandingan gagasan tentang hubungan agama dan negara dalam Sidang Pertama BPUPK' pernyataan analisis historis yang paling tepat adalah...",
     "options": [
-      "Drs. Mohammad Hatta (30 Mei 1945) mengusulkan agar urusan agama dipisahkan dari urusan negara agar nilai ketuhanan yang luhur tetap terjaga, sedangkan Ki Bagoes Hadikoesoemo (31 Mei 1945) mengusulkan Islam sebagai dasar dan sendi negara. Perbedaan pandangan tersebut akhirnya dijembatani melalui musyawarah Panitia Sembilan dan disempurnakan pada Sidang PPKI 18 Agustus 1945 menjadi sila 'Ketuhanan Yang Maha Esa'",
-      "Tokoh-tokoh nasional memilih menunda kemerdekaan Indonesia hingga Belanda kembali menguasai Nusantara",
-      "Seluruh anggota BPUPK sejak hari pertama memiliki pandangan yang persis sama tanpa ada perbedaan pendapat sedikit pun",
-      "Perbedaan pandangan di antara para tokoh diselesaikan melalui pemungutan suara paksa oleh pemerintah militer Jepang",
-      "Rumusan dasar negara ditetapkan secara sepihak oleh Ketua BPUPK tanpa melibatkan panitia kecil"
+      "Moh. Hatta mengusulkan pemisahan urusan negara dari urusan agama agar kesucian agama terjaga, sedangkan Ki Bagoes mengusulkan Islam sebagai sendi negara sebelum akhirnya disepakati sila Ketuhanan Yang Maha Esa",
+      "Moh. Hatta menuntut pembentukan negara sekuler yang melarang kegiatan keagamaan, sedangkan Ki Bagoes menolak kemerdekaan Indonesia apabila tidak disahkan terlebih dahulu oleh parlemen Jepang",
+      "Ki Bagoes mengusulkan pemisahan mutlak urusan agama dari pemerintahan negara, sedangkan Moh. Hatta mendesak agar hukum agama ditetapkan sebagai satu-satunya konstitusi tertulis",
+      "Baik Moh. Hatta maupun Ki Bagoes sama-sama menolak pencantuman nilai ketuhanan di dalam Pembukaan UUD dan menyerahkan pengaturan agama sepenuhnya kepada masing-masing daerah",
+      "Perbedaan gagasan antara Moh. Hatta dan Ki Bagoes diselesaikan melalui pemungutan suara paksa oleh Ketua BPUPK tanpa melibatkan perundingan Panitia Sembilan maupun PPKI"
     ],
     "correctIndex": 0,
     "explanation": "Analisis yang tepat terkait Perbandingan gagasan tentang hubungan agama dan negara dalam Sidang Pertama BPUPK: Drs. Mohammad Hatta (30 Mei 1945) mengusulkan agar urusan agama dipisahkan dari urusan negara agar nilai ketuhanan yang luhur tetap terjaga, sedangkan Ki Bagoes Hadikoesoemo (31 Mei 1945) mengusulkan Islam sebagai dasar dan sendi negara. Perbedaan pandangan tersebut akhirnya dijembatani melalui musyawarah Panitia Sembilan dan disempurnakan pada Sidang PPKI 18 Agustus 1945 menjadi sila 'Ketuhanan Yang Maha Esa' (Bab 1 hlm. 6–28).",
@@ -11179,11 +11179,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian 'Perbandingan gagasan R. Abdoelrahim Pratalykrama dan R.A.A. Wiranatakoesoema dalam Sidang Pertama BPUPK' pernyataan analisis historis yang paling tepat adalah...",
     "options": [
-      "Seluruh anggota BPUPK sejak hari pertama memiliki pandangan yang persis sama tanpa ada perbedaan pendapat sedikit pun",
-      "Perbedaan pandangan di antara para tokoh diselesaikan melalui pemungutan suara paksa oleh pemerintah militer Jepang",
-      "Tokoh-tokoh nasional memilih menunda kemerdekaan Indonesia hingga Belanda kembali menguasai Nusantara",
-      "R. Abdoelrahim Pratalykrama (30 Mei 1945) menekankan persatuan rakyat dan agama Islam dengan kemerdekaan seluas-luasnya bagi pemeluk agama lain, sedangkan R.A.A. Wiranatakoesoema (29 Mei 1945) menekankan keselarasan dengan kehendak Tuhan YME dan rasa persatuan tanpa membeda-bedakan. Keduanya sama-sama menggarisbawahi pentingnya persatuan dan toleransi beragama sebagai fondasi Indonesia merdeka",
-      "Rumusan dasar negara ditetapkan secara sepihak oleh Ketua BPUPK tanpa melibatkan panitia kecil"
+      "Pratalykrama mengusulkan negara federal berbasis kerajaan daerah, sedangkan Wiranatakoesoema menuntut penghapusan seluruh unsur kebudayaan daerah dalam pemerintahan pusat",
+      "Wiranatakoesoema menolak kebebasan beragama bagi kelompok minoritas, sedangkan Pratalykrama menghendaki sistem pemerintahan parlementer di bawah pengawasan perwira Jepang",
+      "Kedua tokoh sama-sama berpendapat bahwa persatuan nasional hanya dapat diwujudkan apabila seluruh masyarakat Indonesia menyeragamkan adat istiadat dan keyakinannya",
+      "Pratalykrama menekankan persatuan rakyat dan Islam dengan kebebasan bagi pemeluk agama lain, sedangkan Wiranatakoesoema menekankan keselarasan dengan kehendak Tuhan YME dan persatuan tanpa membeda-bedakan",
+      "Pratalykrama menyampaikan pidatonya pada Sidang Kedua bulan Juli 1945 untuk menolak gagasan Wiranatakoesoema mengenai pembentukan lembaga perwakilan rakyat"
     ],
     "correctIndex": 3,
     "explanation": "Analisis yang tepat terkait Perbandingan gagasan R. Abdoelrahim Pratalykrama dan R.A.A. Wiranatakoesoema dalam Sidang Pertama BPUPK: R. Abdoelrahim Pratalykrama (30 Mei 1945) menekankan persatuan rakyat dan agama Islam dengan kemerdekaan seluas-luasnya bagi pemeluk agama lain, sedangkan R.A.A. Wiranatakoesoema (29 Mei 1945) menekankan keselarasan dengan kehendak Tuhan YME dan rasa persatuan tanpa membeda-bedakan. Keduanya sama-sama menggarisbawahi pentingnya persatuan dan toleransi beragama sebagai fondasi Indonesia merdeka (Bab 1 hlm. 6–28).",
@@ -11195,11 +11195,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian 'Perbandingan rumusan dasar negara dalam Pidato Sukarno 1 Juni 1945 dengan Piagam Jakarta 22 Juni 1945' pernyataan analisis historis yang paling tepat adalah...",
     "options": [
-      "Dalam Pidato 1 Juni 1945 prinsip Ketuhanan ditempatkan pada urutan kelima (Ketuhanan yang berkebudayaan), sedangkan dalam Piagam Jakarta 22 Juni 1945 prinsip Ketuhanan ditempatkan pada sila pertama. Perubahan urutan dan redaksi tersebut merupakan hasil musyawarah mufakat Panitia Sembilan yang diketuai oleh Sukarno sendiri",
-      "Rumusan dasar negara ditetapkan secara sepihak oleh Ketua BPUPK tanpa melibatkan panitia kecil",
-      "Perbedaan pandangan di antara para tokoh diselesaikan melalui pemungutan suara paksa oleh pemerintah militer Jepang",
-      "Tokoh-tokoh nasional memilih menunda kemerdekaan Indonesia hingga Belanda kembali menguasai Nusantara",
-      "Seluruh anggota BPUPK sejak hari pertama memiliki pandangan yang persis sama tanpa ada perbedaan pendapat sedikit pun"
+      "Dalam Pidato 1 Juni 1945 prinsip Ketuhanan berada pada urutan kelima, sedangkan dalam Piagam Jakarta 22 Juni 1945 prinsip Ketuhanan ditempatkan sebagai sila pertama hasil musyawarah Panitia Sembilan",
+      "Dalam Pidato 1 Juni 1945 prinsip Ketuhanan ditempatkan sebagai sila pertama, sedangkan dalam Piagam Jakarta 22 Juni 1945 prinsip Ketuhanan dipindahkan ke urutan kelima oleh Ketua BPUPK",
+      "Piagam Jakarta menghapuskan prinsip kebangsaan dan permusyawaratan yang diusulkan Sukarno pada 1 Juni 1945 untuk digantikan dengan sistem kekaisaran konstitusional",
+      "Rumusan Pidato 1 Juni 1945 dan Piagam Jakarta 22 Juni 1945 memiliki urutan serta redaksi kalimat yang sama persis tanpa mengalami perubahan apa pun dalam rapat Panitia Sembilan",
+      "Perubahan urutan sila dari Pidato 1 Juni 1945 ke Piagam Jakarta ditetapkan secara sepihak oleh pemerintah militer Jepang tanpa persetujuan Sukarno selaku Ketua Panitia Sembilan"
     ],
     "correctIndex": 0,
     "explanation": "Analisis yang tepat terkait Perbandingan rumusan dasar negara dalam Pidato Sukarno 1 Juni 1945 dengan Piagam Jakarta 22 Juni 1945: Dalam Pidato 1 Juni 1945 prinsip Ketuhanan ditempatkan pada urutan kelima (Ketuhanan yang berkebudayaan), sedangkan dalam Piagam Jakarta 22 Juni 1945 prinsip Ketuhanan ditempatkan pada sila pertama. Perubahan urutan dan redaksi tersebut merupakan hasil musyawarah mufakat Panitia Sembilan yang diketuai oleh Sukarno sendiri (Bab 1 hlm. 6–28).",
@@ -11211,11 +11211,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian 'Perbandingan rumusan Piagam Jakarta (22 Juni 1945) dengan Pembukaan UUD NRI Tahun 1945 yang disahkan PPKI (18 Agustus 1945)' pernyataan analisis historis yang paling tepat adalah...",
     "options": [
-      "Perbedaan pandangan di antara para tokoh diselesaikan melalui pemungutan suara paksa oleh pemerintah militer Jepang",
-      "Tokoh-tokoh nasional memilih menunda kemerdekaan Indonesia hingga Belanda kembali menguasai Nusantara",
-      "Rumusan dasar negara ditetapkan secara sepihak oleh Ketua BPUPK tanpa melibatkan panitia kecil",
-      "Seluruh anggota BPUPK sejak hari pertama memiliki pandangan yang persis sama tanpa ada perbedaan pendapat sedikit pun",
-      "Tujuh kata dalam sila pertama Piagam Jakarta ('dengan kewajiban menjalankan syari'at Islam bagi pemeluk-pemeluknya') diubah menjadi 'Ketuhanan Yang Maha Esa'. Perubahan tersebut disepakati dalam rapat 15 menit yang diprakarsai Moh. Hatta bersama tokoh-tokoh Islam pagi hari 18 Agustus 1945 demi menjaga persatuan seluruh wilayah Indonesia"
+      "Seluruh empat alinea Piagam Jakarta dibatalkan oleh PPKI pada 18 Agustus 1945 dan diganti dengan naskah baru yang disusun oleh perwakilan pemerintah pendudukan Jepang",
+      "Perubahan rumusan sila pertama dilakukan melalui pemungutan suara terbuka yang memicu pengunduran diri seluruh tokoh pergerakan Islam dari keanggotaan PPKI",
+      "Sila keempat dan sila kelima dalam Piagam Jakarta dihapuskan pada Sidang PPKI 18 Agustus 1945 agar konstitusi dapat segera diberlakukan di wilayah Jawa dan Sumatra",
+      "Perubahan tujuh kata dalam Piagam Jakarta baru dilakukan pada Sidang Konstituante tahun 1959 melalui penerbitan Dekret Presiden tanggal 5 Juli 1959",
+      "Tujuh kata pada sila pertama Piagam Jakarta diubah menjadi 'Ketuhanan Yang Maha Esa' melalui musyawarah singkat yang diprakarsai Moh. Hatta bersama tokoh Islam pada 18 Agustus 1945 demi menjaga persatuan bangsa"
     ],
     "correctIndex": 4,
     "explanation": "Analisis yang tepat terkait Perbandingan rumusan Piagam Jakarta (22 Juni 1945) dengan Pembukaan UUD NRI Tahun 1945 yang disahkan PPKI (18 Agustus 1945): Tujuh kata dalam sila pertama Piagam Jakarta ('dengan kewajiban menjalankan syari'at Islam bagi pemeluk-pemeluknya') diubah menjadi 'Ketuhanan Yang Maha Esa'. Perubahan tersebut disepakati dalam rapat 15 menit yang diprakarsai Moh. Hatta bersama tokoh-tokoh Islam pagi hari 18 Agustus 1945 demi menjaga persatuan seluruh wilayah Indonesia (Bab 1 hlm. 6–28).",
@@ -11227,11 +11227,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian 'Perbandingan tugas dan wewenang BPUPK dengan PPKI dalam sejarah kemerdekaan Indonesia' pernyataan analisis historis yang paling tepat adalah...",
     "options": [
-      "Tokoh-tokoh nasional memilih menunda kemerdekaan Indonesia hingga Belanda kembali menguasai Nusantara",
-      "Seluruh anggota BPUPK sejak hari pertama memiliki pandangan yang persis sama tanpa ada perbedaan pendapat sedikit pun",
-      "Perbedaan pandangan di antara para tokoh diselesaikan melalui pemungutan suara paksa oleh pemerintah militer Jepang",
-      "Rumusan dasar negara ditetapkan secara sepihak oleh Ketua BPUPK tanpa melibatkan panitia kecil",
-      "BPUPK bertugas menyelidiki dan menyusun rancangan dasar negara serta rancangan UUD (berakhir 17 Juli 1945), sedangkan PPKI bertugas mempersiapkan pelaksanaan kemerdekaan dan mengesahkan UUD serta memilih Presiden-Wapres (mulai bersidang 18 Agustus 1945). Keduanya merupakan rangkaian kesatuan proses historis kelahiran dan pengesahan Pancasila sebagai dasar negara"
+      "BPUPK berwenang mengesahkan Undang-Undang Dasar dan melantik Presiden pertama, sedangkan PPKI hanya bertugas menyelenggarakan pemilihan umum anggota parlemen daerah",
+      "PPKI dibentuk lebih dahulu pada bulan April 1945 untuk merancang dasar negara, sedangkan BPUPK baru dibentuk pada bulan Agustus 1945 setelah Jepang menyerah kepada Sekutu",
+      "BPUPK beranggotakan perwakilan seluruh provinsi dari Sabang sampai Merauke tanpa unsur Jepang, sedangkan PPKI dipimpin langsung oleh perwira tinggi Angkatan Darat Jepang",
+      "Kedua badan tersebut berjalan sendiri-sendiri tanpa keterkaitan sejarah karena PPKI menolak seluruh rancangan konstitusi yang sebelumnya telah dibahas dalam sidang BPUPK",
+      "BPUPK bertugas menyelidiki serta menyusun rancangan dasar negara dan rancangan UUD, sedangkan PPKI bertugas mempersiapkan kemerdekaan, mengesahkan UUD 1945, serta memilih Presiden dan Wakil Presiden"
     ],
     "correctIndex": 4,
     "explanation": "Analisis yang tepat terkait Perbandingan tugas dan wewenang BPUPK dengan PPKI dalam sejarah kemerdekaan Indonesia: BPUPK bertugas menyelidiki dan menyusun rancangan dasar negara serta rancangan UUD (berakhir 17 Juli 1945), sedangkan PPKI bertugas mempersiapkan pelaksanaan kemerdekaan dan mengesahkan UUD serta memilih Presiden-Wapres (mulai bersidang 18 Agustus 1945). Keduanya merupakan rangkaian kesatuan proses historis kelahiran dan pengesahan Pancasila sebagai dasar negara (Bab 1 hlm. 6–28).",
@@ -11243,11 +11243,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam kajian 'Perbedaan pandangan Golongan Muda dan Golongan Tua menjelang Proklamasi Kemerdekaan 15–16 Agustus 1945' pernyataan analisis historis yang paling tepat adalah...",
     "options": [
-      "Golongan Muda (Chaeroel Saleh, Wikana, Darwis, Soekarni) mendesak agar proklamasi segera dilakukan sendiri oleh bangsa Indonesia tanpa melalui PPKI, sedangkan Golongan Tua (Sukarno-Hatta) berpandangan proklamasi harus dibahas bersama PPKI agar tidak menimbulkan pertumpahan darah dengan Jepang. Perbedaan cara pandang tersebut diselesaikan melalui kesepakatan di Rengasdengklok yang dimediasi Achmad Soebardjo sehingga Proklamasi terlaksana pada 17 Agustus 1945",
-      "Tokoh-tokoh nasional memilih menunda kemerdekaan Indonesia hingga Belanda kembali menguasai Nusantara",
-      "Seluruh anggota BPUPK sejak hari pertama memiliki pandangan yang persis sama tanpa ada perbedaan pendapat sedikit pun",
-      "Rumusan dasar negara ditetapkan secara sepihak oleh Ketua BPUPK tanpa melibatkan panitia kecil",
-      "Perbedaan pandangan di antara para tokoh diselesaikan melalui pemungutan suara paksa oleh pemerintah militer Jepang"
+      "Golongan Muda mendesak proklamasi segera dilaksanakan mandiri tanpa melalui PPKI, sedangkan Golongan Tua mengutamakan perhitungan matang lewat PPKI untuk mencegah pertumpahan darah, hingga tercapai kesepakatan Rengasdengklok",
+      "Golongan Muda menghendaki pelaksanaan proklamasi ditunda menunggu izin resmi Marsekal Terauchi, sedangkan Golongan Tua menuntut penyerbuan bersenjata ke markas tentara Jepang malam itu juga",
+      "Golongan Tua menolak kemerdekaan Indonesia sebelum Sekutu mendarat di Jakarta, sedangkan Golongan Muda mengusulkan agar naskah proklamasi disahkan oleh Ketua BPUPK di Yogyakarta",
+      "Perbedaan pendapat di Rengasdengklok berakhir tanpa kesepakatan sehingga Golongan Muda membacakan teks proklamasi secara terpisah dari Sukarno dan Mohammad Hatta",
+      "Achmad Soebardjo mewakili pihak Jepang membatalkan hasil pertemuan Rengasdengklok dan memindahkan pembacaan proklamasi ke lapangan Ikada di bawah pengawalan tentara Jepang"
     ],
     "correctIndex": 0,
     "explanation": "Analisis yang tepat terkait Perbedaan pandangan Golongan Muda dan Golongan Tua menjelang Proklamasi Kemerdekaan 15–16 Agustus 1945: Golongan Muda (Chaeroel Saleh, Wikana, Darwis, Soekarni) mendesak agar proklamasi segera dilakukan sendiri oleh bangsa Indonesia tanpa melalui PPKI, sedangkan Golongan Tua (Sukarno-Hatta) berpandangan proklamasi harus dibahas bersama PPKI agar tidak menimbulkan pertumpahan darah dengan Jepang. Perbedaan cara pandang tersebut diselesaikan melalui kesepakatan di Rengasdengklok yang dimediasi Achmad Soebardjo sehingga Proklamasi terlaksana pada 17 Agustus 1945 (Bab 1 hlm. 6–28).",
@@ -11259,11 +11259,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Seorang peneliti sejarah menelaah tata letak kursi ruang sidang BPUPK di mana meja dan kursi disusun menghadap ke tengah dan pembicara tampil di dekat kursi Ketua/Wakil Ketua. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional",
       "Desain tempat duduk tersebut memudahkan interaksi, komunikasi, dan musyawarah mufakat karena pembicara dapat melihat seluruh peserta di berbagai sudut dan peserta mudah menyimak",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo"
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang"
     ],
     "correctIndex": 3,
     "explanation": "Seorang peneliti sejarah menelaah tata letak kursi ruang sidang BPUPK (Gambar 1.2 hlm. 15) di mana meja dan kursi disusun menghadap ke tengah dan pembicara tampil di dekat kursi Ketua/Wakil Ketua. -> Desain tempat duduk tersebut memudahkan interaksi, komunikasi, dan musyawarah mufakat karena pembicara dapat melihat seluruh peserta di berbagai sudut dan peserta mudah menyimak (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11275,10 +11275,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Dalam rapat gabungan tanggal 22 Juni 1945 (sehari setelah sidang Chuo Sangi In berakhir), tidak ada satu pun wakil pemerintah pendudukan Jepang yang hadir. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang",
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
       "Anggota BPUPK R. Abikoesno Tjokrosoejoso dapat dengan tegas menyatakan bahwa kemerdekaan Indonesia harus dilahirkan oleh bangsa Indonesia sendiri, bukan sebagai hadiah dari Jepang"
     ],
     "correctIndex": 4,
@@ -11291,11 +11291,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Pada pagi hari 18 Agustus 1945 sebelum Sidang Pertama PPKI dibuka pukul 11.30 WIB, Chaeroel Saleh mewakili kelompok pemuda menyampaikan kritik keras terhadap PPKI. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Chaeroel Saleh mendesak agar rapat dipindahkan ke tempat terbuka dan PPKI diubah menjadi Komite Nasional Indonesia (KNI) agar lepas dari kesan pengaruh Jepang",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara"
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional",
+      "Chaeroel Saleh mendesak agar rapat dipindahkan ke tempat terbuka dan PPKI diubah menjadi Komite Nasional Indonesia agar lepas dari kesan pengaruh Jepang",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang",
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya"
     ],
     "correctIndex": 1,
     "explanation": "Pada pagi hari 18 Agustus 1945 sebelum Sidang Pertama PPKI dibuka pukul 11.30 WIB, Chaeroel Saleh mewakili kelompok pemuda menyampaikan kritik keras terhadap PPKI. -> Chaeroel Saleh mendesak agar rapat dipindahkan ke tempat terbuka dan PPKI diubah menjadi Komite Nasional Indonesia (KNI) agar lepas dari kesan pengaruh Jepang (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11307,11 +11307,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Merespons tuntutan kelompok pemuda yang disuarakan Chaeroel Saleh pada 18 Agustus 1945, Drs. Mohammad Hatta memberikan jawaban diplomatis yang didukung penuh oleh Ir. Sukarno. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang",
       "Moh. Hatta menyatakan: 'Kepada Jepang kami katakan bahwa rapat ini adalah rapat panitia, dan terhadap rakyat kami tanggung jawabkan bahwa rapat ini adalah rapat Komite Nasional Indonesia pertama'",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan"
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat"
     ],
     "correctIndex": 1,
     "explanation": "Merespons tuntutan kelompok pemuda yang disuarakan Chaeroel Saleh pada 18 Agustus 1945, Drs. Mohammad Hatta memberikan jawaban diplomatis yang didukung penuh oleh Ir. Sukarno. -> Moh. Hatta menyatakan: 'Kepada Jepang kami katakan bahwa rapat ini adalah rapat panitia, dan terhadap rakyat kami tanggung jawabkan bahwa rapat ini adalah rapat Komite Nasional Indonesia pertama' (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11323,11 +11323,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Pada sore hari tanggal 17 Agustus 1945, seorang perwira Angkatan Laut Jepang (Kaigun) menemui Drs. Mohammad Hatta untuk menyampaikan aspirasi masyarakat Indonesia bagian timur. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Perwakilan pemeluk agama selain Islam di Indonesia bagian timur (salah satunya melalui Johannes Latuharhary) merasa keberatan terhadap tujuh kata dalam sila pertama Piagam Jakarta dan khawatir terjadi perpecahan apabila tidak diubah",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan"
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya",
+      "Perwakilan pemeluk agama selain Islam di Indonesia bagian timur merasa keberatan terhadap tujuh kata dalam sila pertama Piagam Jakarta dan khawatir terjadi perpecahan apabila tidak diubah",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional"
     ],
     "correctIndex": 2,
     "explanation": "Pada sore hari tanggal 17 Agustus 1945, seorang perwira Angkatan Laut Jepang (Kaigun) menemui Drs. Mohammad Hatta untuk menyampaikan aspirasi masyarakat Indonesia bagian timur. -> Perwakilan pemeluk agama selain Islam di Indonesia bagian timur (salah satunya melalui Johannes Latuharhary) merasa keberatan terhadap tujuh kata dalam sila pertama Piagam Jakarta dan khawatir terjadi perpecahan apabila tidak diubah (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11339,11 +11339,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Dalam waktu hanya 15 menit pada pagi hari 18 Agustus 1945 sebelum sidang PPKI dimulai, Moh. Hatta bersama para tokoh Islam mencapai kesepakatan mengubah rumusan sila pertama menjadi 'Ketuhanan Yang Maha Esa'. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Peristiwa ini membuktikan kebesaran jiwa dan keteladanan para tokoh Islam yang lebih mengutamakan persatuan dan keutuhan bangsa Indonesia di atas kepentingan kelompok/golongan",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara"
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
+      "Peristiwa ini membuktikan kebesaran jiwa dan keteladanan para tokoh Islam yang lebih mengutamakan persatuan dan keutuhan bangsa Indonesia di atas kepentingan kelompok maupun golongan",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang"
     ],
     "correctIndex": 2,
     "explanation": "Dalam waktu hanya 15 menit pada pagi hari 18 Agustus 1945 sebelum sidang PPKI dimulai, Moh. Hatta bersama para tokoh Islam mencapai kesepakatan mengubah rumusan sila pertama menjadi 'Ketuhanan Yang Maha Esa'. -> Peristiwa ini membuktikan kebesaran jiwa dan keteladanan para tokoh Islam yang lebih mengutamakan persatuan dan keutuhan bangsa Indonesia di atas kepentingan kelompok/golongan (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11356,10 +11356,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Dalam pembukaan Sidang Pertama PPKI tanggal 18 Agustus 1945 pukul 11.30 WIB yang dihadiri 27 anggota, Ir. Sukarno memberikan pidato pengantar singkat. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
       "Sukarno menekankan: 'Janganlah kita terlalu tertarik oleh kehendak yang kecil-kecil saja, tetapi marilah kita menurut garis besar saja yang mengandung sejarah'",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan"
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang",
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia"
     ],
     "correctIndex": 0,
     "explanation": "Dalam pembukaan Sidang Pertama PPKI tanggal 18 Agustus 1945 pukul 11.30 WIB yang dihadiri 27 anggota, Ir. Sukarno memberikan pidato pengantar singkat. -> Sukarno menekankan: 'Janganlah kita terlalu tertarik oleh kehendak yang kecil-kecil saja, tetapi marilah kita menurut garis besar saja yang mengandung sejarah' (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11371,11 +11371,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Hans Kelsen (2005) mengemukakan teori jenjang norma hukum bahwa setiap norma hukum yang lebih rendah bersumber pada norma yang lebih tinggi hingga berhenti pada norma dasar tertinggi (grundnorm). Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Dalam konteks tata hukum Indonesia, Pancasila berkedudukan sebagai grundnorm (norma dasar) dan sumber dari segala sumber hukum negara",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara"
+      "Dalam konteks tata hukum Indonesia, Pancasila berkedudukan sebagai grundnorm dan sumber dari segala sumber hukum negara",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang",
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya"
     ],
     "correctIndex": 0,
     "explanation": "Hans Kelsen (2005) mengemukakan teori jenjang norma hukum bahwa setiap norma hukum yang lebih rendah bersumber pada norma yang lebih tinggi hingga berhenti pada norma dasar tertinggi (grundnorm). -> Dalam konteks tata hukum Indonesia, Pancasila berkedudukan sebagai grundnorm (norma dasar) dan sumber dari segala sumber hukum negara (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11387,10 +11387,10 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Pancasila sebagai dasar negara mengandung lima kedudukan normatif terhadap tata hukum nasional. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
+      "Para pendiri bangsa bersepakat membubarkan seluruh panitia persiapan kemerdekaan dan menyerahkan penyusunan konstitusi kepada perwira penghubung Jepang",
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
       "Pancasila menjadi sumber dari segala sumber hukum, mencakup suasana kebatinan UUD 1945, mewujudkan cita-cita hukum dasar, menjadi sumber semangat UUD 1945, dan mengharuskan penyelenggara negara memelihara budi pekerti luhur"
     ],
     "correctIndex": 4,
@@ -11404,10 +11404,10 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Perhatikan konteks sejarah dan filosofi Pancasila berikut! Pancasila sebagai pandangan hidup bangsa (weltanschauung) memiliki empat fungsi utama bagi masyarakat Indonesia yang majemuk. Makna atau peristiwa penting yang berkaitan langsung dengan hal tersebut adalah...",
     "options": [
       "Menjadi pedoman menyelesaikan persoalan hidup, alat memecahkan problematika sosial-politik-ekonomi-budaya, pedoman membangun diri sesuai cita-cita bangsa, dan pemersatu masyarakat yang berbeda latar belakang",
-      "Para pendiri bangsa memutuskan untuk membubarkan PPKI sebelum mengesahkan konstitusi negara",
-      "Seluruh keputusan sidang harus mendapat pengesahan tertulis terlebih dahulu dari Kaisar Jepang di Tokyo",
-      "Perumusan dasar negara ditunda hingga terbentuknya Dewan Konstituante hasil Pemilihan Umum 1955",
-      "Pemerintah kolonial Belanda menyerahkan kedaulatan secara sukarela tanpa melalui perjuangan kemerdekaan"
+      "Ketentuan dasar negara disusun semata sebagai aturan sementara daerah pendudukan militer tanpa dimaksudkan menjadi landasan Negara Kesatuan Republik Indonesia",
+      "Sidang menetapkan penghapusan seluruh keberagaman hukum adat dan tradisi daerah agar digantikan oleh tata hukum kolonial yang berlaku sebelumnya",
+      "Seluruh keputusan persidangan wajib memperoleh pengesahan tertulis terlebih dahulu dari pemerintah pusat Kekaisaran Jepang di Tokyo sebelum diumumkan kepada rakyat",
+      "Perumusan dasar filsafat negara dan konstitusi resmi ditunda pelaksanaannya hingga terbentuknya Majelis Konstituante melalui pemilihan umum nasional"
     ],
     "correctIndex": 0,
     "explanation": "Pancasila sebagai pandangan hidup bangsa (weltanschauung) memiliki empat fungsi utama bagi masyarakat Indonesia yang majemuk (hlm. 36–37). -> Menjadi pedoman menyelesaikan persoalan hidup, alat memecahkan problematika sosial-politik-ekonomi-budaya, pedoman membangun diri sesuai cita-cita bangsa, dan pemersatu masyarakat yang berbeda latar belakang (Bab 1 Buku Pendidikan Pancasila Kelas X).",
@@ -11485,7 +11485,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Saling menghormati dan menghargai sesama warga sekolah",
       "Belajar, berlatih, dan mengerjakan semua tugas dari guru dan sekolah serta mempersiapkan keperluan pribadi sekolah dengan penuh tanggung jawab",
-      "Menikmati fasilitas sekolah dengan nyaman dan sehat, seperti perpustakaan, tempat ibadah, ruang kelas, kamar mandi, taman, lapangan olahraga, dan sanitasi",
+      "Menikmati fasilitas belajar, ibadah, perpustakaan, olahraga, dan sanitasi sekolah dengan nyaman serta sehat",
       "Mematuhi nasihat guru dan kepala sekolah",
       "Mengikuti penilaian pembelajaran yang diselenggarakan sekolah"
     ],
@@ -11564,7 +11564,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Setiap peserta didik wajib menunaikan kewajibannya agar tercipta lingkungan belajar yang tertib dan harmonis. Berikut ini yang merupakan KEWAJIBAN peserta didik sebagai warga sekolah adalah...",
     "options": [
       "Mendapatkan kasih sayang, perlindungan, dan keamanan dari semua warga sekolah",
-      "Belajar, berlatih, dan mengerjakan semua tugas dari guru dan sekolah serta mempersiapkan keperluan pribadi sekolah dengan penuh tanggung jawab",
+      "Belajar tekun, mengerjakan seluruh tugas pembelajaran dari guru, dan menyiapkan keperluan sekolah secara bertanggung jawab",
       "Mendapatkan layanan administrasi akademik maupun nonakademik",
       "Mendapatkan perlakuan adil dalam hal penilaian dari guru maupun sekolah",
       "Mendapatkan pendidikan, pengajaran, pelatihan, bimbingan, dan pembinaan dari guru maupun sekolah"
@@ -11628,7 +11628,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Setiap peserta didik wajib menunaikan kewajibannya agar tercipta lingkungan belajar yang tertib dan harmonis. Berikut ini yang merupakan KEWAJIBAN peserta didik sebagai warga sekolah adalah...",
     "options": [
       "Mendapatkan kasih sayang, perlindungan, dan keamanan dari semua warga sekolah",
-      "Ikut memelihara kebersihan lingkungan, menjaga dan merawat keindahan lingkungan, serta menciptakan keamanan dan kenyamanan lingkungan sekolah",
+      "Ikut memelihara kebersihan, merawat keindahan fasilitas, serta menjaga keamanan dan kenyamanan lingkungan satuan pendidikan",
       "Mendapatkan layanan administrasi akademik maupun nonakademik",
       "Mendapatkan perlakuan adil dalam hal penilaian dari guru maupun sekolah",
       "Mendapatkan pendidikan, pengajaran, pelatihan, bimbingan, dan pembinaan dari guru maupun sekolah"
@@ -11689,7 +11689,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0731",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 27 Ayat (1) dan Ayat (3) UUD NRI Tahun 1945,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 27 Ayat (1) dan Ayat (3) UUD NRI Tahun 1945, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku",
       "Menghormati dan mematuhi hukum dan tata tertib negara",
@@ -11721,7 +11721,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0733",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 31 Ayat (2) UUD NRI Tahun 1945 dan UU Nomor 23 Tahun 2014 tentang Pemerintahan Daerah,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 31 Ayat (2) UUD NRI Tahun 1945 dan UU Nomor 23 Tahun 2014 tentang Pemerintahan Daerah, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
       "Menghormati dan mematuhi hukum dan tata tertib negara",
@@ -11739,11 +11739,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Sebagai warga negara Indonesia yang baik, pelaksanaan tugas dan tanggung jawab berupa 'Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku' memiliki landasan hukum konstitusional dan perundang-undangan pada...",
     "options": [
-      "Pasal 30 UUD NRI Tahun 1945",
-      "Pasal 31 Ayat (2) UUD NRI Tahun 1945 dan UU Nomor 23 Tahun 2014 tentang Pemerintahan Daerah",
-      "Pasal 28 UUD NRI Tahun 1945",
+      "Pasal 30 Ayat (1) UUD NRI Tahun 1945 dan UU Nomor 3 Tahun 2002 tentang Pertahanan Negara",
+      "Pasal 31 Ayat (2) UUD NRI Tahun 1945 dan UU Nomor 20 Tahun 2003 tentang Sistem Pendidikan Nasional",
+      "Pasal 28E Ayat (3) UUD NRI Tahun 1945 dan UU Nomor 9 Tahun 1998 tentang Kemerdekaan Berpendapat",
       "Pasal 23A UUD NRI Tahun 1945 dan UU Nomor 6 Tahun 1983 tentang Ketentuan Umum dan Tata Cara Perpajakan",
-      "Pasal 27 Ayat (1) dan Ayat (3) UUD NRI Tahun 1945"
+      "Pasal 27 Ayat (1) UUD NRI Tahun 1945 dan UU Nomor 12 Tahun 2011 tentang Pembentukan Peraturan"
     ],
     "correctIndex": 3,
     "explanation": "Tugas dan tanggung jawab warga negara untuk 'Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku' diatur sesuai Pasal 23A UUD NRI Tahun 1945 dan UU Nomor 6 Tahun 1983 tentang Ketentuan Umum dan Tata Cara Perpajakan (hlm. 190–191).",
@@ -11753,7 +11753,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0735",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 23A UUD NRI Tahun 1945 dan UU Nomor 6 Tahun 1983 tentang Ketentuan Umum dan Tata Cara Perpajakan,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 23A UUD NRI Tahun 1945 dan UU Nomor 6 Tahun 1983 tentang Ketentuan Umum dan Tata Cara Perpajakan, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Wajib mengikuti pendidikan dasar yang dibiayai oleh Pemerintah",
       "Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku",
@@ -11785,10 +11785,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0737",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 28 UUD NRI Tahun 1945,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 28 UUD NRI Tahun 1945, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Menjaga keamanan dan ketertiban masyarakat serta turut dalam pemeliharaan ketertiban umum",
-      "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
+      "Menggunakan hak pilih dalam pemilu serta berperan aktif memperjuangkan kepentingan masyarakat dan pembangunan",
       "Menghormati dan mematuhi hukum dan tata tertib negara",
       "Wajib mengikuti pendidikan dasar yang dibiayai oleh Pemerintah",
       "Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku"
@@ -11817,7 +11817,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0739",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 30 UUD NRI Tahun 1945,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 30 UUD NRI Tahun 1945, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
       "Menjaga keamanan dan ketertiban masyarakat serta turut dalam pemeliharaan ketertiban umum",
@@ -11849,7 +11849,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0741",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 28J UUD NRI Tahun 1945 dan UU Nomor 39 Tahun 1999 tentang Hak Asasi Manusia,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 28J UUD NRI Tahun 1945 dan UU Nomor 39 Tahun 1999 tentang Hak Asasi Manusia, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Wajib mengikuti pendidikan dasar yang dibiayai oleh Pemerintah",
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
@@ -11881,7 +11881,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0743",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 34 UUD NRI Tahun 1945,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 34 UUD NRI Tahun 1945, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Wajib mengikuti pendidikan dasar yang dibiayai oleh Pemerintah",
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
@@ -11913,9 +11913,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0745",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 29 UUD NRI Tahun 1945,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 29 UUD NRI Tahun 1945, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
-      "Menghormati perbedaan suku, agama, ras, dan golongan (SARA) serta menjaga keutuhan NKRI",
+      "Menghormati perbedaan suku, agama, ras, dan golongan serta menjaga keutuhan NKRI",
       "Menghormati dan mematuhi hukum dan tata tertib negara",
       "Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku",
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
@@ -11945,10 +11945,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0747",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan Pasal 32 UUD NRI Tahun 1945,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan Pasal 32 UUD NRI Tahun 1945, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Menghormati dan mematuhi hukum dan tata tertib negara",
-      "Menghargai keanekaragaman budaya nasional dan menjunjung tinggi nilai-nilai kebangsaan (Pancasila, UUD 1945, Bhinneka Tunggal Ika, dan NKRI)",
+      "Menghargai keanekaragaman budaya nasional dan menjunjung tinggi nilai-nilai kebangsaan",
       "Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku",
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
       "Wajib mengikuti pendidikan dasar yang dibiayai oleh Pemerintah"
@@ -11977,7 +11977,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0749",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan ketentuan UU Nomor 32 Tahun 2009 tentang Perlindungan dan Pengelolaan Lingkungan Hidup,, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
+    "question": "Berdasarkan ketentuan UU Nomor 32 Tahun 2009 tentang Perlindungan dan Pengelolaan Lingkungan Hidup, wujud pelaksanaan tugas dan tanggung jawab seorang Warga Negara Indonesia (WNI) yang baik adalah...",
     "options": [
       "Melaksanakan hak suara pada pemilihan umum, memperjuangkan kepentingan masyarakat dan negara, serta turut serta dalam upaya pembangunan nasional",
       "Membayar pajak sesuai ketentuan peraturan perpajakan yang berlaku",
@@ -12014,7 +12014,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Memastikan sumber daya alam dipergunakan untuk sebesar-besarnya kemakmuran rakyat dan mencegah bencana lingkungan maupun bencana sosial",
       "Mewujudkan kesejahteraan anggota berdasarkan demokrasi ekonomi dengan tetap memperhatikan aspek profesionalisme, akuntabilitas, dan pengawasan",
       "Menjamin agar demokrasi ekonomi berorientasi pada kemakmuran rakyat banyak dan tidak jatuh ke tangan monopoli orang seorang",
-      "Membuat karyawan lebih merasa memiliki (sense of belonging) dan berkontribusi penuh terhadap kemajuan badan usaha/perusahaan",
+      "Membuat karyawan lebih merasa memiliki dan berkontribusi penuh terhadap kemajuan badan usaha atau perusahaan",
       "Mewujudkan keseimbangan antara hak dan kewajiban bagi karyawan dan pengusaha yang dihormati bersama"
     ],
     "correctIndex": 3,
@@ -12155,11 +12155,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Majelis Permusyawaratan Rakyat (MPR)' (Peraturan MPR yang mengatur tata tertib dan pelaksanaan wewenang konstitusional MPR) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan"
     ],
     "correctIndex": 4,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Majelis Permusyawaratan Rakyat (MPR) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12171,11 +12171,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Dewan Perwakilan Rakyat (DPR)' (Peraturan DPR yang mengatur tata tertib dan penyelenggaraan fungsi legislasi, anggaran, dan pengawasan DPR) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 1,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Dewan Perwakilan Rakyat (DPR) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12187,11 +12187,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Dewan Perwakilan Daerah (DPD)' (Peraturan DPD dalam pelaksanaan wewenang otonomi daerah dan hubungan pusat-daerah) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag"
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Dewan Perwakilan Daerah (DPD) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12203,11 +12203,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Mahkamah Agung (MA)' (Peraturan Mahkamah Agung (Perma) untuk mengisi kekosongan hukum acara dan penyelenggaraan peradilan) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Mahkamah Agung (MA) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12219,11 +12219,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Mahkamah Konstitusi (MK)' (Peraturan Mahkamah Konstitusi (PMK) terkait hukum acara pengujian undang-undang dan sengketa konstitusional) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Mahkamah Konstitusi (MK) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12235,11 +12235,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Badan Pemeriksa Keuangan (BPK)' (Peraturan BPK dalam pelaksanaan pemeriksaan pengelolaan dan tanggung jawab keuangan negara) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Badan Pemeriksa Keuangan (BPK) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12251,11 +12251,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Komisi Yudisial (KY)' (Peraturan Komisi Yudisial terkait pengawasan perilaku hakim dan pengusulan calon hakim agung) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Ditetapkan dalam sidang istimewa tahunan MPR"
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Komisi Yudisial (KY) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12267,11 +12267,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Bank Indonesia (BI)' (Peraturan Bank Indonesia (PBI) di bidang kebijakan moneter dan sistem pembayaran nasional) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Bank Indonesia (BI) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12283,11 +12283,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Menteri' (Peraturan Menteri (Permen) untuk menyelenggarakan urusan tertentu dalam pemerintahan sesuai bidang kementeriannya) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Ditetapkan dalam sidang istimewa tahunan MPR"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 3,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Menteri diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12299,11 +12299,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Badan, lembaga, atau komisi setingkat yang dibentuk dengan UU atau Pemerintah atas perintah UU' (Peraturan badan/lembaga/komisi negara yang melaksanakan perintah undang-undang) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Ditetapkan dalam sidang istimewa tahunan MPR"
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 2,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Badan, lembaga, atau komisi setingkat yang dibentuk dengan UU atau Pemerintah atas perintah UU diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12315,11 +12315,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'DPRD Provinsi dan DPRD Kabupaten/Kota' (Peraturan DPRD mengenai tata tertib dan pelaksanaan fungsi lembaga perwakilan daerah) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun"
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh DPRD Provinsi dan DPRD Kabupaten/Kota diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12331,11 +12331,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan Pasal 8 ayat (1) dan (2) UU Nomor 12 Tahun 2011 jo. UU Nomor 13 Tahun 2022, peraturan yang ditetapkan oleh 'Kepala Desa atau yang setingkat' (Peraturan Desa (Perdes) yang ditetapkan Kepala Desa bersama Badan Permusyawaratan Desa) diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang...",
     "options": [
-      "Diperintahkan oleh Peraturan Perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan",
-      "Ditetapkan dalam sidang istimewa tahunan MPR",
-      "Tidak pernah diubah selama minimal dua puluh lima tahun",
-      "Mendapat persetujuan tertulis dari Mahkamah Internasional di Den Haag",
-      "Telah disahkan melalui referendum seluruh rakyat Indonesia"
+      "Diperintahkan oleh Peraturan Perundang-undangan lebih tinggi atau dibentuk berdasarkan kewenangan",
+      "Ditetapkan melalui sidang istimewa tahunan Majelis Permusyawaratan Rakyat secara bulat dan aklamasi",
+      "Telah berlaku terus-menerus tanpa perubahan materi muatan selama sekurang-kurangnya dua puluh lima tahun",
+      "Memperoleh persetujuan tertulis terlebih dahulu dari Mahkamah Internasional yang berkedudukan di Den Haag",
+      "Disahkan secara langsung melalui mekanisme pemungutan suara referendum oleh seluruh warga negara Indonesia"
     ],
     "correctIndex": 0,
     "explanation": "Menurut Pasal 8 UU No. 12 Tahun 2011 jo. UU No. 13 Tahun 2022 (hlm. 106), peraturan yang ditetapkan oleh Kepala Desa atau yang setingkat diakui keberadaannya dan mempunyai kekuatan hukum mengikat sepanjang diperintahkan oleh peraturan perundang-undangan yang lebih tinggi atau dibentuk berdasarkan kewenangan.",
@@ -12364,7 +12364,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam studi kasus literasi digital dan penanganan hoaks, Dani membagikan informasi ke grup pesan yang setelah ditelusuri oleh Jaka ternyata merupakan berita bohong (hoaks), namun Dani semula menolak tuduhan tersebut. Solusi penyelesaian yang sesuai dengan nilai Pancasila adalah...",
     "options": [
       "Menyebarkan berita bohong tandingan untuk membalas informasi yang dikirim Dani",
-      "Melakukan verifikasi fakta dan keaslian sumber berita bersama-sama secara objektif dan bermusyawarah (saring sebelum sharing) serta menyampaikan klarifikasi di grup secara santun",
+      "Melakukan verifikasi fakta dan keaslian sumber berita bersama-sama secara objektif dan bermusyawarah serta menyampaikan klarifikasi di grup secara santun",
       "Melakukan pertengkaran terbuka di media sosial hingga grup terpecah menjadi dua kubu",
       "Mengeluarkan Jaka dari grup pesan karena berani berbeda pendapat dengan Dani",
       "Membiarkan berita bohong tersebut terus menyebar demi menjaga perasaan Dani"
@@ -12397,7 +12397,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Ketua RT berwenang menjatuhkan hukuman penjara 5 tahun secara langsung kepada warga tersebut",
       "Hobi bermusik tidak boleh dilakukan sama sekali baik pada siang maupun malam hari",
-      "Menyalurkan hobi bermusik adalah hak individu, namun pelaksanaannya dibatasi oleh kewajiban menghormati hak tetangga atas ketenangan, kenyamanan, dan waktu istirahat malam sesuai norma kesopanan dan ketertiban lingkungan",
+      "Menyalurkan hobi bermusik adalah hak warga, tetapi dibatasi kewajiban menghormati hak tetangga atas ketenangan dan istirahat malam",
       "Para tetangga wajib pindah rumah apabila merasa terganggu oleh suara musik pada tengah malam",
       "Warga tersebut memiliki hak mutlak melakukan apa saja di dalam rumahnya tanpa boleh ditegur siapa pun"
     ],
@@ -12412,8 +12412,8 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Dalam skenario kasus kesadaran hukum hak kekayaan intelektual berjudul 'Ada Keuntungan di Balik Konten', seorang pelajar ingin menggunakan lagu populer milik orang lain untuk konten video komersial (monetisasi iklan) tanpa izin dengan alasan 'kalau ada masalah nanti tinggal minta maaf yang penting viral'. Ditinjau dari kesadaran hukum Pancasila, tindakan tersebut...",
     "options": [
       "Sangat dianjurkan karena kreativitas generasi muda tidak boleh dibatasi oleh aturan hukum",
-      "Sah dilakukan apabila menggunakan lagu milik musisi luar negeri",
-      "Tidak dapat dibenarkan karena melanggar hak kekayaan intelektual (hak cipta) orang lain dan mengabaikan etika serta kepatuhan hukum demi keuntungan pribadi semata",
+      "Sah dilakukan apabila menggunakan lagu milik musisi luar negeri tanpa mempertimbangkan dampak sosial maupun ketertiban hukum bersama",
+      "Tidak dapat dibenarkan karena melanggar hak kekayaan intelektual orang lain dan mengabaikan etika serta kepatuhan hukum demi keuntungan pribadi semata",
       "Diperbolehkan selama hasil keuntungan iklan dibagi kepada teman-teman sekelas",
       "Merupakan wujud pelaksanaan hak kebebasan berekspresi yang kebal terhadap undang-undang"
     ],
@@ -12431,7 +12431,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Menyontek saat ujian merupakan bentuk gotong royong yang dianjurkan dalam pembelajaran",
       "Perilaku tersebut wajar dilakukan oleh pelajar karena jumlah uangnya masih sedikit",
       "Uang kas kelas bebas digunakan untuk kepentingan pribadi bendahara kapan saja",
-      "Perilaku tidak jujur dan penyalahgunaan amanah dalam hal-hal kecil di sekolah/rumah merupakan bibit perilaku koruptif yang harus dicegah sejak dini dengan menanamkan integritas dan kejujuran"
+      "Ketidakjujuran dan penyalahgunaan amanah dalam hal kecil di sekolah maupun rumah adalah bibit korupsi yang wajib dicegah sejak dini"
     ],
     "correctIndex": 4,
     "explanation": "Skenario Kasus 3 (hlm. 95–96) mengajak pelajar berintrospeksi bahwa ketidakjujuran seperti menyontek dan menyalahgunakan uang titipan/kas adalah ketidakjujuran/bibit korupsi yang bertentangan dengan nilai Pancasila.",
@@ -12445,9 +12445,9 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Negara-negara lain di dunia tidak memiliki keindahan alam seperti Indonesia",
       "Budaya asing harus ditolak seluruhnya termasuk perkembangan ilmu pengetahuan dan teknologi",
-      "Meskipun belajar atau merantau hingga ke berbagai negara maju di dunia, seorang warga negara Indonesia harus tetap mencintai tanah air, bangga pada bangsa sendiri, dan tidak melunturkan identitas keindonesiaan",
+      "Meskipun menempuh studi atau merantau ke mancanegara, warga Indonesia wajib tetap mencintai tanah air dan menjaga jati diri bangsa",
       "Warga negara yang pernah ke luar negeri harus melepaskan status kewarganegaraannya",
-      "Pelajar Indonesia dilarang melanjutkan pendidikan tinggi ke luar negeri"
+      "Pelajar Indonesia dilarang melanjutkan pendidikan tinggi ke luar negeri tanpa mempertimbangkan dampak sosial maupun ketertiban hukum bersama"
     ],
     "correctIndex": 2,
     "explanation": "Pada halaman 98, melalui lagu 'Tanah Air' ciptaan Ibu Sud dijelaskan bahwa meskipun pelajar melanjutkan studi di luar negeri dan beradaptasi secara global, nilai-nilai keindonesiaan dan cinta tanah air tidak boleh luntur.",
@@ -12457,11 +12457,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0779",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan data statistik internasional mengenai 'Daftar Negara Peminat Terbanyak Mahasiswa Indonesia Tahun 2021', ), tiga negara urutan teratas yang paling banyak diminati mahasiswa Indonesia untuk melanjutkan studi di luar negeri adalah...",
+    "question": "Berdasarkan data statistik internasional mengenai negara tujuan studi mahasiswa Indonesia tahun 2021, tiga negara urutan teratas yang paling banyak diminati mahasiswa Indonesia adalah...",
     "options": [
       "1) Mesir, 2) Turki, dan 3) Kanada",
       "1) Arab Saudi, 2) Jerman, dan 3) Inggris",
-      "1) Australia (13.800 mahasiswa), 2) Malaysia (8.438 mahasiswa), dan 3) Amerika Serikat (7.944 mahasiswa)",
+      "1) Australia, 2) Malaysia, dan 3) Amerika Serikat",
       "1) Jepang, 2) Korea Selatan, dan 3) Singapura",
       "1) Belanda, 2) Prancis, dan 3) Rusia"
     ],
@@ -12475,11 +12475,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Berdasarkan hasil survei kebutuhan hukum oleh IJRS mengenai 'Perbaikan Bantuan Hukum Berdasarkan Hasil Survei Kebutuhan Hukum', upaya yang direkomendasikan kepada Pemerintah Pusat (BPHN) dalam memperluas akses keadilan bagi masyarakat adalah...",
     "options": [
-      "Menyerahkan seluruh penyelesaian perkara pidana kepada kepala lingkungan tanpa pengadilan",
-      "Membatasi layanan bantuan hukum hanya bagi warga yang mampu membayar pengacara komersial",
-      "Pemetaan aktor strategis penerima sosialisasi (seperti Ketua RT/RW), pembentukan portal informasi satu pintu layanan konsultasi hukum, pendidikan hukum tepat sasaran, dan kategorisasi masalah hukum",
-      "Menghapuskan seluruh anggaran bantuan hukum di tingkat pemerintah daerah",
-      "Menutup akses informasi hukum di internet agar tidak dipelajari masyarakat umum"
+      "Pelimpahan seluruh kewenangan penyidikan perkara pidana kepada pengurus rukun tetangga tanpa proses peradilan",
+      "Pembatasan pemberian bantuan hukum cuma-cuma hanya bagi warga perkotaan yang memiliki jaminan aset tetap",
+      "Pemetaan aktor strategis sosialisasi, portal informasi satu pintu konsultasi hukum, dan pendidikan hukum tepat sasaran",
+      "Penghapusan alokasi anggaran penyuluhan hukum daerah untuk dialihkan seluruhnya ke pembangunan gedung",
+      "Penutupan akses dokumen peraturan perundang-undangan daring agar penafsiran hukum dimonopoli kalangan akademisi"
     ],
     "correctIndex": 2,
     "explanation": "Berdasarkan Infografik Gambar 2.6 (hlm. 72 & 89), perbaikan bantuan hukum meliputi sinergi Pemda (Perda bantuan hukum, kualifikasi penerima tidak hanya SKTM, pagu anggaran) dan Pemerintah Pusat/BPHN (pemetaan aktor strategis, portal informasi satu pintu, pendidikan hukum tanpa diskriminasi, dan kategorisasi masalah hukum).",
@@ -12491,11 +12491,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Dalam perumusan materi muatan peraturan perundang-undangan, terdapat enam syarat/indikator utama agar materi muatan suatu peraturan perundang-undangan berkualitas dan tidak mudah digugat (judicial review), yaitu...",
     "options": [
-      "Boleh menyimpang dari undang-undang di atasnya asalkan meningkatkan pendapatan asli daerah secara instan",
-      "Tidak perlu merujuk pada pasal UUD 1945 selama telah disetujui oleh kepala daerah setempat",
-      "Dibuat secara tertutup tanpa dengar pendapat masyarakat, menggunakan istilah asing yang multitafsir, dan memberikan kekebalan hukum bagi pejabat",
-      "Mengutamakan perlindungan bagi pemilik modal besar dengan mengesampingkan hak pekerja",
-      "Tidak boleh bertentangan dengan Pancasila dan UUD 1945, merujuk pasal/ayat UUD 1945, searah dan mendukung peraturan di atasnya, norma hukumnya dapat dilaksanakan, istilahnya jelas dan tidak multitafsir, serta selaras melayani kepentingan/keadilan rakyat dan mencegah korupsi"
+      "Mengutamakan peningkatan target retribusi daerah jangka pendek meskipun bertentangan dengan ketentuan undang-undang nasional",
+      "Disusun menggunakan istilah teknis asing yang terbuka bagi berbagai penafsiran bebas oleh pejabat pelaksana di lapangan",
+      "Ditetapkan secara tertutup tanpa naskah akademik maupun partisipasi publik demi mempercepat pemberlakuan sanksi pidana",
+      "Memberikan pengecualian kewajiban hukum khusus bagi korporasi besar guna menarik investasi industri ekstraktif",
+      "Selaras dengan Pancasila dan UUD 1945, sinkron dengan aturan lebih tinggi, dapat dilaksanakan, jelas tanpa multitafsir, serta berkeadilan"
     ],
     "correctIndex": 4,
     "explanation": "Enam syarat isi peraturan perundang-undangan pada Gambar 2.27 (hlm. 111 & 118): 1) Tidak bertentangan dengan Pancasila & UUD 1945, 2) Merujuk cantolan pasal/ayat UUD 1945, 3) Searah mendukung peraturan di atasnya, 4) Dapat dilaksanakan, 5) Istilah jelas tidak multitafsir, 6) Selaras melayani kepentingan rakyat, adil, dan tidak berpeluang korupsi.",
@@ -12541,7 +12541,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Kirab Grebeg Pancasila di Kota Blitar",
       "Lagu Perjuangan 'Bangun Pemudi Pemuda' karya Alfred Simanjuntak",
-      "Budaya Hukum (Rahayu, 2014: 49)",
+      "Budaya Hukum",
       "Peraturan Pemerintah Nomor 4 Tahun 2022",
       "Rumah Laksamana Tadashi Maeda"
     ],
@@ -12555,7 +12555,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "UUD NRI 1945 & Konstitusi",
     "question": "Penjelasan yang paling tepat mengenai 'Peraturan Pemerintah Nomor 4 Tahun 2022' adalah...",
     "options": [
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)",
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan",
       "Tempat pembacaan teks Proklamasi Kemerdekaan Indonesia oleh Sukarno didampingi Moh. Hatta pada Jumat, 17 Agustus 1945 pukul 10.00 WIB",
       "Peraturan Pemerintah yang mengamanatkan penerapan mata pelajaran Pendidikan Pancasila dalam sistem pendidikan nasional",
       "Beriman, bertakwa kepada Tuhan Yang Maha Esa dan berakhlak mulia, berkebinekaan global, bergotong royong, mandiri, bernalar kritis, dan kreatif",
@@ -12701,7 +12701,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Bahasa Sanskerta 'Panca' dan 'Sila'",
       "Program Jaksa Masuk Sekolah (JMS)",
-      "Harmonisasi Peraturan Perundang-undangan (Sayuna, 2015 & Hasan Wargakusumah)",
+      "Harmonisasi Peraturan Perundang-undangan",
       "Badan Keamanan Rakyat (BKR)",
       "Pidato Pembukaan dr. K.R.T. Radjiman Wedyodiningrat 29 Mei 1945"
     ],
@@ -12729,12 +12729,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0796",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Asal kata Pancasila yang dikemukakan Sukarno pada 1 Juni 1945, di mana 'panca' berarti lima dan 'sila' berarti dasar/asas\" adalah...",
+    "question": "Konsep etimologis mengenai \"Asal-usul istilah dasar negara yang dikemukakan Ir. Sukarno pada 1 Juni 1945 yang bermakna lima dasar atau lima asas\" merujuk pada...",
     "options": [
       "Pendirian ASEAN pada 8 Agustus 1967 di Bangkok dan Keketuaan Indonesia",
       "Pidato Presiden Sukarno 'To Build The World A New' (30 September 1960)",
       "Visi Indonesia Emas 2045 (Satu Abad Kemerdekaan RI)",
-      "Empat Peran Negara Mewujudkan Keadilan Sosial (Yudi Latif, 2015: 585)",
+      "Empat Peran Negara Mewujudkan Keadilan Sosial",
       "Bahasa Sanskerta 'Panca' dan 'Sila'"
     ],
     "correctIndex": 4,
@@ -12764,7 +12764,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Semboyan propaganda Jepang yaitu 'Jepang Pemimpin Asia', 'Jepang Pelindung Asia', dan 'Jepang Cahaya Asia' untuk menarik simpati bangsa Indonesia\" adalah...",
     "options": [
       "Pendirian ASEAN pada 8 Agustus 1967 di Bangkok dan Keketuaan Indonesia",
-      "Harmonisasi Peraturan Perundang-undangan (Sayuna, 2015 & Hasan Wargakusumah)",
+      "Harmonisasi Peraturan Perundang-undangan",
       "Semboyan Tiga A Jepang (1942)",
       "Pidato Presiden Sukarno 'To Build The World A New' (30 September 1960)",
       "Politik Uang (Money Politic), Jual Beli Jabatan, Korupsi, dan Nepotisme"
@@ -12779,7 +12779,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Penjelasan yang paling tepat mengenai 'Semboyan Tiga A Jepang (1942)' adalah...",
     "options": [
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)",
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan",
       "Pidato Ketua BPUPK yang menanyakan dasar negara Indonesia merdeka dan mengawali empat hari persidangan pertama BPUPK",
       "Collective action to struggle (tindakan kolektif untuk berjuang), self governing (kemandirian mengatur diri), common goal (tujuan bersama), dan sovereignty (kedaulatan)",
       "Tokoh proklamator yang memopulerkan koperasi sebagai badan usaha demokrasi ekonomi yang berakar kuat pada tradisi gotong royong masyarakat Indonesia",
@@ -12828,7 +12828,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Tonggak semangat kebangsaan dan persatuan Indonesia yang telah meresap ke dalam cara pandang seluruh anggota BPUPK lintas suku dan agama\" adalah...",
     "options": [
       "Ikrar Kongres Pemuda II Tahun 1928 (Sumpah Pemuda)",
-      "Empat Peran Negara Mewujudkan Keadilan Sosial (Yudi Latif, 2015: 585)",
+      "Empat Peran Negara Mewujudkan Keadilan Sosial",
       "Ketentuan Tamu Menginap 1x24 Jam Wajib Lapor RT",
       "UU Nomor 3 Tahun 2017",
       "Sidang Kedua BPUPK (10–17 Juli 1945)"
@@ -12846,7 +12846,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Konsep negara demokratis Indonesia yang bertanggung jawab atas kesejahteraan umum dan distribusi kekayaan secara adil, di mana hak milik perorangan diakui tetapi memiliki fungsi sosial",
       "Tonggak semangat kebangsaan dan persatuan Indonesia yang telah meresap ke dalam cara pandang seluruh anggota BPUPK lintas suku dan agama",
       "Aktivitas mengumpulkan dana secara gotong royong melalui media sosial untuk tujuan kebaikan kemanusiaan seperti membantu biaya pengobatan warga sakit atau memperbaiki rumah",
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)",
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan",
       "Segala bentuk perilaku budaya manusia, sikap warga masyarakat, dan sistem nilai yang memengaruhi atau menentukan bagaimana hukum berlaku di masyarakat"
     ],
     "correctIndex": 1,
@@ -12879,7 +12879,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Tokoh proklamator yang memopulerkan koperasi sebagai badan usaha demokrasi ekonomi yang berakar kuat pada tradisi gotong royong masyarakat Indonesia",
       "Lokasi perumusan naskah teks Proklamasi Kemerdekaan Indonesia pada dini hari 17 Agustus 1945 yang dipilih karena alasan keamanan dan kedekatan hubungan Maeda dengan Achmad Soebardjo serta Moh. Hatta",
       "Collective action to struggle (tindakan kolektif untuk berjuang), self governing (kemandirian mengatur diri), common goal (tujuan bersama), dan sovereignty (kedaulatan)",
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)"
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan"
     ],
     "correctIndex": 2,
     "explanation": "Rumah Laksamana Tadashi Maeda (Bab 1 (hlm. 25)): Lokasi perumusan naskah teks Proklamasi Kemerdekaan Indonesia pada dini hari 17 Agustus 1945 yang dipilih karena alasan keamanan dan kedekatan hubungan Maeda dengan Achmad Soebardjo serta Moh. Hatta.",
@@ -12923,8 +12923,8 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Badan yang dibentuk pada Sidang Ketiga PPKI tanggal 22 Agustus 1945 sebagai cikal bakal kekuatan pertahanan dan keamanan negara\" adalah...",
     "options": [
-      "Badan Keamanan Rakyat (BKR)",
-      "Sinkronisasi Hukum Vertikal dan Horizontal (Sayuna, 2015: 17)",
+      "Badan Keamanan Rakyat",
+      "Sinkronisasi Hukum Vertikal dan Horizontal",
       "Masjid Istiqlal dan Gereja Katedral Jakarta yang Berdampingan",
       "Polisi, Jaksa, dan Hakim",
       "Peraturan Pemerintah Nomor 4 Tahun 2022"
@@ -12953,7 +12953,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0810",
     "type": "pip",
     "category": "Sejarah & Filosofi Pancasila",
-    "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)\" adalah...",
+    "question": "Akar etimologis istilah \"ideologi\" yang berasal dari dua kata kuno bermakna gagasan/cita-cita serta ilmu pengetahuan berasal dari...",
     "options": [
       "Nasihat Presiden Sukarno 17 Agustus 1956",
       "Ideos dan Logos (Bahasa Yunani)",
@@ -12975,7 +12975,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Pidato Ketua BPUPK yang menanyakan dasar negara Indonesia merdeka dan mengawali empat hari persidangan pertama BPUPK",
       "Simbol nyata toleransi dan kerja sama antarumat beragama di Indonesia, termasuk saling menyediakan lahan parkir saat perayaan hari besar keagamaan",
       "Tempat pembacaan teks Proklamasi Kemerdekaan Indonesia oleh Sukarno didampingi Moh. Hatta pada Jumat, 17 Agustus 1945 pukul 10.00 WIB",
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)"
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide atau gagasan dan 'logos' bermakna ilmu pengetahuan"
     ],
     "correctIndex": 4,
     "explanation": "Ideos dan Logos (Bahasa Yunani) (Bab 1 (hlm. 37)): Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61).",
@@ -12991,7 +12991,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Ideos dan Logos (Bahasa Yunani)",
       "Pertemuan Terbatas di Istana Negara 22 Februari 2021",
       "Bonus Demografi Indonesia",
-      "Pembangunan Jembatan Youtefa / Infrastruktur di Provinsi Papua"
+      "Pembangunan Infrastruktur Jembatan Youtefa di Papua"
     ],
     "correctIndex": 3,
     "explanation": "Pada Bab 1 (hlm. 38), dijelaskan bahwa Bonus Demografi Indonesia adalah: Kondisi tingginya jumlah penduduk usia produktif yang harus diimbangi dengan peningkatan kualitas SDM agar tidak memicu pengangguran, kemiskinan, dan kriminalitas.",
@@ -13051,7 +13051,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Contoh ancaman terhadap integrasi dan kedaulatan bangsa yang berasal dari dalam negeri (separatisme) dan dari luar negeri (klaim sepihak wilayah laut)\" adalah...",
     "options": [
-      "Kelompok Separatis Teroris (KST) dan Sengketa Perairan Natuna Utara",
+      "Ancaman Separatisme Dalam Negeri dan Klaim Perairan Natuna Utara",
       "Pendirian ASEAN pada 8 Agustus 1967 di Bangkok dan Keketuaan Indonesia",
       "Nasihat Presiden Sukarno 17 Agustus 1956",
       "Empat Makna Sosiologis Gotong Royong",
@@ -13067,7 +13067,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Penjelasan yang paling tepat mengenai 'Kelompok Separatis Teroris (KST) dan Sengketa Perairan Natuna Utara' adalah...",
     "options": [
-      "Contoh ancaman terhadap integrasi dan kedaulatan bangsa yang berasal dari dalam negeri (separatisme) dan dari luar negeri (klaim sepihak wilayah laut)",
+      "Contoh ancaman terhadap integrasi dan kedaulatan bangsa yang berasal dari dalam negeri dan dari luar negeri",
       "Contoh aturan ketertiban di lingkungan masyarakat untuk menjaga keamanan, ketenteraman, dan perlindungan warga bersama",
       "Visi pembangunan nasional saat NKRI berusia 100 tahun pada 2045 untuk menjadi negara maju, berdaulat, adil, dan makmur dengan keunggulan kualitas SDM serta penguasaan iptek",
       "Ketentuan undang-undang yang menyerahkan pengesahan hubungan hukum kepada kaidah agama: 'Perkawinan adalah sah apabila dilakukan menurut hukum masing-masing agamanya dan kepercayaannya itu'",
@@ -13085,7 +13085,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Pasal 32 Ayat (1), (2), dan (3) UU ITE",
       "Perjumpaan Tokoh Lintas Suku dan Agama di Yogyakarta Masa Revolusi",
-      "Politik Uang (Money Politic), Jual Beli Jabatan, Korupsi, dan Nepotisme",
+      "Politik Uang, Jual Beli Jabatan, Korupsi, dan Nepotisme",
       "Polisi, Jaksa, dan Hakim",
       "Masjid Istiqlal dan Gereja Katedral Jakarta yang Berdampingan"
     ],
@@ -13150,7 +13150,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Badan Keamanan Rakyat (BKR)",
       "Pidato Presiden Sukarno 'To Build The World A New' (30 September 1960)",
       "Masjid Istiqlal dan Gereja Katedral Jakarta yang Berdampingan",
-      "Budaya Hukum (Rahayu, 2014: 49)",
+      "Budaya Hukum",
       "Crowdfunding di Media Sosial"
     ],
     "correctIndex": 3,
@@ -13183,7 +13183,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Crowdfunding di Media Sosial",
       "Inovasi Mobil Listrik Siswa SMK NU Ma'arif Kudus",
       "Fase E Kurikulum Merdeka",
-      "Pasal 1 Ayat (3) UUD NRI Tahun 1945"
+      "Pasal 1 Ayat UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Pada Bab 2 (hlm. 66 & 101), dijelaskan bahwa Pasal 1 Ayat (3) UUD NRI Tahun 1945 adalah: Dasar konstitusional yang menegaskan bahwa 'Negara Indonesia adalah negara hukum', sehingga segala tatanan kehidupan didasarkan atas hukum.",
@@ -13196,7 +13196,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Penjelasan yang paling tepat mengenai 'Pasal 1 Ayat (3) UUD NRI Tahun 1945' adalah...",
     "options": [
       "Konsep negara demokratis Indonesia yang bertanggung jawab atas kesejahteraan umum dan distribusi kekayaan secara adil, di mana hak milik perorangan diakui tetapi memiliki fungsi sosial",
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)",
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan",
       "Visi pembangunan nasional saat NKRI berusia 100 tahun pada 2045 untuk menjadi negara maju, berdaulat, adil, dan makmur dengan keunggulan kualitas SDM serta penguasaan iptek",
       "Dasar konstitusional yang menegaskan bahwa 'Negara Indonesia adalah negara hukum', sehingga segala tatanan kehidupan didasarkan atas hukum",
       "Contoh nyata pemenuhan hak pengembangan bakat, minat, dan penguasaan iptek peserta didik di sekolah untuk berkontribusi pada kemajuan bangsa"
@@ -13209,7 +13209,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0826",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Alat-alat penegak hukum negara: Polisi mencegah/menanggulangi kejahatan, Jaksa sebagai penuntut umum perkara pidana, dan Hakim sebagai pemutus perkara di pengadilan\" adalah...",
+    "question": "Unsur-unsur aparatur negara yang bersinergi mencegah kejahatan, melakukan penuntutan perkara pidana, serta memutus perkara di sidang pengadilan dikenal sebagai...",
     "options": [
       "Perjumpaan Tokoh Lintas Suku dan Agama di Yogyakarta Masa Revolusi",
       "Polisi, Jaksa, dan Hakim",
@@ -13230,7 +13230,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Berbagai bentuk ancaman dan penyimpangan terhadap pelaksanaan demokrasi Pancasila (Sila Keempat) yang merusak keadilan dan kedaulatan rakyat",
       "Beriman, bertakwa kepada Tuhan Yang Maha Esa dan berakhlak mulia, berkebinekaan global, bergotong royong, mandiri, bernalar kritis, dan kreatif",
       "Dasar konstitusional yang menegaskan bahwa 'Negara Indonesia adalah negara hukum', sehingga segala tatanan kehidupan didasarkan atas hukum",
-      "Alat-alat penegak hukum negara: Polisi mencegah/menanggulangi kejahatan, Jaksa sebagai penuntut umum perkara pidana, dan Hakim sebagai pemutus perkara di pengadilan",
+      "Alat-alat penegak hukum negara: Polisi mencegah dan menanggulangi kejahatan, Jaksa sebagai penuntut umum perkara pidana, dan Hakim sebagai pemutus perkara di pengadilan",
       "Penyelarasan peraturan agar tidak tumpang tindih dan saling melengkapi: vertikal (dengan peraturan di atasnya) dan horizontal (dengan peraturan sederajat)"
     ],
     "correctIndex": 3,
@@ -13292,7 +13292,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Penjelasan yang paling tepat mengenai 'Lima Sumber Hukum Formal' adalah...",
     "options": [
       "Visi pembangunan nasional saat NKRI berusia 100 tahun pada 2045 untuk menjadi negara maju, berdaulat, adil, dan makmur dengan keunggulan kualitas SDM serta penguasaan iptek",
-      "Undang-undang (statute), kebiasaan (custom), traktat (treaty), yurisprudensi (putusan hakim terdahulu), dan doktrin (pendapat ahli hukum)",
+      "Undang-undang, kebiasaan, traktat, yurisprudensi, dan doktrin",
       "Pidato bersejarah Presiden Sukarno di depan Sidang Umum PBB yang memperkenalkan nilai-nilai universal Pancasila kepada bangsa-bangsa di dunia",
       "Aktivitas mengumpulkan dana secara gotong royong melalui media sosial untuk tujuan kebaikan kemanusiaan seperti membantu biaya pengobatan warga sakit atau memperbaiki rumah",
       "Lagu patriotik yang diciptakan saat Indonesia masih dijajah Jepang untuk membangkitkan semangat pemuda menjalankan kewajiban terhadap nusa dan bangsa dengan jujur, ikhlas, dan kerja keras"
@@ -13401,7 +13401,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0838",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"1) Cek kebenaran berita sebelum menyebarkan, 2) Hati-hati judul provokatif, 3) Teliti alamat situs, 4) Periksa fakta & sumber berita, 5) Teliti keaslian foto, 6) Ikut grup anti-hoaks & adukan ke pihak berwenang\" adalah...",
+    "question": "Langkah literasi digital berupa memeriksa kebenaran berita, mewaspadai judul provokatif, meneliti alamat situs, mengecek sumber fakta, memeriksa keaslian foto, dan melapor ke pihak berwenang merupakan...",
     "options": [
       "Mohammad Hatta sebagai Bapak Koperasi Indonesia",
       "Empat Makna Sosiologis Gotong Royong",
@@ -13420,7 +13420,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Penjelasan yang paling tepat mengenai 'Enam Cara Cerdas Menangkal Berita Hoaks' adalah...",
     "options": [
       "Segala bentuk perilaku budaya manusia, sikap warga masyarakat, dan sistem nilai yang memengaruhi atau menentukan bagaimana hukum berlaku di masyarakat",
-      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan (Kaelan, 2013: 61)",
+      "Asal kata 'ideologi', di mana 'ideos' bermakna ide/gagasan dan 'logos' bermakna ilmu pengetahuan",
       "Badan yang dibentuk pada Sidang Ketiga PPKI tanggal 22 Agustus 1945 sebagai cikal bakal kekuatan pertahanan dan keamanan negara",
       "1) Cek kebenaran berita sebelum menyebarkan, 2) Hati-hati judul provokatif, 3) Teliti alamat situs, 4) Periksa fakta & sumber berita, 5) Teliti keaslian foto, 6) Ikut grup anti-hoaks & adukan ke pihak berwenang",
       "Pidato bersejarah Presiden Sukarno di depan Sidang Umum PBB yang memperkenalkan nilai-nilai universal Pancasila kepada bangsa-bangsa di dunia"
@@ -13438,7 +13438,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Empat Makna Sosiologis Gotong Royong",
       "Visi Indonesia Emas 2045 (Satu Abad Kemerdekaan RI)",
       "Crowdfunding di Media Sosial",
-      "Empat Peran Negara Mewujudkan Keadilan Sosial (Yudi Latif, 2015: 585)",
+      "Empat Peran Negara Mewujudkan Keadilan Sosial",
       "Teori Stufenbau des Recht (The Hierarchy of Norms - Hans Kelsen)"
     ],
     "correctIndex": 4,
@@ -13470,7 +13470,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Polisi, Jaksa, dan Hakim",
       "Program Jaksa Masuk Sekolah (JMS)",
       "Masjid Istiqlal dan Gereja Katedral Jakarta yang Berdampingan",
-      "Harmonisasi Peraturan Perundang-undangan (Sayuna, 2015 & Hasan Wargakusumah)",
+      "Harmonisasi Rancangan Peraturan",
       "Peraturan Pemerintah Nomor 4 Tahun 2022"
     ],
     "correctIndex": 3,
@@ -13486,7 +13486,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Tonggak semangat kebangsaan dan persatuan Indonesia yang telah meresap ke dalam cara pandang seluruh anggota BPUPK lintas suku dan agama",
       "Contoh nyata pemenuhan hak pengembangan bakat, minat, dan penguasaan iptek peserta didik di sekolah untuk berkontribusi pada kemajuan bangsa",
       "Pidato bersejarah Presiden Sukarno di depan Sidang Umum PBB yang memperkenalkan nilai-nilai universal Pancasila kepada bangsa-bangsa di dunia",
-      "Proses pengkajian dan penyelarasan menyeluruh terhadap suatu rancangan peraturan yang hendak/sedang disusun agar sesuai prinsip hukum, peraturan lain, hukum tidak tertulis, dan perjanjian internasional",
+      "Proses pengkajian dan penyelarasan menyeluruh terhadap suatu rancangan peraturan yang hendak maupun sedang disusun agar sesuai prinsip hukum, peraturan lain, hukum tidak tertulis, dan perjanjian internasional",
       "Wujud pembangunan ekonomi dan infrastruktur nasional yang berkeadilan untuk memeratakan kesejahteraan masyarakat dari Sabang sampai Merauke"
     ],
     "correctIndex": 3,
@@ -13502,7 +13502,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Pengakuan De Facto dan De Jure dalam Pembentukan Negara",
       "Pidato Pembukaan dr. K.R.T. Radjiman Wedyodiningrat 29 Mei 1945",
       "Penghapusan Praktik Ijon dan Pertengkulakan melalui Ekonomi Pancasila",
-      "Sinkronisasi Hukum Vertikal dan Horizontal (Sayuna, 2015: 17)",
+      "Sinkronisasi Peraturan Vertikal-Horizontal",
       "Crowdfunding di Media Sosial"
     ],
     "correctIndex": 3,
@@ -13535,7 +13535,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Bonus Demografi Indonesia",
       "Pendirian ASEAN pada 8 Agustus 1967 di Bangkok dan Keketuaan Indonesia",
       "Sidang Kedua BPUPK (10–17 Juli 1945)",
-      "Budaya Hukum (Rahayu, 2014: 49)"
+      "Budaya Hukum"
     ],
     "correctIndex": 0,
     "explanation": "Pada Bab 2 (hlm. 72 & 111), dijelaskan bahwa Badan Pembinaan Hukum Nasional (BPHN) Kementerian Hukum dan HAM adalah: Lembaga pemerintah yang melaksanakan analisis, evaluasi, pembinaan, dan penyuluhan peraturan perundang-undangan nasional (bphn.go.id).",
@@ -13551,7 +13551,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Ketentuan hukum yang melindungi data pribadi warga negara dan mengatur ancaman pidana bagi pelaku tindak kejahatan pencurian data pribadi di ruang siber",
       "Landasan pembangunan keamanan nasional menurut F.X. Adji Samekto dkk. (2019) yang melibatkan seluruh rakyat mulai dari wilayah administratif terbawah secara merata dan berencana",
       "Konsep negara demokratis Indonesia yang bertanggung jawab atas kesejahteraan umum dan distribusi kekayaan secara adil, di mana hak milik perorangan diakui tetapi memiliki fungsi sosial",
-      "Lembaga pemerintah yang melaksanakan analisis, evaluasi, pembinaan, dan penyuluhan peraturan perundang-undangan nasional (bphn.go.id)"
+      "Lembaga pemerintah yang melaksanakan analisis, evaluasi, pembinaan, dan penyuluhan peraturan perundang-undangan nasional"
     ],
     "correctIndex": 4,
     "explanation": "Badan Pembinaan Hukum Nasional (BPHN) Kementerian Hukum dan HAM (Bab 2 (hlm. 72 & 111)): Lembaga pemerintah yang melaksanakan analisis, evaluasi, pembinaan, dan penyuluhan peraturan perundang-undangan nasional (bphn.go.id).",
@@ -13611,7 +13611,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Penjelasan yang paling tepat mengenai 'Tiga Kedudukan Normatif Pancasila terhadap Tata Hukum dan Bangsa' adalah...",
     "options": [
-      "Semangat gotong royong tokoh Jawa (Sukarno, HB IX, Soedirman, Ki Hadjar Dewantara, Ki Bagoes Hadikoesoemo, Wahid Hasjim, I.J. Kasimo), Sunda (Ali Sadikin, Ibrahim Adji, M. Enoch), Minang (Hatta, Agoes Salim, Sjahrir, Tan Malaka, Yamin, Natsir), Tapanuli (Simatupang, Nasution), Manado (Kawilarang, Maramis), Makassar (M. Yusuf), Aceh (Mr. Assaat, Teuku M. Hassan), hingga keturunan Arab (A.R. Baswedan)",
+      "Kolaborasi perjuangan tokoh nasional lintas suku (Jawa, Sunda, Minang, Tapanuli, Minahasa, Makassar, Aceh, hingga keturunan Arab) serta lintas agama mempertahankan kemerdekaan RI",
       "Lagu kebangsaan/patriotik yang menggambarkan rasa cinta mendalam kepada tanah air Indonesia yang elok, aman, makmur, dan subur",
       "Beriman, bertakwa kepada Tuhan Yang Maha Esa dan berakhlak mulia, berkebinekaan global, bergotong royong, mandiri, bernalar kritis, dan kreatif",
       "Program sosialisasi dan penyuluhan hukum oleh Kejaksaan di sekolah untuk meningkatkan kesadaran dan ketaatan hukum peserta didik sejak dini",
@@ -13662,7 +13662,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Nasihat Presiden Sukarno 17 Agustus 1956",
       "Teori Stufenbau des Recht (The Hierarchy of Norms - Hans Kelsen)",
       "Halaman Kediaman Sukarno di Jalan Pegangsaan Timur Nomor 56 Jakarta",
-      "Pembangunan Jembatan Youtefa / Infrastruktur di Provinsi Papua",
+      "Pembangunan Infrastruktur Jembatan Youtefa di Papua",
       "Pidato Presiden Sukarno 'To Build The World A New' (30 September 1960)"
     ],
     "correctIndex": 3,
@@ -13691,7 +13691,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Nilai & Pengamalan Sila",
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Tokoh proklamator yang memopulerkan koperasi sebagai badan usaha demokrasi ekonomi yang berakar kuat pada tradisi gotong royong masyarakat Indonesia\" adalah...",
     "options": [
-      "Pembangunan Jembatan Youtefa / Infrastruktur di Provinsi Papua",
+      "Pembangunan Infrastruktur Jembatan Youtefa di Papua",
       "Semboyan Tiga A Jepang (1942)",
       "Polisi, Jaksa, dan Hakim",
       "Mohammad Hatta sebagai Bapak Koperasi Indonesia",
@@ -13724,9 +13724,9 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Konsep negara demokratis Indonesia yang bertanggung jawab atas kesejahteraan umum dan distribusi kekayaan secara adil, di mana hak milik perorangan diakui tetapi memiliki fungsi sosial\" adalah...",
     "options": [
       "Nasihat Presiden Sukarno 17 Agustus 1956",
-      "Negara Kesejahteraan (Welfare State) berdasarkan Pasal 33 UUD 1945",
+      "Negara Kesejahteraan berdasarkan Pasal 33 UUD 1945",
       "Lima Sumber Hukum Formal",
-      "Sinkronisasi Hukum Vertikal dan Horizontal (Sayuna, 2015: 17)",
+      "Sinkronisasi Hukum Vertikal dan Horizontal",
       "Lagu 'Rayuan Pulau Kelapa' ciptaan Ismail Marzuki"
     ],
     "correctIndex": 1,
@@ -13758,7 +13758,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Pertemuan Terbatas di Istana Negara 22 Februari 2021",
       "Visi Indonesia Emas 2045 (Satu Abad Kemerdekaan RI)",
       "Lagu Perjuangan 'Bangun Pemudi Pemuda' karya Alfred Simanjuntak",
-      "Empat Peran Negara Mewujudkan Keadilan Sosial (Yudi Latif, 2015: 585)",
+      "Empat Peran Negara Mewujudkan Keadilan Sosial",
       "Penghapusan Praktik Ijon dan Pertengkulakan melalui Ekonomi Pancasila"
     ],
     "correctIndex": 3,
@@ -13773,7 +13773,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Pendayagunaan masyarakat ekonomi lemah dan transparansi sistem dagang dari awal sampai akhir di era digital untuk melindungi petani dan produsen kecil dari unsur merugikan",
       "Lembaga pemerintah yang melaksanakan analisis, evaluasi, pembinaan, dan penyuluhan peraturan perundang-undangan nasional (bphn.go.id)",
-      "1) Mewujudkan relasi adil di semua tingkatan, 2) Mengembangkan struktur kesetaraan kesempatan, 3) Memfasilitasi akses informasi/layanan/sumber daya, dan 4) Mendukung partisipasi bermakna dalam pengambilan keputusan",
+      "1) Mewujudkan relasi adil di semua tingkatan, 2) Mengembangkan struktur kesetaraan kesempatan, 3) Memfasilitasi akses informasi, layanan, dan sumber daya, dan 4) Mendukung partisipasi bermakna dalam pengambilan keputusan",
       "Visi pembangunan nasional saat NKRI berusia 100 tahun pada 2045 untuk menjadi negara maju, berdaulat, adil, dan makmur dengan keunggulan kualitas SDM serta penguasaan iptek",
       "Aktivitas mengumpulkan dana secara gotong royong melalui media sosial untuk tujuan kebaikan kemanusiaan seperti membantu biaya pengobatan warga sakit atau memperbaiki rumah"
     ],
@@ -13851,8 +13851,8 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Semangat gotong royong tokoh Jawa (Sukarno, HB IX, Soedirman, Ki Hadjar Dewantara, Ki Bagoes Hadikoesoemo, Wahid Hasjim, I.J. Kasimo), Sunda (Ali Sadikin, Ibrahim Adji, M. Enoch), Minang (Hatta, Agoes Salim, Sjahrir, Tan Malaka, Yamin, Natsir), Tapanuli (Simatupang, Nasution), Manado (Kawilarang, Maramis), Makassar (M. Yusuf), Aceh (Mr. Assaat, Teuku M. Hassan), hingga keturunan Arab (A.R. Baswedan)\" adalah...",
     "options": [
-      "Harmonisasi Peraturan Perundang-undangan (Sayuna, 2015 & Hasan Wargakusumah)",
-      "Budaya Hukum (Rahayu, 2014: 49)",
+      "Harmonisasi Peraturan Perundang-undangan",
+      "Budaya Hukum",
       "Perjumpaan Tokoh Lintas Suku dan Agama di Yogyakarta Masa Revolusi",
       "Pidato Pembukaan dr. K.R.T. Radjiman Wedyodiningrat 29 Mei 1945",
       "Visi Indonesia Emas 2045 (Satu Abad Kemerdekaan RI)"
@@ -13869,7 +13869,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Unsur pelengkap (deklaratif) berdirinya suatu negara selain tiga unsur pokok (wilayah, rakyat, pemerintah berdaulat) agar negara dapat menjalin hubungan internasional secara penuh",
       "Simbol nyata toleransi dan kerja sama antarumat beragama di Indonesia, termasuk saling menyediakan lahan parkir saat perayaan hari besar keagamaan",
-      "Semangat gotong royong tokoh Jawa (Sukarno, HB IX, Soedirman, Ki Hadjar Dewantara, Ki Bagoes Hadikoesoemo, Wahid Hasjim, I.J. Kasimo), Sunda (Ali Sadikin, Ibrahim Adji, M. Enoch), Minang (Hatta, Agoes Salim, Sjahrir, Tan Malaka, Yamin, Natsir), Tapanuli (Simatupang, Nasution), Manado (Kawilarang, Maramis), Makassar (M. Yusuf), Aceh (Mr. Assaat, Teuku M. Hassan), hingga keturunan Arab (A.R. Baswedan)",
+      "Kolaborasi perjuangan tokoh nasional lintas suku (Jawa, Sunda, Minang, Tapanuli, Minahasa, Makassar, Aceh, hingga keturunan Arab) serta lintas agama mempertahankan kemerdekaan RI",
       "Collective action to struggle (tindakan kolektif untuk berjuang), self governing (kemandirian mengatur diri), common goal (tujuan bersama), dan sovereignty (kedaulatan)",
       "1) Ideologi dan Falsafah (landasan cita-cita bangsa), 2) Sumber segala Sumber Hukum (acuan materi muatan peraturan), dan 3) Payung Keragaman (titik temu keragaman warga negara)"
     ],
@@ -13886,7 +13886,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Tiga Kedudukan Normatif Pancasila terhadap Tata Hukum dan Bangsa",
       "Lagu Perjuangan 'Bangun Pemudi Pemuda' karya Alfred Simanjuntak",
       "Halaman Kediaman Sukarno di Jalan Pegangsaan Timur Nomor 56 Jakarta",
-      "Visi Indonesia Emas 2045 (Satu Abad Kemerdekaan RI)",
+      "Visi Pembangunan Indonesia Emas 2045",
       "Kirab Grebeg Pancasila di Kota Blitar"
     ],
     "correctIndex": 3,
@@ -14078,7 +14078,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Tiga Kedudukan Normatif Pancasila terhadap Tata Hukum dan Bangsa",
       "Lagu Perjuangan 'Bangun Pemudi Pemuda' karya Alfred Simanjuntak",
       "Halaman Kediaman Sukarno di Jalan Pegangsaan Timur Nomor 56 Jakarta",
-      "Konsep Pembangunan Desa yang Demokratis (Democratic Rural Development)",
+      "Konsep Pembangunan Desa yang Demokratis",
       "Bahasa Sanskerta 'Panca' dan 'Sila'"
     ],
     "correctIndex": 3,
@@ -14107,11 +14107,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Konsep, peristiwa sejarah, atau regulasi yang berkaitan dengan \"Unsur pelengkap (deklaratif) berdirinya suatu negara selain tiga unsur pokok (wilayah, rakyat, pemerintah berdaulat) agar negara dapat menjalin hubungan internasional secara penuh\" adalah...",
     "options": [
-      "Harmonisasi Peraturan Perundang-undangan (Sayuna, 2015 & Hasan Wargakusumah)",
+      "Harmonisasi Peraturan Perundang-undangan",
       "Pengakuan De Facto dan De Jure dalam Pembentukan Negara",
       "Program Jaksa Masuk Sekolah (JMS)",
       "Bahasa Sanskerta 'Panca' dan 'Sila'",
-      "Pembangunan Jembatan Youtefa / Infrastruktur di Provinsi Papua"
+      "Pembangunan Infrastruktur Jembatan Youtefa di Papua"
     ],
     "correctIndex": 1,
     "explanation": "Pada Bab 4 (hlm. 200), dijelaskan bahwa Pengakuan De Facto dan De Jure dalam Pembentukan Negara adalah: Unsur pelengkap (deklaratif) berdirinya suatu negara selain tiga unsur pokok (wilayah, rakyat, pemerintah berdaulat) agar negara dapat menjalin hubungan internasional secara penuh.",
@@ -14142,7 +14142,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Polisi, Jaksa, dan Hakim",
       "Enam Dimensi Profil Pelajar Pancasila",
       "Program Jaksa Masuk Sekolah (JMS)",
-      "Pendirian ASEAN pada 8 Agustus 1967 di Bangkok dan Keketuaan Indonesia",
+      "Peran Indonesia dalam Pendirian dan Keketuaan ASEAN",
       "Nasihat Presiden Sukarno 17 Agustus 1956"
     ],
     "correctIndex": 3,
@@ -14173,7 +14173,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Ir. Sukarno",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "R.P. Soeroso",
       "Prof. Mr. Dr. Soepomo"
     ],
@@ -14187,7 +14187,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Pada tanggal 12 Agustus 1945, pemerintah kolonial Jepang mengumumkan 21 orang anggota PPKI. Tokoh dalam daftar 21 anggota awal PPKI tersebut yang dikenal sebagai 'Wakil Ketua PPKI yang ditunjuk pada 12 Agustus 1945' adalah...",
     "options": [
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Prof. Mr. Dr. Soepomo",
       "Drs. Mohammad Hatta",
       "Ir. Sukarno",
@@ -14206,7 +14206,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "Ir. Sukarno",
       "R.P. Soeroso",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Drs. Mohammad Hatta"
     ],
     "correctIndex": 0,
@@ -14222,7 +14222,7 @@ const baseCatQuestions: CatQuestion[] = [
       "R.P. Soeroso",
       "Drs. Mohammad Hatta",
       "Ir. Sukarno",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Prof. Mr. Dr. Soepomo"
     ],
     "correctIndex": 3,
@@ -14239,7 +14239,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "R.P. Soeroso",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 2,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), R.P. Soeroso adalah Mantan Wakil Ketua BPUPK yang menjadi anggota PPKI.",
@@ -14251,7 +14251,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Pada tanggal 12 Agustus 1945, pemerintah kolonial Jepang mengumumkan 21 orang anggota PPKI. Tokoh dalam daftar 21 anggota awal PPKI tersebut yang dikenal sebagai 'Anggota PPKI yang kemudian diangkat menjadi Gubernur Jawa Barat pertama' adalah...",
     "options": [
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "M. Soetardjo Kartohadikoesoemo",
       "Drs. Mohammad Hatta",
       "Ir. Sukarno",
@@ -14267,7 +14267,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Pada tanggal 12 Agustus 1945, pemerintah kolonial Jepang mengumumkan 21 orang anggota PPKI. Tokoh dalam daftar 21 anggota awal PPKI tersebut yang dikenal sebagai 'Tokoh Nahdlatul Ulama yang menjadi anggota PPKI' adalah...",
     "options": [
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Ir. Sukarno",
       "Drs. Mohammad Hatta",
       "Prof. Mr. Dr. Soepomo",
@@ -14283,7 +14283,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Pada tanggal 12 Agustus 1945, pemerintah kolonial Jepang mengumumkan 21 orang anggota PPKI. Tokoh dalam daftar 21 anggota awal PPKI tersebut yang dikenal sebagai 'Tokoh Muhammadiyah yang menjadi anggota PPKI' adalah...",
     "options": [
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Drs. Mohammad Hatta",
       "Ki Bagoes Hadikoesoemo",
       "Ir. Sukarno",
@@ -14303,7 +14303,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "Ir. Sukarno",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 0,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), R. Otto Iskandardinata adalah Tokoh Jawa Barat anggota PPKI yang mengusulkan pemilihan Sukarno-Hatta secara aklamasi.",
@@ -14317,7 +14317,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Prof. Mr. Dr. Soepomo",
       "Ir. Sukarno",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "R. Abdoel Kadir",
       "Drs. Mohammad Hatta"
     ],
@@ -14331,7 +14331,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Pada tanggal 12 Agustus 1945, pemerintah kolonial Jepang mengumumkan 21 orang anggota PPKI. Tokoh dalam daftar 21 anggota awal PPKI tersebut yang dikenal sebagai 'Anggota PPKI perwakilan Kesultanan Surakarta' adalah...",
     "options": [
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Drs. Mohammad Hatta",
       "Ir. Sukarno",
       "Prof. Mr. Dr. Soepomo",
@@ -14351,7 +14351,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "Ir. Sukarno",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 0,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), B.P.H. Poerbojo adalah Anggota PPKI perwakilan Kesultanan Yogyakarta.",
@@ -14367,7 +14367,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Ir. Sukarno",
       "Prof. Mr. Dr. Soepomo",
       "Dr. Mohammad Amir",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 3,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), Dr. Mohammad Amir adalah Anggota PPKI perwakilan wilayah Sumatra.",
@@ -14381,7 +14381,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Ir. Sukarno",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Abdoel Abbas",
       "Prof. Mr. Dr. Soepomo"
     ],
@@ -14399,7 +14399,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Teuku Mohammad Hasan",
       "Ir. Sukarno",
       "Prof. Mr. Dr. Soepomo",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 1,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), Teuku Mohammad Hasan adalah Anggota PPKI perwakilan wilayah Sumatra (Aceh).",
@@ -14415,7 +14415,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Ir. Sukarno",
       "Dr. G.S.S.J. Ratulangi",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 2,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), Dr. G.S.S.J. Ratulangi adalah Anggota PPKI perwakilan wilayah Sulawesi.",
@@ -14430,7 +14430,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "Andi Pangerang Pettarani",
       "Ir. Sukarno",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Drs. Mohammad Hatta"
     ],
     "correctIndex": 1,
@@ -14447,7 +14447,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "A.A. Hamidan",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 2,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), A.A. Hamidan adalah Anggota PPKI perwakilan wilayah Kalimantan.",
@@ -14460,7 +14460,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Pada tanggal 12 Agustus 1945, pemerintah kolonial Jepang mengumumkan 21 orang anggota PPKI. Tokoh dalam daftar 21 anggota awal PPKI tersebut yang dikenal sebagai 'Anggota PPKI perwakilan wilayah Sunda Kecil (Bali)' adalah...",
     "options": [
       "Prof. Mr. Dr. Soepomo",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Ir. Sukarno",
       "Mr. I Goesti Ketoet Poedja",
       "Drs. Mohammad Hatta"
@@ -14477,7 +14477,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Ir. Sukarno",
       "Drs. Mohammad Hatta",
-      "dr. K.R.T. Radjiman Wedyodiningrat",
+      "Dr. K.R.T. Radjiman Wedyodiningrat",
       "Mr. Johannes Latuharhary",
       "Prof. Mr. Dr. Soepomo"
     ],
@@ -14495,7 +14495,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Prof. Mr. Dr. Soepomo",
       "Drs. Yap Tjwan Bing",
       "Ir. Sukarno",
-      "dr. K.R.T. Radjiman Wedyodiningrat"
+      "Dr. K.R.T. Radjiman Wedyodiningrat"
     ],
     "correctIndex": 2,
     "explanation": "Dalam daftar 21 anggota awal PPKI yang diumumkan 12 Agustus 1945 (hlm. 22–23), Drs. Yap Tjwan Bing adalah Anggota PPKI perwakilan golongan keturunan Tionghoa.",
@@ -14587,11 +14587,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam uraian sejarah kontribusi spirit gotong royong pada masa Proklamasi dan Revolusi Kemerdekaan di Yogyakarta, tokoh yang berperan sebagai 'Tokoh-tokoh bangsa berlatar belakang suku Sunda yang bahu-membahu bersama tokoh lintas etnis selama revolusi kemerdekaan di Yogyakarta' adalah...",
     "options": [
-      "M. Zaelani",
-      "Sulistio dan Sri",
+      "M. Zaelani dan Ahmad Tahir",
+      "Sulistio, Sri, dan Masri",
       "Ali Sadikin, Ibrahim Adji, dan M. Enoch",
-      "Mariawati Purwo",
-      "Uteh Riza Yahya"
+      "Mariawati Purwo dan Ahmad Tahir",
+      "Uteh Riza Yahya dan M. Yusuf"
     ],
     "correctIndex": 2,
     "explanation": "Pada halaman 151–152 dijelaskan bahwa Ali Sadikin, Ibrahim Adji, dan M. Enoch adalah Tokoh-tokoh bangsa berlatar belakang suku Sunda yang bahu-membahu bersama tokoh lintas etnis selama revolusi kemerdekaan di Yogyakarta.",
@@ -14603,11 +14603,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam uraian sejarah kontribusi spirit gotong royong pada masa Proklamasi dan Revolusi Kemerdekaan di Yogyakarta, tokoh yang berperan sebagai 'Tokoh militer bangsa berlatar belakang Tapanuli yang bergotong royong mempertahankan kemerdekaan selama masa revolusi di Yogyakarta' adalah...",
     "options": [
-      "Uteh Riza Yahya",
-      "M. Zaelani",
-      "Mariawati Purwo",
+      "M. Zaelani dan Ahmad Tahir",
+      "Sulistio, Sri, dan Masri",
+      "Mariawati Purwo dan Ahmad Tahir",
       "T.B. Simatupang dan A.H. Nasution",
-      "Sulistio dan Sri"
+      "Uteh Riza Yahya dan M. Yusuf"
     ],
     "correctIndex": 3,
     "explanation": "Pada halaman 151–152 dijelaskan bahwa T.B. Simatupang dan A.H. Nasution adalah Tokoh militer bangsa berlatar belakang Tapanuli yang bergotong royong mempertahankan kemerdekaan selama masa revolusi di Yogyakarta.",
@@ -14619,11 +14619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "NKRI, Wasantara & Moderasi",
     "question": "Dalam uraian sejarah kontribusi spirit gotong royong pada masa Proklamasi dan Revolusi Kemerdekaan di Yogyakarta, tokoh yang berperan sebagai 'Tokoh bangsa berlatar belakang Manado (Minahasa) yang berjuang bersama tokoh nasional lainnya pada masa revolusi kemerdekaan' adalah...",
     "options": [
-      "Uteh Riza Yahya",
-      "M. Zaelani",
-      "Mariawati Purwo",
+      "M. Zaelani dan Ahmad Tahir",
+      "Sulistio, Sri, dan Masri",
+      "Mariawati Purwo dan Ahmad Tahir",
       "Alex Kawilarang dan Mr. A.A. Maramis",
-      "Sulistio dan Sri"
+      "Uteh Riza Yahya dan M. Yusuf"
     ],
     "correctIndex": 3,
     "explanation": "Pada halaman 151–152 dijelaskan bahwa Alex Kawilarang dan Mr. A.A. Maramis adalah Tokoh bangsa berlatar belakang Manado (Minahasa) yang berjuang bersama tokoh nasional lainnya pada masa revolusi kemerdekaan.",
@@ -14777,7 +14777,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0924",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "No. 2, kegiatan pengkajian menyeluruh untuk menentukan apakah isi atau muatan rancangan suatu peraturan perundang-undangan dalam berbagai aspek sudah mencerminkan keselarasan atau kesesuaian dengan peraturan lain disebut...",
+    "question": "Kegiatan pengkajian menyeluruh untuk menentukan apakah isi atau muatan rancangan suatu peraturan perundang-undangan dalam berbagai aspek sudah mencerminkan keselarasan atau kesesuaian dengan peraturan lain disebut...",
     "options": [
       "Fiksi hukum",
       "Harmonisasi hukum",
@@ -14793,7 +14793,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0925",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "No. 3, kesesuaian antara peraturan perundang-undangan yang akan disusun atau telah diundangkan dengan peraturan yang ada di atas atau di bawahnya disebut...",
+    "question": "Kesesuaian antara peraturan perundang-undangan yang akan disusun atau telah diundangkan dengan peraturan yang ada di atas atau di bawahnya disebut...",
     "options": [
       "Harmonisasi hukum",
       "Sinkronisasi hukum",
@@ -14809,7 +14809,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0926",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "No. 9, kondisi di mana orang-orang di dalam masyarakat benar-benar berperilaku mematuhi produk hukum dan norma-norma yang berlaku menunjukkan tercapainya...",
+    "question": "Kondisi di mana orang-orang di dalam masyarakat benar-benar berperilaku mematuhi produk hukum dan norma-norma yang berlaku menunjukkan tercapainya...",
     "options": [
       "Kekosongan hukum",
       "Efektivitas hukum",
@@ -14825,13 +14825,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0927",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Soal Sebab-Akibat No. 1: Pernyataan: Pancasila merupakan norma dasar atau staatsfundamentalnorm sebagai sumber hukum dasar nasional. Sebab: Rumusan Pancasila tercantum pada Pembukaan UUD NRI Tahun 1945. Hubungan yang tepat antara pernyataan dan alasan tersebut adalah...",
+    "question": "Perhatikan pernyataan dan alasan berikut! Pernyataan: Pancasila merupakan norma dasar atau staatsfundamentalnorm sebagai sumber hukum dasar nasional. Sebab: Rumusan Pancasila tercantum pada Pembukaan UUD NRI Tahun 1945. Hubungan yang tepat antara pernyataan dan alasan tersebut adalah...",
     "options": [
-      "Pernyataan awal benar, tetapi alasan salah",
-      "Pernyataan awal benar, alasan benar, dan keduanya memiliki hubungan yang erat (secara formal dan materiel)",
-      "Keduanya salah dan bertentangan dengan UU No. 12 Tahun 2011",
-      "Pernyataan awal salah, sedangkan alasan benar",
-      "Keduanya benar namun sama sekali tidak berkaitan"
+      "Pernyataan awal benar, alasan benar, tetapi keduanya tidak memiliki hubungan sebab-akibat",
+      "Pernyataan awal benar, alasan benar, dan keduanya memiliki hubungan sebab-akibat yang erat",
+      "Pernyataan awal benar, sedangkan alasan yang dikemukakan salah secara ketatanegaraan",
+      "Pernyataan awal salah, sedangkan alasan yang dikemukakan benar menurut konstitusi",
+      "Pernyataan awal maupun alasan kedua-duanya salah dan bertentangan dengan konstitusi"
     ],
     "correctIndex": 1,
     "explanation": "Dalam Uji Kompetensi 2.6 No. 1 (hlm. 119), pernyataan bahwa Pancasila adalah norma dasar/sumber hukum dasar nasional berhubungan erat dengan pencantuman rumusannya dalam Pembukaan UUD NRI Tahun 1945.",
@@ -14841,7 +14841,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0928",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Soal Sebab-Akibat No. 5: Pernyataan: Rumusan dasar negara Pancasila dirumuskan terlebih dahulu oleh para pendiri negara pada sidang BPUPK. Sebab: Pembacaan naskah Pancasila pada saat upacara bendera di sekolah ditirukan oleh peserta upacara dengan jelas dan tegas. Hubungan yang tepat antara kedua kalimat tersebut adalah...",
+    "question": "Perhatikan pernyataan dan alasan berikut! Pernyataan: Rumusan dasar negara Pancasila dirumuskan terlebih dahulu oleh para pendiri negara pada sidang BPUPK. Sebab: Pembacaan naskah Pancasila pada saat upacara bendera di sekolah ditirukan oleh peserta upacara dengan jelas dan tegas. Hubungan yang tepat antara kedua kalimat tersebut adalah...",
     "options": [
       "Kalimat kedua salah karena naskah Pancasila dilarang dibacakan saat upacara",
       "Kedua kalimat tersebut salah secara historis",
@@ -14857,13 +14857,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0929",
     "type": "pip",
     "category": "Nilai & Pengamalan Sila",
-    "question": "Berdasarkan laporan PricewaterhouseCoopers (PwC) bertajuk 'The Long View: How Will the Global Economic Order Change by 2050' dan Standard Chartered memproyeksikan posisi ekonomi Indonesia berdasarkan Purchasing Power Parity (PPP) pada tahun 2030 dan 2050 akan menempati...",
+    "question": "Berdasarkan laporan PricewaterhouseCoopers (PwC) bertajuk 'The Long View: How Will the Global Economic Order Change by 2050' dan Standard Chartered, proyeksi posisi ekonomi Indonesia berdasarkan Purchasing Power Parity (PPP) pada tahun 2030–2050 menempati...",
     "options": [
-      "Peringkat ke-50 perekonomian dunia dengan PDB di bawah USD 500 miliar",
-      "Peringkat ke-16 perekonomian dunia di bawah seluruh negara Eropa",
-      "Peringkat ke-20 perekonomian dunia tanpa pertumbuhan demografi",
-      "Peringkat ke-4 perekonomian terbesar di dunia (dengan prediksi PDB PPP mencapai USD 5,42 triliun pada 2030 dan USD 10,52 triliun pada 2050)",
-      "Peringkat ke-1 perekonomian dunia menggeser China dan Amerika Serikat pada 2025"
+      "Peringkat ke-50 perekonomian terbesar di dunia",
+      "Peringkat ke-25 perekonomian terbesar di dunia",
+      "Peringkat ke-16 perekonomian terbesar di dunia",
+      "Peringkat ke-4 perekonomian terbesar di dunia",
+      "Peringkat ke-1 perekonomian terbesar di dunia"
     ],
     "correctIndex": 3,
     "explanation": "Pada halaman 206 dijelaskan bahwa Standard Chartered dan laporan PwC memprediksi Indonesia menempati posisi ke-4 perekonomian terbesar dunia (PDB PPP mencapai USD 5,42 triliun pada 2030 dan meningkat menjadi USD 10,52 triliun pada 2050).",
@@ -14891,11 +14891,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Manakah karya rujukan sejarah/ketatanegaraan di bawah ini yang ditulis oleh Ir. Sukarno dan berisi tentang 'Buku dokumentasi pidato bersejarah 1 Juni 1945 yang diterbitkan di Yogyakarta oleh Oesaha Penerbitan Goentoer' dalam literatur ketatanegaraan Indonesia?",
     "options": [
-      "Uraian Pancasila (1984)",
-      "Sekitar Proklamasi (1970)",
-      "Untuk Negeriku: Menuju Gerbang Kemerdekaan (2011)",
+      "Uraian Pancasila oleh Panitia Lima Pendiri Bangsa (1984)",
+      "Sekitar Proklamasi Kemerdekaan Republik Indonesia (1970)",
+      "Untuk Negeriku: Menuju Gerbang Kemerdekaan Indonesia (2011)",
       "Lahirnja Pantja Sila: Boeng Karno Menggembleng Dasar-Dasar Negara (1947)",
-      "Lahirnya Republik Indonesia (1977)"
+      "Lahirnya Undang-Undang Dasar Negara Republik Indonesia (2004)"
     ],
     "correctIndex": 3,
     "explanation": "Karya Ir. Sukarno yang dirujuk dalam buku adalah 'Lahirnja Pantja Sila: Boeng Karno Menggembleng Dasar-Dasar Negara (1947)' (Buku dokumentasi pidato bersejarah 1 Juni 1945 yang diterbitkan di Yogyakarta oleh Oesaha Penerbitan Goentoer) (hlm. 221–223).",
@@ -15037,7 +15037,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Mr. Achmad Soebardjo",
       "Drs. Mohammad Hatta dkk.",
-      "Ananda B. Kusuma (A.B. Kusuma)",
+      "Ananda B. Kusuma",
       "Ir. Sukarno",
       "Drs. Mohammad Hatta"
     ],
@@ -15115,11 +15115,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Manakah karya rujukan sejarah/ketatanegaraan di bawah ini yang ditulis oleh Yudi Latif dan berisi tentang 'Karya kajian filosofis dan sosiologis tentang Pancasila sebagai titik temu (jembatan) kemajemukan bangsa serta aktualisasi keadilan sosial' dalam literatur ketatanegaraan Indonesia?",
     "options": [
-      "Untuk Negeriku: Menuju Gerbang Kemerdekaan (2011)",
+      "Untuk Negeriku: Sebuah Otobiografi Menuju Gerbang Kemerdekaan (2011)",
       "Lahirnja Pantja Sila: Boeng Karno Menggembleng Dasar-Dasar Negara (1947)",
-      "Uraian Pancasila (1984)",
-      "Negara Paripurna: Historisitas, Rasionalitas, dan Aktualitas Pancasila (2012) & Wawasan Pancasila (2020)",
-      "Sekitar Proklamasi (1970)"
+      "Uraian Pancasila oleh Panitia Lima Pendiri Bangsa Indonesia (1984)",
+      "Negara Paripurna: Historisitas, Rasionalitas, dan Aktualitas Pancasila (2012)",
+      "Lahirnya Undang-Undang Dasar 1945 Berdasarkan Riset Arsip BPUPK (2004)"
     ],
     "correctIndex": 3,
     "explanation": "Karya Yudi Latif yang dirujuk dalam buku adalah 'Negara Paripurna: Historisitas, Rasionalitas, dan Aktualitas Pancasila (2012) & Wawasan Pancasila (2020)' (Karya kajian filosofis dan sosiologis tentang Pancasila sebagai titik temu (jembatan) kemajemukan bangsa serta aktualisasi keadilan sosial) (hlm. 221–223).",
@@ -15193,13 +15193,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0950",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak untuk hidup dan mempertahankan kehidupan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak untuk hidup dan mempertahankan kehidupan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 26 ayat (1) UUD NRI Tahun 1945",
       "Pasal 29 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (3) UUD NRI Tahun 1945",
       "Pasal 29 ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28A UUD NRI Tahun 1945 (Setiap orang berhak untuk hidup serta berhak mempertahankan hidup...)"
+      "Pasal 28A UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak untuk hidup dan mempertahankan kehidupan' adalah Pasal 28A UUD NRI Tahun 1945 yang berbunyi: 'Setiap orang berhak untuk hidup serta berhak mempertahankan hidup dan kehidupannya' (hlm. 175–181).",
@@ -15209,13 +15209,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0951",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak membentuk keluarga dan melanjutkan keturunan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak membentuk keluarga dan melanjutkan keturunan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 27 ayat (3) UUD NRI Tahun 1945",
       "Pasal 28C ayat (2) UUD NRI Tahun 1945",
       "Pasal 28A UUD NRI Tahun 1945",
       "Pasal 27 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28B ayat (1) UUD NRI Tahun 1945 (Setiap orang berhak membentuk keluarga dan melanjutkan keturunan ...)"
+      "Pasal 28B ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak membentuk keluarga dan melanjutkan keturunan' adalah Pasal 28B ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Setiap orang berhak membentuk keluarga dan melanjutkan keturunan melalui perkawinan yang sah' (hlm. 175–181).",
@@ -15225,10 +15225,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0952",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak anak atas kelangsungan hidup, tumbuh, berkembang, serta perlindungan dari kekerasan dan diskriminasi' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak anak atas kelangsungan hidup, tumbuh, berkembang, serta perlindungan dari kekerasan dan diskriminasi' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 30 ayat (3) UUD NRI Tahun 1945",
-      "Pasal 28B ayat (2) UUD NRI Tahun 1945 (Setiap anak berhak atas kelangsungan hidup, tumbuh, dan berkemban...)",
+      "Pasal 28B ayat (2) UUD NRI Tahun 1945",
       "Pasal 28G ayat (2) UUD NRI Tahun 1945",
       "Pasal 28D ayat (4) UUD NRI Tahun 1945",
       "Pasal 28F UUD NRI Tahun 1945"
@@ -15241,13 +15241,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0953",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak mengembangkan diri melalui pendidikan, iptek, seni, dan budaya' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak mengembangkan diri melalui pendidikan, iptek, seni, dan budaya' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 29 ayat (2) UUD NRI Tahun 1945",
       "Pasal 32 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28F UUD NRI Tahun 1945",
       "Pasal 28D ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28C ayat (1) UUD NRI Tahun 1945 (Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuha...)"
+      "Pasal 28C ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak mengembangkan diri melalui pendidikan, iptek, seni, dan budaya' adalah Pasal 28C ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Setiap orang berhak mengembangkan diri melalui pemenuhan kebutuhan dasarnya, berhak mendapat pendidikan dan memperoleh manfaat dari ilmu pengetahuan dan teknologi, seni dan budaya' (hlm. 175–181).",
@@ -15257,11 +15257,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0954",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak memajukan diri dalam memperjuangkan hak secara kolektif' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak memajukan diri dalam memperjuangkan hak secara kolektif' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 30 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28C ayat (2) UUD NRI Tahun 1945 (Setiap orang berhak untuk memajukan dirinya dalam memperjuangkan ...)",
+      "Pasal 28C ayat (2) UUD NRI Tahun 1945",
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (4) UUD NRI Tahun 1945"
     ],
@@ -15273,11 +15273,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0955",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak atas kepastian hukum yang adil dan perlakuan yang sama di hadapan hukum' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak atas kepastian hukum yang adil dan perlakuan yang sama di hadapan hukum' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 31 ayat (1) UUD NRI Tahun 1945",
       "Pasal 30 ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28D ayat (1) UUD NRI Tahun 1945 (Setiap orang berhak atas pengakuan, jaminan, perlindungan, dan ke...)",
+      "Pasal 28D ayat (1) UUD NRI Tahun 1945",
       "Pasal 32 ayat (2) UUD NRI Tahun 1945",
       "Pasal 23A UUD NRI Tahun 1945"
     ],
@@ -15289,13 +15289,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0956",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak bekerja serta mendapat imbalan dan perlakuan adil dalam hubungan kerja' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak bekerja serta mendapat imbalan dan perlakuan adil dalam hubungan kerja' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28I ayat (3) UUD NRI Tahun 1945",
       "Pasal 30 ayat (4) UUD NRI Tahun 1945",
       "Pasal 26 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28I ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28D ayat (2) UUD NRI Tahun 1945 (Setiap orang berhak untuk bekerja serta mendapat imbalan dan perl...)"
+      "Pasal 28D ayat (2) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak bekerja serta mendapat imbalan dan perlakuan adil dalam hubungan kerja' adalah Pasal 28D ayat (2) UUD NRI Tahun 1945 yang berbunyi: 'Setiap orang berhak untuk bekerja serta mendapat imbalan dan perlakuan yang adil dan layak dalam hubungan kerja' (hlm. 175–181).",
@@ -15305,12 +15305,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0957",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak warga negara memperoleh kesempatan yang sama dalam pemerintahan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak warga negara memperoleh kesempatan yang sama dalam pemerintahan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28E ayat (2) UUD NRI Tahun 1945",
       "Pasal 27 ayat (3) UUD NRI Tahun 1945",
       "Pasal 33 ayat (4) UUD NRI Tahun 1945",
-      "Pasal 28D ayat (3) UUD NRI Tahun 1945 (Setiap warga negara berhak memperoleh kesempatan yang sama dalam ...)",
+      "Pasal 28D ayat (3) UUD NRI Tahun 1945",
       "Pasal 27 ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
@@ -15321,11 +15321,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0958",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak setiap orang atas status kewarganegaraan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak setiap orang atas status kewarganegaraan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 29 ayat (1) UUD NRI Tahun 1945",
       "Pasal 30 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28D ayat (4) UUD NRI Tahun 1945 (Setiap orang berhak atas status kewarganegaraan...)",
+      "Pasal 28D ayat (4) UUD NRI Tahun 1945",
       "Pasal 28D ayat (2) UUD NRI Tahun 1945",
       "Pasal 26 ayat (2) UUD NRI Tahun 1945"
     ],
@@ -15337,12 +15337,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0959",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak memeluk agama, memilih pendidikan, pekerjaan, kewarganegaraan, dan tempat tinggal' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak memeluk agama, memilih pendidikan, pekerjaan, kewarganegaraan, dan tempat tinggal' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 33 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
       "Pasal 30 ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28E ayat (1) UUD NRI Tahun 1945 (Setiap orang berhak memeluk agama dan beribadat menurut agamanya,...)",
+      "Pasal 28E ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
@@ -15353,9 +15353,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0960",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak kebebasan meyakini kepercayaan dan menyatakan pikiran sesuai hati nurani' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak kebebasan meyakini kepercayaan dan menyatakan pikiran sesuai hati nurani' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 28E ayat (2) UUD NRI Tahun 1945 (Setiap orang berhak atas kebebasan meyakini kepercayaan, menyatak...)",
+      "Pasal 28E ayat (2) UUD NRI Tahun 1945",
       "Pasal 28I ayat (1) UUD NRI Tahun 1945",
       "Pasal 28G ayat (1) UUD NRI Tahun 1945",
       "Pasal 28E ayat (3) UUD NRI Tahun 1945",
@@ -15369,12 +15369,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0961",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak kebebasan berserikat, berkumpul, dan mengeluarkan pendapat' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak kebebasan berserikat, berkumpul, dan mengeluarkan pendapat' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 31 ayat (2) UUD NRI Tahun 1945",
       "Pasal 27 ayat (2) UUD NRI Tahun 1945",
       "Pasal 31 ayat (4) UUD NRI Tahun 1945",
-      "Pasal 28E ayat (3) UUD NRI Tahun 1945 (Setiap orang berhak atas kebebasan berserikat, berkumpul, dan men...)",
+      "Pasal 28E ayat (3) UUD NRI Tahun 1945",
       "Pasal 28I ayat (4) UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
@@ -15385,10 +15385,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0962",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak berkomunikasi dan memperoleh/menyampaikan informasi' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak berkomunikasi dan memperoleh/menyampaikan informasi' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28C ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28F UUD NRI Tahun 1945 (Setiap orang berhak untuk berkomunikasi dan memperoleh informasi ...)",
+      "Pasal 28F UUD NRI Tahun 1945",
       "Pasal 28H ayat (4) UUD NRI Tahun 1945",
       "Pasal 28D ayat (4) UUD NRI Tahun 1945",
       "Pasal 32 ayat (2) UUD NRI Tahun 1945"
@@ -15401,9 +15401,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0963",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak perlindungan diri pribadi, keluarga, kehormatan, martabat, harta benda, dan rasa aman' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak perlindungan diri pribadi, keluarga, kehormatan, martabat, harta benda, dan rasa aman' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 28G ayat (1) UUD NRI Tahun 1945 (Setiap orang berhak atas perlindungan diri pribadi, keluarga, keh...)",
+      "Pasal 28G ayat (1) UUD NRI Tahun 1945",
       "Pasal 32 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28F UUD NRI Tahun 1945",
       "Pasal 31 ayat (2) UUD NRI Tahun 1945",
@@ -15417,9 +15417,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0964",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak bebas dari penyiksaan dan hak memperoleh suaka politik dari negara lain' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak bebas dari penyiksaan dan hak memperoleh suaka politik dari negara lain' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 28G ayat (2) UUD NRI Tahun 1945 (Setiap orang berhak untuk bebas dari penyiksaan atau perlakuan ya...)",
+      "Pasal 28G ayat (2) UUD NRI Tahun 1945",
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
       "Pasal 31 ayat (4) UUD NRI Tahun 1945",
       "Pasal 33 ayat (1) UUD NRI Tahun 1945",
@@ -15433,13 +15433,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0965",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak hidup sejahtera lahir batin, lingkungan hidup yang baik dan sehat, serta pelayanan kesehatan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak hidup sejahtera lahir batin, lingkungan hidup yang baik dan sehat, serta pelayanan kesehatan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 33 ayat (2) UUD NRI Tahun 1945",
       "Pasal 32 ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (3) UUD NRI Tahun 1945",
       "Pasal 32 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28H ayat (1) UUD NRI Tahun 1945 (Setiap orang berhak hidup sejahtera lahir dan batin, bertempat ti...)"
+      "Pasal 28H ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak hidup sejahtera lahir batin, lingkungan hidup yang baik dan sehat, serta pelayanan kesehatan' adalah Pasal 28H ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Setiap orang berhak hidup sejahtera lahir dan batin, bertempat tinggal, dan mendapatkan lingkungan hidup yang baik dan sehat serta berhak memperoleh pelayanan kesehatan' (hlm. 175–181).",
@@ -15449,11 +15449,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0966",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak mendapat kemudahan dan perlakuan khusus (affirmative action) guna mencapai persamaan dan keadilan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak mendapat kemudahan dan perlakuan khusus (affirmative action) guna mencapai persamaan dan keadilan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28D ayat (2) UUD NRI Tahun 1945",
       "Pasal 29 ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28H ayat (2) UUD NRI Tahun 1945 (Setiap orang berhak mendapat kemudahan dan perlakuan khusus untuk...)",
+      "Pasal 28H ayat (2) UUD NRI Tahun 1945",
       "Pasal 34 ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (2) UUD NRI Tahun 1945"
     ],
@@ -15465,9 +15465,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0967",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak atas jaminan sosial untuk pengembangan diri secara utuh' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak atas jaminan sosial untuk pengembangan diri secara utuh' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 28H ayat (3) UUD NRI Tahun 1945 (Setiap orang berhak atas jaminan sosial yang memungkinkan pengemb...)",
+      "Pasal 28H ayat (3) UUD NRI Tahun 1945",
       "Pasal 31 ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28I ayat (3) UUD NRI Tahun 1945",
@@ -15481,11 +15481,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0968",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak milik pribadi yang tidak boleh diambil alih secara sewenang-wenang' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak milik pribadi yang tidak boleh diambil alih secara sewenang-wenang' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28B ayat (2) UUD NRI Tahun 1945",
       "Pasal 28D ayat (3) UUD NRI Tahun 1945",
-      "Pasal 28H ayat (4) UUD NRI Tahun 1945 (Setiap orang berhak mempunyai hak milik pribadi dan hak milik ter...)",
+      "Pasal 28H ayat (4) UUD NRI Tahun 1945",
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
       "Pasal 30 ayat (3) UUD NRI Tahun 1945"
     ],
@@ -15497,11 +15497,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0969",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Tujuh hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun (non-derogable rights)' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Tujuh hak asasi manusia yang tidak dapat dikurangi dalam keadaan apa pun (non-derogable rights)' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 27 ayat (3) UUD NRI Tahun 1945",
       "Pasal 28H ayat (4) UUD NRI Tahun 1945",
-      "Pasal 28I ayat (1) UUD NRI Tahun 1945 (Hak untuk hidup, hak untuk tidak disiksa, hak kemerdekaan pikiran...)",
+      "Pasal 28I ayat (1) UUD NRI Tahun 1945",
       "Pasal 28 UUD NRI Tahun 1945",
       "Pasal 28H ayat (2) UUD NRI Tahun 1945"
     ],
@@ -15513,11 +15513,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0970",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak bebas dari perlakuan diskriminatif atas dasar apa pun' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak bebas dari perlakuan diskriminatif atas dasar apa pun' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28 UUD NRI Tahun 1945",
       "Pasal 34 ayat (3) UUD NRI Tahun 1945",
-      "Pasal 28I ayat (2) UUD NRI Tahun 1945 (Setiap orang bebas dari perlakuan yang bersifat diskriminatif ata...)",
+      "Pasal 28I ayat (2) UUD NRI Tahun 1945",
       "Pasal 28I ayat (4) UUD NRI Tahun 1945",
       "Pasal 34 ayat (2) UUD NRI Tahun 1945"
     ],
@@ -15529,13 +15529,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0971",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penghormatan terhadap identitas budaya dan hak masyarakat tradisional' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penghormatan terhadap identitas budaya dan hak masyarakat tradisional' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28C ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (3) UUD NRI Tahun 1945",
       "Pasal 28J ayat (1) UUD NRI Tahun 1945",
       "Pasal 28E ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28I ayat (3) UUD NRI Tahun 1945 (Identitas budaya dan hak masyarakat tradisional dihormati selaras...)"
+      "Pasal 28I ayat (3) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Penghormatan terhadap identitas budaya dan hak masyarakat tradisional' adalah Pasal 28I ayat (3) UUD NRI Tahun 1945 yang berbunyi: 'Identitas budaya dan hak masyarakat tradisional dihormati selaras dengan perkembangan zaman dan peradaban' (hlm. 175–181).",
@@ -15545,10 +15545,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0972",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Tanggung jawab negara (terutama pemerintah) atas perlindungan, pemajuan, penegakan, dan pemenuhan HAM' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Tanggung jawab negara (terutama pemerintah) atas perlindungan, pemajuan, penegakan, dan pemenuhan HAM' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28H ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28I ayat (4) UUD NRI Tahun 1945 (Perlindungan, pemajuan, penegakan, dan pemenuhan hak asasi manusi...)",
+      "Pasal 28I ayat (4) UUD NRI Tahun 1945",
       "Pasal 26 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28I ayat (3) UUD NRI Tahun 1945",
       "Pasal 27 ayat (1) UUD NRI Tahun 1945"
@@ -15561,13 +15561,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0973",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban setiap orang menghormati HAM orang lain' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban setiap orang menghormati HAM orang lain' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 26 ayat (1) UUD NRI Tahun 1945",
       "Pasal 30 ayat (4) UUD NRI Tahun 1945",
       "Pasal 29 ayat (2) UUD NRI Tahun 1945",
       "Pasal 34 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28J ayat (1) UUD NRI Tahun 1945 (Setiap orang wajib menghormati hak asasi manusia orang lain dalam...)"
+      "Pasal 28J ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Kewajiban setiap orang menghormati HAM orang lain' adalah Pasal 28J ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Setiap orang wajib menghormati hak asasi manusia orang lain dalam tertib kehidupan bermasyarakat, berbangsa, dan bernegara' (hlm. 175–181).",
@@ -15577,11 +15577,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0974",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban tunduk kepada pembatasan yang ditetapkan dengan undang-undang dalam menjalankan hak dan kebebasan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban tunduk kepada pembatasan yang ditetapkan dengan undang-undang dalam menjalankan hak dan kebebasan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28G ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 28J ayat (2) UUD NRI Tahun 1945 (Dalam menjalankan hak dan kebebasannya, setiap orang wajib tunduk...)",
+      "Pasal 28J ayat (2) UUD NRI Tahun 1945",
       "Pasal 26 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28H ayat (3) UUD NRI Tahun 1945"
     ],
@@ -15593,9 +15593,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0975",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban warga negara terkait pajak dan pungutan lain yang bersifat memaksa' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban warga negara terkait pajak dan pungutan lain yang bersifat memaksa' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 23A UUD NRI Tahun 1945 (Pajak dan pungutan lain yang bersifat memaksa untuk keperluan neg...)",
+      "Pasal 23A UUD NRI Tahun 1945",
       "Pasal 28 UUD NRI Tahun 1945",
       "Pasal 28I ayat (4) UUD NRI Tahun 1945",
       "Pasal 31 ayat (4) UUD NRI Tahun 1945",
@@ -15609,11 +15609,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0976",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Ketentuan mengenai siapa yang menjadi warga negara Indonesia' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Ketentuan mengenai siapa yang menjadi warga negara Indonesia' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 31 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28D ayat (2) UUD NRI Tahun 1945",
-      "Pasal 26 ayat (1) UUD NRI Tahun 1945 (Yang menjadi warga negara ialah orang-orang bangsa Indonesia asli...)",
+      "Pasal 26 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (1) UUD NRI Tahun 1945",
       "Pasal 23A UUD NRI Tahun 1945"
     ],
@@ -15625,10 +15625,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0977",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Ketentuan mengenai pengertian penduduk di Indonesia' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Ketentuan mengenai pengertian penduduk di Indonesia' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 30 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 26 ayat (2) UUD NRI Tahun 1945 (Penduduk ialah warga negara Indonesia dan orang asing yang bertem...)",
+      "Pasal 26 ayat (2) UUD NRI Tahun 1945",
       "Pasal 31 ayat (4) UUD NRI Tahun 1945",
       "Pasal 28D ayat (4) UUD NRI Tahun 1945",
       "Pasal 34 ayat (2) UUD NRI Tahun 1945"
@@ -15641,10 +15641,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0978",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Persamaan kedudukan warga negara di dalam hukum dan pemerintahan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Persamaan kedudukan warga negara di dalam hukum dan pemerintahan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
-      "Pasal 27 ayat (1) UUD NRI Tahun 1945 (Segala warga negara bersamaan kedudukannya di dalam hukum dan pem...)",
+      "Pasal 27 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28I ayat (1) UUD NRI Tahun 1945",
       "Pasal 23A UUD NRI Tahun 1945",
       "Pasal 28F UUD NRI Tahun 1945"
@@ -15657,10 +15657,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0979",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak warga negara atas pekerjaan dan penghidupan yang layak bagi kemanusiaan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak warga negara atas pekerjaan dan penghidupan yang layak bagi kemanusiaan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 27 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 27 ayat (2) UUD NRI Tahun 1945 (Tiap-tiap warga negara berhak atas pekerjaan dan penghidupan yang...)",
+      "Pasal 27 ayat (2) UUD NRI Tahun 1945",
       "Pasal 34 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28D ayat (3) UUD NRI Tahun 1945",
       "Pasal 28C ayat (2) UUD NRI Tahun 1945"
@@ -15673,11 +15673,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0980",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak dan kewajiban setiap warga negara dalam upaya pembelaan negara (bela negara)' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak dan kewajiban setiap warga negara dalam upaya pembelaan negara (bela negara)' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28J ayat (1) UUD NRI Tahun 1945",
       "Pasal 33 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 27 ayat (3) UUD NRI Tahun 1945 (Setiap warga negara berhak dan wajib ikut serta dalam upaya pembe...)",
+      "Pasal 27 ayat (3) UUD NRI Tahun 1945",
       "Pasal 31 ayat (1) UUD NRI Tahun 1945",
       "Pasal 27 ayat (1) UUD NRI Tahun 1945"
     ],
@@ -15689,11 +15689,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0981",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kemerdekaan berserikat, berkumpul, dan mengeluarkan pikiran' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kemerdekaan berserikat, berkumpul, dan mengeluarkan pikiran' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28D ayat (4) UUD NRI Tahun 1945",
       "Pasal 30 ayat (2) UUD NRI Tahun 1945",
-      "Pasal 28 UUD NRI Tahun 1945 (Kemerdekaan berserikat dan berkumpul, mengeluarkan pikiran dengan...)",
+      "Pasal 28 UUD NRI Tahun 1945",
       "Pasal 28G ayat (1) UUD NRI Tahun 1945",
       "Pasal 28B ayat (1) UUD NRI Tahun 1945"
     ],
@@ -15705,11 +15705,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0982",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Dasar Ketuhanan Yang Maha Esa bagi negara' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Dasar Ketuhanan Yang Maha Esa bagi negara' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28F UUD NRI Tahun 1945",
       "Pasal 23A UUD NRI Tahun 1945",
-      "Pasal 29 ayat (1) UUD NRI Tahun 1945 (Negara berdasar atas Ketuhanan Yang Maha Esa...)",
+      "Pasal 29 ayat (1) UUD NRI Tahun 1945",
       "Pasal 33 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28G ayat (2) UUD NRI Tahun 1945"
     ],
@@ -15721,11 +15721,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0983",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Jaminan kemerdekaan tiap-tiap penduduk untuk memeluk agama dan beribadat' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Jaminan kemerdekaan tiap-tiap penduduk untuk memeluk agama dan beribadat' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28F UUD NRI Tahun 1945",
       "Pasal 28D ayat (4) UUD NRI Tahun 1945",
-      "Pasal 29 ayat (2) UUD NRI Tahun 1945 (Negara menjamin kemerdekaan tiap-tiap penduduk untuk memeluk agam...)",
+      "Pasal 29 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28I ayat (4) UUD NRI Tahun 1945",
       "Pasal 28D ayat (3) UUD NRI Tahun 1945"
     ],
@@ -15737,13 +15737,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0984",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak dan kewajiban warga negara dalam usaha pertahanan dan keamanan negara' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak dan kewajiban warga negara dalam usaha pertahanan dan keamanan negara' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 33 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28H ayat (3) UUD NRI Tahun 1945",
       "Pasal 32 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (2) UUD NRI Tahun 1945",
-      "Pasal 30 ayat (1) UUD NRI Tahun 1945 (Tiap-tiap warga negara berhak dan wajib ikut serta dalam usaha pe...)"
+      "Pasal 30 ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak dan kewajiban warga negara dalam usaha pertahanan dan keamanan negara' adalah Pasal 30 ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Tiap-tiap warga negara berhak dan wajib ikut serta dalam usaha pertahanan dan keamanan negara' (hlm. 175–181).",
@@ -15753,13 +15753,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0985",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pelaksanaan Sishankamrata oleh TNI-Polri sebagai kekuatan utama dan rakyat sebagai kekuatan pendukung' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pelaksanaan Sishankamrata oleh TNI-Polri sebagai kekuatan utama dan rakyat sebagai kekuatan pendukung' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 32 ayat (2) UUD NRI Tahun 1945",
       "Pasal 26 ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (3) UUD NRI Tahun 1945",
       "Pasal 34 ayat (3) UUD NRI Tahun 1945",
-      "Pasal 30 ayat (2) UUD NRI Tahun 1945 (Usaha pertahanan dan keamanan negara dilaksanakan melalui sistem ...)"
+      "Pasal 30 ayat (2) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Pelaksanaan Sishankamrata oleh TNI-Polri sebagai kekuatan utama dan rakyat sebagai kekuatan pendukung' adalah Pasal 30 ayat (2) UUD NRI Tahun 1945 yang berbunyi: 'Usaha pertahanan dan keamanan negara dilaksanakan melalui sistem pertahanan dan keamanan rakyat semesta oleh TNI dan Polri sebagai kekuatan utama, dan rakyat sebagai kekuatan pendukung' (hlm. 175–181).",
@@ -15769,11 +15769,11 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0986",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Susunan dan tugas Tentara Nasional Indonesia (TNI AD, AL, AU)' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Susunan dan tugas Tentara Nasional Indonesia (TNI AD, AL, AU)' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28I ayat (4) UUD NRI Tahun 1945",
       "Pasal 31 ayat (1) UUD NRI Tahun 1945",
-      "Pasal 30 ayat (3) UUD NRI Tahun 1945 (Tentara Nasional Indonesia terdiri atas Angkatan Darat, Angkatan ...)",
+      "Pasal 30 ayat (3) UUD NRI Tahun 1945",
       "Pasal 28 UUD NRI Tahun 1945",
       "Pasal 34 ayat (2) UUD NRI Tahun 1945"
     ],
@@ -15785,12 +15785,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0987",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kedudukan dan tugas Kepolisian Negara Republik Indonesia (Polri)' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kedudukan dan tugas Kepolisian Negara Republik Indonesia (Polri)' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28E ayat (3) UUD NRI Tahun 1945",
       "Pasal 28E ayat (2) UUD NRI Tahun 1945",
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
-      "Pasal 30 ayat (4) UUD NRI Tahun 1945 (Kepolisian Negara Republik Indonesia sebagai alat negara yang men...)",
+      "Pasal 30 ayat (4) UUD NRI Tahun 1945",
       "Pasal 28C ayat (2) UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
@@ -15801,13 +15801,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0988",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak setiap warga negara untuk mendapat pendidikan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Hak setiap warga negara untuk mendapat pendidikan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 26 ayat (2) UUD NRI Tahun 1945",
       "Pasal 34 ayat (2) UUD NRI Tahun 1945",
       "Pasal 33 ayat (3) UUD NRI Tahun 1945",
       "Pasal 28I ayat (3) UUD NRI Tahun 1945",
-      "Pasal 31 ayat (1) UUD NRI Tahun 1945 (Setiap warga negara berhak mendapat pendidikan...)"
+      "Pasal 31 ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Hak setiap warga negara untuk mendapat pendidikan' adalah Pasal 31 ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Setiap warga negara berhak mendapat pendidikan' (hlm. 175–181).",
@@ -15817,12 +15817,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0989",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban mengikuti pendidikan dasar dan kewajiban pemerintah membiayainya' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Kewajiban mengikuti pendidikan dasar dan kewajiban pemerintah membiayainya' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 27 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28I ayat (2) UUD NRI Tahun 1945",
       "Pasal 30 ayat (4) UUD NRI Tahun 1945",
-      "Pasal 31 ayat (2) UUD NRI Tahun 1945 (Setiap warga negara wajib mengikuti pendidikan dasar dan pemerint...)",
+      "Pasal 31 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28F UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
@@ -15833,13 +15833,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0990",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Prioritas anggaran pendidikan minimal 20% dari APBN dan APBD' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Prioritas anggaran pendidikan minimal 20% dari APBN dan APBD' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 32 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28G ayat (1) UUD NRI Tahun 1945",
       "Pasal 27 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28I ayat (2) UUD NRI Tahun 1945",
-      "Pasal 31 ayat (4) UUD NRI Tahun 1945 (Negara memprioritaskan anggaran pendidikan sekurang-kurangnya dua...)"
+      "Pasal 31 ayat (4) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Prioritas anggaran pendidikan minimal 20% dari APBN dan APBD' adalah Pasal 31 ayat (4) UUD NRI Tahun 1945 yang berbunyi: 'Negara memprioritaskan anggaran pendidikan sekurang-kurangnya dua puluh persen dari APBN serta dari APBD untuk memenuhi kebutuhan penyelenggaraan pendidikan nasional' (hlm. 175–181).",
@@ -15849,9 +15849,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0991",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pemajuan kebudayaan nasional Indonesia di tengah peradaban dunia' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pemajuan kebudayaan nasional Indonesia di tengah peradaban dunia' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 32 ayat (1) UUD NRI Tahun 1945 (Negara memajukan kebudayaan nasional Indonesia di tengah peradaba...)",
+      "Pasal 32 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28B ayat (2) UUD NRI Tahun 1945",
       "Pasal 28H ayat (3) UUD NRI Tahun 1945",
       "Pasal 33 ayat (3) UUD NRI Tahun 1945",
@@ -15865,13 +15865,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0992",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penghormatan dan pemeliharaan bahasa daerah sebagai kekayaan budaya nasional' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penghormatan dan pemeliharaan bahasa daerah sebagai kekayaan budaya nasional' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28C ayat (2) UUD NRI Tahun 1945",
       "Pasal 28J ayat (2) UUD NRI Tahun 1945",
       "Pasal 30 ayat (4) UUD NRI Tahun 1945",
       "Pasal 33 ayat (3) UUD NRI Tahun 1945",
-      "Pasal 32 ayat (2) UUD NRI Tahun 1945 (Negara menghormati dan memelihara bahasa daerah sebagai kekayaan ...)"
+      "Pasal 32 ayat (2) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Penghormatan dan pemeliharaan bahasa daerah sebagai kekayaan budaya nasional' adalah Pasal 32 ayat (2) UUD NRI Tahun 1945 yang berbunyi: 'Negara menghormati dan memelihara bahasa daerah sebagai kekayaan budaya nasional' (hlm. 175–181).",
@@ -15881,12 +15881,12 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0993",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penyusunan perekonomian sebagai usaha bersama berdasar atas asas kekeluargaan' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penyusunan perekonomian sebagai usaha bersama berdasar atas asas kekeluargaan' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 33 ayat (2) UUD NRI Tahun 1945",
       "Pasal 30 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (3) UUD NRI Tahun 1945",
-      "Pasal 33 ayat (1) UUD NRI Tahun 1945 (Perekonomian disusun sebagai usaha bersama berdasar atas asas kek...)",
+      "Pasal 33 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28D ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 3,
@@ -15897,10 +15897,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0994",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penguasaan negara atas cabang-cabang produksi yang penting dan menguasai hajat hidup orang banyak' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penguasaan negara atas cabang-cabang produksi yang penting dan menguasai hajat hidup orang banyak' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28H ayat (1) UUD NRI Tahun 1945",
-      "Pasal 33 ayat (2) UUD NRI Tahun 1945 (Cabang-cabang produksi yang penting bagi negara dan yang menguasa...)",
+      "Pasal 33 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28E ayat (3) UUD NRI Tahun 1945",
       "Pasal 28E ayat (2) UUD NRI Tahun 1945",
       "Pasal 27 ayat (3) UUD NRI Tahun 1945"
@@ -15913,10 +15913,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0995",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penguasaan bumi, air, dan kekayaan alam oleh negara untuk sebesar-besar kemakmuran rakyat' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penguasaan bumi, air, dan kekayaan alam oleh negara untuk sebesar-besar kemakmuran rakyat' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28 UUD NRI Tahun 1945",
-      "Pasal 33 ayat (3) UUD NRI Tahun 1945 (Bumi dan air dan kekayaan alam yang terkandung di dalamnya dikuas...)",
+      "Pasal 33 ayat (3) UUD NRI Tahun 1945",
       "Pasal 32 ayat (2) UUD NRI Tahun 1945",
       "Pasal 31 ayat (4) UUD NRI Tahun 1945",
       "Pasal 32 ayat (1) UUD NRI Tahun 1945"
@@ -15929,9 +15929,9 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0996",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penyelenggaraan perekonomian nasional berdasar atas demokrasi ekonomi beserta prinsip-prinsipnya' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Penyelenggaraan perekonomian nasional berdasar atas demokrasi ekonomi beserta prinsip-prinsipnya' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
-      "Pasal 33 ayat (4) UUD NRI Tahun 1945 (Perekonomian nasional diselenggarakan berdasar atas demokrasi eko...)",
+      "Pasal 33 ayat (4) UUD NRI Tahun 1945",
       "Pasal 31 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28J ayat (1) UUD NRI Tahun 1945",
       "Pasal 30 ayat (1) UUD NRI Tahun 1945",
@@ -15945,13 +15945,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0997",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pemeliharaan fakir miskin dan anak-anak terlantar oleh negara' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pemeliharaan fakir miskin dan anak-anak terlantar oleh negara' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 28J ayat (1) UUD NRI Tahun 1945",
       "Pasal 30 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28I ayat (1) UUD NRI Tahun 1945",
       "Pasal 31 ayat (4) UUD NRI Tahun 1945",
-      "Pasal 34 ayat (1) UUD NRI Tahun 1945 (Fakir miskin dan anak-anak yang terlantar dipelihara oleh negara...)"
+      "Pasal 34 ayat (1) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Pemeliharaan fakir miskin dan anak-anak terlantar oleh negara' adalah Pasal 34 ayat (1) UUD NRI Tahun 1945 yang berbunyi: 'Fakir miskin dan anak-anak yang terlantar dipelihara oleh negara' (hlm. 175–181).",
@@ -15961,10 +15961,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0998",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pengembangan sistem jaminan sosial dan pemberdayaan masyarakat lemah oleh negara' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Pengembangan sistem jaminan sosial dan pemberdayaan masyarakat lemah oleh negara' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 27 ayat (2) UUD NRI Tahun 1945",
-      "Pasal 34 ayat (2) UUD NRI Tahun 1945 (Negara mengembangkan sistem jaminan sosial bagi seluruh rakyat da...)",
+      "Pasal 34 ayat (2) UUD NRI Tahun 1945",
       "Pasal 23A UUD NRI Tahun 1945",
       "Pasal 27 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28A UUD NRI Tahun 1945"
@@ -15977,13 +15977,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "pip-0999",
     "type": "pip",
     "category": "UUD NRI 1945 & Konstitusi",
-    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Tanggung jawab negara atas penyediaan fasilitas pelayanan kesehatan dan fasilitas umum yang layak' di Indonesia. Apabila merujuk, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
+    "question": "Seorang warga negara mengajukan analisis konstitusional mengenai pelaksanaan 'Tanggung jawab negara atas penyediaan fasilitas pelayanan kesehatan dan fasilitas umum yang layak' di Indonesia. Apabila merujuk pada UUD NRI Tahun 1945, landasan konstitusional yang mengatur secara langsung hal tersebut sehingga wajib dijamin oleh negara adalah...",
     "options": [
       "Pasal 29 ayat (1) UUD NRI Tahun 1945",
       "Pasal 28H ayat (2) UUD NRI Tahun 1945",
       "Pasal 27 ayat (2) UUD NRI Tahun 1945",
       "Pasal 28G ayat (2) UUD NRI Tahun 1945",
-      "Pasal 34 ayat (3) UUD NRI Tahun 1945 (Negara bertanggung jawab atas penyediaan fasilitas pelayanan kese...)"
+      "Pasal 34 ayat (3) UUD NRI Tahun 1945"
     ],
     "correctIndex": 4,
     "explanation": "Landasan konstitusional untuk 'Tanggung jawab negara atas penyediaan fasilitas pelayanan kesehatan dan fasilitas umum yang layak' adalah Pasal 34 ayat (3) UUD NRI Tahun 1945 yang berbunyi: 'Negara bertanggung jawab atas penyediaan fasilitas pelayanan kesehatan dan fasilitas pelayanan umum yang layak' (hlm. 175–181).",
@@ -15995,11 +15995,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam sejarah pembentukan dasar negara dan konstitusi pada masa BPUPK, tokoh nasional R. Abikoesno Tjokrosoejoso (Anggota BPUPK nomor urut 1) dikenal melalui peran dan kiprahnya sebagai...",
     "options": [
-      "Tokoh ulama asal Majalengka yang menjadi anggota BPUPK",
-      "Anggota Panitia Sembilan dan tokoh pergerakan Islam (PSII)",
-      "Tokoh pers nasional yang menjadi anggota BPUPK dan berbicara pada 31 Mei 1945",
-      "Tokoh Paguyuban Pasundan, pembicara sidang 1 Juni 1945, anggota Panitia Delapan dan PPKI",
-      "Pembicara ke-7 pada sidang pertama BPUPK tanggal 29 Mei 1945"
+      "Tokoh ulama asal Majalengka yang menjadi anggota biasa pada sidang BPUPK",
+      "Anggota Panitia Sembilan dan tokoh pergerakan Sarekat Islam Indonesia",
+      "Tokoh pers nasional yang menjadi anggota BPUPK dan berpidato pada 31 Mei 1945",
+      "Tokoh Paguyuban Pasundan, pembicara sidang 1 Juni 1945, dan anggota PPKI",
+      "Pembicara urutan ketujuh pada persidangan pertama BPUPK tanggal 29 Mei 1945"
     ],
     "correctIndex": 1,
     "explanation": "R. Abikoesno Tjokrosoejoso (Anggota BPUPK nomor urut 1) memiliki peran historis sebagai: Anggota Panitia Sembilan dan tokoh pergerakan Islam (PSII) (Bab 1 hlm. 14–23).",
@@ -16219,11 +16219,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam sejarah pembentukan dasar negara dan konstitusi pada masa BPUPK, tokoh nasional Mr. Mohammad Yamin (Anggota BPUPK nomor urut 15) dikenal melalui peran dan kiprahnya sebagai...",
     "options": [
-      "Pembicara pertama sidang BPUPK 29 Mei 1945, anggota Panitia Delapan dan Panitia Sembilan, pemberi nama Piagam Jakarta",
-      "Tokoh cendekiawan medis yang diundang Sukarno dalam rapat 22 Juni 1945",
-      "Tokoh pers nasional yang menjadi anggota BPUPK dan berbicara pada 31 Mei 1945",
-      "Anggota BPUPK yang berbicara pada 31 Mei 1945 dan kemudian menjadi anggota PPKI",
-      "Anggota BPUPK keturunan Tionghoa yang duduk di kursi nomor 13"
+      "Pembicara pertama sidang 29 Mei 1945, anggota Panitia Delapan dan Sembilan, serta penama Piagam Jakarta",
+      "Tokoh cendekiawan medis anggota BPUPK yang turut diundang dalam rapat gabungan tanggal 22 Juni 1945",
+      "Tokoh pers pergerakan nasional anggota BPUPK yang menyampaikan pidato pada sidang tanggal 31 Mei 1945",
+      "Tokoh pergerakan Jawa Barat anggota BPUPK yang mengusulkan pemilihan Presiden-Wakil Presiden secara aklamasi",
+      "Anggota BPUPK perwakilan golongan peranakan yang aktif menyumbangkan gagasan hak warga negara dalam UUD"
     ],
     "correctIndex": 0,
     "explanation": "Mr. Mohammad Yamin (Anggota BPUPK nomor urut 15) memiliki peran historis sebagai: Pembicara pertama sidang BPUPK 29 Mei 1945, anggota Panitia Delapan dan Panitia Sembilan, pemberi nama Piagam Jakarta (Bab 1 hlm. 14–23).",
@@ -16285,7 +16285,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Tokoh pergerakan perempuan yang menjadi salah satu dari dua anggota perempuan BPUPK",
       "Tokoh pergerakan asal Jawa Timur yang menjadi pembicara ke-9 pada sidang BPUPK 29 Mei 1945",
-      "Tokoh koperasi/perbankan yang menjadi pembicara ke-2 pada sidang BPUPK 29 Mei 1945",
+      "Tokoh koperasi dan perbankan yang menjadi pembicara ke-2 pada sidang BPUPK 29 Mei 1945",
       "Tokoh ulama anggota BPUPK yang berbicara pada sidang 31 Mei 1945",
       "Bupati Banjarnegara yang menjadi pembicara ke-4 pada sidang BPUPK 29 Mei 1945"
     ],
@@ -16363,11 +16363,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam sejarah pembentukan dasar negara dan konstitusi pada masa BPUPK, tokoh nasional A.K. Moezakir (Anggota BPUPK nomor urut 24) dikenal melalui peran dan kiprahnya sebagai...",
     "options": [
-      "Tokoh cendekiawan medis yang diundang Sukarno dalam rapat 22 Juni 1945",
-      "Anggota BPUPK dari kalangan bangsawan Kesultanan Yogyakarta",
-      "Tokoh Paguyuban Pasundan, pembicara sidang 1 Juni 1945, anggota Panitia Delapan dan PPKI",
-      "Tokoh bangsawan Yogyakarta yang menjadi anggota BPUPK dan kemudian anggota PPKI",
-      "Tokoh Islam anggota BPUPK (berbicara 1 Juni 1945) dan anggota Panitia Sembilan"
+      "Tokoh cendekiawan medis anggota BPUPK yang diundang Sukarno dalam pertemuan gabungan 22 Juni 1945",
+      "Tokoh bangsawan Kesultanan Yogyakarta yang aktif dalam pembahasan rancangan batang tubuh UUD",
+      "Tokoh Paguyuban Pasundan, pembicara sidang 1 Juni 1945, anggota Panitia Delapan dan anggota PPKI",
+      "Tokoh pamong praja Jawa Tengah yang kemudian menjabat sebagai Wakil Ketua BPUPK dan anggota PPKI",
+      "Tokoh pergerakan Islam anggota BPUPK yang berpidato pada 1 Juni 1945 serta anggota Panitia Sembilan"
     ],
     "correctIndex": 4,
     "explanation": "A.K. Moezakir (Anggota BPUPK nomor urut 24) memiliki peran historis sebagai: Tokoh Islam anggota BPUPK (berbicara 1 Juni 1945) dan anggota Panitia Sembilan (Bab 1 hlm. 14–23).",
@@ -16619,11 +16619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sejarah & Filosofi Pancasila",
     "question": "Dalam sejarah pembentukan dasar negara dan konstitusi pada masa BPUPK, tokoh nasional Dr. Soekiman (Anggota BPUPK nomor urut 40) dikenal melalui peran dan kiprahnya sebagai...",
     "options": [
-      "Pakar ekonomi anggota BPUPK yang kemudian menjabat Menteri Keuangan pertama RI",
-      "Tokoh pergerakan Islam anggota BPUPK (berbicara 30 Mei 1945) yang menamai rancangan pembukaan UUD sebagai 'Gentlemen's Agreement'",
-      "Ahli hukum anggota BPUPK yang turut diundang dalam pertemuan 22 Juni 1945",
-      "Tokoh Nahdlatul Ulama, anggota BPUPK, anggota Panitia Delapan, anggota Panitia Sembilan, dan anggota PPKI",
-      "Tokoh koperasi/perbankan yang menjadi pembicara ke-2 pada sidang BPUPK 29 Mei 1945"
+      "Pakar ekonomi anggota BPUPK yang setelah kemerdekaan diangkat menjadi Menteri Keuangan pertama RI",
+      "Tokoh pergerakan Islam anggota BPUPK yang menyebut rancangan pembukaan UUD sebagai 'Gentlemen's Agreement'",
+      "Ahli hukum tata negara anggota BPUPK yang menyusun penjelasan pasal demi pasal rancangan UUD 1945",
+      "Tokoh Nahdlatul Ulama yang tergabung dalam BPUPK, Panitia Delapan, Panitia Sembilan, dan PPKI",
+      "Tokoh koperasi dan perbankan nasional yang tampil sebagai pembicara kedua pada sidang 29 Mei 1945"
     ],
     "correctIndex": 1,
     "explanation": "Dr. Soekiman (Anggota BPUPK nomor urut 40) memiliki peran historis sebagai: Tokoh pergerakan Islam anggota BPUPK (berbicara 30 Mei 1945) yang menamai rancangan pembukaan UUD sebagai 'Gentlemen's Agreement' (Bab 1 hlm. 14–23).",
@@ -16635,7 +16635,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sinonim & Antonim",
     "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: INKLUSIF",
     "options": [
-      "Terbuka dan merangkul semua kalangan",
+      "Terbuka",
       "Tertutup",
       "Sempit",
       "Sepihak",
@@ -16652,7 +16652,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: OTENTIK / AUTENTIK",
     "options": [
       "Tiruan",
-      "Asli, sah, dan dapat dipercaya kebenarannya",
+      "Tulen",
       "Rekayasa",
       "Fiktif",
       "Palsu"
@@ -16670,7 +16670,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Pemaksaan",
       "Penolakan",
       "Pertikaian",
-      "Kesepakatan atau permufakatan bersama",
+      "Permufakatan",
       "Perdebatan"
     ],
     "correctIndex": 3,
@@ -16686,7 +16686,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Tunggal",
       "Sejenis",
       "Homogen",
-      "Beraneka ragam atau terdiri atas berbagai unsur yang berbeda",
+      "Majemuk",
       "Seragam"
     ],
     "correctIndex": 3,
@@ -16702,7 +16702,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Permukaan",
       "Tambahan",
       "Pelengkap",
-      "Bersifat mendasar, pokok, atau hakiki",
+      "Hakiki",
       "Sementara"
     ],
     "correctIndex": 3,
@@ -16715,7 +16715,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sinonim & Antonim",
     "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: HARMONISASI",
     "options": [
-      "Penyelarasan atau penyerasian",
+      "Penyelarasan",
       "Penghapusan",
       "Pembatalan",
       "Pertentangan",
@@ -16731,7 +16731,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sinonim & Antonim",
     "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: RATIFIKASI",
     "options": [
-      "Pengesahan dokumen atau perjanjian negara/internasional",
+      "Pengesahan",
       "Penolakan",
       "Penundaan",
       "Perundingan",
@@ -16745,10 +16745,10 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "tiu-0008",
     "type": "tiu",
     "category": "Sinonim & Antonim",
-    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: KONvENSI",
+    "question": "Pilihlah SINONIM (kata yang memiliki arti sama/sepadan) dari kata: KONVENSI",
     "options": [
-      "Kesepakatan atau kebiasaan ketatanegaraan tidak tertulis",
-      "Gugatan",
+      "Kesepakatan adat",
+      "Gugatan hukum",
       "Pembangkangan",
       "Sanksi pidana",
       "Pelanggaran"
@@ -16766,7 +16766,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Beragam",
       "Majemuk",
       "Bhinneka",
-      "Homogen (seragam / sejenis)",
+      "Homogen",
       "Plural"
     ],
     "correctIndex": 3,
@@ -16783,7 +16783,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Bebas",
       "Mandiri",
       "Berdaulat",
-      "Terikat / Bergantung pada intervensi pihak lain"
+      "Dependen"
     ],
     "correctIndex": 4,
     "explanation": "Otonom berarti mandiri/independen (hlm. 76), sehingga lawan katanya adalah terikat atau bergantung pada pihak lain.",
@@ -16797,7 +16797,7 @@ const baseCatQuestions: CatQuestion[] = [
     "options": [
       "Maju",
       "Berkembang",
-      "Regresif / Kemunduran",
+      "Regresif",
       "Dinamis",
       "Inovatif"
     ],
@@ -16812,7 +16812,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: INKLUSIF",
     "options": [
       "Toleran",
-      "Eksklusif (tertutup / memisahkan diri dari yang lain)",
+      "Eksklusif",
       "Egaliter",
       "Terbuka",
       "Merangkul"
@@ -16827,7 +16827,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Sinonim & Antonim",
     "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: DESTRUKTIF",
     "options": [
-      "Konstruktif (membangun / memperbaiki)",
+      "Konstruktif",
       "Merugikan",
       "Menghancurkan",
       "Merusak",
@@ -16844,7 +16844,7 @@ const baseCatQuestions: CatQuestion[] = [
     "question": "Pilihlah ANTONIM (kata yang memiliki arti berlawanan) dari kata: SENTRALISME",
     "options": [
       "Monopoli",
-      "Desentralisme (pelimpahan wewenang ke daerah)",
+      "Desentralisme",
       "Absolutisme",
       "Pemusatan",
       "Otoritarian"
@@ -16862,7 +16862,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Kolaboratif",
       "Bahu-membahu",
       "Gotong royong",
-      "Individualistis / Enggan bekerja sama",
+      "Individualistis",
       "Tolong-menolong"
     ],
     "correctIndex": 3,
@@ -16875,14 +16875,14 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Analogi Kata",
     "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut: PANCASILA : GRUNDNORM = UUD NRI TAHUN 1945 :...",
     "options": [
-      "Konstitusi / Hukum Dasar Tertulis Tertinggi",
+      "Staatsgrundgesetz",
       "Peraturan Daerah",
       "Traktat Bilateral",
       "Keputusan Menteri",
       "Hukum Adat"
     ],
     "correctIndex": 0,
-    "explanation": "Pancasila berkedudukan sebagai Grundnorm (norma dasar), sedangkan UUD NRI Tahun 1945 berkedudukan sebagai Konstitusi (hukum dasar tertulis tertinggi).",
+    "explanation": "Dalam teori jenjang norma Hans Nawiasky & tata hukum RI, Pancasila berkedudukan sebagai Grundnorm/Staatsfundamentalnorm, sedangkan Batang Tubuh UUD NRI Tahun 1945 berkedudukan sebagai aturan dasar negara atau Staatsgrundgesetz.",
     "status": "active"
   },
   {
@@ -17039,7 +17039,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Undang-Undang",
       "Adat Istiadat",
       "Peraturan Daerah",
-      "Kitab Suci / Wahyu Tuhan YME"
+      "Wahyu Tuhan"
     ],
     "correctIndex": 4,
     "explanation": "Norma kesusilaan bersumber dari hati nurani manusia, sedangkan norma agama bersumber dari kitab suci/ajaran Tuhan YME (Tabel 2.1 hlm. 70).",
@@ -17051,7 +17051,7 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Analogi Kata",
     "question": "Tentukan padanan hubungan kata (analogi) yang paling tepat untuk melengkapi pasangan berikut: BUNG HATTA : KOPERASI = KI HADJAR DEWANTARA :...",
     "options": [
-      "Pendidikan Nasional (Taman Siswa)",
+      "Pendidikan Nasional",
       "Arsitektur Sipil",
       "Perbankan Pusat",
       "Diplomasi PBB",
@@ -17115,11 +17115,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Media sosial itu bermata dua; ia bisa menjadi alat untuk menebar kebaikan pada satu sisi, seperti penggalangan dana (crowdfunding) bagi warga yang sakit, namun dapat pula menjadi alat pengrusakan sosial pada sisi lain melalui penyebaran hoaks, ujaran kebencian, dan radikalisme.'. Simpulan utama dari kutipan bacaan di atas adalah...",
     "options": [
-      "Media sosial hanya memberikan dampak negatif bagi generasi muda",
-      "Seluruh informasi yang beredar di media sosial pasti merupakan berita bohong",
-      "Dampak media sosial sangat bergantung pada etika dan cara penggunanya dalam memanfaatkannya untuk kebaikan dan keadilan",
-      "Media sosial harus dilarang penggunaannya di seluruh wilayah Indonesia",
-      "Penggalangan dana melalui media sosial merupakan tindakan melanggar hukum"
+      "Media sosial hanya memberikan dampak buruk bagi pergaulan generasi muda",
+      "Seluruh informasi yang beredar di media sosial merupakan berita bohong",
+      "Dampak media sosial bergantung pada etika penggunanya dalam memanfaatkannya",
+      "Penggunaan media sosial harus dilarang di seluruh wilayah Indonesia",
+      "Penggalangan dana melalui media sosial termasuk perbuatan melanggar hukum"
     ],
     "correctIndex": 2,
     "explanation": "Kutipan pada halaman 48 menekankan bahwa media sosial bermata dua, sehingga kata kuncinya adalah menggunakannya secara bijak untuk menebar kebaikan dan keadilan.",
@@ -17131,11 +17131,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Berlaku adil dalam pemerolehan hak warga negara berorientasi pada kepantasan (equity), bukan semata kesamaan rata (equality). Ketika seorang kakak yang bersekolah di SMA dan adiknya yang masih di SD meminta uang saku, orang tua memberikan uang saku lebih besar kepada kakak dengan mempertimbangkan jarak sekolah, lamanya belajar, dan kebutuhan transportasi.'. Ide pokok dari paragraf tersebut adalah...",
     "options": [
-      "Keadilan hanya dapat tercapai apabila setiap orang menerima jumlah uang yang sama rata",
-      "Pelajar SD memiliki kebutuhan transportasi dan belajar yang lebih besar daripada pelajar SMA",
-      "Uang saku pelajar harus ditetapkan melalui peraturan daerah setempat",
-      "Orang tua bersikap pilih kasih apabila tidak memberikan uang saku yang sama persis",
-      "Keadilan berdasarkan Pancasila diwujudkan secara proporsional sesuai tingkat kebutuhan masing-masing individu (equity)"
+      "Keadilan hanya tercapai apabila setiap anak menerima nominal uang yang sama rata",
+      "Pelajar sekolah dasar membutuhkan biaya transportasi lebih besar daripada pelajar SMA",
+      "Besaran uang saku harian pelajar wajib diseragamkan melalui peraturan pemerintah daerah",
+      "Orang tua bertindak pilih kasih apabila membedakan uang saku berdasarkan jenjang sekolah",
+      "Keadilan diwujudkan secara proporsional sesuai tingkat kebutuhan masing-masing individu"
     ],
     "correctIndex": 4,
     "explanation": "Paragraf pada halaman 86 menjelaskan konsep keadilan proporsional (equity) berdasarkan tingkat kebutuhan individu.",
@@ -17147,11 +17147,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Dalam sistem perekonomian yang bersifat gotong royong berdasarkan Pasal 33 UUD NRI Tahun 1945, hak milik perorangan tetap diakui, tetapi penggunaannya dibatasi oleh kepentingan bersama. Dengan kata lain, hak milik perseorangan memiliki fungsi sosial.'. Pernyataan yang SESUAI dengan isi kutipan di atas adalah...",
     "options": [
-      "Negara Indonesia mengakui hak milik pribadi warga negara namun penggunaannya tidak boleh merugikan kepentingan umum karena berfungsi sosial",
-      "Pasal 33 UUD 1945 menganut sistem persaingan bebas (free fight liberalism)",
-      "Hak milik perseorangan berada di atas kepentingan bangsa dan negara",
-      "Pemilik modal bebas memonopoli sumber daya alam tanpa batas demi keuntungan pribadi",
-      "Sistem ekonomi Pancasila menghapuskan seluruh hak milik pribadi warga negara"
+      "Negara mengakui hak milik pribadi warga namun penggunaannya dibatasi fungsi sosial",
+      "Pasal 33 UUD NRI Tahun 1945 menganut sistem persaingan pasar bebas tanpa batas",
+      "Hak milik perseorangan berkedudukan mutlak di atas kepentingan bangsa dan negara",
+      "Pemilik modal bebas memonopoli sumber daya publik demi mengejar keuntungan pribadi",
+      "Sistem ekonomi gotong royong menghapus seluruh kepemilikan pribadi warga negara"
     ],
     "correctIndex": 0,
     "explanation": "Kutipan halaman 137 menegaskan bahwa dalam ekonomi Pancasila, hak milik perorangan tetap diakui namun memiliki fungsi sosial.",
@@ -17163,11 +17163,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Pada tahun 2018 ditemukan bangkai paus sperma di perairan Wakatobi. Di dalam perut paus tersebut ditemukan berbagai macam sampah plastik seberat 5,9 kg, meliputi 115 gelas plastik, 25 kantong plastik, 19 plastik keras, 4 botol plastik, 2 sandal jepit, dan tali rafia.'. Masalah utama yang disoroti melalui fakta dalam bacaan tersebut adalah...",
     "options": [
-      "Paus sperma di perairan Wakatobi gemar mengonsumsi sandal jepit dan tali rafia",
-      "Pencemaran laut hanya berdampak pada wilayah daratan pegunungan",
-      "Sampah plastik di lautan dapat terurai dengan sangat cepat secara alami",
-      "Pengingkaran kewajiban masyarakat yang membuang sampah plastik sembarangan telah mencemari laut dan mengancam ekosistem biota laut",
-      "Menjaga kebersihan sungai dan laut hanya menjadi kewajiban petugas kebersihan"
+      "Paus sperma di perairan Wakatobi secara alami menjadikan plastik sebagai sumber pakan",
+      "Pencemaran limbah plastik di perairan hanya berdampak pada kawasan daratan pegunungan",
+      "Sampah plastik keras dan tali rafia dapat terurai sempurna dengan cepat di air laut",
+      "Pembuangan sampah plastik sembarangan mencemari laut dan mengancam keselamatan biota laut",
+      "Kewajiban menjaga kebersihan perairan laut hanya dibebankan kepada petugas kebersihan"
     ],
     "correctIndex": 3,
     "explanation": "Fakta pada Gambar 4.4 (hlm. 169) menunjukkan dampak serius pengingkaran kewajiban terhadap lingkungan berupa pencemaran limbah plastik di laut.",
@@ -17182,7 +17182,7 @@ const baseCatQuestions: CatQuestion[] = [
       "Hanya pejabat tinggi negara yang berkewajiban menjaga keutuhan negara",
       "Kemajuan suatu negara semata-mata ditentukan oleh bantuan pinjaman luar negeri",
       "Negara hanya membutuhkan bangunan fisik gedung pemerintahan tanpa penduduk",
-      "Warga negara merupakan subjek/aktor utama penentu kemajuan dan keberlangsungan hidup suatu negara",
+      "Warga negara merupakan subjek serta aktor utama penentu kemajuan dan keberlangsungan hidup suatu negara",
       "Warga negara bersifat pasif dan tidak memiliki pengaruh terhadap kemajuan bangsa"
     ],
     "correctIndex": 3,
@@ -17195,11 +17195,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Pertahanan negara Indonesia bersifat semesta (Sishankamrata), yang melibatkan seluruh warga negara, wilayah, dan sumber daya nasional lainnya. Sistem ini dipersiapkan secara dini oleh pemerintah dan diselenggarakan secara total, terpadu, terarah, dan berlanjut.'. Kata 'semesta' dalam bacaan di atas mengandung arti bahwa...",
     "options": [
-      "Usaha pertahanan negara melibatkan seluruh komponen bangsa (TNI-Polri sebagai kekuatan utama dan seluruh rakyat serta sumber daya nasional sebagai pendukung)",
-      "Sistem pertahanan baru disiapkan setelah negara diserang oleh pihak asing",
-      "Pertahanan negara Indonesia mencakup seluruh planet di tata surya",
-      "Pertahanan negara diserahkan kepada pakta pertahanan militer asing",
-      "Hanya prajurit militer aktif yang boleh berpartisipasi dalam bela negara"
+      "Pertahanan negara melibatkan seluruh warga negara, wilayah, dan sumber daya nasional secara terpadu",
+      "Sistem pertahanan negara baru dipersiapkan secara mendadak setelah terjadi serangan militer asing",
+      "Penyelenggaraan pertahanan kedaulatan negara diserahkan sepenuhnya kepada pakta militer internasional",
+      "Kewajiban membela dan mempertahankan negara hanya diperuntukkan bagi prajurit militer profesional",
+      "Sumber daya nonmiliter dan masyarakat sipil dikecualikan dari sistem pertahanan nasional"
     ],
     "correctIndex": 0,
     "explanation": "Kata 'semesta' dalam Sishankamrata berarti melibatkan seluruh komponen bangsa, wilayah, dan sumber daya nasional (hlm. 193–194).",
@@ -17211,11 +17211,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Fiksi hukum adalah asas dalam hukum yang berpandangan bahwa semua orang dianggap sudah tahu hukum (presumptio iures de jure). Meskipun demikian, pemerintah tetap berkewajiban memberikan informasi adanya hukum atau peraturan tertentu kepada masyarakat melalui sosialisasi, diseminasi, atau penyuluhan hukum.'. Hubungan dua gagasan dalam kutipan di atas menunjukkan bahwa...",
     "options": [
-      "Asas fiksi hukum membebaskan aparat penegak hukum dari kewajiban edukasi masyarakat",
-      "Pemerintah tidak perlu mengumumkan undang-undang baru karena warga otomatis mengetahuinya",
-      "Warga negara bebas melanggar undang-undang apabila belum pernah mengikuti penyuluhan hukum",
-      "Hukum hanya berlaku bagi sarjana hukum yang telah membaca lembaran negara",
-      "Di satu sisi warga negara tidak bisa beralasan tidak tahu hukum saat melanggar, dan di sisi lain negara wajib aktif menyosialisasikan peraturan hukum kepada masyarakat"
+      "Berlakunya asas fiksi hukum membebaskan pemerintah dari seluruh kewajiban penyuluhan hukum kepada publik",
+      "Pemerintah tidak perlu menerbitkan maupun mengumumkan undang-undang baru karena warga otomatis memahaminya",
+      "Masyarakat bebas melanggar ketentuan undang-undang apabila belum pernah diundang dalam kegiatan sosialisasi",
+      "Ketentuan peraturan perundang-undangan hanya mengikat kalangan penegak hukum yang membaca lembaran negara",
+      "Warga tidak dapat berdalih tidak tahu hukum saat melanggar, sementara negara tetap wajib menyosialisasikannya"
     ],
     "correctIndex": 4,
     "explanation": "Kutipan halaman 80 menjelaskan keseimbangan antara asas fiksi hukum bagi warga dan kewajiban sosialisasi/penyuluhan hukum oleh pemerintah.",
@@ -17227,11 +17227,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Dalam rapat tanggal 22 Juni 1945 yang tidak dihadiri satu pun wakil pemerintah Jepang, R. Abikoesno Tjokrosoejoso dengan tegas mengemukakan bahwa kemerdekaan Indonesia harus dilahirkan oleh bangsa Indonesia sendiri sehingga bukan dianggap sebagai pemberian hadiah dari Jepang atau dari mana pun.'. Sikap tokoh bangsa dalam kutipan tersebut mencerminkan prinsip...",
     "options": [
-      "Keinginan untuk menunda kemerdekaan hingga perang dunia selesai",
-      "Kesediaan menjadi negara bagian di bawah kekaisaran Jepang",
-      "Kemandirian dan kedaulatan bangsa untuk menentukan nasibnya sendiri di atas kekuatan bangsa sendiri",
-      "Ketergantungan penuh pada janji kemerdekaan Perdana Menteri Koiso",
-      "Penolakan terhadap seluruh bentuk musyawarah antaranggota BPUPK"
+      "Keinginan menunda proklamasi kemerdekaan hingga perang Asia Timur Raya benar-benar usai",
+      "Kesediaan menjadi daerah persemakmuran otonom di bawah naungan kekaisaran militer Jepang",
+      "Kemandirian dan kedaulatan bangsa untuk melahirkan kemerdekaan di atas kekuatan sendiri",
+      "Ketergantungan penuh para pendiri bangsa terhadap realisasi janji Perdana Menteri Koiso",
+      "Penolakan tegas terhadap seluruh bentuk musyawarah antaranggota di dalam persidangan BPUPK"
     ],
     "correctIndex": 2,
     "explanation": "Pernyataan Abikoesno dalam rapat 22 Juni 1945 (hlm. 19) menegaskan prinsip kemandirian bahwa kemerdekaan Indonesia adalah hasil perjuangan bangsa sendiri, bukan hadiah Jepang.",
@@ -17259,11 +17259,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Pemahaman Bacaan",
     "question": "Bacalah kutipan berikut! 'Ketergantungan pada utang luar negeri bagi sebuah negara dapat menjadikan kebijakan ekonomi negara tersebut didikte oleh negara lain maupun kekuatan ekonomi asing. Apabila hal ini terjadi, kemakmuran yang berkeadilan semakin jauh untuk diwujudkan.'. Solusi mendasar berdasarkan prinsip ekonomi Pancasila untuk mencegah kondisi ketergantungan pada kutipan tersebut adalah...",
     "options": [
-      "Menutup seluruh sekolah dan universitas agar menghemat anggaran negara",
-      "Mewujudkan kemandirian ekonomi (berdikari), mengutamakan penggunaan produksi dalam negeri secara masif, dan memperkuat koperasi serta UMKM",
-      "Mencetak uang sebanyak-banyaknya tanpa batas setiap hari",
-      "Menyerahkan pengelolaan seluruh BUMN kepada perusahaan multinasional asing",
-      "Menghentikan seluruh kegiatan perdagangan ekspor ke luar negeri"
+      "Mengurangi anggaran pendidikan nasional secara drastis guna menutup seluruh pinjaman luar negeri",
+      "Mewujudkan kemandirian ekonomi, mengutamakan produk dalam negeri, serta memperkuat koperasi dan UMKM",
+      "Mencetak uang kertas sebanyak-banyaknya tanpa batas cadangan devisa untuk membiayai belanja negara",
+      "Menyerahkan pengelolaan seluruh badan usaha milik negara kepada korporasi multinasional asing",
+      "Menghentikan seluruh kerja sama perdagangan ekspor komoditas nasional ke pasar internasional"
     ],
     "correctIndex": 1,
     "explanation": "Pada halaman 140–141 dijelaskan bahwa solusi mencegah ketergantungan ekonomi asing adalah berdikari dalam perekonomian, mencintai produk dalam negeri, dan memperkuat koperasi/UMKM.",
@@ -17673,13 +17673,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "tiu-0066",
     "type": "tiu",
     "category": "Perbandingan Nilai",
-    "question": "Jika x = 3/5 dari 150 dan y = 45% dari 200, maka hubungan yang tepat antara x dan y adalah...",
+    "question": "Jika X = 3/5 dari 150 dan Y = 45% dari 200, maka hubungan yang tepat antara X dan Y adalah...",
     "options": [
-      "2x = y",
-      "x = 2y",
-      "x > y",
-      "x = y",
-      "x < y"
+      "2X = Y",
+      "X = 2Y",
+      "X > Y",
+      "X = Y",
+      "X < Y"
     ],
     "correctIndex": 3,
     "explanation": "x = (3/5) x 150 = 90. y = 0,45 x 200 = 90. Maka x = y.",
@@ -17769,16 +17769,16 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "tiu-0072",
     "type": "tiu",
     "category": "Perbandingan Nilai",
-    "question": "Pembangunan gedung perpustakaan sekolah direncanakan selesai dalam 40 hari oleh 18 pekerja. Setelah bekerja 10 hari, pekerjaan terhenti selama 6 hari karena cuaca. Agar gedung tetap selesai tepat waktu, berapa pekerja tambahan yang diperlukan?",
+    "question": "Pembangunan gedung perpustakaan sekolah direncanakan selesai dalam 40 hari oleh 20 pekerja. Setelah bekerja 10 hari, pekerjaan terhenti selama 6 hari karena cuaca buruk. Agar gedung tetap selesai tepat waktu sesuai rencana awal, berapa pekerja tambahan yang diperlukan?",
     "options": [
-      "8 pekerja",
-      "2 pekerja",
-      "4,5 -> minimal 5 pekerja (atau jika 16 pekerja awal selama 40 hari: 18 x 6 / 24 -> 5 pekerja)",
-      "10 pekerja",
-      "3 pekerja"
+      "3 pekerja",
+      "4 pekerja",
+      "5 pekerja",
+      "6 pekerja",
+      "8 pekerja"
     ],
     "correctIndex": 2,
-    "explanation": "Sisa hari kerja efektif = 40 - 10 - 6 = 24 hari. Beban tertunda = 18 x 6 = 108 orang-hari. Tambahan pekerja = 108 / 24 = 4,5 (dibulatkan 5 pekerja).",
+    "explanation": "Sisa beban pekerjaan setelah 10 hari = 30 hari × 20 pekerja = 600 hari-orang. Sisa waktu efektif setelah terhenti 6 hari = 40 − 10 − 6 = 24 hari. Pekerja yang dibutuhkan = 600 ÷ 24 = 25 pekerja. Jadi tambahan pekerja = 25 − 20 = 5 pekerja.",
     "status": "active"
   },
   {
@@ -17801,13 +17801,13 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "tiu-0074",
     "type": "tiu",
     "category": "Perbandingan Nilai",
-    "question": "Jika p = 12^2 - 8^2 dan q = 20 x 4, maka hubungan antara p dan q adalah...",
+    "question": "Jika P = 12² − 8² dan Q = 20 × 4, maka hubungan yang tepat antara P dan Q adalah...",
     "options": [
-      "p < q",
-      "p + q = 100",
-      "p = q",
-      "p = 2q",
-      "p > q"
+      "P < Q",
+      "P + Q = 100",
+      "P = Q",
+      "P = 2Q",
+      "P > Q"
     ],
     "correctIndex": 2,
     "explanation": "p = 144 - 64 = 80. q = 20 x 4 = 80. Maka p = q.",
@@ -18393,7 +18393,7 @@ const baseCatQuestions: CatQuestion[] = [
     "id": "tiu-0111",
     "type": "tiu",
     "category": "Deret Angka & Huruf",
-    "question": "Tentukan dua suku berikutnya dari deret larik ganda: 4, 10, 6, 13, 8, 16, 10,...,...",
+    "question": "Tentukan dua suku berikutnya dari deret larik ganda: 4, 10, 6, 13, 8, 16, 10, ..., ...",
     "options": [
       "17, 12",
       "18, 12",
@@ -18475,11 +18475,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Deret Angka & Huruf",
     "question": "Tentukan angka berikutnya dari deret: 240, 120, 60, 30, 15,...",
     "options": [
-      "5",
-      "7",
+      "6,5",
+      "7,0",
       "7,5",
-      "8",
-      "6"
+      "8,0",
+      "8,5"
     ],
     "correctIndex": 2,
     "explanation": "Pola dibagi 2 pada setiap langkah: 15 / 2 = 7,5.",
@@ -18619,11 +18619,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Silogisme",
     "question": "Premis 1: Jika masyarakat menerapkan prinsip saring sebelum sharing, maka penyebaran berita hoaks akan menurun. Premis 2: Jika penyebaran berita hoaks menurun, maka kerukunan warga akan terjaga. Kesimpulan yang sah dari kedua premis tersebut adalah...",
     "options": [
-      "Jika kerukunan warga terjaga, maka berita hoaks meningkat",
-      "Penyebaran berita hoaks tidak berkaitan dengan kerukunan warga",
-      "Masyarakat tidak perlu menyaring informasi di media sosial",
-      "Jika masyarakat menerapkan prinsip saring sebelum sharing, maka kerukunan warga akan terjaga",
-      "Semua informasi di media sosial adalah fakta"
+      "Jika kerukunan warga terjaga, maka penyebaran berita hoaks di masyarakat meningkat",
+      "Jika masyarakat tidak menyaring informasi, maka kerukunan warga pasti semakin terjaga",
+      "Penyebaran berita hoaks di media sosial sama sekali tidak memengaruhi kerukunan warga",
+      "Jika masyarakat menerapkan prinsip saring sebelum sharing, maka kerukunan warga terjaga",
+      "Kerukunan warga hanya dapat terjaga apabila seluruh media sosial ditutup pemerintah"
     ],
     "correctIndex": 3,
     "explanation": "Silogisme Hipotetis: Jika P maka Q; Jika Q maka R; maka Jika P maka R.",
@@ -18715,11 +18715,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Silogisme",
     "question": "Ingkaran (negasi) yang tepat dari pernyataan majemuk: 'Semua peserta seleksi hadir tepat waktu dan mengenakan seragam lengkap' adalah...",
     "options": [
-      "Semua peserta seleksi hadir tepat waktu tetapi tidak mengenakan seragam",
-      "Tidak ada peserta seleksi yang terlambat datang",
+      "Semua peserta seleksi hadir tepat waktu tetapi tidak mengenakan seragam lengkap",
+      "Tidak ada satu pun peserta seleksi yang terlambat datang ke lokasi kegiatan",
       "Semua peserta seleksi tidak hadir tepat waktu dan tidak mengenakan seragam lengkap",
-      "Ada peserta seleksi yang hadir tepat waktu dan berseragam lengkap",
-      "Ada (beberapa) peserta seleksi yang tidak hadir tepat waktu atau tidak mengenakan seragam lengkap"
+      "Ada peserta seleksi yang hadir tepat waktu sekaligus mengenakan seragam lengkap",
+      "Ada peserta seleksi yang tidak hadir tepat waktu atau tidak mengenakan seragam lengkap"
     ],
     "correctIndex": 4,
     "explanation": "Negasi dari 'Semua x (P dan Q)' menurut hukum De Morgan adalah 'Ada/Beberapa x (~P atau ~Q)'.",
@@ -18731,11 +18731,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Silogisme",
     "question": "Premis 1: Jika nilai PIP >= 70 dan nilai TIU >= 70, maka kandidat dinyatakan lulus ambang batas CAT. Premis 2: Kandidat A memperoleh nilai PIP = 84 dan nilai TIU = 68. Kesimpulan yang tepat adalah...",
     "options": [
-      "Ambang batas CAT hanya melihat nilai PIP saja",
-      "Kandidat A lulus karena rata-rata nilainya 76",
-      "Kandidat A lulus karena nilai PIP di atas 80",
-      "Kandidat A mendapat nilai sempurna",
-      "Kandidat A belum dinyatakan lulus ambang batas CAT karena nilai TIU di bawah 70"
+      "Kandidat A dinyatakan lulus ambang batas CAT karena rata-rata nilainya 76",
+      "Kandidat A dinyatakan lulus ambang batas CAT karena nilai PIP melampaui 80",
+      "Kelulusan ambang batas CAT hanya ditentukan oleh perolehan nilai sesi PIP",
+      "Kandidat A memperoleh nilai sempurna pada kedua sesi ujian seleksi CAT",
+      "Kandidat A belum lulus ambang batas CAT karena nilai TIU kurang dari 70"
     ],
     "correctIndex": 4,
     "explanation": "Karena syarat kelulusan menggunakan konjungsi 'DAN' (kedua sesi harus >= 70), maka nilai TIU 68 (< 70) menyebabkan syarat konjungsi belum terpenuhi.",
@@ -18763,11 +18763,11 @@ const baseCatQuestions: CatQuestion[] = [
     "category": "Silogisme",
     "question": "Premis 1: Apabila pembangunan infrastruktur dilakukan secara merata dari Sabang sampai Merauke, maka keadilan sosial semakin terwujud. Premis 2: Apabila keadilan sosial semakin terwujud, maka persatuan nasional semakin kokoh. Kesimpulan yang sah adalah...",
     "options": [
-      "Persatuan nasional tidak dipengaruhi oleh pemerataan pembangunan",
-      "Kemakmuran harus dicapai dengan mengorbankan keadilan",
-      "Keadilan sosial menghambat pembangunan infrastruktur daerah",
-      "Pembangunan infrastruktur hanya diperlukan di ibu kota negara",
-      "Apabila pembangunan infrastruktur dilakukan secara merata dari Sabang sampai Merauke, maka persatuan nasional semakin kokoh"
+      "Apabila persatuan nasional semakin kokoh, maka pembangunan infrastruktur daerah dihentikan sementara",
+      "Pemerataan pembangunan infrastruktur antardaerah tidak memiliki kaitan dengan persatuan nasional",
+      "Upaya mewujudkan keadilan sosial justru menghambat percepatan pembangunan infrastruktur nasional",
+      "Pembangunan infrastruktur strategis hanya perlu dipusatkan di wilayah ibu kota pemerintahan",
+      "Apabila pembangunan infrastruktur merata dari Sabang sampai Merauke, maka persatuan nasional semakin kokoh"
     ],
     "correctIndex": 4,
     "explanation": "Silogisme hipotetis berantai: P -> Q, Q -> R, maka P -> R.",
@@ -19030,5 +19030,4 @@ const baseCatQuestions: CatQuestion[] = [
     "status": "active"
   }
 ]
-
 export const standardCatQuestions: CatQuestion[] = [...baseCatQuestions, ...pipExpansionQuestions, ...expandedTiuQuestions, ...tiuWawasanQuestions, ...tiuRpulQuestions]

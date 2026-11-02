@@ -8018,11 +8018,38 @@ function StandardsView() {
 }
 
 function AppShell() {
-  const { isAuthenticated, toast, clearToast, currentUser, candidates } =
+  const { isAuthenticated, toast, clearToast, currentUser, candidates, showToast } =
     useApp()
-  const [view, setView] = useState<View>(
-    currentUser?.role === "candidate" ? "candidate-home" : "overview",
-  )
+
+  const hasCandidateActiveCatSession = () => {
+    if (currentUser?.role !== "candidate" || typeof window === "undefined") {
+      return false
+    }
+    try {
+      const key = `paska-cat-active-session-${currentUser.candidateId || "cand"}`
+      const raw = localStorage.getItem(key)
+      if (!raw) return false
+      const parsed = JSON.parse(raw)
+      if (
+        !parsed ||
+        !["pip", "pip-final", "tiu"].includes(parsed.sessionPhase)
+      ) {
+        return false
+      }
+      const ageHours =
+        (Date.now() - (parsed.updatedAt || 0)) / (1000 * 60 * 60)
+      return ageHours <= 24
+    } catch {
+      return false
+    }
+  }
+
+  const [view, setView] = useState<View>(() => {
+    if (currentUser?.role === "candidate") {
+      return hasCandidateActiveCatSession() ? "cat-bank" : "candidate-home"
+    }
+    return "overview"
+  })
   const [activeStage, setActiveStage] = useState(0)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showAddCandidate, setShowAddCandidate] = useState(false)
@@ -8032,9 +8059,15 @@ function AppShell() {
   const [showGoogleSync, setShowGoogleSync] = useState(false)
   const [showCandidateLogin, setShowCandidateLogin] = useState(false)
 
-  // Security Route Guard: Candidate restricted views
+  // Security Route Guard: Candidate restricted views + Kiosk CAT lock
   useEffect(() => {
     if (currentUser?.role === "candidate") {
+      if (hasCandidateActiveCatSession()) {
+        if (view !== "cat-bank") {
+          setView("cat-bank")
+        }
+        return
+      }
       const allowedViews: View[] = [
         "candidate-home",
         "candidate-stages",
@@ -8060,13 +8093,22 @@ function AppShell() {
     ) {
       setView("overview")
     }
-  }, [currentUser?.role, view])
+  }, [currentUser?.role, currentUser?.candidateId, view])
 
   if (!isAuthenticated) {
     return <LoginScreen />
   }
 
   const handleViewChange = (nextView: View) => {
+    if (currentUser?.role === "candidate" && hasCandidateActiveCatSession() && nextView !== "cat-bank") {
+      setSelectedCandidateId(null)
+      setView("cat-bank")
+      showToast(
+        "Mode Kiosk CAT aktif! Selesaikan hingga Sesi 2 (TIU) atau gunakan Token Admin.",
+        "warning",
+      )
+      return
+    }
     setSelectedCandidateId(null)
     setView(nextView)
   }
@@ -8235,7 +8277,7 @@ function AppShell() {
       />
 
       {toast ? (
-        <div className="fixed bottom-20 right-4 z-50 flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white shadow-2xl lg:bottom-6 lg:right-6">
+        <div className="fixed bottom-20 right-4 z-[150] flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white shadow-2xl lg:bottom-6 lg:right-6">
           <CheckCircle2 className="size-4 text-emerald-400" />
           <span>{toast.message}</span>
           <button

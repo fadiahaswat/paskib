@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Clock,
   Compass,
+  Copy,
   Download,
   Edit3,
   ExternalLink,
@@ -22,8 +23,10 @@ import {
   HelpCircle,
   History,
   Info,
+  KeyRound,
   Layers,
   Lock,
+  LogOut,
   Maximize2,
   Play,
   Plus,
@@ -37,6 +40,7 @@ import {
   Sparkles,
   Target,
   Trash2,
+  Unlock,
   Upload,
   UserCheck,
   UserRoundCheck,
@@ -53,11 +57,13 @@ import {
 } from "../../components/ui"
 import { useApp } from "../../context/AppContext"
 import { standardCatQuestions } from "../../data/catQuestions"
+import { CAT_KIOSK_EXIT_TOKEN_RECORD_KEY } from "../../domain/cloudSyncMerge"
 import type {
   Candidate,
   CatQuestion,
   CatTryoutAttempt,
 } from "../../domain/selection"
+import { pullStateFromGoogleSheet } from "../../lib/googleSheetSync"
 
 // ============================================================================
 // CATEGORY DEFINITIONS
@@ -117,6 +123,9 @@ export default function CatBankView() {
     updateQuestion,
     deleteQuestion,
     restoreStandardQuestions,
+    catExitToken,
+    updateCatExitToken,
+    googleSheetUrl,
     updateCandidate,
     updateCandidateStage,
     logAudit,
@@ -332,20 +341,64 @@ export default function CatBankView() {
   const [tryoutStartTime, setTryoutStartTime] = useState<string>("")
   const [, refreshScheduleClock] = useState(0)
 
-  // EXAM BROWSER LOCKDOWN & INTEGRITY TRACKER
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  // EXAM BROWSER LOCKDOWN, CONTINUOUS KIOSK & ADMIN EXIT TOKEN
+  const [isFullscreen, setIsFullscreen] = useState(() => {
+    if (typeof document === "undefined") return false
+    return Boolean(
+      document.fullscreenElement || (document as any).webkitFullscreenElement,
+    )
+  })
   const [violationCount, setViolationCount] = useState(0)
   const [showViolationModal, setShowViolationModal] = useState(false)
   const [violationReason, setViolationReason] = useState("")
+  const [showExitTokenModal, setShowExitTokenModal] = useState(false)
+  const [exitTokenPurpose, setExitTokenPurpose] = useState<
+    "exit" | "discard-pending" | "violation-lock"
+  >("exit")
+  const [exitTokenInput, setExitTokenInput] = useState("")
+  const [exitTokenError, setExitTokenError] = useState("")
+  const [isVerifyingExitToken, setIsVerifyingExitToken] = useState(false)
+  const [draftAdminToken, setDraftAdminToken] = useState(catExitToken)
+
+  useEffect(() => {
+    setDraftAdminToken(catExitToken)
+  }, [catExitToken])
+
+  const isKioskSessionActive =
+    sessionPhase === "pip" ||
+    sessionPhase === "pip-final" ||
+    sessionPhase === "tiu"
+
+  // Kandidat selalu terkunci penuh dalam Kiosk dari awal PIP hingga TIU selesai
+  const isKioskLocked =
+    isKioskSessionActive &&
+    (Boolean(packageConfig.examBrowserLock) || currentUser.role === "candidate")
+
+  const maxAllowedViolations = packageConfig.maxViolations || 3
+  const isViolationLocked =
+    isKioskLocked && violationCount >= maxAllowedViolations
+
+  const supportsFullscreenApi = useMemo(() => {
+    if (typeof document === "undefined") return false
+    const doc = document as any
+    const el = document.documentElement as any
+    return Boolean(
+      (document.fullscreenEnabled || doc.webkitFullscreenEnabled) &&
+        (el?.requestFullscreen || el?.webkitRequestFullscreen),
+    )
+  }, [])
 
   const enterFullscreen = useCallback(() => {
     try {
-      const el = document.documentElement
-      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
+      const el = document.documentElement as any
+      if (
+        !document.fullscreenElement &&
+        !(document as any).webkitFullscreenElement
+      ) {
         if (el.requestFullscreen) {
           el.requestFullscreen().catch(() => {})
-        } else if ((el as any).webkitRequestFullscreen) {
-          (el as any).webkitRequestFullscreen()
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen()
         }
       }
     } catch {}
@@ -353,15 +406,108 @@ export default function CatBankView() {
 
   const exitFullscreen = useCallback(() => {
     try {
-      if (document.fullscreenElement || (document as any).webkitFullscreenElement) {
+      if (
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement
+      ) {
         if (document.exitFullscreen) {
           document.exitFullscreen().catch(() => {})
         } else if ((document as any).webkitExitFullscreen) {
-          (document as any).webkitExitFullscreen()
+          ;(document as any).webkitExitFullscreen()
         }
       }
     } catch {}
   }, [])
+
+  // Keep fullscreen state synchronized even outside active listeners
+  useEffect(() => {
+    const syncFs = () => {
+      setIsFullscreen(
+        Boolean(
+          document.fullscreenElement ||
+            (document as any).webkitFullscreenElement,
+        ),
+      )
+    }
+    document.addEventListener("fullscreenchange", syncFs)
+    document.addEventListener("webkitfullscreenchange", syncFs)
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFs)
+      document.removeEventListener("webkitfullscreenchange", syncFs)
+    }
+  }, [])
+
+  // Screen Wake Lock + Pull-to-Refresh / Overscroll Lockdown while Kiosk is active
+  useEffect(() => {
+    if (!isKioskLocked) return
+    const prevBodyOverflow = document.body.style.overflow
+    const prevBodyOverscroll = document.body.style.overscrollBehavior
+    const prevHtmlOverscroll =
+      document.documentElement.style.overscrollBehavior
+
+    document.body.style.overflow = "hidden"
+    document.body.style.overscrollBehavior = "none"
+    document.documentElement.style.overscrollBehavior = "none"
+
+    let wakeLockSentinel: any = null
+    const requestWakeLock = async () => {
+      try {
+        if (
+          "wakeLock" in navigator &&
+          document.visibilityState === "visible"
+        ) {
+          wakeLockSentinel = await (navigator as any).wakeLock.request("screen")
+        }
+      } catch {}
+    }
+    void requestWakeLock()
+
+    const handleVisWake = () => {
+      if (document.visibilityState === "visible") {
+        void requestWakeLock()
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisWake)
+
+    return () => {
+      document.body.style.overflow = prevBodyOverflow
+      document.body.style.overscrollBehavior = prevBodyOverscroll
+      document.documentElement.style.overscrollBehavior = prevHtmlOverscroll
+      document.removeEventListener("visibilitychange", handleVisWake)
+      try {
+        wakeLockSentinel?.release?.()
+      } catch {}
+    }
+  }, [isKioskLocked])
+
+  const questionsLookup = useMemo(() => {
+    const map = new Map<string, CatQuestion>()
+    for (const q of questions) map.set(q.id, q)
+    return map
+  }, [questions])
+
+  const refreshSavedExamQuestions = useCallback(
+    (savedQuestions: CatQuestion[] | undefined): CatQuestion[] => {
+      if (!Array.isArray(savedQuestions)) return []
+      return savedQuestions.map((sq) => {
+        const fresh = questionsLookup.get(sq.id)
+        if (
+          fresh &&
+          fresh.correctIndex === sq.correctIndex &&
+          fresh.options.length === 5
+        ) {
+          return {
+            ...sq,
+            question: fresh.question,
+            options: fresh.options,
+            explanation: fresh.explanation,
+          }
+        }
+        return sq
+      })
+    },
+    [questionsLookup],
+  )
 
   // --------------------------------------------------------------------------
   // ACTIVE TRYOUT SESSION PERSISTENCE & BACK-BUTTON PROTECTION
@@ -422,6 +568,7 @@ export default function CatBankView() {
     sessionPhase,
     ACTIVE_SESSION_STORAGE_KEY,
     selectedCandidateId,
+    selectedCandidate,
     pipExamQuestions,
     tiuExamQuestions,
     pipCurrentIdx,
@@ -452,10 +599,16 @@ export default function CatBankView() {
         }
         if (sessionData.selectedCandidateId)
           setSelectedCandidateId(sessionData.selectedCandidateId)
-        if (sessionData.pipExamQuestions)
-          setPipExamQuestions(sessionData.pipExamQuestions)
-        if (sessionData.tiuExamQuestions)
-          setTiuExamQuestions(sessionData.tiuExamQuestions)
+        if (sessionData.pipExamQuestions) {
+          setPipExamQuestions(
+            refreshSavedExamQuestions(sessionData.pipExamQuestions),
+          )
+        }
+        if (sessionData.tiuExamQuestions) {
+          setTiuExamQuestions(
+            refreshSavedExamQuestions(sessionData.tiuExamQuestions),
+          )
+        }
         if (sessionData.pipAnswers) setPipAnswers(sessionData.pipAnswers)
         if (sessionData.tiuAnswers) setTiuAnswers(sessionData.tiuAnswers)
         if (sessionData.pipFlagged) setPipFlagged(sessionData.pipFlagged)
@@ -484,28 +637,186 @@ export default function CatBankView() {
             (sessionData.secondsLeft || 0) - elapsedSec,
           )
           setSecondsLeft(remSec)
-          setIsTimerRunning(remSec > 0)
+          const violationsCount =
+            typeof sessionData.violationCount === "number"
+              ? sessionData.violationCount
+              : 0
+          setIsTimerRunning(
+            remSec > 0 && violationsCount < maxAllowedViolations,
+          )
         }
 
         setSessionPhase(sessionData.sessionPhase)
         setHasPendingSession(false)
         showToast(
           sessionData.sessionPhase === "pip-final"
-            ? "Sesi PIP dipulihkan. Nilai Anda aman dan dapat ditinjau kembali."
-            : "Sesi Ujian CAT berhasil dipulihkan otomatis.",
+            ? "Sesi PIP selesai. Silakan lanjutkan Sesi 2 (TIU) untuk keluar dari Safe Exam Browser."
+            : "Sesi Safe Exam Browser CAT berhasil dipulihkan otomatis.",
           "info",
         )
       } catch {}
     },
-    [ACTIVE_SESSION_STORAGE_KEY, showToast],
+    [
+      ACTIVE_SESSION_STORAGE_KEY,
+      maxAllowedViolations,
+      refreshSavedExamQuestions,
+      showToast,
+    ],
   )
 
+  const openAdminTokenModal = useCallback(
+    (purpose: "exit" | "discard-pending" | "violation-lock" = "exit") => {
+      setExitTokenPurpose(purpose)
+      setExitTokenInput("")
+      setExitTokenError("")
+      setShowExitTokenModal(true)
+    },
+    [],
+  )
+
+  const verifyAdminTokenValue = useCallback(
+    async (inputRaw: string): Promise<boolean> => {
+      const cleaned = inputRaw.trim().toUpperCase()
+      if (!cleaned) return false
+      if (cleaned === catExitToken.trim().toUpperCase()) {
+        return true
+      }
+      // Jika tidak cocok secara lokal, tarik token terbaru dari Google Sheet secara real-time
+      if (googleSheetUrl && navigator.onLine) {
+        try {
+          const res = await pullStateFromGoogleSheet(googleSheetUrl)
+          const cloudToken =
+            res.ok &&
+            res.data?.records?.[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]?.metrics?.token
+              ?.trim()
+              .toUpperCase()
+          if (cloudToken && cleaned === cloudToken) {
+            return true
+          }
+        } catch {}
+      }
+      return false
+    },
+    [catExitToken, googleSheetUrl],
+  )
+
+  const executeAuthorizedKioskExit = useCallback(
+    (detailMessage: string) => {
+      setIsTimerRunning(false)
+      localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY)
+      setHasPendingSession(false)
+      setPendingSessionSummary("")
+      setViolationCount(0)
+      setShowViolationModal(false)
+      setShowPipResultModal(false)
+      setShowConfirmSubmitModal(false)
+      setShowExitTokenModal(false)
+      setExitTokenInput("")
+      setExitTokenError("")
+      exitFullscreen()
+      setSessionPhase("idle")
+      logAudit(
+        "KELUAR_DARURAT_KIOSK_CAT",
+        selectedCandidate?.name || currentUser.name,
+        detailMessage,
+      )
+      showToast(
+        "Keluar dari mode Safe Exam Browser dengan otorisasi Token Admin.",
+        "info",
+      )
+    },
+    [
+      ACTIVE_SESSION_STORAGE_KEY,
+      exitFullscreen,
+      logAudit,
+      selectedCandidate?.name,
+      currentUser.name,
+      showToast,
+    ],
+  )
+
+  const handleVerifyAdminTokenAction = useCallback(
+    async (mode: "exit" | "unlock-continue") => {
+      const cleaned = exitTokenInput.trim().toUpperCase()
+      if (!cleaned) {
+        setExitTokenError("Masukkan Token Admin terlebih dahulu.")
+        return
+      }
+      setIsVerifyingExitToken(true)
+      setExitTokenError("")
+      try {
+        const valid = await verifyAdminTokenValue(cleaned)
+        if (!valid) {
+          setExitTokenError(
+            "Token Admin tidak valid! Hubungi Pengawas / Pelatih.",
+          )
+          return
+        }
+        if (mode === "unlock-continue") {
+          isSubmittingViolationsRef.current = false
+          setViolationCount(0)
+          setShowViolationModal(false)
+          setShowExitTokenModal(false)
+          setExitTokenInput("")
+          setExitTokenError("")
+          if (
+            (sessionPhase === "pip" || sessionPhase === "tiu") &&
+            secondsLeft > 0
+          ) {
+            setIsTimerRunning(true)
+          }
+          enterFullscreen()
+          logAudit(
+            "BUKA_KUNCI_PELANGGARAN_KIOSK",
+            selectedCandidate?.name || currentUser.name,
+            `Pengawas membuka kunci pelanggaran Safe Exam Browser pada fase ${sessionPhase.toUpperCase()}`,
+          )
+          showToast(
+            "Kunci pelanggaran dibuka oleh Admin. Silakan lanjutkan ujian.",
+            "success",
+          )
+        } else {
+          executeAuthorizedKioskExit(
+            `Sesi ${sessionPhase.toUpperCase()} dihentikan menggunakan Token Admin`,
+          )
+        }
+      } finally {
+        setIsVerifyingExitToken(false)
+      }
+    },
+    [
+      exitTokenInput,
+      verifyAdminTokenValue,
+      sessionPhase,
+      secondsLeft,
+      enterFullscreen,
+      logAudit,
+      selectedCandidate?.name,
+      currentUser.name,
+      showToast,
+      executeAuthorizedKioskExit,
+    ],
+  )
+
+  const generateRandomAdminToken = useCallback(() => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    let code = "PK-"
+    for (let i = 0; i < 4; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)]
+    }
+    setDraftAdminToken(code)
+  }, [])
+
   const discardPendingSession = useCallback(() => {
+    if (currentUser.role === "candidate") {
+      openAdminTokenModal("discard-pending")
+      return
+    }
     localStorage.removeItem(ACTIVE_SESSION_STORAGE_KEY)
     setHasPendingSession(false)
     setPendingSessionSummary("")
-    showToast("Sesi tryout yang tertunda telah dibersihkan.", "neutral")
-  }, [ACTIVE_SESSION_STORAGE_KEY, showToast])
+    showToast("Sesi tryout yang tertunda telah dibersihkan.", "info")
+  }, [ACTIVE_SESSION_STORAGE_KEY, currentUser.role, openAdminTokenModal, showToast])
 
   // Check saved session on mount or candidate change
   useEffect(() => {
@@ -535,9 +846,12 @@ export default function CatBankView() {
         return
       }
 
-      // If on idle, auto-restore pip-final or prompt for active exam
+      // Untuk kandidat: otomatis pulihkan ke Kiosk tanpa bisa keluar sebelum TIU selesai!
       if (sessionPhase === "idle") {
-        if (saved.sessionPhase === "pip-final") {
+        if (
+          currentUser.role === "candidate" ||
+          saved.sessionPhase === "pip-final"
+        ) {
           restoreActiveSession(saved)
         } else {
           setHasPendingSession(true)
@@ -546,25 +860,28 @@ export default function CatBankView() {
               ? "Sesi 1 (PIP) sedang berlangsung"
               : saved.sessionPhase === "tiu"
                 ? "Sesi 2 (TIU) sedang berlangsung"
-                : "Sesi menunggu kelanjutan",
+                : "Sesi menunggu kelanjutan TIU",
           )
         }
       }
     } catch {}
-  }, [ACTIVE_SESSION_STORAGE_KEY, sessionPhase, restoreActiveSession])
+  }, [
+    ACTIVE_SESSION_STORAGE_KEY,
+    currentUser.role,
+    sessionPhase,
+    restoreActiveSession,
+  ])
 
-  // Prevent accidental Browser Back navigation during active tryout or PIP review
+  // Prevent Browser Back / Swipe-Back navigation across PIP -> PIP-FINAL -> TIU
   useEffect(() => {
     if (sessionPhase === "idle" || sessionPhase === "completed") return
 
-    // Push dummy history entry
     window.history.pushState({ catSessionActive: sessionPhase }, "")
 
     const handlePopState = () => {
-      // Re-push immediately so repeated back button clicks are trapped
       window.history.pushState({ catSessionActive: sessionPhase }, "")
       showToast(
-        "Sesi ujian/rekap sedang aktif. Gunakan tombol di dalam aplikasi, jangan tekan tombol Back pada browser.",
+        "Safe Exam Browser aktif! Selesaikan hingga Sesi 2 (TIU) selesai atau gunakan Token Admin.",
         "warning",
       )
     }
@@ -830,7 +1147,7 @@ export default function CatBankView() {
     setSessionPhase("pip")
     setViolationCount(0)
     setShowViolationModal(false)
-    if (packageConfig.examBrowserLock) {
+    if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
       enterFullscreen()
     }
     if (!effectiveIsCoachSelf && activeCatSchedule) {
@@ -862,7 +1179,10 @@ export default function CatBankView() {
     setShowConfirmSubmitModal(false)
     setShowViolationModal(false)
     setSessionPhase("pip-final")
-    exitFullscreen()
+    // JANGAN keluar dari fullscreen/kiosk! Kandidat tetap terkunci sampai TIU selesai.
+    if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
+      enterFullscreen()
+    }
 
     // Hitung dan simpan nilai PIP secara instan agar tidak hilang jika kandidat ke-back/refresh
     const pipCorrect = pipExamQuestions.filter(
@@ -951,10 +1271,10 @@ export default function CatBankView() {
     setIsTimerRunning(true)
     setSessionPhase("tiu")
     setShowViolationModal(false)
-    if (packageConfig.examBrowserLock) {
+    if (packageConfig.examBrowserLock || currentUser.role === "candidate") {
       enterFullscreen()
     }
-    showToast("Sesi 2: CAT TIU dimulai. Mode Exam Browser aktif.", "info")
+    showToast("Sesi 2: CAT TIU dimulai. Mode Safe Exam Browser tetap terkunci.", "info")
   }
 
   // --------------------------------------------------------------------------
@@ -1059,17 +1379,17 @@ export default function CatBankView() {
   const lastViolationTimeRef = useRef(0)
   const isSubmittingViolationsRef = useRef(false)
 
-  // Reset violation submission lock when exam is not in active session
+  // Reset violation submission lock when exam is completely idle or completed
   useEffect(() => {
-    if (sessionPhase !== "pip" && sessionPhase !== "tiu") {
+    if (!isKioskSessionActive) {
       isSubmittingViolationsRef.current = false
     }
-  }, [sessionPhase])
+  }, [isKioskSessionActive])
 
   const recordViolation = useCallback(
     (reason: string) => {
-      if (sessionPhase !== "pip" && sessionPhase !== "tiu") return
-      if (!packageConfig.examBrowserLock) return
+      if (!isKioskLocked) return
+      if (showExitTokenModal) return
       if (isSubmittingViolationsRef.current) return
 
       const nowTime = Date.now()
@@ -1087,19 +1407,16 @@ export default function CatBankView() {
         const maxViolations = packageConfig.maxViolations || 3
         if (nextCount >= maxViolations) {
           isSubmittingViolationsRef.current = true
+          setIsTimerRunning(false)
           showToast(
-            `Ujian dihentikan otomatis: batas ${maxViolations} kali pelanggaran tercapai.`,
+            `Layar ujian dikunci: batas ${maxViolations} pelanggaran terlampaui! Panggil Pengawas/Admin.`,
             "danger",
           )
           logAudit(
-            "Diskualifikasi Exam Browser",
+            "Kunci Pelanggaran Safe Exam Browser",
             selectedCandidate?.name || currentUser.name,
-            `Terdeteksi ${nextCount} kali pelanggaran integritas. Alasan: ${reason}`,
+            `Terdeteksi ${nextCount} kali pelanggaran integritas pada fase ${sessionPhase.toUpperCase()}. Alasan: ${reason}. Menunggu otorisasi Token Admin.`,
           )
-          setTimeout(() => {
-            if (sessionPhase === "pip") finalizePipSession()
-            else if (sessionPhase === "tiu") finalizeTiuSession()
-          }, 2000)
         } else {
           showToast(
             `Peringatan Pelanggaran (${nextCount}/${maxViolations}): ${reason}`,
@@ -1110,20 +1427,27 @@ export default function CatBankView() {
       })
     },
     [
-      sessionPhase,
-      packageConfig.examBrowserLock,
+      isKioskLocked,
+      showExitTokenModal,
       packageConfig.maxViolations,
       selectedCandidate?.name,
       currentUser.name,
+      sessionPhase,
       showToast,
       logAudit,
     ],
   )
 
-  // Anti-cheat event listeners for Fullscreen, Tab Switch, DevTools & Shortcuts
+  // Anti-cheat event listeners across PIP -> PIP-FINAL -> TIU
   useEffect(() => {
-    if (sessionPhase !== "pip" && sessionPhase !== "tiu") return
-    if (!packageConfig.examBrowserLock) return
+    if (!isKioskLocked) return
+
+    const isTokenInputTarget = (target: EventTarget | null) => {
+      return (
+        target instanceof HTMLElement &&
+        Boolean(target.closest('[data-kiosk-token-input="true"]'))
+      )
+    }
 
     // 1. Fullscreen departure detection
     const handleFullscreenChange = () => {
@@ -1132,7 +1456,7 @@ export default function CatBankView() {
           (document as any).webkitFullscreenElement,
       )
       setIsFullscreen(isFs)
-      if (!isFs) {
+      if (!isFs && !showExitTokenModal) {
         recordViolation("Meninggalkan mode Layar Penuh (Fullscreen)")
       }
     }
@@ -1144,54 +1468,78 @@ export default function CatBankView() {
       }
     }
 
-    // 3. Focus blur (Alt+Tab or clicking outside window)
+    // 3. Focus blur (Alt+Tab or switching mobile app)
     const handleWindowBlur = () => {
-      recordViolation("Fokus layar terputus (Alt+Tab atau beralih aplikasi)")
+      recordViolation("Fokus layar terputus (beralih aplikasi / jendela)")
     }
 
-    // 4. Disable context menu (Right-click)
+    // 4. Disable context menu (Right-click / Long-press menu)
     const handleContextMenu = (e: MouseEvent) => {
+      if (isTokenInputTarget(e.target)) return
       e.preventDefault()
     }
 
-    // 5. Disable copy, cut, paste
+    // 5. Disable copy, cut, paste & drag
     const handleClipboard = (e: ClipboardEvent) => {
+      if (isTokenInputTarget(e.target)) return
       e.preventDefault()
-      showToast("Fungsi salin/tempel dinonaktifkan selama ujian.", "warning")
+      showToast("Fungsi salin/tempel dinonaktifkan di Safe Exam Browser.", "warning")
     }
 
-    // 6. Keyboard Shortcuts lockdown (DevTools, Refresh, Print, Nav)
+    const handleDragStart = (e: DragEvent) => {
+      e.preventDefault()
+    }
+
+    // 6. Keyboard Shortcuts lockdown (DevTools, Refresh, Print, Nav, Fullscreen toggle)
     const handleKeyDown = (e: KeyboardEvent) => {
+      const ctrlOrMeta = e.ctrlKey || e.metaKey
+
       // F12 or DevTools inspect
       if (
         e.key === "F12" ||
-        (e.ctrlKey &&
+        (ctrlOrMeta &&
           e.shiftKey &&
           ["I", "i", "J", "j", "C", "c"].includes(e.key)) ||
-        (e.ctrlKey && (e.key === "u" || e.key === "U"))
+        (ctrlOrMeta && (e.key === "u" || e.key === "U"))
       ) {
         e.preventDefault()
         recordViolation("Membuka alat inspeksi pengembang (DevTools)")
         return
       }
 
-      // Reload shortcuts
-      if (e.key === "F5" || (e.ctrlKey && (e.key === "r" || e.key === "R"))) {
+      // F11 or Escape (attempting to exit fullscreen)
+      if (e.key === "F11" || (e.key === "Escape" && !showExitTokenModal)) {
+        e.preventDefault()
+        return
+      }
+
+      // Reload / Close / New Tab / Window / Find shortcuts
+      if (
+        e.key === "F5" ||
+        (ctrlOrMeta &&
+          ["r", "R", "w", "W", "t", "T", "n", "N", "f", "F", "g", "G"].includes(
+            e.key,
+          ))
+      ) {
         e.preventDefault()
         showToast(
-          "Muat ulang halaman dinonaktifkan selama ujian berlangsung.",
+          "Pintasan browser dinonaktifkan selama Safe Exam Browser aktif.",
           "warning",
         )
         return
       }
 
-      // Print or Save
-      if (e.ctrlKey && ["p", "P", "s", "S"].includes(e.key)) {
+      // Clipboard shortcuts outside token input
+      if (
+        ctrlOrMeta &&
+        ["c", "C", "v", "V", "x", "X", "p", "P", "s", "S"].includes(e.key) &&
+        !isTokenInputTarget(e.target)
+      ) {
         e.preventDefault()
         return
       }
 
-      // Browser navigation
+      // Browser history navigation
       if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
         e.preventDefault()
         return
@@ -1212,6 +1560,7 @@ export default function CatBankView() {
     window.addEventListener("copy", handleClipboard)
     window.addEventListener("cut", handleClipboard)
     window.addEventListener("paste", handleClipboard)
+    window.addEventListener("dragstart", handleDragStart)
     window.addEventListener("keydown", handleKeyDown)
     window.addEventListener("beforeunload", handleBeforeUnload)
 
@@ -1224,10 +1573,11 @@ export default function CatBankView() {
       window.removeEventListener("copy", handleClipboard)
       window.removeEventListener("cut", handleClipboard)
       window.removeEventListener("paste", handleClipboard)
+      window.removeEventListener("dragstart", handleDragStart)
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
-  }, [sessionPhase, packageConfig.examBrowserLock, recordViolation, showToast])
+  }, [isKioskLocked, showExitTokenModal, recordViolation, showToast])
   const currentPipResults = useMemo(() => {
     if (pipExamQuestions.length === 0)
       return { correct: 0, total: 50, score: 0, passed: false }
@@ -1678,10 +2028,38 @@ export default function CatBankView() {
               <span className="hidden sm:inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
                 Tryout Sekuensial (PIP 45m &rarr; TIU 30m)
               </span>
+              {isCoachOrAdmin && (
+                <div className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300/80 bg-amber-50 px-2.5 py-1 text-2xs font-bold text-amber-950">
+                  <KeyRound className="size-3.5 text-amber-700 shrink-0" />
+                  <span>Token Keluar Kiosk:</span>
+                  <code className="rounded bg-amber-200/70 px-1.5 py-0.5 font-mono text-xs font-black tracking-wider text-slate-950">
+                    {catExitToken}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard?.writeText(catExitToken).catch(() => {})
+                      showToast(`Token Admin "${catExitToken}" disalin.`, "info")
+                    }}
+                    className="rounded p-0.5 text-amber-800 hover:bg-amber-200/80 transition cursor-pointer"
+                    title="Salin Token Admin"
+                  >
+                    <Copy className="size-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("settings")}
+                    className="ml-0.5 underline decoration-amber-600/60 hover:text-amber-700 cursor-pointer"
+                    title="Ubah Token Admin"
+                  >
+                    Ubah
+                  </button>
+                </div>
+              )}
             </div>
             <p className="mt-1 text-xs sm:text-sm text-slate-500 leading-relaxed">
               {currentUser.role === "candidate"
-                ? "Kerjakan ujian Anda dengan tenang. Jawaban tersimpan otomatis dan hasil dapat dilihat setelah sesi selesai."
+                ? "Begitu ujian dimulai, perangkat otomatis terkunci dalam mode Safe Exam Browser hingga Sesi 1 (PIP) dan Sesi 2 (TIU) tuntas."
                 : "Pilih peserta, jalankan PIP lalu TIU, kemudian tinjau hasil dan riwayat percobaan."}
             </p>
           </div>
@@ -2201,15 +2579,59 @@ export default function CatBankView() {
             currentExamQuestion && (
               <div
                 className={
-                  packageConfig.examBrowserLock
-                    ? "fixed inset-0 z-50 flex flex-col bg-slate-900 select-none overflow-hidden"
+                  isKioskLocked
+                    ? "fixed inset-0 z-[100] flex flex-col bg-slate-900 select-none overflow-hidden"
                     : "grid gap-6"
                 }
               >
+                {/* MANDATORY FULLSCREEN GATE OVERLAY */}
+                {isKioskLocked &&
+                  supportsFullscreenApi &&
+                  !isFullscreen &&
+                  !showExitTokenModal &&
+                  !showViolationModal && (
+                    <div className="absolute inset-0 z-[115] flex items-center justify-center bg-slate-950/96 p-4 backdrop-blur-xl">
+                      <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-slate-900 p-6 sm:p-7 text-center text-white shadow-2xl">
+                        <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          <Lock className="size-7" />
+                        </div>
+                        <span className="mt-4 inline-block rounded-full bg-amber-500/15 px-3 py-0.5 text-2xs font-extrabold uppercase tracking-wider text-amber-300 border border-amber-500/30">
+                          Safe Exam Browser Aktif
+                        </span>
+                        <h3 className="mt-2 font-display text-lg sm:text-xl font-black text-white">
+                          Mode Layar Penuh Wajib Aktif
+                        </h3>
+                        <p className="mt-2 text-xs text-slate-300 leading-relaxed">
+                          Soal ujian disembunyikan sementara karena layar keluar dari mode penuh. Anda wajib menyelesaikan{" "}
+                          <strong className="text-white">Sesi 1 (PIP)</strong> hingga{" "}
+                          <strong className="text-white">Sesi 2 (TIU)</strong> sebelum dapat keluar dari Safe Exam Browser.
+                        </p>
+                        <div className="mt-6 grid gap-2.5">
+                          <button
+                            type="button"
+                            onClick={enterFullscreen}
+                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 py-3 px-4 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-red-600/30 transition cursor-pointer"
+                          >
+                            <Maximize2 className="size-4 shrink-0" />
+                            <span>Masuk Kembali ke Layar Penuh</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openAdminTokenModal("exit")}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-2xs sm:text-xs font-bold text-slate-300 transition cursor-pointer"
+                          >
+                            <KeyRound className="size-3.5 text-amber-400 shrink-0" />
+                            <span>Keluar Darurat (Wajib Token Admin)</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                 {/* EXAM TOP BAR (PRD Section 6.2 & Exam Browser Cockpit) */}
                 <div
                   className={
-                    packageConfig.examBrowserLock
+                    isKioskLocked
                       ? "shrink-0 flex items-center justify-between gap-2 bg-slate-950 px-3 py-2 sm:px-5 sm:py-2.5 text-white border-b border-slate-800 shadow-md select-none"
                       : "flex items-center justify-between gap-2 rounded-2xl bg-slate-900 p-3 sm:p-4 text-white shadow-lg"
                   }
@@ -2233,10 +2655,10 @@ export default function CatBankView() {
                         <span className="hidden md:inline text-slate-400 font-normal text-2xs truncate">
                           ({selectedCandidate?.number ?? "—"})
                         </span>
-                        {packageConfig.examBrowserLock && (
+                        {isKioskLocked && (
                           <span className="hidden sm:inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-bold text-emerald-400 border border-emerald-500/20 whitespace-nowrap shrink-0">
                             <Lock className="size-2.5" />
-                            Exam Browser
+                            Kiosk Terkunci
                           </span>
                         )}
                       </div>
@@ -2246,10 +2668,10 @@ export default function CatBankView() {
                     </div>
                   </div>
 
-                  {/* RIGHT: VIOLATION PILL, TIMER & ACTIONS */}
-                  <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                  {/* RIGHT: VIOLATION PILL, TIMER, TOKEN EXIT & SUBMIT */}
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     {/* VIOLATION COUNTER PILL */}
-                    {packageConfig.examBrowserLock && (
+                    {isKioskLocked && (
                       <div
                         className={`flex items-center gap-1 rounded-lg px-2 py-1 text-2xs font-bold border transition whitespace-nowrap shrink-0 ${
                           violationCount > 0
@@ -2263,21 +2685,21 @@ export default function CatBankView() {
                         />
                         <span>
                           <span className="hidden md:inline">Pelanggaran: </span>
-                          {violationCount}/{packageConfig.maxViolations || 3}
+                          {violationCount}/{maxAllowedViolations}
                         </span>
                       </div>
                     )}
 
-                    {/* FULLSCREEN RE-ENTRY BUTTON IF EXITED */}
-                    {packageConfig.examBrowserLock && !isFullscreen && (
+                    {/* EMERGENCY ADMIN TOKEN EXIT BUTTON */}
+                    {isKioskLocked && (
                       <button
                         type="button"
-                        onClick={enterFullscreen}
-                        className="flex items-center gap-1 rounded-lg bg-amber-500/20 px-2 py-1 text-2xs font-bold text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition cursor-pointer whitespace-nowrap shrink-0"
-                        title="Masuk kembali ke mode Layar Penuh"
+                        onClick={() => openAdminTokenModal("exit")}
+                        className="flex items-center gap-1 rounded-lg bg-slate-800/90 px-2 py-1 text-2xs font-bold text-amber-300 border border-amber-500/30 hover:bg-slate-800 transition cursor-pointer whitespace-nowrap shrink-0"
+                        title="Keluar Darurat dari Kiosk (Wajib Token Admin)"
                       >
-                        <Maximize2 className="size-3 shrink-0" />
-                        <span className="hidden sm:inline">Layar Penuh</span>
+                        <KeyRound className="size-3 shrink-0 text-amber-400" />
+                        <span className="hidden md:inline">Token Admin</span>
                       </button>
                     )}
 
@@ -2314,7 +2736,9 @@ export default function CatBankView() {
                       className="!px-2.5 !py-1 sm:!px-3 sm:!py-1 !text-2xs sm:!text-xs font-bold whitespace-nowrap shrink-0"
                     >
                       <span className="sm:hidden">Selesai</span>
-                      <span className="hidden sm:inline">Selesaikan Sesi</span>
+                      <span className="hidden sm:inline">
+                        {sessionPhase === "pip" ? "Selesai PIP" : "Selesai TIU"}
+                      </span>
                     </Button>
                   </div>
                 </div>
@@ -2322,14 +2746,14 @@ export default function CatBankView() {
                 {/* MAIN QUESTION WORKSPACE & 50-MATRIX */}
                 <div
                   className={
-                    packageConfig.examBrowserLock
+                    isKioskLocked
                       ? "flex-1 overflow-y-auto bg-slate-100 p-4 sm:p-6"
                       : ""
                   }
                 >
                   <div
                     className={
-                      packageConfig.examBrowserLock
+                      isKioskLocked
                         ? "mx-auto max-w-7xl grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]"
                         : "grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]"
                     }
@@ -2564,120 +2988,179 @@ export default function CatBankView() {
             </div>
           )}
 
-          {/* -------------------- 3. INTER-SESSION GATE: PIP FINALIZED -------------------- */}
+          {/* -------------------- 3. INTER-SESSION GATE: PIP FINALIZED (LOCKED INSIDE KIOSK UNTIL TIU COMPLETED) -------------------- */}
           {sessionPhase === "pip-final" && (
-            <Card className="overflow-hidden border-slate-200">
-              <div className="bg-slate-950 p-4 sm:p-5 text-white">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        tone={currentPipResults.passed ? "success" : "danger"}
-                        className="text-2xs font-extrabold uppercase px-2 py-0.5 whitespace-nowrap"
-                      >
-                        {currentPipResults.passed
-                          ? "LOLOS PASSING GRADE PIP (≥ 70)"
-                          : "BELUM MEMENUHI PASSING GRADE (< 70)"}
-                      </Badge>
-                      <span className="text-2xs text-slate-400">·</span>
-                      <span className="text-2xs text-slate-300 truncate">
-                        {selectedCandidate?.name ?? "Peserta"}
+            <div
+              className={
+                isKioskLocked
+                  ? "fixed inset-0 z-[100] flex flex-col bg-slate-950 text-white select-none overflow-hidden"
+                  : ""
+              }
+            >
+              {/* MANDATORY FULLSCREEN GATE DURING INTER-SESSION */}
+              {isKioskLocked &&
+                supportsFullscreenApi &&
+                !isFullscreen &&
+                !showExitTokenModal &&
+                !showViolationModal && (
+                  <div className="absolute inset-0 z-[115] flex items-center justify-center bg-slate-950/96 p-4 backdrop-blur-xl">
+                    <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-slate-900 p-6 sm:p-7 text-center text-white shadow-2xl">
+                      <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        <Lock className="size-7" />
+                      </div>
+                      <h3 className="mt-4 font-display text-lg font-black text-white">
+                        Kiosk Masih Terkunci — Sesi 2 (TIU) Belum Selesai
+                      </h3>
+                      <p className="mt-2 text-xs text-slate-300 leading-relaxed">
+                        Anda tidak dapat keluar dari Safe Exam Browser sebelum menuntaskan{" "}
+                        <strong className="text-white">Sesi 2: CAT TIU</strong>. Aktifkan kembali layar penuh untuk melanjutkan.
+                      </p>
+                      <div className="mt-6 grid gap-2.5">
+                        <button
+                          type="button"
+                          onClick={enterFullscreen}
+                          className="w-full flex items-center justify-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 py-3 px-4 text-xs sm:text-sm font-extrabold text-white shadow-lg transition cursor-pointer"
+                        >
+                          <Maximize2 className="size-4 shrink-0" />
+                          <span>Aktifkan Layar Penuh &amp; Lanjut TIU</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openAdminTokenModal("exit")}
+                          className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-2xs sm:text-xs font-bold text-slate-300 transition cursor-pointer"
+                        >
+                          <KeyRound className="size-3.5 text-amber-400 shrink-0" />
+                          <span>Keluar Darurat (Wajib Token Admin)</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              {/* KIOSK TOP BAR FOR INTER-SESSION */}
+              {isKioskLocked && (
+                <div className="shrink-0 flex items-center justify-between gap-2 bg-slate-950 px-3 py-2.5 sm:px-5 text-white border-b border-slate-800">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Badge tone="warning" className="text-2xs font-extrabold px-2 py-0.5 shrink-0">
+                      TRANSISI SESI 1 &rarr; SESI 2
+                    </Badge>
+                    <span className="text-xs sm:text-sm font-bold truncate">
+                      {selectedCandidate?.name ?? "Peserta"}
+                    </span>
+                    <span className="hidden sm:inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-3xs font-bold text-emerald-400 border border-emerald-500/20 shrink-0">
+                      <Lock className="size-2.5" />
+                      Safe Exam Browser Terkunci
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div
+                      className={`flex items-center gap-1 rounded-lg px-2 py-1 text-2xs font-bold border ${
+                        violationCount > 0
+                          ? "bg-red-500/20 text-red-300 border-red-500/40"
+                          : "bg-slate-800/90 text-slate-300 border-slate-700"
+                      }`}
+                    >
+                      <ShieldAlert className="size-3 shrink-0" />
+                      <span>
+                        {violationCount}/{maxAllowedViolations}
                       </span>
                     </div>
-                    <h2 className="mt-1.5 font-display text-lg sm:text-xl font-extrabold text-white">
-                      Hasil Sesi 1: CAT PIP Selesai
-                    </h2>
-                  </div>
-
-                  {/* COMPACT PIP SCORE PILL */}
-                  <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-center sm:text-right flex items-center gap-3">
-                    <div>
-                      <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">
-                        Skor PIP
-                      </p>
-                      <div className="flex items-baseline gap-1">
-                        <span className="font-display text-2xl sm:text-3xl font-black text-amber-400">
-                          {currentPipResults.score}
-                        </span>
-                        <span className="text-xs text-slate-400">/ 100</span>
-                      </div>
-                    </div>
-                    <div className="border-l border-white/10 pl-3 text-left">
-                      <p className="text-2xs font-bold text-white">
-                        {currentPipResults.correct} / 50 Benar
-                      </p>
-                      <p className="text-3xs text-slate-400">&times; 2 poin per butir</p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openAdminTokenModal("exit")}
+                      className="flex items-center gap-1 rounded-lg bg-slate-800/90 px-2.5 py-1 text-2xs font-bold text-amber-300 border border-amber-500/30 hover:bg-slate-800 transition cursor-pointer"
+                    >
+                      <KeyRound className="size-3 shrink-0 text-amber-400" />
+                      <span>Keluar Darurat (Token Admin)</span>
+                    </button>
                   </div>
                 </div>
+              )}
 
-                <div className="mt-3 rounded-lg bg-emerald-950/40 border border-emerald-800/40 p-2.5 text-xs text-emerald-200 flex items-center gap-2">
-                  <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
-                  <p className="text-2xs leading-tight">
-                    <strong className="text-emerald-300">Skor PIP tersimpan aman:</strong> Anda dapat langsung melanjutkan ke Sesi TIU atau menandai buku materi di bawah ini.
-                  </p>
-                </div>
+              <div
+                className={
+                  isKioskLocked
+                    ? "flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-6 bg-slate-900"
+                    : ""
+                }
+              >
+                <div className={isKioskLocked ? "w-full max-w-2xl" : "w-full"}>
+                  <Card className="overflow-hidden border-slate-700 bg-slate-950 text-white shadow-2xl">
+                    <div className="p-5 sm:p-7">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge
+                              tone={currentPipResults.passed ? "success" : "danger"}
+                              className="text-2xs font-extrabold uppercase px-2 py-0.5 whitespace-nowrap"
+                            >
+                              {currentPipResults.passed
+                                ? "LOLOS PASSING GRADE PIP (≥ 70)"
+                                : "BELUM MEMENUHI PASSING GRADE (< 70)"}
+                            </Badge>
+                            <span className="text-2xs text-slate-400">·</span>
+                            <span className="text-2xs text-slate-300 truncate">
+                              {selectedCandidate?.name ?? "Peserta"}
+                            </span>
+                          </div>
+                          <h2 className="mt-2 font-display text-xl sm:text-2xl font-extrabold text-white">
+                            Sesi 1 (CAT PIP) Selesai — Lanjutkan ke Sesi 2 (CAT TIU)
+                          </h2>
+                        </div>
 
-                <div className="mt-3.5 flex flex-wrap items-center gap-2">
-                  <Button
-                    onClick={startTiuSession}
-                    className="!px-4 !py-2 !text-xs font-bold bg-purple-600 hover:bg-purple-700 shadow-md cursor-pointer"
-                  >
-                    <Play className="size-3.5" /> Lanjut ke Sesi 2: CAT TIU (30 Menit)
-                  </Button>
-
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Nilai PIP Anda sudah tersimpan permanen di profil. Anda dapat kembali ke menu utama dan melanjutkan Sesi TIU kapan saja. Keluar ke menu utama sekarang?",
-                        )
-                      ) {
-                        setSessionPhase("idle")
-                        showToast(
-                          "Sesi disimpan. Anda dapat melanjutkan Sesi TIU kapan saja dari beranda Tryout.",
-                          "info",
-                        )
-                      }
-                    }}
-                    className="bg-white/10 text-white hover:bg-white/20 !text-xs !py-2 cursor-pointer"
-                  >
-                    Simpan &amp; Lanjutkan TIU Nanti
-                  </Button>
-                </div>
-              </div>
-
-              {/* REVIEW ACCORDION FOR PIP */}
-              <div className="p-4 sm:p-5 divide-y divide-slate-100 max-h-80 overflow-y-auto">
-                <h4 className="pb-3 text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Ringkasan Jawaban Butir Soal Sesi 1 (PIP)
-                </h4>
-                {pipExamQuestions.map((q, idx) => {
-                  const userAns = pipAnswers[q.id]
-                  const isCorrect = userAns === q.correctIndex
-                  return (
-                    <div key={q.id} className="py-3 text-xs">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-800">
-                          Nomor {idx + 1} · {q.category}
-                        </span>
-                        <Badge tone={isCorrect ? "success" : "danger"}>
-                          {isCorrect ? "Benar (+2)" : "Salah / Kosong (0)"}
-                        </Badge>
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 flex items-center gap-3">
+                          <div>
+                            <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">
+                              Skor PIP
+                            </p>
+                            <div className="flex items-baseline gap-1">
+                              <span className="font-display text-3xl font-black text-amber-400">
+                                {currentPipResults.score}
+                              </span>
+                              <span className="text-xs text-slate-400">/ 100</span>
+                            </div>
+                          </div>
+                          <div className="border-l border-white/10 pl-3 text-left">
+                            <p className="text-xs font-bold text-white">
+                              {currentPipResults.correct} / 50 Benar
+                            </p>
+                            <p className="text-3xs text-slate-400">&times; 2 poin per butir</p>
+                          </div>
+                        </div>
                       </div>
-                      <p className="mt-1 text-slate-700 font-medium">
-                        {q.question}
-                      </p>
-                      <p className="mt-1 text-2xs text-slate-500">
-                        Kunci: {["A", "B", "C", "D", "E"][q.correctIndex]}.{" "}
-                        {q.options[q.correctIndex]}
-                      </p>
+
+                      <div className="mt-5 rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 text-xs text-amber-200 flex items-start gap-2.5">
+                        <Lock className="size-4 shrink-0 text-amber-400 mt-0.5" />
+                        <p className="leading-relaxed">
+                          <strong className="text-amber-300">Protokol Kiosk Berkelanjutan:</strong>{" "}
+                          Nilai Sesi 1 (PIP) Anda telah tersimpan aman. Mode Safe Exam Browser tetap terkunci dan{" "}
+                          <strong>tidak dapat ditutup sebelum Sesi 2 (CAT TIU) diselesaikan</strong>. Pembahasan lengkap PIP &amp; TIU akan terbuka setelah kedua sesi tuntas.
+                        </p>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                        <Button
+                          onClick={startTiuSession}
+                          className="!px-6 !py-3 !text-xs sm:!text-sm font-extrabold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 cursor-pointer"
+                        >
+                          <Play className="size-4 fill-current" /> Mulai Sesi 2: CAT TIU Sekarang (30 Menit &middot; 50 Soal)
+                        </Button>
+
+                        {!isKioskLocked && (
+                          <Button
+                            variant="secondary"
+                            onClick={() => setSessionPhase("idle")}
+                            className="bg-white/10 text-white hover:bg-white/20 !text-xs !py-2.5 cursor-pointer"
+                          >
+                            Kembali ke Menu Pelatih
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  )
-                })}
+                  </Card>
+                </div>
               </div>
-            </Card>
+            </div>
           )}
 
           {/* -------------------- 4. TRYOUT COMPLETED SCREEN (COMBINED REPORT) -------------------- */}
@@ -4051,14 +4534,14 @@ export default function CatBankView() {
                 <div className="border-t border-slate-100 pt-3 space-y-3">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
                     <Lock className="size-3.5 text-slate-500" />
-                    <span>Exam Browser &amp; Anti-Kecurangan</span>
+                    <span>Safe Exam Browser (Kiosk) &amp; Token Admin</span>
                   </div>
 
                   <label className="flex items-center justify-between text-xs font-bold text-slate-700 cursor-pointer">
                     <div>
-                      <span>Kunci Layar Penuh (Exam Browser Mode)</span>
+                      <span>Kunci Kiosk Berkelanjutan (PIP &rarr; TIU)</span>
                       <p className="text-2xs font-normal text-slate-500">
-                        Isolasi layar ujian, sembunyikan navigasi luar &amp; cegah pindah tab
+                        Wajib aktif bagi kandidat: tidak dapat keluar sebelum Sesi 2 (TIU) selesai
                       </p>
                     </div>
                     <input
@@ -4078,7 +4561,7 @@ export default function CatBankView() {
                     <div>
                       <span>Toleransi Pelanggaran Maksimal</span>
                       <p className="text-2xs font-normal text-slate-500">
-                        Otomatis kumpulkan ujian jika keluar fullscreen / ganti tab
+                        Kunci layar ujian &amp; wajibkan Token Admin jika batas terlampaui
                       </p>
                     </div>
                     <input
@@ -4095,6 +4578,54 @@ export default function CatBankView() {
                       className="w-16 rounded-lg border border-slate-200 px-2 py-1 text-xs text-right font-bold"
                     />
                   </label>
+
+                  {isCoachOrAdmin && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-amber-950">
+                          <KeyRound className="size-3.5 text-amber-700" />
+                          <span>Token Keluar Darurat Admin</span>
+                        </div>
+                        <span className="rounded bg-amber-200/80 px-2 py-0.5 font-mono text-xs font-black tracking-wider text-slate-950">
+                          {catExitToken}
+                        </span>
+                      </div>
+                      <p className="text-2xs text-amber-900/85 leading-relaxed">
+                        Kandidat yang sedang ujian tidak bisa keluar dari Kiosk sebelum TIU selesai kecuali memasukkan token ini. Tersinkron otomatis ke semua perangkat lewat Google Sheet.
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="text"
+                          value={draftAdminToken}
+                          onChange={(e) =>
+                            setDraftAdminToken(
+                              e.target.value
+                                .toUpperCase()
+                                .replace(/[^A-Z0-9-]/g, ""),
+                            )
+                          }
+                          maxLength={16}
+                          placeholder="Contoh: PASKA27"
+                          className="h-9 flex-1 min-w-[8rem] rounded-lg border border-amber-300 bg-white px-2.5 font-mono text-xs font-bold tracking-wider text-slate-950 uppercase outline-none focus:border-amber-600"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={generateRandomAdminToken}
+                          className="!px-2.5 !py-1.5 !text-2xs"
+                        >
+                          <RefreshCw className="size-3" /> Acak
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => updateCatExitToken(draftAdminToken)}
+                          className="!px-3 !py-1.5 !text-2xs font-bold bg-slate-900 hover:bg-slate-800 text-white"
+                        >
+                          <Save className="size-3" /> Simpan Token
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -4120,7 +4651,7 @@ export default function CatBankView() {
       {/* MODAL: PIP IMMEDIATE RESULT SCORECARD */}
       {/* ===================================================================== */}
       {showPipResultModal && (
-        <div className="fixed inset-0 z-80 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-900 p-6 sm:p-7 text-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
@@ -4204,36 +4735,28 @@ export default function CatBankView() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 p-3.5 text-xs text-emerald-200 leading-relaxed">
-              <p className="font-bold flex items-center gap-1.5 text-emerald-300">
-                <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
-                Nilai PIP Sudah Tersimpan Permanen
+            <div className="mt-5 rounded-xl bg-amber-950/40 border border-amber-800/40 p-3.5 text-xs text-amber-200 leading-relaxed">
+              <p className="font-bold flex items-center gap-1.5 text-amber-300">
+                <Lock className="size-4 shrink-0 text-amber-400" />
+                Safe Exam Browser Tetap Terkunci Hingga TIU Selesai
               </p>
-              <p className="mt-0.5 text-2xs text-emerald-300/80">
-                Nilai ini telah tersimpan di profil Anda. Anda dapat melanjutkan
-                sekarang ke Sesi 2 (TIU) atau menandai pembahasan butir soal.
+              <p className="mt-0.5 text-2xs text-amber-200/85">
+                Nilai PIP telah tersimpan permanen. Silakan langsung melanjutkan ke{" "}
+                <strong>Sesi 2: CAT TIU (30 Menit)</strong> untuk menuntaskan rangkaian ujian.
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setShowPipResultModal(false)}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 text-xs font-bold transition cursor-pointer"
-              >
-                <BookOpenCheck className="size-4 shrink-0" />
-                <span>Tinjau Pembahasan Soal</span>
-              </button>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={() => {
                   setShowPipResultModal(false)
                   startTiuSession()
                 }}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg shadow-red-600/30 transition cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-purple-600/30 transition cursor-pointer"
               >
                 <Play className="size-4 shrink-0 fill-current" />
-                <span>Lanjut ke Sesi 2 (TIU)</span>
+                <span>Lanjut Sekarang ke Sesi 2 (CAT TIU)</span>
               </button>
             </div>
           </div>
@@ -4244,7 +4767,7 @@ export default function CatBankView() {
       {/* MODAL: TIU & FINAL TRYOUT RESULT SCORECARD */}
       {/* ===================================================================== */}
       {showTiuResultModal && (
-        <div className="fixed inset-0 z-80 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-900 p-6 sm:p-7 text-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
@@ -4367,11 +4890,10 @@ export default function CatBankView() {
             <div className="mt-5 rounded-xl bg-emerald-950/40 border border-emerald-800/40 p-3.5 text-xs text-emerald-200 leading-relaxed">
               <p className="font-bold flex items-center gap-1.5 text-emerald-300">
                 <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
-                Seluruh Nilai Tersimpan di Profil Siswa
+                Seluruh Nilai Tersimpan &amp; Mode Kiosk Dibuka
               </p>
               <p className="mt-0.5 text-2xs text-emerald-300/80">
-                Data tryout telah tersinkron ke daftar kandidat, grafik
-                perkembangan, dan riwayat seleksi.
+                Kedua sesi (PIP &amp; TIU) telah selesai. Data tryout tersinkron ke profil siswa dan Safe Exam Browser telah dinonaktifkan.
               </p>
             </div>
 
@@ -4390,11 +4912,11 @@ export default function CatBankView() {
       )}
 
       {/* ===================================================================== */}
-      {/* MODAL 0: EXAM BROWSER VIOLATION DIALOG */}
+      {/* MODAL 0: EXAM BROWSER VIOLATION DIALOG / LOCK GATE */}
       {/* ===================================================================== */}
-      {showViolationModal && (
-        <div className="fixed inset-0 z-80 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl border-2 border-red-500/40 bg-slate-900 p-6 text-white shadow-2xl">
+      {(showViolationModal || isViolationLocked) && !showExitTokenModal && (
+        <div className="fixed inset-0 z-[125] flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl border-2 border-red-500/50 bg-slate-900 p-6 text-white shadow-2xl">
             <div className="flex items-center gap-3">
               <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-red-500/20 text-red-400 border border-red-500/30">
                 <ShieldAlert className="size-6" />
@@ -4404,7 +4926,9 @@ export default function CatBankView() {
                   Protokol Integritas CAT
                 </span>
                 <h3 className="font-display text-base font-bold text-white mt-0.5">
-                  Peringatan Exam Browser!
+                  {violationCount >= maxAllowedViolations
+                    ? "Layar Ujian Dikunci Pengawas!"
+                    : "Peringatan Safe Exam Browser!"}
                 </h3>
               </div>
             </div>
@@ -4426,24 +4950,27 @@ export default function CatBankView() {
                 </span>
               </div>
               <span className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-black text-white">
-                {violationCount} / {packageConfig.maxViolations || 3}
+                {violationCount} / {maxAllowedViolations}
               </span>
             </div>
 
-            <p className="mt-4 text-xs text-slate-400 leading-relaxed">
-              {violationCount >= (packageConfig.maxViolations || 3) ? (
-                <span className="text-red-400 font-semibold">
-                  Batas toleransi pelanggaran telah habis! Sistem secara otomatis menyelesaikan dan merekam hasil ujian Anda sekarang...
+            <p className="mt-4 text-xs text-slate-300 leading-relaxed">
+              {violationCount >= maxAllowedViolations ? (
+                <span className="text-red-300 font-semibold">
+                  Batas maksimal pelanggaran telah tercapai. Ujian dijeda dan dikunci penuh dalam mode Kiosk. Silakan panggil{" "}
+                  <strong className="text-white">Pengawas / Admin</strong> untuk memasukkan{" "}
+                  <strong className="text-amber-300">Token Admin</strong>.
                 </span>
               ) : (
                 <span>
-                  Anda harus tetap berada dalam mode <strong>Layar Penuh</strong> dan tidak diperkenankan membuka tab lain, aplikasi lain, atau beralih jendela. Pelanggaran berulang akan mengakibatkan ujian dihentikan otomatis.
+                  Anda wajib tetap berada dalam mode <strong>Layar Penuh</strong> hingga{" "}
+                  <strong>Sesi 2 (TIU) selesai</strong> dan dilarang berpindah tab/aplikasi. Mencapai {maxAllowedViolations} pelanggaran akan mengunci layar ujian.
                 </span>
               )}
             </p>
 
-            <div className="mt-6 flex items-center justify-end">
-              {violationCount < (packageConfig.maxViolations || 3) ? (
+            <div className="mt-6 grid gap-2.5">
+              {violationCount < maxAllowedViolations ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -4456,10 +4983,14 @@ export default function CatBankView() {
                   <span>Kembali ke Ujian &amp; Layar Penuh</span>
                 </button>
               ) : (
-                <div className="flex items-center gap-2 text-xs font-bold text-red-400">
-                  <RefreshCw className="size-4 animate-spin" />
-                  <span>Memproses finalisasi otomatis...</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => openAdminTokenModal("violation-lock")}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-lg transition cursor-pointer"
+                >
+                  <KeyRound className="size-4 shrink-0" />
+                  <span>Otorisasi Pengawas (Masukkan Token Admin)</span>
+                </button>
               )}
             </div>
           </div>
@@ -4470,7 +5001,7 @@ export default function CatBankView() {
       {/* MODAL 1: SUBMIT CONFIRMATION (PRD Section 6.2) */}
       {/* ===================================================================== */}
       {showConfirmSubmitModal && (
-        <div className="fixed inset-0 z-70 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-center gap-3">
               <div className="grid size-10 place-items-center rounded-xl bg-amber-100 text-amber-700">
@@ -4482,8 +5013,9 @@ export default function CatBankView() {
                   {sessionPhase === "pip" ? "Sesi 1 (PIP)" : "Sesi 2 (TIU)"}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Periksa kembali rekapitulasi jawaban sebelum memfinalisasi
-                  sesi ini.
+                  {sessionPhase === "pip"
+                    ? "Setelah PIP dikumpulkan, Anda langsung melanjutkan ke Sesi 2 (TIU) di dalam Kiosk."
+                    : "Setelah TIU dikumpulkan, seluruh ujian selesai dan mode Kiosk akan dibuka."}
                 </p>
               </div>
             </div>
@@ -4538,8 +5070,140 @@ export default function CatBankView() {
                 }}
                 className="!text-xs font-bold"
               >
-                Ya, Selesaikan &amp; Finalisasi
+                {sessionPhase === "pip"
+                  ? "Selesaikan PIP & Lanjut TIU"
+                  : "Ya, Selesaikan Seluruh Ujian"}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL KHUSUS: VERIFIKASI TOKEN ADMIN KELUAR KIOSK / BUKA KUNCI */}
+      {/* ===================================================================== */}
+      {showExitTokenModal && (
+        <div
+          data-kiosk-token-input="true"
+          className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md animate-in fade-in duration-150"
+        >
+          <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-slate-900 p-6 sm:p-7 text-white shadow-2xl">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <KeyRound className="size-5" />
+                </div>
+                <div>
+                  <span className="text-3xs font-extrabold uppercase tracking-wider text-amber-400">
+                    Otorisasi Pengawas / Admin
+                  </span>
+                  <h3 className="font-display text-base sm:text-lg font-black text-white">
+                    {exitTokenPurpose === "violation-lock"
+                      ? "Buka Kunci Pelanggaran Kiosk"
+                      : "Keluar Darurat Safe Exam Browser"}
+                  </h3>
+                </div>
+              </div>
+              {!isViolationLocked && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowExitTokenModal(false)
+                    setExitTokenError("")
+                    if (isKioskLocked) enterFullscreen()
+                  }}
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+                >
+                  <X className="size-5" />
+                </button>
+              )}
+            </div>
+
+            <p className="mt-4 text-xs text-slate-300 leading-relaxed">
+              {exitTokenPurpose === "violation-lock"
+                ? "Layar kandidat terkunci karena melampaui batas pelanggaran. Masukkan Token Admin untuk membuka kunci ujian atau menghentikan sesi."
+                : "Peserta wajib menyelesaikan Sesi 1 (PIP) dan Sesi 2 (TIU) sebelum keluar. Untuk keluar lebih awal dari mode Kiosk, masukkan Token Admin resmi."}
+            </p>
+
+            <div className="mt-4">
+              <label className="block text-2xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                Token Pengawas / Admin
+              </label>
+              <input
+                type="password"
+                autoFocus
+                autoComplete="off"
+                value={exitTokenInput}
+                onChange={(e) => {
+                  setExitTokenInput(e.target.value.toUpperCase())
+                  if (exitTokenError) setExitTokenError("")
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    void handleVerifyAdminTokenAction(
+                      exitTokenPurpose === "violation-lock"
+                        ? "unlock-continue"
+                        : "exit",
+                    )
+                  }
+                }}
+                placeholder="Masukkan Token Admin..."
+                className="h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-center font-mono text-base font-black tracking-[0.25em] text-amber-300 placeholder:font-sans placeholder:text-xs placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-600 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+              />
+              {exitTokenError && (
+                <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-red-500/15 border border-red-500/30 px-3 py-2 text-xs font-bold text-red-300">
+                  <AlertCircle className="size-4 shrink-0 text-red-400" />
+                  <span>{exitTokenError}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-6 grid gap-2.5">
+              {exitTokenPurpose === "violation-lock" && (
+                <button
+                  type="button"
+                  disabled={isVerifyingExitToken}
+                  onClick={() =>
+                    void handleVerifyAdminTokenAction("unlock-continue")
+                  }
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 py-3 px-4 text-xs font-extrabold text-white shadow-lg transition cursor-pointer"
+                >
+                  <Unlock className="size-4 shrink-0" />
+                  <span>
+                    {isVerifyingExitToken
+                      ? "Memverifikasi..."
+                      : "Buka Kunci & Izinkan Lanjut Ujian"}
+                  </span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                disabled={isVerifyingExitToken}
+                onClick={() => void handleVerifyAdminTokenAction("exit")}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-50 py-2.5 px-4 text-xs font-extrabold text-white shadow-lg transition cursor-pointer"
+              >
+                <LogOut className="size-4 shrink-0" />
+                <span>
+                  {isVerifyingExitToken
+                    ? "Memverifikasi..."
+                    : "Hentikan Sesi & Keluar dari Kiosk"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={isVerifyingExitToken}
+                onClick={() => {
+                  setShowExitTokenModal(false)
+                  setExitTokenError("")
+                  if (isKioskLocked && !isViolationLocked) enterFullscreen()
+                }}
+                className="w-full rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 py-2.5 px-4 text-xs font-bold text-slate-300 transition cursor-pointer"
+              >
+                Batal &amp; Kembali ke Ujian
+              </button>
             </div>
           </div>
         </div>

@@ -31,6 +31,8 @@ import type {
 } from "../features/ishihara/types"
 import { fitnessScore } from "../data/selectionGuide"
 import {
+  CAT_KIOSK_EXIT_TOKEN_RECORD_KEY,
+  DEFAULT_CAT_EXIT_TOKEN,
   deduplicateCandidateNumbers,
   generateNextCandidateNumber,
   mergeCandidatesList,
@@ -79,7 +81,7 @@ type SyncStatus = "local" | "syncing" | "synced" | "error"
 
 // Percobaan demo bawaan versi lama pernah tersimpan ke localStorage.
 const legacyDemoCatAttemptIds = new Set(["att-001", "att-002", "att-003"])
-const standardQuestionSetVersion = `${initialQuestions.length}:${initialQuestions[initialQuestions.length - 1]?.id ?? "empty"}`
+const standardQuestionSetVersion = `${initialQuestions.length}:${initialQuestions[initialQuestions.length - 1]?.id ?? "empty"}:v2-audit-clean`
 
 type AppContextValue = {
   // Cycles
@@ -160,12 +162,14 @@ type AppContextValue = {
   deleteSchedule: (id: string) => void
   toggleCandidateSchedule: (scheduleId: string, candidateId: string) => boolean
 
-  // CAT Questions
+  // CAT Questions & Safe Exam Browser Token
   questions: CatQuestion[]
   addQuestion: (question: Omit<CatQuestion, "id">) => void
   updateQuestion: (id: string, patch: Partial<CatQuestion>) => void
   deleteQuestion: (id: string) => void
   restoreStandardQuestions: () => number
+  catExitToken: string
+  updateCatExitToken: (newToken: string) => void
 
   // Supporting Documents & Announcements
   supportingDocs: SupportingDoc[]
@@ -1025,6 +1029,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
         setAllCandidates(mergedCandidates)
       }
+
+      const storedRecords = loadStorage<Record<string, SessionRecord>>(
+        "paska-clean-records",
+        {},
+      )
+      const storedTokenRec = storedRecords[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]
+      const currentTokenRec = s.records[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]
+      if (
+        storedTokenRec &&
+        (!currentTokenRec ||
+          (storedTokenRec.savedAt || "") > (currentTokenRec.savedAt || ""))
+      ) {
+        const nextRecords = {
+          ...s.records,
+          [CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]: storedTokenRec,
+        }
+        stateRef.current = { ...stateRef.current, records: nextRecords }
+        setRecordsRaw(nextRecords)
+      }
     }
 
     const handleStorageEvent = (e: StorageEvent) => {
@@ -1032,6 +1055,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         !e.key ||
         e.key === "paska-clean-candidates" ||
         e.key === "paska-cat-tryout-attempts" ||
+        e.key === "paska-clean-records" ||
         e.key === DELETED_CANDIDATES_STORAGE_KEY ||
         e.key.startsWith("paska-cat-active-session-")
       ) {
@@ -3294,6 +3318,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return changed ? 1 : 0
   }, [saveToCloud])
 
+  const catExitToken = useMemo(() => {
+    const raw = records[CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]?.metrics?.token?.trim()
+    return raw && raw.length >= 4 ? raw.toUpperCase() : DEFAULT_CAT_EXIT_TOKEN
+  }, [records])
+
+  const updateCatExitToken = useCallback(
+    (newToken: string) => {
+      const cleaned = newToken
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9-]/g, "")
+      if (cleaned.length < 4) {
+        showToast("Token Admin minimal 4 karakter huruf/angka.", "warning")
+        return
+      }
+      const nowIso = new Date().toISOString()
+      const nextRecords: Record<string, SessionRecord> = {
+        ...stateRef.current.records,
+        [CAT_KIOSK_EXIT_TOKEN_RECORD_KEY]: {
+          metrics: { token: cleaned },
+          result: "pending",
+          discipline: "-",
+          focus: "-",
+          stamina: "-",
+          note: "CAT Kiosk Exit Token",
+          savedAt: nowIso,
+        },
+      }
+      setRecords(nextRecords)
+      try {
+        localStorage.setItem("paska-clean-records", JSON.stringify(nextRecords))
+      } catch {}
+      broadcastStateSync("updateCatExitToken")
+      logAudit(
+        "UPDATE_CAT_EXIT_TOKEN",
+        "Safe Exam Browser CAT",
+        "Memperbarui Token Admin keluar darurat Kiosk CAT",
+      )
+      showToast("Token Admin Kiosk CAT berhasil disimpan & disinkronkan.", "success")
+      void saveToCloud({ records: nextRecords }, true)
+    },
+    [setRecords, broadcastStateSync, logAudit, showToast, saveToCloud],
+  )
+
   // Supporting Docs CRUD
   const addSupportingDoc = useCallback(
     (doc: Omit<SupportingDoc, "id" | "updatedAt">) => {
@@ -4028,6 +4096,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateQuestion,
       deleteQuestion,
       restoreStandardQuestions,
+      catExitToken,
+      updateCatExitToken,
       supportingDocs,
       addSupportingDoc,
       updateSupportingDoc,
@@ -4120,6 +4190,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateQuestion,
       deleteQuestion,
       restoreStandardQuestions,
+      catExitToken,
+      updateCatExitToken,
       supportingDocs,
       addSupportingDoc,
       updateSupportingDoc,

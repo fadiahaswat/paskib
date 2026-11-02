@@ -18,6 +18,8 @@ import type {
 } from "./selection"
 
 const LEGACY_DEMO_ATTEMPT_IDS = new Set(["att-001", "att-002", "att-003"])
+export const CAT_KIOSK_EXIT_TOKEN_RECORD_KEY = "__sys_config__:cat_kiosk_exit_token"
+export const DEFAULT_CAT_EXIT_TOKEN = "PASKA27"
 
 function makeAvatarFromName(name: string): string {
   const parts = (name || "").trim().split(/\s+/).filter(Boolean)
